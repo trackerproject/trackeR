@@ -22,7 +22,7 @@
 #' plot(changeUnits(run, variable = "speed", unit = "km_per_h"))
 #' @export
 plot.trackeRdata <- function(x, session = NULL, what = c("speed", "heart.rate"),
-                             threshold = TRUE, smooth = TRUE, ...){
+                             threshold = TRUE, smooth = FALSE, dates = TRUE, ...){
     ## code inspired by autoplot.zoo
     if (is.null(session)) session <- seq_along(x)
     units <- getUnits(x)
@@ -57,7 +57,12 @@ plot.trackeRdata <- function(x, session = NULL, what = c("speed", "heart.rate"),
 
     ## get data
     df <- fortify(x, melt = TRUE)
-    df$SessionID <- factor(df$SessionID, levels = seq_along(session), labels = session)
+    if (dates) {
+        df$SessionID <- format(df$Index, "%d-%m-%Y")
+    }
+    else {
+        df$SessionID <- factor(df$SessionID, levels = seq_along(session), labels = session)
+    }
     df <- subset(df, Series %in% what)
     df$Series <- factor(df$Series)
 
@@ -87,13 +92,17 @@ plot.trackeRdata <- function(x, session = NULL, what = c("speed", "heart.rate"),
 
     ## basic plot (make geom flexible?)
     p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes(x = Index, y = Value)) + ggplot2::geom_line() +
-        ggplot2::ylab(if(singleVariable) lab("Series", levels(df$Series)) else "") + ggplot2::xlab("time")
+        ggplot2::ylab(if(singleVariable) lab("Series", levels(df$Series)) else "") + ggplot2::xlab("time") +
+        ggplot2::geom_smooth(method = "gam",
+                             formula = y ~ s(x, bs = "cs"),
+                             alpha = 0.5,
+                             se = FALSE)
     ## add facet if necessary
     if (!is.null(facets)){
         p <- p + ggplot2::facet_grid(facets, scales = "free", labeller = lab)
     }
     ## add bw theme
-    p <- p + ggplot2::theme_bw()
+    p <- p + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1))
 
     return(p)
 }
