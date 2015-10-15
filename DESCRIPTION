@@ -1,0 +1,13 @@
+Package: trackeR
+Version: 0.0.0.9000
+Date: 2015-10-15
+Title: Infrastructure for GPS tracker cycling and running data
+Authors@R: c(person(given = "Hannah", family = "Frick", role = c("aut", "cre"), email = "h.frick@ucl.ac.uk"),
+             person(given = "Ioannis", family = "Kosmidis", role = "aut", email = "i.kosmidis@ucl.ac.uk"))
+Description: Tools to import, visualise and analyse GPS tracker cycling and running data.
+Depends: zoo
+Imports: ggplot2
+Suggests: plyr, XML, RSQLite, parallel, doMC, ggmap, scam,
+    testthat
+License: GPL-2 | GPL-3
+LazyData: true
