@@ -59,7 +59,7 @@ plot.trackeRdata <- function(x, session = NULL, what = c("speed", "heart.rate"),
     ## get data
     df <- fortify(x, melt = TRUE)
     if (dates) {
-        df$SessionID <- format(df$Index, "%d-%m-%Y")
+        df$SessionID <- format(df$Index, "%Y-%m-%d")
     }
     else {
         df$SessionID <- factor(df$SessionID, levels = seq_along(session), labels = session)
