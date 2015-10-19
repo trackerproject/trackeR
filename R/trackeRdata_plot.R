@@ -7,6 +7,7 @@
 #' @param what Which variables should be plotted?
 #' @param threshold Logical. Should thresholds be applied?
 #' @param smooth Logical. Should the data be smoothed?
+#' @param dates Logical. Should the date of the session be used in the panel header?
 #' @param ... Further arguments to be passed to \code{\link{threshold.trackeRdata}} and
 #'     \code{\link{smootherControl.trackeRdata}}.
 #' @examples
