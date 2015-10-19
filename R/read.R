@@ -20,7 +20,7 @@
 #' @examples
 #' \dontrun{
 #' ## read raw data
-#' filepath <- system.file("extdata", "non-garmin-running_session.tcx", package = "trackeR")
+#' filepath <- system.file("extdata", "2013-06-04-174137.TCX", package = "trackeR")
 #' run <- readTCX(file = filepath, timezone = "GMT")
 #'
 #' ## turn into trackeRdata object
@@ -197,7 +197,7 @@ readDB3 <- function(file, timezone = "", table = "gps_data",
 #' @export
 #' @examples
 #' \dontrun{
-#' filepath <- system.file("extdata", "non-garmin-running_session.tcx", package = "trackeR")
+#' filepath <- system.file("extdata", "2013-06-04-174137.TCX", package = "trackeR")
 #' run <- readContainer(filepath, type = "tcx", timezone = "GMT")
 #' }
 readContainer <- function(file, type = c("tcx", "db3"),

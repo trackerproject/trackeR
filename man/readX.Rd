@@ -40,7 +40,7 @@ Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_pe
 \examples{
 \dontrun{
 ## read raw data
-filepath <- system.file("extdata", "non-garmin-running_session.tcx", package = "trackeR")
+filepath <- system.file("extdata", "2013-06-04-174137.TCX", package = "trackeR")
 run <- readTCX(file = filepath, timezone = "GMT")
 
 ## turn into trackeRdata object
