@@ -23,13 +23,13 @@ summary.trackeRdata <- function(object, session = NULL, ...){
     ## session times
     sessionStart <- as.POSIXct(sapply(object, function(x) min(index(x))), origin = "1970-01-01")
     sessionEnd <- as.POSIXct(sapply(object, function(x) max(index(x))), origin = "1970-01-01")
-    
+
     ## session length (unit set by difftime)
     duration <- difftime(sessionEnd, sessionStart)
     durUnit <- switch(units(duration), "secs" = "s", "mins" = "min", "hours" = "h",
                         "days" = "d") ## README: can be avoided if we use the same names...
     units <- rbind(units, c("duration", durUnit))
-                   
+
     ## distance
     distance <- sapply(object, function(x) zoo::coredata(x$distance)[nrow(x)])
 
@@ -63,7 +63,7 @@ summary.trackeRdata <- function(object, session = NULL, ...){
 
     ## work to rest ratio
     wrRatio <- as.numeric(durationMoving) / as.numeric(duration - durationMoving)
-    
+
     ## avg speed moving
     durMoving4speed <- conversionDur(as.numeric(durationMoving))
     avgSpeedMoving <- dist4speed / durMoving4speed
@@ -107,7 +107,7 @@ summary.trackeRdata <- function(object, session = NULL, ...){
     ## wtHRMoving <- sapply(object, weightedTotal, which = "heart.rate", durUnits = units(durationMoving),
     ##                      moving = TRUE)
     ## avgHeartRateMoving <- wtHRMoving / as.numeric(durationMoving)
-    
+
     ## average heart rate
     ## missing values in heart rate cannot implicitly be treated as 0,
     ## (as they are if sum(..., na.rm = TRUE) is divided by a duration which includes NA values in HR
@@ -119,12 +119,12 @@ summary.trackeRdata <- function(object, session = NULL, ...){
     wtHR <- sapply(object, weightedTotal, which = "heart.rate", durUnit = units(durationHR), moving = FALSE)
     avgHeartRate <- wtHR / as.numeric(durationHR)
     avgHeartRate <- ifelse(isTRUE(all.equal(avgHeartRate, 0)) | is.na(avgHeartRate), NA, avgHeartRate)
-    
+
 
     ## maxima in addition to averages?
     ## calories?
     ## splits per km?
-    
+
 
     ret <- data.frame(session = session, sessionStart = sessionStart, sessionEnd = sessionEnd,
                       duration = duration, distance = distance, avgSpeed = avgSpeed, avgPace = avgPace,
@@ -143,8 +143,9 @@ summary.trackeRdata <- function(object, session = NULL, ...){
 #' @param x An object of class \code{trackeRdataSummary}.
 #' @param ... Not used, for compatibility with generic summary method only.
 #' @param digits Number of digits to be printed.
+#' @export
 print.trackeRdataSummary <- function(x, ..., digits = 2){
-    units <- getUnits(x) 
+    units <- getUnits(x)
 
     for(i in seq_len(length(x$session))){
         cat("\n *** Session", x$session[i], "***\n")
@@ -156,7 +157,7 @@ print.trackeRdataSummary <- function(x, ..., digits = 2){
         cat("\n Distance:\n",
             round(x$distance[i], digits), units$unit[units$variable == "distance"], "\n")
 
-        ## averages over total 
+        ## averages over total
         cat("\n Duration:\n",
             round(as.numeric(x$duration[i]), digits), units(x$duration[i]), "\n")
 
@@ -173,7 +174,7 @@ print.trackeRdataSummary <- function(x, ..., digits = 2){
 
         cat("\n Average cadence:\n",
             round(x$avgCadence[i], digits = digits), units$unit[units$variable == "cadence"], "\n")
-        
+
         cat("\n Average power:\n",
             round(x$avgPower[i], digits = digits), units$unit[units$variable == "power"], "\n")
 
@@ -183,7 +184,7 @@ print.trackeRdataSummary <- function(x, ..., digits = 2){
 
         cat("\n Work to rest ratio:\n",
             round(x$wrRatio[i], digits), "\n")
-        
+
         cat("\n Average speed moving:\n",
             round(x$avgSpeedMoving[i], digits = digits), units$unit[units$variable == "speed"], "\n")
 
@@ -196,7 +197,7 @@ print.trackeRdataSummary <- function(x, ..., digits = 2){
 
         cat("\n Average cadence moving:\n",
             round(x$avgCadenceMoving[i], digits = digits), units$unit[units$variable == "cadence"], "\n")
-        
+
         cat("\n Average power moving:\n",
             round(x$avgPowerMoving[i], digits = digits), units$unit[units$variable == "power"], "\n")
 
@@ -226,13 +227,13 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...){
         dfTotal <- data.frame(basic[rep(ret$session, times = length(varsTotal)),],
                               variable = rep(varsTotal, each = nrow(ret)),
                               value = unlist(ret[, varsTotal]),
-                              type = "total") 
+                              type = "total")
         dfMoving <- data.frame(basic[rep(ret$session, times = length(varsMoving)),],
                             variable = rep(varsMoving, each = nrow(ret)),
                             value = unlist(ret[, paste0(varsMoving, "Moving")]),
                             type = "moving")
         ret <- rbind(dfTotal, dfMoving)
-    } 
+    }
     return(ret)
 }
 
@@ -260,7 +261,7 @@ plot.trackeRdataSummary <- function(x, xvar = c("date", "session"), what = NULL,
 
     xvar <- match.arg(tolower(xvar), c("date", "session"))
     date <- xvar == "date"
-    
+
     ## subsets on variables and type
     dat <- fortify(x, melt = TRUE)
     if (!is.null(what)){
@@ -269,11 +270,11 @@ plot.trackeRdataSummary <- function(x, xvar = c("date", "session"), what = NULL,
     if (!is.null(group)){
         dat <- subset(dat, type %in% group)
     }
-    
+
     ## remove empty factor levels
     dat$variable <- factor(dat$variable)
     #dat$type <- factor(dat$type)
-    
+
     ## clean up: if there are only NA observations for a variable, the (free) y-scale cannot be determined
     empty <- tapply(dat$value, dat$variable, function(x) all(is.na(x)))
     if (any(empty)) dat <- subset(dat, !(variable %in% names(empty)[empty]))
@@ -292,7 +293,7 @@ plot.trackeRdataSummary <- function(x, xvar = c("date", "session"), what = NULL,
         dat$xaxis <- dat$session
         xlab <- "Session"
     }
-    
+
     ## (basic) plot
     p <- ggplot2::ggplot(dat)
     if (date & ndates < nsessions) stop("All sessions must have unique starting times. Try date = FALSE instead.")
@@ -300,7 +301,7 @@ plot.trackeRdataSummary <- function(x, xvar = c("date", "session"), what = NULL,
             ggplot2::labs(x = xlab, y = "")
     if (nsessions > 1)
         p <- p + ggplot2::geom_line(ggplot2::aes(x = xaxis, y = value, color = type))
-    
+
     ## facets
     lab <- function(variable, value){
         if (variable == "variable"){
