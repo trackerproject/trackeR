@@ -53,10 +53,7 @@ trackeRdata <- function(dat, units = NULL, sessionThreshold = 2,
 
     ## Set units attribute
     if (is.null(units)) {
-        allnames <- generateVariableNames()$humanNames
-        units <- data.frame(variable = allnames[-which(allnames == "time")] ,
-                            unit = c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "w"),
-                            stringsAsFactors = FALSE)
+        units <- generateBaseUnits()
     }
     for (i in seq_len(ncol(units))) {
         if (is.factor(units[,i])) units[,i] <- as.character(units[,i])
