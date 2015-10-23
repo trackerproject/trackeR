@@ -58,8 +58,12 @@ plot.trackeRdata <- function(x, session = NULL, what = c("speed", "heart.rate"),
 
     ## get data
     df <- fortify(x, melt = TRUE)
+
+    ## prepare session id for panel header 
     if (dates) {
-        df$SessionID <- format(df$Index, "%Y-%m-%d")
+        df$SessionID <- format(session[df$SessionID])
+        df$SessionID <- gsub(" ", "0", df$SessionID)
+        df$SessionID <- paste(df$SessionID, format(df$Index, "%Y-%m-%d"), sep = ": ")
     }
     else {
         df$SessionID <- factor(df$SessionID, levels = seq_along(session), labels = session)
