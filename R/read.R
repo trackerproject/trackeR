@@ -208,7 +208,7 @@ readContainer <- function(file, type = c("tcx", "db3"),
                           mc.cores = getOption("mc.cores", 2L)){
     ## prepare args
     type <- match.arg(tolower(type), choices = c("tcx", "db3"))
-    if(is.null(fromDistances)){
+    if (is.null(fromDistances)){
         fromDistances <- if (type == "db3") FALSE else TRUE
     }
     ## read gps data
@@ -426,6 +426,7 @@ readTCX2 <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = 
 ## CYCLING applied to all files!
 ## directory should end with "/"?
 readDirectory <- function(directory,
+                          aggregate = TRUE, ## aggregate data from all files or keep data from different files in different sessions?
                           table = "gps_data",
                           timezone = "",
                           sessionThreshold = 2,
@@ -436,6 +437,7 @@ readDirectory <- function(directory,
                           lgap = 30, lskip = 5, m = 11,
                           mc.cores = getOption("mc.cores", 2L),
                           verbose = TRUE) {
+
     tcxfiles <- list.files(directory, pattern = "tcx", ignore.case = TRUE, full.names = TRUE,
                            no.. = TRUE)
     db3files <- list.files(directory, pattern = "db3", ignore.case = TRUE, full.names = TRUE,
@@ -443,56 +445,102 @@ readDirectory <- function(directory,
     ltcx <- length(tcxfiles)
     ldb3 <- length(db3files)
     if ((ltcx == 0) & (ldb3 == 0)) {
-        stop("the supplied directory contains no files with the supported formats")
+        stop("The supplied directory contains no files with the supported formats.")
     }
+    
     ## Read tcx files
     if (ltcx) {
         tcxData <- list()
-        for (j in seq.int(ltcx)) {
-            if (verbose) cat("Reading file", tcxfiles[j], paste0("(file ", j, " out of ", ltcx, ")"), "...\n")
-            tcxData[[j]] <- try(readContainer(tcxfiles[j],
-                                              type = "tcx",
-                                              table = table,
-                                              timezone = timezone,
-                                              sessionThreshold = sessionThreshold,
-                                              fromDistances = fromDistances,
-                                              speedunit = speedunit$tcx,
-                                              distanceunit = distanceunit$tcx,
-                                              cycling = cycling,
-                                              lgap = lgap,
-                                              lskip = lskip,
-                                              m = m,
-                                              mc.cores = mc.cores))
+        if (aggregate){
+            for (j in seq.int(ltcx)) {
+                if (verbose) cat("Reading file", tcxfiles[j], paste0("(file ", j, " out of ", ltcx, ")"), "...\n")
+                tcxData[[j]] <- try(readTCX2(tcxfiles[j],
+                                             timezone = timezone,
+                                             speedunit = speedunit$tcx,
+                                             distanceunit = distanceunit$tcx,
+                                             mc.cores = mc.cores))
+            }
+            if (verbose) cat("Cleaning up...")
+            tcxData <- do.call("rbind", tcxData[!sapply(tcxData, inherits, what = "try-error")])
+            fromDistancesTCX <- if(is.null(fromDistances)) TRUE else fromDistances
+            tcxData <- trackeRdata(tcxData,
+                                   sessionThreshold = sessionThreshold,
+                                   fromDistances = fromDistancesTCX,
+                                   cycling = cycling,
+                                   lgap = lgap,
+                                   lskip = lskip,
+                                   m = m)
+            if (verbose) cat("Done\n")
+        } else {
+            for (j in seq.int(ltcx)) {
+                if (verbose) cat("Reading file", tcxfiles[j], paste0("(file ", j, " out of ", ltcx, ")"), "...\n")
+                tcxData[[j]] <- try(readContainer(tcxfiles[j],
+                                                  type = "tcx",
+                                                  table = table,
+                                                  timezone = timezone,
+                                                  sessionThreshold = sessionThreshold,
+                                                  fromDistances = fromDistances,
+                                                  speedunit = speedunit$tcx,
+                                                  distanceunit = distanceunit$tcx,
+                                                  cycling = cycling,
+                                                  lgap = lgap,
+                                                  lskip = lskip,
+                                                  m = m,
+                                                  mc.cores = mc.cores))
+            }
+            if (verbose) cat("Cleaning up...")
+            tcxData <- do.call("c", tcxData[!sapply(tcxData, inherits, what = "try-error")])
+            if (verbose) cat("Done\n")
         }
-        if (verbose) cat("Cleaning up...")
-        tcxData <- do.call("c", tcxData[!sapply(tcxData, inherits, what = "try-error")])
-        if (verbose) cat("Done\n")
-
-    } else {
+    }
+    else {
         tcxData <- NULL
     }
+    
     ## Read db3 files
     if (ldb3) {
         db3Data <- list()
-        for (j in seq.int(ldb3)) {
-            if (verbose) cat("Reading file", db3files[j], paste0("(file ", j, " out of ", ldb3, ")"), "...\n")
-            db3Data[[j]] <- try(readContainer(db3files[j],
-                                              type = "db3",
-                                              table = table,
-                                              timezone = timezone,
-                                              sessionThreshold = sessionThreshold,
-                                              fromDistances = fromDistances,
-                                              speedunit = speedunit$db3,
-                                              distanceunit = distanceunit$db3,
-                                              cycling = cycling,
-                                              lgap = lgap,
-                                              lskip = lskip,
-                                              m = m,
-                                              mc.cores = mc.cores))
+        if (aggregate){
+            for (j in seq.int(ldb3)) {
+                if (verbose) cat("Reading file", db3files[j], paste0("(file ", j, " out of ", ldb3, ")"), "...\n")
+                db3Data[[j]] <- try(readDB3(db3files[j],
+                                            table = table,
+                                            timezone = timezone,
+                                            speedunit = speedunit$db3,
+                                            distanceunit = distanceunit$db3))
+            }
+            if (verbose) cat("Cleaning up...")
+            db3Data <- do.call("rbind", db3Data[!sapply(db3Data, inherits, what = "try-error")])
+            fromDistancesDB3 <- if(is.null(fromDistances)) FALSE else fromDistances
+            db3Data <- trackeRdata(db3Data,
+                                   sessionThreshold = sessionThreshold,
+                                   fromDistances = fromDistancesDB3,
+                                   cycling = cycling,
+                                   lgap = lgap,
+                                   lskip = lskip,
+                                   m = m)
+            if (verbose) cat("Done\n")
+        } else {
+            for (j in seq.int(ldb3)) {
+                if (verbose) cat("Reading file", db3files[j], paste0("(file ", j, " out of ", ldb3, ")"), "...\n")
+                db3Data[[j]] <- try(readContainer(db3files[j],
+                                                  type = "db3",
+                                                  table = table,
+                                                  timezone = timezone,
+                                                  sessionThreshold = sessionThreshold,
+                                                  fromDistances = fromDistances,
+                                                  speedunit = speedunit$db3,
+                                                  distanceunit = distanceunit$db3,
+                                                  cycling = cycling,
+                                                  lgap = lgap,
+                                                  lskip = lskip,
+                                                  m = m,
+                                                  mc.cores = mc.cores))
+            }
+            if (verbose) cat("Cleaning up...")
+            db3Data <- do.call("c", db3Data[!sapply(db3Data, inherits, what = "try-error")])
+            if (verbose) cat("Done\n")  
         }
-        if (verbose) cat("Cleaning up...")
-        db3Data <- do.call("c", db3Data[!sapply(db3Data, inherits, what = "try-error")])
-        if (verbose) cat("Done\n")
     } else {
         db3Data <- NULL
     }

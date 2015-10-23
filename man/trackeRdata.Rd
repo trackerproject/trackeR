@@ -4,13 +4,17 @@
 \alias{trackeRdata}
 \title{Create a trackeRdata object.}
 \usage{
-trackeRdata(dat, units = NULL, sessionThreshold = 2, fromDistances = TRUE,
-  lgap = 30, lskip = 5, m = 11)
+trackeRdata(dat, units = NULL, cycling = FALSE, sessionThreshold = 2,
+  fromDistances = TRUE, lgap = 30, lskip = 5, m = 11)
 }
 \arguments{
 \item{dat}{A data frame.}
 
 \item{units}{A data frame containing the unit of measurement for all variables. See Details.}
+
+\item{cycling}{Logical. Do the data stem from cycling instead of running? If so, the default unit of
+measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min}. Argument
+\code{cycling} is overwritte if argument \code{units} is provided.}
 
 \item{sessionThreshold}{The threshold in hours for the time
 difference between consecutive timestamps above which they are
@@ -43,6 +47,10 @@ The \code{units} argument takes a data frame with two variables named \code{vari
     \item variable \code{cadence} with unit \code{steps_per_min} or \code{rev_per_min}
     \item variable \code{power} with unit \code{W} or \code{kW}.
     }
+    If the argument \code{units} is \code{NULL}, the default units are used. These are the first options, i.e.,
+    \code{m} for variables \code{altitude} and \code{distance}, \code{m_per_s} for variable \code{speed} as well
+    as \code{W} for variable \code{power}. The default for variable \code{cadence} depends on the value of
+    argument \code{cycling}.
 
     During small breaks within a session, e.g., because the recording device was paused,
     observations are imputed the following way:

@@ -5,6 +5,9 @@
 #' 
 #' @param dat A data frame.
 #' @param units A data frame containing the unit of measurement for all variables. See Details.
+#' @param cycling Logical. Do the data stem from cycling instead of running? If so, the default unit of
+#'     measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min}. Argument
+#'     \code{cycling} is overwritte if argument \code{units} is provided.
 #' @inheritParams restingPeriods
 #' @inheritParams imputeSpeeds
 #' @details The \code{units} argument takes a data frame with two variables named \code{variable} and \code{unit}.
@@ -18,6 +21,10 @@
 #'     \item variable \code{cadence} with unit \code{steps_per_min} or \code{rev_per_min}
 #'     \item variable \code{power} with unit \code{W} or \code{kW}.
 #'     }
+#'     If the argument \code{units} is \code{NULL}, the default units are used. These are the first options, i.e.,
+#'     \code{m} for variables \code{altitude} and \code{distance}, \code{m_per_s} for variable \code{speed} as well
+#'     as \code{W} for variable \code{power}. The default for variable \code{cadence} depends on the value of
+#'     argument \code{cycling}.
 #' 
 #'     During small breaks within a session, e.g., because the recording device was paused,
 #'     observations are imputed the following way: 
@@ -40,7 +47,7 @@
 #' run <- readContainer(filepath, type = "tcx", timezone = "GMT")
 #' }
 #' @export
-trackeRdata <- function(dat, units = NULL, sessionThreshold = 2,
+trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2,
                     fromDistances = TRUE, lgap = 30, lskip = 5, m = 11){
     ## basic edits on time stamps
     dat <- basicEdits(dat, sessionThreshold = sessionThreshold)
@@ -53,8 +60,9 @@ trackeRdata <- function(dat, units = NULL, sessionThreshold = 2,
 
     ## Set units attribute
     if (is.null(units)) {
-        units <- generateBaseUnits()
+        units <- generateBaseUnits(cycling)
     }
+    ## ensure units are characters, not factors, if provided by the user
     for (i in seq_len(ncol(units))) {
         if (is.factor(units[,i])) units[,i] <- as.character(units[,i])
     }
