@@ -36,10 +36,12 @@ threshold.trackeRdata <- function(object, variable, lower, upper, ...){
     for (i in 1:nrow(th)){
         v <- as.character(th$variable[i])
         for (session in seq_along(object)){
-            wL <- which(object[[session]][,v] < th$lower[i])
-            object[[session]][wL,v] <- NA ## th$lower[i] ## set to boundary value or to NA?
-            wU <- which(object[[session]][,v] > th$upper[i])
-            object[[session]][wU,v] <- NA ## th$upper[i]
+            if (v %in% names(object[[session]])){
+                wL <- which(object[[session]][,v] < th$lower[i])
+                object[[session]][wL,v] <- NA ## th$lower[i] ## set to boundary value or to NA?
+                wU <- which(object[[session]][,v] > th$upper[i])
+                object[[session]][wU,v] <- NA ## th$upper[i]
+            }
         }
     }
 
@@ -53,15 +55,15 @@ threshold.trackeRdata <- function(object, variable, lower, upper, ...){
 
 generateDefaultThresholds <- function(cycling = FALSE, ...){
     th <- generateBaseUnits(cycling)
-    th <- th[-which(th$variable == "duration"),]
+    #th <- th[-which(th$variable == "duration"),]
     ## FIXME: tighter limits?
     if (cycling) {
-        th$lower <- c(-90, -180, -500, 0, 0, 0, 0, 0)
-        th$upper <- c(90, 180, 9000, Inf, 250, 100, Inf, Inf) 
+        th$lower <- c(-90, -180, -500, 0, 0, 0, 0, 0, 0, 0)
+        th$upper <- c(90, 180, 9000, Inf, 250, 100, Inf, Inf, Inf, Inf) 
     } else {
-        th$lower <- c(-90, -180, -500, 0, 0, 0, 0, 0)
+        th$lower <- c(-90, -180, -500, 0, 0, 0, 0, 0, 0, 0)
         ##th$upper <- c(90, 180, 9000, Inf, 250, 20, Inf, Inf)
-        th$upper <- c(90, 180, 9000, Inf, 250, 12.5, Inf, Inf)
+        th$upper <- c(90, 180, 9000, Inf, 250, 12.5, Inf, Inf, Inf, Inf)
     }
     class(th) <- c("trackeRthresholds", class(th))
     return(th)

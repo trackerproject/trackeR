@@ -203,8 +203,9 @@ readDB3 <- function(file, timezone = "", table = "gps_data",
 readContainer <- function(file, type = c("tcx", "db3"),
                           table = "gps_data", timezone = "", sessionThreshold = 2,
                           country = NULL, mask = TRUE,
-                          fromDistances = NULL, speedunit = switch(type, "tcx" = "m_per_s", "db3" = "km_per_h"),
-                          distanceunit = switch(type, "tcx" = "m", "db3" = "km"), cycling = FALSE,
+                          fromDistances = NULL,
+                          speedunit = NULL, distanceunit = NULL,
+                          cycling = FALSE,
                           lgap = 30, lskip = 5, m = 11,
                           mc.cores = getOption("mc.cores", 2L)){
     ## prepare args
@@ -212,6 +213,13 @@ readContainer <- function(file, type = c("tcx", "db3"),
     if (is.null(fromDistances)){
         fromDistances <- if (type == "db3") FALSE else TRUE
     }
+    if (is.null(speedunit)){
+        speedunit <- switch(type, "tcx" = "m_per_s", "db3" = "km_per_h")
+    }
+    if (is.null(distanceunit)) {
+        distanceunit <- switch(type, "tcx" = "m", "db3" = "km")
+    }
+    
     ## read gps data
     dat <- switch(type,
                   "tcx" = readTCX2(file = file, timezone = timezone, speedunit = speedunit,
@@ -221,7 +229,7 @@ readContainer <- function(file, type = c("tcx", "db3"),
                   )
     ## units of measurement 
     units <- generateBaseUnits(cycling) ## readX returns default units
-    units <- units[-which(units$variable == "duration"), ]
+    #units <- units[-which(units$variable == "duration"), ]
 
     ## make trackeRdata object (with all necessary data handling)
     trackerdat <- trackeRdata(dat, units = units, country = country, mask = mask,

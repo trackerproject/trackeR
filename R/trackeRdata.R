@@ -73,8 +73,31 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, country = NULL, mask
     
     ## impute speeds in each session
     trackerdat <- lapply(trackerdat, imputeSpeeds, fromDistances = fromDistances,
-                     lgap = lgap, lskip = lskip, m = m)
+                         lgap = lgap, lskip = lskip, m = m)
 
+    ## add pace
+    ## (if unspecified: in min per 1 km if speed unit refers to km or m,
+    ## and in min per 1 mile if speed unit refers to ft or mi)
+    if (!("pace" %in% units$variable)){
+        unitSpeed <- strsplit(units$unit[units$variable == "speed"], split = "_per_")[[1]]
+        distUnit4pace <- switch(unitSpeed[1], km = "km", m = "km", ft = "mi", mi = "mi")
+        conversion <- match.fun(paste(units$unit[units$variable == "speed"],
+                                      paste(distUnit4pace, "min", sep = "_per_"), sep = "2"))
+        units <- rbind(units, c("pace", paste0("min_per_", distUnit4pace)))
+        
+    } else {
+        paceInv <- strsplit(units$unit[units$variable == "pace"], split = "_per_")[[1]][2:1]
+        paceInv <- paste(paceInv, collapse = "_per_")
+        conversion <- match.fun(paste(units$unit[units$variable == "speed"], paceInv, sep = "2"))
+    }
+
+    trackerdat <- lapply(trackerdat, function(x) {
+                             x$pace <- 1 / conversion(x$speed)
+                             x$pace[!is.finite(x$pace)] <- NA
+                             return(x)
+                         })
+                         
+                         
     ## Set attributes
     attr(trackerdat, "operations") <- list(smooth = NULL, threshold = NULL)
     attr(trackerdat, "units") <- units

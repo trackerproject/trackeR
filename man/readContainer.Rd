@@ -6,8 +6,7 @@
 \usage{
 readContainer(file, type = c("tcx", "db3"), table = "gps_data",
   timezone = "", sessionThreshold = 2, country = NULL, mask = TRUE,
-  fromDistances = NULL, speedunit = switch(type, tcx = "m_per_s", db3 =
-  "km_per_h"), distanceunit = switch(type, tcx = "m", db3 = "km"),
+  fromDistances = NULL, speedunit = NULL, distanceunit = NULL,
   cycling = FALSE, lgap = 30, lskip = 5, m = 11,
   mc.cores = getOption("mc.cores", 2L))
 }

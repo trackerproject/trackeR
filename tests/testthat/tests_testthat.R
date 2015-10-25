@@ -14,7 +14,7 @@ test_that("number of sessions in DataNonGarmin is 1", {
     expect_equal(length(DataNonGarmin), 1)
 })
 
-trackeRdatanames <- c("latitude", "longitude", "altitude", "distance", "heart.rate", "speed", "cadence", "power")
+trackeRdatanames <- c("latitude", "longitude", "altitude", "distance", "heart.rate", "speed", "cadence", "power", "pace")
 test_that("the names of each element of an trackeRdata object are as in trackeRdatanames", {
     expect_named(DataNonGarmin[[1]], trackeRdatanames)
 })
