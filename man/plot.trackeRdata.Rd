@@ -5,7 +5,8 @@
 \title{Plot training sessions in form of trackeRdata objects.}
 \usage{
 \method{plot}{trackeRdata}(x, session = NULL, what = c("speed",
-  "heart.rate"), threshold = TRUE, smooth = FALSE, dates = TRUE, ...)
+  "heart.rate"), threshold = TRUE, smooth = FALSE, trend = TRUE,
+  dates = TRUE, ...)
 }
 \arguments{
 \item{x}{An object of class \code{\link{trackeRdata}}.}
@@ -17,6 +18,8 @@
 \item{threshold}{Logical. Should thresholds be applied?}
 
 \item{smooth}{Logical. Should the data be smoothed?}
+
+\item{trend}{Logical. Should a smooth trend be plotted?}
 
 \item{dates}{Logical. Should the date of the session be used in the panel header?}
 
