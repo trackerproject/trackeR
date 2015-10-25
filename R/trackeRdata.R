@@ -8,6 +8,10 @@
 #' @param cycling Logical. Do the data stem from cycling instead of running? If so, the default unit of
 #'     measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min}. Argument
 #'     \code{cycling} is overwritte if argument \code{units} is provided.
+#' @param country ISO3 country code for downloading altitude data. If \code{NULL}, country is derived from
+#'     longitude and latitude.
+#' @param mask Logical. Passed on to \code{\link[raster]{getData}}. Should only the altitudes for the specified
+#'     \code{country} be extracted (\code{TRUE}) or also those for the neighboring countries (\code{FALSE})?
 #' @inheritParams restingPeriods
 #' @inheritParams imputeSpeeds
 #' @details The \code{units} argument takes a data frame with two variables named \code{variable} and \code{unit}.
@@ -47,18 +51,9 @@
 #' run <- readContainer(filepath, type = "tcx", timezone = "GMT")
 #' }
 #' @export
-trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2,
-                    fromDistances = TRUE, lgap = 30, lskip = 5, m = 11){
-    ## basic edits on time stamps
-    dat <- basicEdits(dat, sessionThreshold = sessionThreshold)
-    
-    ## impute (calculated) speeds, cast to zoo
-    trackerdat <- dataHandling(dat, fromDistances = fromDistances, lgap = lgap, lskip = lskip, m = m)
-
-    ## Set operations attribute
-    attr(trackerdat, "operations") <- list(smooth = NULL, threshold = NULL)
-
-    ## Set units attribute
+trackeRdata <- function(dat, units = NULL, cycling = FALSE, country = NULL, mask = TRUE,
+                        sessionThreshold = 2, fromDistances = TRUE, lgap = 30, lskip = 5, m = 11){
+    ## prep units
     if (is.null(units)) {
         units <- generateBaseUnits(cycling)
     }
@@ -66,6 +61,22 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2
     for (i in seq_len(ncol(units))) {
         if (is.factor(units[,i])) units[,i] <- as.character(units[,i])
     }
+
+    ## basic edits on time stamps
+    dat <- basicEdits(dat, sessionThreshold = sessionThreshold)
+
+    ## cast session to separate zoo objects7
+    trackerdat <- getSessions(dat)
+    
+    ## correct GPS distances for elevation
+    trackerdat <- lapply(trackerdat, distanceCorrection, country = country, mask = mask)
+    
+    ## impute speeds in each session
+    trackerdat <- lapply(trackerdat, imputeSpeeds, fromDistances = fromDistances,
+                     lgap = lgap, lskip = lskip, m = m)
+
+    ## Set attributes
+    attr(trackerdat, "operations") <- list(smooth = NULL, threshold = NULL)
     attr(trackerdat, "units") <- units
 
     ## class and return
@@ -138,25 +149,20 @@ basicEdits <- function(dat, sessionThreshold = 2){
     return(dat)
 }
 
-
-dataHandling <- function(dat, fromDistances = TRUE, lgap = 30, lskip = 5, m = 11){
+getSessions <- function(dat){
 
     ## make multivariate zoo object for each session
     sessions <- unique(dat$sessionID)
-    trackeRdata <- vector("list", length = max(sessions))
+    trackerdat <- vector("list", length = max(sessions))
     for (i in sessions){
         dati <- subset(dat, dat$sessionID == i)
         extra <- which(names(dati) %in% c("time", "sessionID"))
-        trackeRdata[[i]] <- zoo(dati[, -extra], order.by = dati$time)
+        trackerdat[[i]] <- zoo(dati[, -extra], order.by = dati$time)
     }
     ## remove empty sessions
-    trackeRdata <- trackeRdata[!sapply(trackeRdata, is.null)]
+    trackerdat <- trackerdat[!sapply(trackerdat, is.null)]
 
-    ## impute speeds in each session
-    trackeRdata <- lapply(trackeRdata, imputeSpeeds, fromDistances = fromDistances,
-                     lgap = lgap, lskip = lskip, m = m)
-
-    return(trackeRdata)
+    return(trackerdat)
 }
 
 

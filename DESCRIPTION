@@ -7,7 +7,7 @@ Authors@R: c(person(given = "Hannah", family = "Frick", role = c("aut", "cre"), 
 Description: Tools to import, visualise and analyse GPS tracker cycling and running data.
 Depends: zoo
 Imports: ggplot2
-Suggests: plyr, XML, RSQLite, parallel, doMC, ggmap, scam,
+Suggests: plyr, XML, RSQLite, parallel, doMC, ggmap, scam, raster,
     testthat
 License: GPL-2 | GPL-3
 LazyData: true

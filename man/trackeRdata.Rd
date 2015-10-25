@@ -4,8 +4,9 @@
 \alias{trackeRdata}
 \title{Create a trackeRdata object.}
 \usage{
-trackeRdata(dat, units = NULL, cycling = FALSE, sessionThreshold = 2,
-  fromDistances = TRUE, lgap = 30, lskip = 5, m = 11)
+trackeRdata(dat, units = NULL, cycling = FALSE, country = NULL,
+  mask = TRUE, sessionThreshold = 2, fromDistances = TRUE, lgap = 30,
+  lskip = 5, m = 11)
 }
 \arguments{
 \item{dat}{A data frame.}
@@ -15,6 +16,12 @@ trackeRdata(dat, units = NULL, cycling = FALSE, sessionThreshold = 2,
 \item{cycling}{Logical. Do the data stem from cycling instead of running? If so, the default unit of
 measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min}. Argument
 \code{cycling} is overwritte if argument \code{units} is provided.}
+
+\item{country}{ISO3 country code for downloading altitude data. If \code{NULL}, country is derived from
+longitude and latitude.}
+
+\item{mask}{Logical. Passed on to \code{\link[raster]{getData}}. Should only the altitudes for the specified
+\code{country} be extracted (\code{TRUE}) or also those for the neighboring countries (\code{FALSE})?}
 
 \item{sessionThreshold}{The threshold in hours for the time
 difference between consecutive timestamps above which they are

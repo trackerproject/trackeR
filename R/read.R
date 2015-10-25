@@ -202,6 +202,7 @@ readDB3 <- function(file, timezone = "", table = "gps_data",
 #' }
 readContainer <- function(file, type = c("tcx", "db3"),
                           table = "gps_data", timezone = "", sessionThreshold = 2,
+                          country = NULL, mask = TRUE,
                           fromDistances = NULL, speedunit = switch(type, "tcx" = "m_per_s", "db3" = "km_per_h"),
                           distanceunit = switch(type, "tcx" = "m", "db3" = "km"), cycling = FALSE,
                           lgap = 30, lskip = 5, m = 11,
@@ -218,12 +219,13 @@ readContainer <- function(file, type = c("tcx", "db3"),
                   "db3" = readDB3(file = file, table = table, timezone = timezone,
                       speedunit = speedunit, distanceunit = distanceunit)
                   )
-    ## units of measurement
-    units <- generateBaseUnits(cycling)
+    ## units of measurement 
+    units <- generateBaseUnits(cycling) ## readX returns default units
     units <- units[-which(units$variable == "duration"), ]
 
     ## make trackeRdata object (with all necessary data handling)
-    trackerdat <- trackeRdata(dat, units = units, sessionThreshold = sessionThreshold,
+    trackerdat <- trackeRdata(dat, units = units, country = country, mask = mask,
+                              sessionThreshold = sessionThreshold,
                               fromDistances = fromDistances, lgap = lgap, lskip = lskip, m = m)
 
     return(trackerdat)
@@ -430,6 +432,8 @@ readDirectory <- function(directory,
                           table = "gps_data",
                           timezone = "",
                           sessionThreshold = 2,
+                          country = NULL,
+                          mask = TRUE,
                           fromDistances = NULL,
                           speedunit = list(tcx = "m_per_s", db3 = "km_per_h"),
                           distanceunit = list(tcx = "m", db3 = "km"),
@@ -465,6 +469,8 @@ readDirectory <- function(directory,
             fromDistancesTCX <- if(is.null(fromDistances)) TRUE else fromDistances
             tcxData <- trackeRdata(tcxData,
                                    sessionThreshold = sessionThreshold,
+                                   country = country,
+                                   mask = mask,
                                    fromDistances = fromDistancesTCX,
                                    cycling = cycling,
                                    lgap = lgap,
@@ -479,6 +485,8 @@ readDirectory <- function(directory,
                                                   table = table,
                                                   timezone = timezone,
                                                   sessionThreshold = sessionThreshold,
+                                                  country = country,
+                                                  mask = mask,
                                                   fromDistances = fromDistances,
                                                   speedunit = speedunit$tcx,
                                                   distanceunit = distanceunit$tcx,
@@ -514,6 +522,8 @@ readDirectory <- function(directory,
             fromDistancesDB3 <- if(is.null(fromDistances)) FALSE else fromDistances
             db3Data <- trackeRdata(db3Data,
                                    sessionThreshold = sessionThreshold,
+                                   country = country,
+                                   mask = mask,
                                    fromDistances = fromDistancesDB3,
                                    cycling = cycling,
                                    lgap = lgap,
@@ -528,6 +538,8 @@ readDirectory <- function(directory,
                                                   table = table,
                                                   timezone = timezone,
                                                   sessionThreshold = sessionThreshold,
+                                                  country = country,
+                                                  mask = mask,
                                                   fromDistances = fromDistances,
                                                   speedunit = speedunit$db3,
                                                   distanceunit = distanceunit$db3,

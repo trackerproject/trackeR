@@ -5,10 +5,11 @@
 \title{Read a GPS container file.}
 \usage{
 readContainer(file, type = c("tcx", "db3"), table = "gps_data",
-  timezone = "", sessionThreshold = 2, fromDistances = NULL,
-  speedunit = switch(type, tcx = "m_per_s", db3 = "km_per_h"),
-  distanceunit = switch(type, tcx = "m", db3 = "km"), cycling = FALSE,
-  lgap = 30, lskip = 5, m = 11, mc.cores = getOption("mc.cores", 2L))
+  timezone = "", sessionThreshold = 2, country = NULL, mask = TRUE,
+  fromDistances = NULL, speedunit = switch(type, tcx = "m_per_s", db3 =
+  "km_per_h"), distanceunit = switch(type, tcx = "m", db3 = "km"),
+  cycling = FALSE, lgap = 30, lskip = 5, m = 11,
+  mc.cores = getOption("mc.cores", 2L))
 }
 \arguments{
 \item{file}{The path to the file.}
@@ -23,6 +24,12 @@ ignored otherwise.}
 \item{sessionThreshold}{The threshold in hours for the time
 difference between consecutive timestamps above which they are
 considered to belong to different training sessions.}
+
+\item{country}{ISO3 country code for downloading altitude data. If \code{NULL}, country is derived from
+longitude and latitude.}
+
+\item{mask}{Logical. Passed on to \code{\link[raster]{getData}}. Should only the altitudes for the specified
+\code{country} be extracted (\code{TRUE}) or also those for the neighboring countries (\code{FALSE})?}
 
 \item{fromDistances}{Logical. Should the speeds be calculated from the distance recordings
 instead of taken from the speed recordings directly. Defaults to \code{TRUE} for \code{tcx}
