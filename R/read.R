@@ -221,7 +221,7 @@ readContainer <- function(file, type = c("tcx", "db3"),
                   )
     ## units of measurement 
     units <- generateBaseUnits(cycling) ## readX returns default units
-    units <- units[-which(units$variable == "duration"), ]
+    #units <- units[-which(units$variable == "duration"), ]
 
     ## make trackeRdata object (with all necessary data handling)
     trackerdat <- trackeRdata(dat, units = units, country = country, mask = mask,

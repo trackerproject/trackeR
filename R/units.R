@@ -259,12 +259,12 @@ generateBaseUnits <- function(cycling = FALSE, ...){
     varnames <- generateVariableNames()$humanNames
     ## Remove time and add duration
     varnames <- varnames[-match("time", varnames)]
-    varnames <- c(varnames, "duration")
+    varnames <- c(varnames, c("pace","duration"))
 
     if (cycling) {
-        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "rev_per_min", "W", "s")
+        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "rev_per_min", "W", "min_per_km", "s")
     } else {
-        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "W", "s")
+        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "W", "min_per_km", "s")
     }
 
     return(data.frame(variable = varnames, unit = units, stringsAsFactors = FALSE))
