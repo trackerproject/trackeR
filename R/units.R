@@ -464,6 +464,9 @@ h2h <- function(variable){
 }
 
 
+
+
+
 ## conversion functions: speed
 #' @inheritParams conversions
 #' @rdname conversions
@@ -513,6 +516,224 @@ m_per_s2mi_per_h <- function(variable){
 mi_per_h2m_per_s <- function(variable){
     variable * 1609.344 / 60 / 60
 }
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+m_per_s2km_per_min <- function(variable){
+    m_per_s2km_per_h(variable) / 60
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+km_per_min2m_per_s <- function(variable){
+    km_per_h2m_per_s(variable * 60)
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+m_per_s2mi_per_min <- function(variable){
+    m_per_s2mi_per_h(variable) / 60
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+mi_per_min2m_per_s <- function(variable){
+    mi_per_h2m_per_s(variable * 60)
+}
+
+
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+km_per_h2ft_per_min <- function(variable){
+    km2ft(variable / 60)
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+ft_per_min2km_per_h <- function(variable){
+    ft2km(variable * 60)
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+km_per_h2ft_per_s <- function(variable){
+    km2ft(variable / 60 / 60)
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+ft_per_s2km_per_h <- function(variable){
+    ft2km(variable * 60 * 60)
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+km_per_h2mi_per_h <- function(variable){
+    km2mi(variable)
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+mi_per_h2km_per_h <- function(variable){
+    mi2km(variable)
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+km_per_h2km_per_min <- function(variable){
+    variable / 60
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+km_per_min2km_per_h <- function(variable){
+    variable * 60
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+km_per_h2mi_per_min <- function(variable){
+    km_per_h2mi_per_h(variable) / 60
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+mi_per_min2km_per_h <- function(variable){
+    mi_per_h2km_per_h(variable * 60)
+}
+
+
+
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+ft_per_min2ft_per_s <- function(variable){
+    variable / 60
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+ft_per_s2ft_per_min <- function(variable){
+    variable * 60
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+ft_per_min2mi_per_h <- function(variable){
+    ft2mi(variable * 60)
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+mi_per_h2ft_per_min <- function(variable){
+    mi2ft(variable / 60)
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+ft_per_min2km_per_min <- function(variable){
+   ft2km(variable)
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+km_per_min2ft_per_min <- function(variable){
+   km2ft(variable)
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+ft_per_min2mi_per_min <- function(variable){
+    ft2mi(variable)
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+mi_per_min2ft_per_min <- function(variable){
+    mi2ft(variable)
+}
+
+
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+ft_per_s2mi_per_h <- function(variable){
+    ft2mi(variable * 60 * 60)
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+mi_per_h2ft_per_s <- function(variable){
+    mi2ft(variable / 60 / 60)
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+ft_per_s2km_per_min <- function(variable){
+   ft2km(variable * 60)
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+km_per_min2ft_per_s <- function(variable){
+   km2ft(variable / 60)
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+ft_per_s2mi_per_min <- function(variable){
+    ft2mi(variable * 60)
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+mi_per_min2ft_per_s <- function(variable){
+    mi2ft(variable / 60)
+}
+
+
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+mi_per_h2km_per_min <- function(variable){
+   mi2km(variable / 60)
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+km_per_min2mi_per_h <- function(variable){
+   km2mi(variable * 60)
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+mi_per_h2mi_per_min <- function(variable){
+   variable / 60
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+mi_per_min2mi_per_h <- function(variable){
+    variable * 60
+}
+
+
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+km_per_min2mi_per_min <- function(variable){
+    km2mi(variable)
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+mi_per_min2km_per_min <- function(variable){
+    mi2km(variable)
+}
+
+
+
 
 #' @inheritParams conversions
 #' @rdname conversions
@@ -544,6 +765,21 @@ ft_per_s2ft_per_s <- function(variable){
 mi_per_h2mi_per_h <- function(variable){
     variable
 }
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+km_per_min2km_per_min <- function(variable){
+    variable
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+mi_per_min2mi_per_min <- function(variable){
+    variable
+}
+
+
+
 
 
 ## conversion functions: pace
@@ -559,7 +795,30 @@ s_per_m2min_per_km <- function(variable){
 min_per_km2s_per_m <- function(variable){
     variable / 1000 * 60
 }
-
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+s_per_m2min_per_mi <- function(variable){
+    variable / 60 * 1609.344 
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+min_per_mi2s_per_m <- function(variable){
+    variable * 60 / 1609.344 
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+min_per_km2min_per_mi <- function(variable){
+    variable * 1.609344
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+min_per_mi2min_per_km <- function(variable){
+    variable / 1.609344
+}
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
@@ -570,6 +829,12 @@ s_per_m2s_per_m <- function(variable){
 #' @rdname conversions
 #' @export
 min_per_km2min_per_km <- function(variable){
+    variable
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+min_per_mi2min_per_mi <- function(variable){
     variable
 }
 
