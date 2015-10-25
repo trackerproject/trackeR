@@ -42,7 +42,7 @@ imputeSpeeds <- function(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5
         } else {
             sessionData <- sessionData[!is.na(sessionData$distance)]
             ##sessionData$speed <- c(diff(sessionData$distance)/unclass(diff(index(sessionData))), NA)
-            sessionData$speed <- distance2speed(sessionData$distance, index(sessionData))
+            sessionData$speed <- distance2speed(coredata(sessionData$distance), index(sessionData))
         }
     }
     else {
@@ -64,12 +64,12 @@ imputeSpeeds <- function(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5
     nLaps <- nrow(shortBreaks$sessions)
     ## if there are more than 1 laps then impute zero speeds
     imputedData <- zoo(x = matrix(NA, nrow = 0, ncol = ncol(sessionData),
-                           dimnames = list(NULL, names(sessionData))))
+                           dimnames = list(NULL, names(sessionData))), order.by = as.POSIXct("1970-01-01")[c()])
     if (nLaps > 1) {
         for (j in seq.int(nLaps)[-nLaps]) {
             newtimes <- with(shortBreaks$sessions,
-                             seq(sessionEnd[j] + lskip/3600,
-                                 sessionStart[j + 1] - lskip/3600,
+                             seq(sessionEnd[j] + lskip,
+                                 sessionStart[j + 1] - lskip,
                                  length.out = m))
             newdata <- matrix(c(
                 ## last know position
@@ -138,6 +138,7 @@ imputeSpeeds <- function(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5
 distance2speed <- function(distance, time){
     speed <- c(diff(distance) / unclass(diff(time, units = "secs")), 0)
     ## README: doesn't work if pervious distance is NA, needs to be impute with last known distance.
+    return(speed)
 }
 
 #' Convert speed to distance.
