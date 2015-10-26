@@ -79,28 +79,28 @@ distributionProfile <- function(object, session = NULL, what = c("speed", "heart
 #' @param threshold The threshold.
 #' @param ge Logical. Should time include the thereshold (greater or equal to threshold) or not (greater only)?
 timeAboveThreshold <- function(object, threshold = -1, ge = TRUE) {
-    indices <- seq_along(object)
-    times <- index(object)
-    if (ge)
-        indicesAboveThreshold <- indices[object >= threshold & !is.na(object >= threshold)]
-    else
-        indicesAboveThreshold <- indices[object > threshold & !is.na(object > threshold)]
-    timesAboveThreshold <- times[indicesAboveThreshold]
-    n <- length(indicesAboveThreshold)
-    sum(diff(timesAboveThreshold)[diff(indicesAboveThreshold) == 1])
 
-    ## totaltime <- 0
-    ## test <- TRUE
-    ## for (i in seq.int(n)) {
-    ##     if (i == n) break
-    ##     currenttime <- timesAboveThreshold[1]
-    ##     if (indicesAboveThreshold[i + 1] - indicesAboveThreshold[i] == 1) {
-    ##         timediff <- difftime(timesAboveThreshold[i + 1],
-    ##                              timesAboveThreshold[i + 1],
-    ##                              units = "sec")
-    ##         totaltime <- totaltime + timediff
-    ##     }
-    ## }
+    n <- length(object)
+    if (ge){
+        aboveThreshold <- object >= threshold
+    } else {
+        aboveThreshold <- object > threshold
+    }
+    missing <- is.na(object)
+
+    dt <- diff(index(object))
+    sum(dt[aboveThreshold[-n] & !missing[-n]])
+    
+    ## indices <- seq_along(object)
+    ## times <- index(object)
+    ## if (ge)
+    ##     indicesAboveThreshold <- indices[object >= threshold & !is.na(object >= threshold)]
+    ## else
+    ##     indicesAboveThreshold <- indices[object > threshold & !is.na(object > threshold)]
+    ## timesAboveThreshold <- times[indicesAboveThreshold]
+    ## n <- length(indicesAboveThreshold)
+    ## sum(diff(timesAboveThreshold)[diff(indicesAboveThreshold) == 1])
+
 }
 
 
