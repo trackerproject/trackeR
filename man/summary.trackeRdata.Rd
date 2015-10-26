@@ -4,12 +4,15 @@
 \alias{summary.trackeRdata}
 \title{Summary of training sessions.}
 \usage{
-\method{summary}{trackeRdata}(object, session = NULL, ...)
+\method{summary}{trackeRdata}(object, session = NULL, movingThreshold = 0.1,
+  ...)
 }
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}
 
 \item{session}{A numeric vector of the sessions to be summarised, defaults to all sessions.}
+
+\item{movingThreshold}{The threshold above which speed an athlete is considered moving.}
 
 \item{...}{Currently not used.}
 }

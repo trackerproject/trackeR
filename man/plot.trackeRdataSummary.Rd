@@ -4,13 +4,13 @@
 \alias{plot.trackeRdataSummary}
 \title{Plot an object of class trackeRdataSummary.}
 \usage{
-\method{plot}{trackeRdataSummary}(x, xvar = c("date", "session"),
-  what = NULL, group = NULL, ...)
+\method{plot}{trackeRdataSummary}(x, date = TRUE, what = NULL,
+  group = NULL, ...)
 }
 \arguments{
 \item{x}{An object of class \code{trackeRdataSummary}.}
 
-\item{xvar}{Should the date or the session number be used on the abscissa? Default is date.}
+\item{date}{Should the date or the session number be used on the abscissa?}
 
 \item{what}{Name of variables which should be plotted. Default is all.}
 
@@ -26,7 +26,7 @@ Plot an object of class trackeRdataSummary.
 data(run, package = "trackeR")
 runSummary <- summary(run)
 plot(runSummary)
-plot(runSummary, xvar = "session", what = c("distance", "duration", "avgSpeed"), group = "total")
+plot(runSummary, date = FALSE, what = c("distance", "duration", "avgSpeed"), group = "total")
 }
 \seealso{
 \code{\link{summary.trackeRdata}}
