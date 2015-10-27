@@ -4,7 +4,7 @@
 \alias{plot.trackeRdata}
 \title{Plot training sessions in form of trackeRdata objects.}
 \usage{
-\method{plot}{trackeRdata}(x, session = NULL, what = c("speed",
+\method{plot}{trackeRdata}(x, session = NULL, what = c("pace",
   "heart.rate"), threshold = TRUE, smooth = FALSE, trend = TRUE,
   dates = TRUE, ...)
 }
@@ -28,6 +28,11 @@
 }
 \description{
 Plot training sessions in form of trackeRdata objects.
+}
+\details{
+Note that a threshold is always applied to the pace. This (upper) threshold
+    corresponds to a speed of 1.4 meters per second, the preferred walking speed of
+    humans. The lower threshold is 0.
 }
 \examples{
 data(run, package = "trackeR")

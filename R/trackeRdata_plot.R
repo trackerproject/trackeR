@@ -11,6 +11,9 @@
 #' @param dates Logical. Should the date of the session be used in the panel header?
 #' @param ... Further arguments to be passed to \code{\link{threshold.trackeRdata}} and
 #'     \code{\link{smootherControl.trackeRdata}}.
+#' @details Note that a threshold is always applied to the pace. This (upper) threshold
+#'     corresponds to a speed of 1.4 meters per second, the preferred walking speed of
+#'     humans. The lower threshold is 0.
 #' @examples
 #' data(run, package = "trackeR")
 #' plot(run)
@@ -23,7 +26,7 @@
 #' ## change units
 #' plot(changeUnits(run, variable = "speed", unit = "km_per_h"))
 #' @export
-plot.trackeRdata <- function(x, session = NULL, what = c("speed", "heart.rate"),
+plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
                              threshold = TRUE, smooth = FALSE, trend = TRUE, dates = TRUE, ...){
     ## code inspired by autoplot.zoo
     if (is.null(session)) session <- seq_along(x)
@@ -43,6 +46,15 @@ plot.trackeRdata <- function(x, session = NULL, what = c("speed", "heart.rate"),
         }
         ## apply thresholds
         x <- threshold(x, th)
+    }
+
+    ## for plotting pace, always apply a threshold
+    ## upper threshold is based on preferred walking speed of 1.4 m/s,
+    ## see https://en.wikipedia.org/wiki/Preferred_walking_speed
+    if ("pace" %in% what){
+        conversionPace <- match.fun(paste("s_per_m", units$unit[units$variable == "pace"], sep = "2"))
+        thPace <- conversionPace(1 / 1.4)
+        x <- threshold(x, variable = "pace", lower = 0, upper = thPace)
     }
 
     ## smooth
