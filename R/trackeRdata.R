@@ -8,6 +8,7 @@
 #' @param cycling Logical. Do the data stem from cycling instead of running? If so, the default unit of
 #'     measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min}. Argument
 #'     \code{cycling} is overwritte if argument \code{units} is provided.
+#' @param correctDistances Logical. Should the distances be corrected for elevation?
 #' @param country ISO3 country code for downloading altitude data. If \code{NULL}, country is derived from
 #'     longitude and latitude.
 #' @param mask Logical. Passed on to \code{\link[raster]{getData}}. Should only the altitudes for the specified
@@ -51,7 +52,7 @@
 #' run <- readContainer(filepath, type = "tcx", timezone = "GMT")
 #' }
 #' @export
-trackeRdata <- function(dat, units = NULL, cycling = FALSE, country = NULL, mask = TRUE,
+trackeRdata <- function(dat, units = NULL, cycling = FALSE, correctDistances = FALSE, country = NULL, mask = TRUE, 
                         sessionThreshold = 2, fromDistances = TRUE, lgap = 30, lskip = 5, m = 11){
     ## prep units
     if (is.null(units)) {
@@ -63,13 +64,13 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, country = NULL, mask
     }
 
     ## basic edits on time stamps
-    dat <- basicEdits(dat, sessionThreshold = sessionThreshold)
+    dat <- basicEdits(dat)
 
-    ## cast session to separate zoo objects7
-    trackerdat <- getSessions(dat)
+    ## separate sessions and cast to zoo objects
+    trackerdat <- getSessions(dat, sessionThreshold = sessionThreshold)
     
     ## correct GPS distances for elevation
-    trackerdat <- lapply(trackerdat, distanceCorrection, country = country, mask = mask)
+    if (correctDistances) trackerdat <- lapply(trackerdat, distanceCorrection, country = country, mask = mask)
     
     ## impute speeds in each session
     trackerdat <- lapply(trackerdat, imputeSpeeds, fromDistances = fromDistances,
@@ -143,7 +144,7 @@ inPeriod <- function(dates, start, end) {
 }
 
 
-basicEdits <- function(dat, sessionThreshold = 2){
+basicEdits <- function(dat){
     ## replace heart rate 0 with NA
     dat$heart.rate[dat$heart.rate == 0] <- NA
 
@@ -159,6 +160,11 @@ basicEdits <- function(dat, sessionThreshold = 2){
     ## order according to time
     dat <- dat[order(dat$time), ]
 
+    rownames(dat) <- NULL
+    return(dat)
+}
+
+getSessions <- function(dat, sessionThreshold = 2){
     ## get session IDs
     dat$sessionID <- NA
     resting <- restingPeriods(dat$time, sessionThreshold)
@@ -167,12 +173,7 @@ basicEdits <- function(dat, sessionThreshold = 2){
         session <- resting$sessions[i, 1:2]
         dat$sessionID[inPeriod(dat$time, start = session[[1]], end = session[[2]])] <- i
     }
-
     rownames(dat) <- NULL
-    return(dat)
-}
-
-getSessions <- function(dat){
 
     ## make multivariate zoo object for each session
     sessions <- unique(dat$sessionID)

@@ -5,9 +5,9 @@
 \title{Read a GPS container file.}
 \usage{
 readContainer(file, type = c("tcx", "db3"), table = "gps_data",
-  timezone = "", sessionThreshold = 2, country = NULL, mask = TRUE,
-  fromDistances = NULL, speedunit = NULL, distanceunit = NULL,
-  cycling = FALSE, lgap = 30, lskip = 5, m = 11,
+  timezone = "", sessionThreshold = 2, correctDistances = FALSE,
+  country = NULL, mask = TRUE, fromDistances = NULL, speedunit = NULL,
+  distanceunit = NULL, cycling = FALSE, lgap = 30, lskip = 5, m = 11,
   mc.cores = getOption("mc.cores", 2L))
 }
 \arguments{
@@ -23,6 +23,8 @@ ignored otherwise.}
 \item{sessionThreshold}{The threshold in hours for the time
 difference between consecutive timestamps above which they are
 considered to belong to different training sessions.}
+
+\item{correctDistances}{Logical. Should the distances be corrected for elevation?}
 
 \item{country}{ISO3 country code for downloading altitude data. If \code{NULL}, country is derived from
 longitude and latitude.}
