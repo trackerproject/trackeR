@@ -44,6 +44,27 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = 0.1, .
     class(durationMoving) <- "difftime"
     units(durationMoving) <- units(duration)
 
+    ## average speed
+    distUnit <- units$unit[units$variable == "distance"]
+    unitSpeed <- strsplit(units$unit[units$variable == "speed"], split = "_per_")[[1]]
+    conversionDist <- match.fun(paste(distUnit, unitSpeed[1], sep = "2"))
+    dist4speed <- conversionDist(distance)
+    conversionDur <- match.fun(paste(durUnit, unitSpeed[2], sep = "2"))
+    dur4speed <- conversionDur(as.numeric(duration))
+    avgSpeed <- dist4speed / dur4speed
+
+    ## average speed moving
+    durMoving4speed <- conversionDur(as.numeric(durationMoving))
+    avgSpeedMoving <- dist4speed / durMoving4speed
+
+    ## average pace
+    distUnit4pace <- strsplit(units$unit[units$variable == "pace"], split = "_per_")[[1]][2]
+    conversionDistPace <- match.fun(paste(distUnit, distUnit4pace, sep = "2"))
+    dist4pace <- conversionDistPace(distance)
+    avgPace <- as.numeric(duration, units = "mins") / dist4pace
+
+    ## average pace moving
+    avgPaceMoving <- as.numeric(durationMoving, units = "mins") / dist4pace
 
     ## function for weighted total to produce averages
     weightedMean <- function(x, which, th, resting = FALSE){
@@ -60,17 +81,17 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = 0.1, .
         return(ret)
     }
 
-    ## average speed
-    avgSpeed <- sapply(object, weightedMean, which = "speed", th = -1)
+    ## ## average speed
+    ## avgSpeed <- sapply(object, weightedMean, which = "speed", th = -1)
 
-    ## average speed moving
-    avgSpeedMoving <- sapply(object, weightedMean, which = "speed", th = movingThreshold)
+    ## ## average speed moving
+    ## avgSpeedMoving <- sapply(object, weightedMean, which = "speed", th = movingThreshold)
 
-    ## average pace
-    avgPace <- sapply(object, weightedMean, which = "pace", th = -1)
+    ## ## average pace
+    ## avgPace <- sapply(object, weightedMean, which = "pace", th = -1)
 
-    ## average pace moving
-    avgPaceMoving <- sapply(object, weightedMean, which = "pace", th = movingThreshold)
+    ## ## average pace moving
+    ## avgPaceMoving <- sapply(object, weightedMean, which = "pace", th = movingThreshold)
 
     ## average cadence
     avgCadence <- sapply(object, weightedMean, which = "cadence", th = -1)
