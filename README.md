@@ -54,7 +54,7 @@ devtools::install_github("hfrick/trackeR")
 
 Download example data
 ```{r}
-con <- url("http://www.ucl.ac.uk/~ucakhfr/data/running.rda") ## FIXME: change of permissions necessary?
+con <- url("http://www.ucl.ac.uk/~ucakhfr/data/running.rda")
 ## print the value to see what objects were created.
 print(load(con))
 close(con) ## url() always opens the connection
@@ -64,7 +64,8 @@ Summarize sessions
 ```
 library("trackeR")
 runsSumary <- summary(runs)
-plot(runsSummary, group = c("total", "moving"), what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
+plot(runsSummary, group = c("total", "moving"),
+    what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
 ```
 
 Generate distribution and concentration profiles
@@ -103,6 +104,8 @@ names(scoresSP) <- paste0("speed_pc", 1:4)
 d <- cbind(runsSummary, scoresSP)
 
 library("ggplot2")
-ggplot(d) + geom_point(aes(x = as.numeric(durationMoving), y = speed_pc1)) ## pc1 ~ session duration (moving)
-ggplot(d) + geom_point(aes(x = avgSpeedMoving, y = speed_pc2)) ## pc2 ~ avg speed (moving)
+## pc1 ~ session duration (moving)
+ggplot(d) + geom_point(aes(x = as.numeric(durationMoving), y = speed_pc1))
+## pc2 ~ avg speed (moving)
+ggplot(d) + geom_point(aes(x = avgSpeedMoving, y = speed_pc2)) 
 ```
