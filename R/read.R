@@ -437,6 +437,32 @@ readTCX2 <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = 
 ## Reads supported container files from a supplied directory
 ## CYCLING applied to all files!
 ## directory should end with "/"?
+
+#' Read all supported container files from a supplied directory.
+#'
+#' @param directory The path to the directory.
+#' @param aggregate Logical. Aggregate data from different files to the same session if observations are less then \code{sessionThreshold} hours apart? Alternatively, data from different files is stored in different sessions.
+#' @param table The name of the table in the database for db3 files.
+#' @param fromDistances Logical. Should the speeds be calculated from the distance recordings
+#'     instead of taken from the speed recordings directly. Defaults to \code{TRUE} for tcx
+#'     files and to \code{FALSE} for db3 files.
+#' @param speedunit Character string indicating the measurement unit of the speeds in the container
+#'     file to be converted into meters per second. Default is \code{m_per_s} for tcx files and \code{km_per_h} for db3 files. See Details.
+#' @param distanceunit Character string indicating the measurement unit of the distance in the container
+#'     file to be converted into meters. Default is \code{m} for tcx files and \code{km} for db3 files. See Details.
+#' @param verbose Logical. Should progress reports be printed?
+#' @inheritParams readX
+#' @inheritParams restingPeriods
+#' @inheritParams imputeSpeeds
+#' @inheritParams trackeRdata
+#' @details  Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_per_s},
+#'     \code{mi_per_h}, \code{ft_per_min} and \code{ft_per_s}.
+#'     Available options for \code{distanceunit} currently are \code{km}, \code{m}, \code{mi} and
+#'     \code{ft}.
+#' @return An object of class \code{\link{trackeRdata}}.
+#' @seealso \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}
+#'
+#' @export
 readDirectory <- function(directory,
                           aggregate = TRUE, ## aggregate data from all files or keep data from different files in different sessions?
                           table = "gps_data",
