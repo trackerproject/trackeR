@@ -7,11 +7,11 @@ cycling and running data from GPS-enabled tracking devices.
 
 The formats that are currently supported for the training activity
 files are .tcx (Training Center XML) and .db3. After extraction and
-appropriate manipulation of the extracted training attributes, the
-training data are placed into session-aware data objects of class
-trackeRdata. The package provides methods for visualising, summarising
-and analysing the information contained within trackeRdata objects.
-
+appropriate manipulation of the training or competition attributes,
+the data are placed into session-aware data objects of class
+trackeRdata (S3 class). The information in the resultant data objects
+can then be visualised, summarised and analyses through corresponding
+flexible and extensible methods.
 
 ### Current capabilities
 
