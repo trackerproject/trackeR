@@ -49,3 +49,60 @@ Install the development version from github:
 # install.packages("devtools")
 devtools::install_github("hfrick/trackeR")
 ```
+
+### Example
+
+Download example data
+```{r}
+con <- url("http://www.ucl.ac.uk/~ucakhfr/data/running.rda") ## FIXME: change of permissions necessary?
+## print the value to see what objects were created.
+print(load(con))
+close(con) ## url() always opens the connection
+```
+
+Summarize sessions
+```
+library("trackeR")
+runsSumary <- summary(runs)
+plot(runsSummary, group = c("total", "moving"), what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
+```
+
+Generate distribution and concentration profiles
+```{r}
+dpRuns <- distributionProfile(runs)
+dpRunsS <- smoother(dpRuns)
+cpRuns <- concentrationProfile(dpRunsS)
+plot(cpRuns, multiple = TRUE, smooth = FALSE)
+```
+
+Explore concentration profiles for speed, e.g., via functional principal components analysis
+```{r}
+library("fda")
+## prepare data
+gridSpeed <- seq(0, 12.5, length = 251)
+sp <- matrix(unlist(cpRuns$speed), ncol = 250, byrow = TRUE,
+             dimnames = list(names(cpRuns$speed), gridSpeed[-1]))
+spfd <- Data2fd(argvals = gridSpeed[-1], y = t(sp),
+                fdnames = c("Speed", "session", "d Time"))
+		
+## fit + select number of harmonics
+sppca <- pca.fd(spfd, nharm = 4)
+varprop <- sppca$varprop * 100
+names(varprop) <- 1:4
+cumsum(varprop)
+barplot(varprop, xlab = "Principal component", ylab = "Share of variance captured [%]")
+## pick 2 harmonics/principal components
+
+## plot harmonics
+plot(sppca, harm = 1, pointplot = TRUE) 
+plot(sppca, harm = 2, pointplot = TRUE) 
+
+## plot scores vs summary statistics
+scoresSP <- data.frame(sppca$scores)
+names(scoresSP) <- paste0("speed_pc", 1:4)
+d <- cbind(runsSummary, scoresSP)
+
+library("ggplot2")
+ggplot(d) + geom_point(aes(x = as.numeric(durationMoving), y = speed_pc1)) ## pc1 ~ session duration (moving)
+ggplot(d) + geom_point(aes(x = avgSpeedMoving, y = speed_pc2)) ## pc2 ~ avg speed (moving)
+```
