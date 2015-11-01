@@ -10,7 +10,7 @@ files are .tcx (Training Center XML) and .db3. After extraction and
 appropriate manipulation of the training or competition attributes,
 the data are placed into session-aware data objects of class
 trackeRdata (S3 class). The information in the resultant data objects
-can then be visualised, summarised and analyses through corresponding
+can then be visualised, summarised and analysed through corresponding
 flexible and extensible methods.
 
 ### Current capabilities
