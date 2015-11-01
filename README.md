@@ -63,7 +63,7 @@ close(con) ## url() always opens the connection
 Summarize sessions
 ```
 library("trackeR")
-runsSumary <- summary(runs)
+runsSummary <- summary(runs)
 plot(runsSummary, group = c("total", "moving"),
     what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
 ```
