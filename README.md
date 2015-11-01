@@ -54,7 +54,7 @@ devtools::install_github("hfrick/trackeR")
 
 Download example data
 ```{r}
-con <- url("http://www.ucl.ac.uk/~ucakhfr/data/running.rda")
+con <- url("http://www.ucl.ac.uk/~ucakhfr/data/runs.rda")
 ## print the value to see what objects were created.
 print(load(con))
 close(con) ## url() always opens the connection
