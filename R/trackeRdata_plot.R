@@ -158,8 +158,9 @@ fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
 #'     \code{\link[ggmap]{get_map}} (2 corresponds roughly to continent
 #'     level and 20 to building level).
 #' @param speed Logical. Should the trace be colored according to speed?
-#' @param ... Additionall arguments passed on to \code{\link[ggmap]{get_map}}, e.g.,
-#'     \code{source} and \code{maptype}.
+#' @param threshold Logical. Should thresholds be applied?
+#' @param ... Additional arguments passed on to \code{\link{threshold.trackeRdata}} and
+#'     \code{\link[ggmap]{get_map}}, e.g., \code{source} and \code{maptype}.
 #' @seealso \code{\link[ggmap]{get_map}}, \code{\link[ggmap]{ggmap}}
 #' @examples
 #' \dontrun{
@@ -169,10 +170,29 @@ fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
 #' plotRoute(run, zoom = 13, source = "osm")
 #' }
 #' @export
-plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, ...){
+plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRUE, ...){
+    
+    units <- getUnits(x)
 
+    ## get sessions 
+    x <- x[session]
+
+    ## threshold
+    if (threshold){
+        dots <- list(...)
+        if (all(c("variable", "lower", "upper") %in% names(dots))){
+            ## thresholds provided by user
+            th <- data.frame(variable = dots$variable, lower = dots$lower, upper = dots$upper)
+        } else {
+            ## default thresholds
+            cycling <- units$unit[units$variable == "cadence"] == "rev_per_min"
+            th <- generateDefaultThresholds(cycling)
+            th <- changeUnits(th, variable = units$variable, unit = units$unit)
+        }
+        ## apply thresholds
+        x <- threshold(x, th)
+    }
     ## get data
-    x <- x[[session]]
     df <- fortify(x, melt = FALSE)
 
     ## clean data

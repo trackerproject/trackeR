@@ -4,7 +4,8 @@
 \alias{plotRoute}
 \title{Plot routes for training sessions.}
 \usage{
-plotRoute(x, session = 1, zoom = NULL, speed = TRUE, ...)
+plotRoute(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRUE,
+  ...)
 }
 \arguments{
 \item{x}{A object of class \code{\link{trackeRdata}}.}
@@ -17,8 +18,10 @@ level and 20 to building level).}
 
 \item{speed}{Logical. Should the trace be colored according to speed?}
 
-\item{...}{Additionall arguments passed on to \code{\link[ggmap]{get_map}}, e.g.,
-\code{source} and \code{maptype}.}
+\item{threshold}{Logical. Should thresholds be applied?}
+
+\item{...}{Additional arguments passed on to \code{\link{threshold.trackeRdata}} and
+\code{\link[ggmap]{get_map}}, e.g., \code{source} and \code{maptype}.}
 }
 \description{
 Plot the route ran/cycled during training onto a background map.
