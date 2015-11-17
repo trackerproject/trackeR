@@ -23,11 +23,18 @@ An object of class \code{trackeRdataSummary}.
 Summary of training sessions.
 }
 \examples{
-data(run, package = "trackeR")
-runSummary <- summary(run)
+data(runs, package = "trackeR")
+runSummary <- summary(runs, session = 1:2)
+## print summary
 runSummary
 print(runSummary, digits = 3)
-plot(runSummary)
+## change units
+changeUnits(runSummary, variable = "speed", unit = "km_per_h")
+## plot summary
+runSummaryFull <- summary(runs)
+plot(runSummaryFull)
+plot(runSummaryFull, group = c("total", "moving"),
+    what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
 }
 \seealso{
 \code{\link{plot.trackeRdataSummary}}

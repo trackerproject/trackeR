@@ -48,6 +48,9 @@ distributionProfile <- function(object, session = NULL, what = c("speed", "heart
     #if (is.null(names(grid))) names(grid) <- what
     stopifnot(!any(is.na(match(what, names(grid)))))
 
+    ## FIXME: transform grid if units of trackeRdata object are not m/s and bpm for speed and hr, respectively
+
+    
     ## parallelisation
     papply <- if (parallel) function(...) parallel::mclapply(..., mc.cores = mc.cores) else lapply
 
@@ -134,10 +137,12 @@ fortify.distrProfile <- function(model, data, melt = FALSE, ...){
 #' @param smooth Logical. Should unsmoothed profiles be smoothed before plotting?
 #' @param ... Further arguments to be passed to \code{\link{smootherControl.distrProfile}}.
 #' @examples
-#' data(run, package = "trackeR")
-#' dProfile <- distributionProfile(run, what = "speed", grid = seq(0, 12.5, by = 0.05))
+#' data(runs, package = "trackeR")
+#' dProfile <- distributionProfile(runs, session = 1:2,
+#'     what = "speed", grid = seq(0, 12.5, by = 0.05))
 #' plot(dProfile, smooth = FALSE)
-#' plot(dProfile)
+#' plot(dProfile, smooth = FALSE, multiple = TRUE)
+#' plot(dProfile, multiple = TRUE)
 #' @export
 plot.distrProfile <- function(x, session = NULL, what = c("speed", "heart.rate"),
                             multiple = FALSE, smooth = TRUE, ...){

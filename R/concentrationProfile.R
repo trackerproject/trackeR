@@ -78,8 +78,9 @@ fortify.conProfile <- function(model, data, melt = FALSE, ...){
 #' @param smooth Logical. Should unsmoothed profiles be smoothed before plotting?
 #' @param ... Currently not used.
 #' @examples
-#' data(run, package = "trackeR")
-#' dProfile <- distributionProfile(run, what = "speed", grid = seq(0, 12.5, by = 0.05))
+#' data(runs, package = "trackeR")
+#' dProfile <- distributionProfile(runs, session = 1:3,
+#'     what = "speed", grid = seq(0, 12.5, by = 0.05))
 #' cProfile <- concentrationProfile(dProfile)
 #' plot(cProfile, smooth = FALSE)
 #' plot(cProfile)

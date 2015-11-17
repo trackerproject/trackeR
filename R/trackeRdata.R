@@ -39,7 +39,7 @@
 #' @examples
 #' \dontrun{
 #' ## read raw data
-#' filepath <- system.file("extdata", "2013-06-04-174137.TCX", package = "trackeR")
+#' filepath <- system.file("extdata", "2013-06-08-090442.TCX", package = "trackeR")
 #' run <- readTCX(file = filepath, timezone = "GMT")
 #'
 #' ## turn into trackeRdata object
@@ -52,8 +52,9 @@
 #' run <- readContainer(filepath, type = "tcx", timezone = "GMT")
 #' }
 #' @export
-trackeRdata <- function(dat, units = NULL, cycling = FALSE, correctDistances = FALSE, country = NULL, mask = TRUE, 
-                        sessionThreshold = 2, fromDistances = TRUE, lgap = 30, lskip = 5, m = 11){
+trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2,
+                        correctDistances = FALSE, country = NULL, mask = TRUE, 
+                        fromDistances = TRUE, lgap = 30, lskip = 5, m = 11){
     ## prep units
     if (is.null(units)) {
         units <- generateBaseUnits(cycling)
@@ -94,7 +95,7 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, correctDistances = F
 
     trackerdat <- lapply(trackerdat, function(x) {
                              x$pace <- 1 / conversion(x$speed)
-                             x$pace[!is.finite(x$pace)] <- NA
+                             x$pace[is.infinite(x$pace)] <- NA
                              return(x)
                          })
                          

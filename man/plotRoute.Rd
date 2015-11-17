@@ -29,10 +29,10 @@ Internet connection is required to download the background map.
 }
 \examples{
 \dontrun{
-data(run, package = "trackeR")
-plotRoute(run, zoom = 13)
-plotRoute(run, zoom = 13, maptype = "hybrid")
-plotRoute(run, zoom = 13, source = "osm")
+data(runs, package = "trackeR")
+plotRoute(runs, session = 4, zoom = 13)
+plotRoute(runs, session = 4, zoom = 13, maptype = "hybrid")
+plotRoute(runs, session = 4, zoom = 13, source = "osm")
 }
 }
 \seealso{

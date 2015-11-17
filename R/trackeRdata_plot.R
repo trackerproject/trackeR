@@ -15,16 +15,16 @@
 #'     corresponds to a speed of 1.4 meters per second, the preferred walking speed of
 #'     humans. The lower threshold is 0.
 #' @examples
-#' data(run, package = "trackeR")
-#' plot(run)
-#' ## plot raw data
-#' plot(run, threshold = FALSE, smooth = FALSE)
+#' data(runs, package = "trackeR")
+#' ## plot heart rate and pace for the first 3 sessions
+#' plot(runs, session = 1:3)
+#' ## plot raw speed data for session 4
+#' plot(runs, session = 4, what = "speed", threshold = FALSE, smooth = FALSE)
 #' ## threshold speed variable
-#' plot(run, threshold = TRUE, smooth = FALSE, variable = "speed", lower = 0, upper = 10)
+#' plot(runs, session = 4, what = "speed", threshold = TRUE, smooth = FALSE,
+#'     variable = "speed", lower = 0, upper = 10)
 #' ## and smooth (thresholding with default values)
-#' plot(run, threshold = TRUE, smooth = TRUE, width = 30)
-#' ## change units
-#' plot(changeUnits(run, variable = "speed", unit = "km_per_h"))
+#' plot(runs, session = 4, what = "speed", threshold = TRUE, smooth = TRUE, width = 15)
 #' @export
 plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
                              threshold = TRUE, smooth = FALSE, trend = TRUE, dates = TRUE, ...){
@@ -164,10 +164,10 @@ fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
 #' @seealso \code{\link[ggmap]{get_map}}, \code{\link[ggmap]{ggmap}}
 #' @examples
 #' \dontrun{
-#' data(run, package = "trackeR")
-#' plotRoute(run, zoom = 13)
-#' plotRoute(run, zoom = 13, maptype = "hybrid")
-#' plotRoute(run, zoom = 13, source = "osm")
+#' data(runs, package = "trackeR")
+#' plotRoute(runs, session = 4, zoom = 13)
+#' plotRoute(runs, session = 4, zoom = 13, maptype = "hybrid")
+#' plotRoute(runs, session = 4, zoom = 13, source = "osm")
 #' }
 #' @export
 plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRUE, ...){

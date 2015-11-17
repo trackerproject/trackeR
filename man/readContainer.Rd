@@ -71,7 +71,7 @@ Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_pe
 }
 \examples{
 \dontrun{
-filepath <- system.file("extdata", "2013-06-04-174137.TCX", package = "trackeR")
+filepath <- system.file("extdata", "2013-06-08-090442.TCX", package = "trackeR")
 run <- readContainer(filepath, type = "tcx", timezone = "GMT")
 }
 }

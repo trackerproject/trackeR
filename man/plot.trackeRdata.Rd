@@ -35,15 +35,15 @@ Note that a threshold is always applied to the pace. This (upper) threshold
     humans. The lower threshold is 0.
 }
 \examples{
-data(run, package = "trackeR")
-plot(run)
-## plot raw data
-plot(run, threshold = FALSE, smooth = FALSE)
+data(runs, package = "trackeR")
+## plot heart rate and pace for the first 3 sessions
+plot(runs, session = 1:3)
+## plot raw speed data for session 4
+plot(runs, session = 4, what = "speed", threshold = FALSE, smooth = FALSE)
 ## threshold speed variable
-plot(run, threshold = TRUE, smooth = FALSE, variable = "speed", lower = 0, upper = 10)
+plot(runs, session = 4, what = "speed", threshold = TRUE, smooth = FALSE,
+    variable = "speed", lower = 0, upper = 10)
 ## and smooth (thresholding with default values)
-plot(run, threshold = TRUE, smooth = TRUE, width = 30)
-## change units
-plot(changeUnits(run, variable = "speed", unit = "km_per_h"))
+plot(runs, session = 4, what = "speed", threshold = TRUE, smooth = TRUE, width = 15)
 }
 

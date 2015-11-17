@@ -7,11 +7,18 @@
 #' @return An object of class \code{trackeRdataSummary}.
 #' @seealso \code{\link{plot.trackeRdataSummary}}
 #' @examples
-#' data(run, package = "trackeR")
-#' runSummary <- summary(run)
+#' data(runs, package = "trackeR")
+#' runSummary <- summary(runs, session = 1:2)
+#' ## print summary
 #' runSummary
 #' print(runSummary, digits = 3)
-#' plot(runSummary)
+#' ## change units
+#' changeUnits(runSummary, variable = "speed", unit = "km_per_h")
+#' ## plot summary
+#' runSummaryFull <- summary(runs)
+#' plot(runSummaryFull)
+#' plot(runSummaryFull, group = c("total", "moving"),
+#'     what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
 #' @export
 summary.trackeRdata <- function(object, session = NULL, movingThreshold = 0.1, ...){
 
@@ -152,56 +159,56 @@ print.trackeRdataSummary <- function(x, ..., digits = 2){
     for(i in seq_len(length(x$session))){
         cat("\n *** Session", x$session[i], "***\n")
 
-        cat("\n Session times:\n",
+        cat("\n Session times:",
         format(x$sessionStart[i], format = "%Y-%m-%d %H:%M:%S"), "-",
-        format(x$sessionEnd[i], format = "%Y-%m-%d %H:%M:%S"), "\n")
+        format(x$sessionEnd[i], format = "%Y-%m-%d %H:%M:%S"), "\n ")
 
-        cat("\n Distance:\n",
-            round(x$distance[i], digits), units$unit[units$variable == "distance"], "\n")
+        cat("Distance:",
+            round(x$distance[i], digits), units$unit[units$variable == "distance"], "\n ")
 
-        cat("\n Duration:\n",
-            round(as.numeric(x$duration[i]), digits), units(x$duration[i]), "\n")
+        cat("Duration:",
+            round(as.numeric(x$duration[i]), digits), units(x$duration[i]), "\n ")
 
-        cat("\n Moving time:\n",
-            round(x$durationMoving[i], digits), units(x$durationMoving[i]), "\n")
+        cat("Moving time:",
+            round(x$durationMoving[i], digits), units(x$durationMoving[i]), "\n ")
 
-        cat("\n Average speed:\n",
-            round(x$avgSpeed[i], digits = digits), units$unit[units$variable == "speed"], "\n")
+        cat("Average speed:",
+            round(x$avgSpeed[i], digits = digits), units$unit[units$variable == "speed"], "\n ")
 
-        cat("\n Average speed moving:\n",
-            round(x$avgSpeedMoving[i], digits = digits), units$unit[units$variable == "speed"], "\n")
+        cat("Average speed moving:",
+            round(x$avgSpeedMoving[i], digits = digits), units$unit[units$variable == "speed"], "\n ")
 
         unitDist4pace <- strsplit(units$unit[units$variable == "pace"], split = "_per_")[[1]][2]
         avgPace <- floor(x$avgPace[i] * 100) / 100
-        cat("\n", paste0("Average pace (per 1 ", unitDist4pace, "):"), "\n",
-            paste(floor(avgPace) , round(avgPace %% 1 * 60, 0), sep = ":"), "min:sec\n")
+        cat(paste0("Average pace (per 1 ", unitDist4pace, "):"),
+            paste(floor(avgPace) , round(avgPace %% 1 * 60, 0), sep = ":"), "min:sec\n ")
 
         avgPaceMoving <- floor(x$avgPaceMoving[i] * 100) / 100
-        cat("\n", paste0("Average pace moving (per 1 ", unitDist4pace, "):"), "\n",
-            paste(floor(avgPaceMoving) , round(x$avgPaceMoving[i] %% 1 * 60, 0), sep = ":"), "min:sec\n")
+        cat(paste0("Average pace moving (per 1 ", unitDist4pace, "):"),
+            paste(floor(avgPaceMoving) , round(x$avgPaceMoving[i] %% 1 * 60, 0), sep = ":"), "min:sec\n ")
 
-        cat("\n Average cadence:\n",
-            round(x$avgCadence[i], digits = digits), units$unit[units$variable == "cadence"], "\n")
+        cat("Average cadence:",
+            round(x$avgCadence[i], digits = digits), units$unit[units$variable == "cadence"], "\n ")
 
-        cat("\n Average cadence moving:\n",
-            round(x$avgCadenceMoving[i], digits = digits), units$unit[units$variable == "cadence"], "\n")
+        cat("Average cadence moving:",
+            round(x$avgCadenceMoving[i], digits = digits), units$unit[units$variable == "cadence"], "\n ")
 
-        cat("\n Average power:\n",
-            round(x$avgPower[i], digits = digits), units$unit[units$variable == "power"], "\n")
+        cat("Average power:",
+            round(x$avgPower[i], digits = digits), units$unit[units$variable == "power"], "\n ")
 
-        cat("\n Average power moving:\n",
-            round(x$avgPowerMoving[i], digits = digits), units$unit[units$variable == "power"], "\n")
+        cat("Average power moving:",
+            round(x$avgPowerMoving[i], digits = digits), units$unit[units$variable == "power"], "\n ")
 
-        cat("\n Average heart rate:\n",
-            round(x$avgHeartRate[i], digits = digits), units$unit[units$variable == "heart.rate"], "\n")
+        cat("Average heart rate:",
+            round(x$avgHeartRate[i], digits = digits), units$unit[units$variable == "heart.rate"], "\n ")
 
-        cat("\n Average heart rate moving:\n",
-            round(x$avgHeartRateMoving[i], digits = digits), units$unit[units$variable == "heart.rate"], "\n")
+        cat("Average heart rate moving:",
+            round(x$avgHeartRateMoving[i], digits = digits), units$unit[units$variable == "heart.rate"], "\n ")
 
-        cat("\n Average heart rate resting:\n",
-            round(x$avgHeartRateResting[i], digits = digits), units$unit[units$variable == "heart.rate"], "\n")
+        cat("Average heart rate resting:",
+            round(x$avgHeartRateResting[i], digits = digits), units$unit[units$variable == "heart.rate"], "\n ")
 
-        cat("\n Work to rest ratio:\n",
+        cat("Work to rest ratio:",
             round(x$wrRatio[i], digits), "\n")
 
         cat("\n")
@@ -258,10 +265,11 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...){
 #' @param ... Currently not used.
 #' @seealso \code{\link{summary.trackeRdata}}
 #' @examples
-#' data(run, package = "trackeR")
-#' runSummary <- summary(run)
+#' data(runs, package = "trackeR")
+#' runSummary <- summary(runs)
 #' plot(runSummary)
-#' plot(runSummary, date = FALSE, what = c("distance", "duration", "avgSpeed"), group = "total")
+#' plot(runSummary, date = FALSE, group = "total",
+#'     what = c("distance", "duration", "avgSpeed"))
 #' @export
 plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, ...){
 
