@@ -84,7 +84,7 @@ plot.trackeRdataZones <- function(x, percent = TRUE, ...){
 
     dat <- do.call("rbind", x)
     dat$zoneF <- factor(paste0("[", paste(dat$lower, dat$upper, sep = "-"), ")"),
-                        levels = paste0("[", paste(dat$lower, dat$upper, sep = "-"), ")"))
+                        levels = unique(paste0("[", paste(dat$lower, dat$upper, sep = "-"), ")")))
     dat$session <- factor(dat$session)
 
     ## basic plot
