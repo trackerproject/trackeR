@@ -1,7 +1,7 @@
 library(testthat)
 context("Tests for tracker")
 
-tcxfile <- system.file("extdata", "2013-06-04-174137.TCX", package = "trackeR")
+tcxfile <- system.file("extdata", "2013-06-08-090442.TCX", package = "trackeR")
 
 DataNonGarmin <- readContainer(tcxfile)
 
