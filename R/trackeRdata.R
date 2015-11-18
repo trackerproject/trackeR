@@ -295,6 +295,7 @@ c.trackeRdata <- function(..., recursive = FALSE){
 
 }
 
+#' @export
 "[.trackeRdata" <- function(x, i, j, drop = TRUE, ...){
 
     units <- getUnits(x)
