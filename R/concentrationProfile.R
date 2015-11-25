@@ -36,7 +36,7 @@ concentrationProfile <- function(object, session = NULL, what = c("speed", "hear
     ## get concentration profile
     CP <- list()
     for (i in what){
-        CP[[i]] <- -diff(object[[i]])
+        CP[[i]] <- - diff(object[[i]]) / diff(index(object[[i]]))
     }
 
     ## class and return
