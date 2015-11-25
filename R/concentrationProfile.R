@@ -176,11 +176,10 @@ plot.conProfile <- function(x, session = NULL, what = c("speed", "heart.rate"),
 #'
 #' @param cp Single concentration profile as a zoo object.
 c2d <- function(cp){
-    cs <- cumsum(cp)
-    ## dp <- c(as.numeric(cs[length(cs)]), as.numeric(cs[length(cs)]) - cs)
-    ## dp <- as.numeric(cs[length(cs)]) - cs
-    dp1 <- zoo(as.numeric(cs[length(cs)]), order.by = index(cs)[1] - (index(cs)[2] - index(cs)[1]))
-    dp <- c(dp1, as.numeric(cs[length(cs)]) - cs)
+    ct <- cp * c(diff(index(cp)),0)
+    ret <- cumsum(coredata(ct))
+    dp <- -(ret - ret[length(ret)])
+    dp <- zoo(dp, order.by = index(cp))
     return(dp)
 }
 
