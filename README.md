@@ -52,17 +52,10 @@ devtools::install_github("hfrick/trackeR")
 
 ### Example
 
-Download example data
-```{r}
-con <- url("http://www.ucl.ac.uk/~ucakhfr/data/runs.rda")
-## print the value to see what objects were created.
-print(load(con))
-close(con) ## url() always opens the connection
-```
-
 Summarize sessions
 ```
 library("trackeR")
+data(runs, package = "trackeR")
 runsSummary <- summary(runs)
 plot(runsSummary, group = c("total", "moving"),
     what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
