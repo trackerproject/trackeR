@@ -341,3 +341,14 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, .
 
     return(p)
 }
+
+#' @export
+"[.trackeRdataSummary" <- function(x, i, j, drop = TRUE, ...){
+    units <- getUnits(x)
+    x <- as.data.frame(x)
+    ret <- x[i,, drop = drop]
+
+    attr(ret, "units") <- units
+    class(ret) <- c("trackeRdataSummary", class(ret))
+    return(ret)
+}
