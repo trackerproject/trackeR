@@ -75,8 +75,11 @@ Wexp <- function(object, w0, cp,
 
     ret <- rep(NA, length(object))
     ret[!wna] <- Wexp
+    ret <- cbind(coredata(object), ret)
+    colnames(ret) <- c("movement", "wprime")
+    ret <- zoo(ret, order.by = index(object))
     
-    return(zoo(ret, order.by = index(object)))
+    return(ret)
 }
 
 #' W': work capacity above critical power.
@@ -155,14 +158,15 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"),
     ## get W' 
     ret <- papply(object, function(x, w0, cp, version, meanRecoveryPower){
                       W <- Wexp(x[,ps], w0 = w0, cp = cp, version = version, meanRecoveryPower = meanRecoveryPower)
-                      if (quantity == "balance") W <- w0 - W
+                      if (quantity == "balance") W$wprime <- w0 - W$wprime
                       return(W)
                   }, w0 = w0, cp = cp, version = version, meanRecoveryPower = meanRecoveryPower)
 
     ## class and return
     attr(ret, "quantity") <- quantity
     attr(ret, "w0") <- if (missing(w0)) NA else w0
-    attr(ret, "units") <- units
+    attr(ret, "cp") <- cp
+    attr(ret, "cycling") <- cycling
     class(ret) <- "trackeRWprime"
     return(ret)
 }
@@ -181,16 +185,33 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"),
 plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, ...){
 
     quantity <- attr(x, "quantity")
-    units <- attr(x, "units")
-    cycling <- units$unit[units$variable == "cadence"] == "rev_per_min"
+    cp <- attr(x, "cp")
+    cycling <- attr(x, "cycling")
     Wunit <- if (cycling) "[J]" else "[m]"
+    mylabels <- c(ifelse(cycling, "Power [J]", "Speed [m/s]"),
+                  paste("W'", quantity, "[scaled]"))
     
     ## select sessions
     if (is.null(session)) session <- seq_along(x)
     x <- x[session]
-    class(x) <- "trackeRWprime"
+
+    ## transform W' to match power/speed scale
+    sdMov <- sd(unlist(lapply(x, function(z) z$movement)), na.rm = TRUE)
+    mMov <- mean(unlist(lapply(x, function(z) z$movement)), na.rm = TRUE)
+
+    x <- lapply(x, function(z){
+                    w <- (coredata(z$wprime) - mean(coredata(z$wprime), na.rm = TRUE)) /
+                        sd(coredata(z$wprime), na.rm = TRUE)
+                    w <- w * sdMov #sd(coredata(z$movement), na.rm = TRUE)
+                    z$wprime <- w + mMov
+                        # max(mMov, abs(min(w, na.rm = TRUE)))
+                        # max(mean(coredata(z$movement), na.rm = TRUE), abs(min(w, na.rm = TRUE)))
+                    return(z)
+                })
+
     
     ## get data
+    class(x) <- "trackeRWprime"
     df <- fortify(x, melt = TRUE)
 
     ## prepare session id for panel header 
@@ -198,8 +219,7 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, ...){
         df$SessionID <- format(session[df$SessionID])
         df$SessionID <- gsub(" ", "0", df$SessionID)
         df$SessionID <- paste(df$SessionID, format(df$Index, "%Y-%m-%d"), sep = ": ")
-    }
-    else {
+    } else {
         df$SessionID <- factor(df$SessionID, levels = seq_along(session), labels = session)
     }
     df$Series <- factor(df$Series)
@@ -214,9 +234,14 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, ...){
     singleSession <- length(session) == 1L
     facets <- if (singleSession) NULL else . ~ SessionID
 
-    ## basic plot (make geom flexible?)
-    p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes(x = Index, y = Value)) + ggplot2::geom_line() +
-        ggplot2::ylab(paste("W'", quantity, Wunit)) +  ggplot2::xlab("time")
+    ## basic plot
+    p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes(x = Index, y = Value)) +
+            ggplot2::ylab("") + ggplot2::xlab("Time")
+    ## lines for power/speed and W'
+    p <- p + ggplot2::geom_line(ggplot2::aes(group = Series, col = Series)) +
+            ggplot2::scale_colour_manual(name = "", labels = mylabels, values = c("gray","blue"))
+    ## add line for cp
+    p <- p + ggplot2::geom_hline(data = data.frame(cp = cp), ggplot2::aes(yintercept = cp), col = "black")
 
     ## add facet if necessary
     if (!is.null(facets)){
