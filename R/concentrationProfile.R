@@ -206,7 +206,7 @@ smoother.conProfile <- function(object, session = NULL, control = list(...), ...
         if (is.null(ncol(object[[i]]))) {
             DP[[i]] <- c2d(object[[i]])
         } else {
-            dp <- matrix(NA, nrow = nrow(object[[i]]) + 1, ncol = ncol(object[[i]]))
+            dp <- matrix(NA, nrow = nrow(object[[i]]), ncol = ncol(object[[i]]))
             colnames(dp) <- attr(object[[i]], "dimnames")[[2]]
             for (j in seq_len(ncol(dp))){
                 dpj <- c2d(object[[i]][,j])
