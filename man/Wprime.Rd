@@ -18,7 +18,7 @@ Wprime(object, session = NULL, quantity = c("expended", "balance"), w0, cp,
 \item{w0}{Inital capacity of W', as calculated based on the critical
 power model by Monod and Scherrer (1965).}
 
-\item{cp}{Critical power, i.e., the power which can be maintained for
+\item{cp}{Critical power/speed, i.e., the power/speed which can be maintained for
 longer period of time.}
 
 \item{version}{How should W' be replenished? Options include \code{"2015"}

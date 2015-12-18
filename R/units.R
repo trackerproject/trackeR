@@ -34,6 +34,15 @@ getUnits.conProfile <- function(object,...){
     attr(object, "units")
 }
 
+#' Get the units of the variables in an \code{trackeRWprime} object.
+#'
+#' @param object An object of class \code{trackeRWprime}.
+#' @param ... Currently not used.
+#' @export
+getUnits.trackeRWprime <- function(object,...){
+    attr(object, "unit")
+}
+
 ## not to be exported
 getUnits.trackeRthresholds <- function(object, ...){
     object[, c("variable", "unit")]
@@ -162,6 +171,48 @@ changeUnits.conProfile <- function(object, variable, unit, ...){
             ## change grid
             newIndex <- conversion(index(object[[i]]))
             object[[i]] <- zoo(coredata(object[[i]]), order.by = newIndex)
+            ## change units attribute
+            current$unit[current$variable == i] <- newUnit
+        }
+    }
+
+    ## update attributes and return
+    attr(object, "units") <- current
+    return(object)
+}
+
+#' Change the units of the variables in an \code{trackeRdata} object.
+#'
+#' @param object An object of class \code{\link{trackeRdata}}.
+#' @param variable A vector of variables to be changed.
+#' @param unit A vector with the units, corresponding to variable.
+#' @param ... Currently not used.
+#' @export
+changeUnits.trackeRWprime <- function(object, variable, unit, ...){
+    ## get current unit
+    current <- getUnits(object)
+
+    if (missing(variable)) variable <- ifelse(attr(object, "cycling"), "power", "speed")
+    if (missing(unit) & !missing(variable)) {
+        unit <- variable
+        variable <- ifelse(attr(object, "cycling"), "power", "speed")
+    }
+    if (attr(object, "cycling")){
+        if(variable != "power") stop("Can only change measurement units for power.")
+    } else {
+        if(variable != "speed") stop("Can only change measurement units for speed.")
+    }
+    
+    ## change units
+    for (i in variable){
+        currentUnit <- current$unit[current$variable == i]
+        newUnit <- unit[which(variable == i)]
+        if (currentUnit != newUnit) {
+            conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
+            ## change data
+            for (session in seq_along(object)){
+                object[[session]][,"movement"] <- conversion(object[[session]][,"movement"])
+            }
             ## change units attribute
             current$unit[current$variable == i] <- newUnit
         }

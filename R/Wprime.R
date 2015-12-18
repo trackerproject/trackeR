@@ -6,7 +6,7 @@
 #' @param object Univariate \code{\link[zoo]{zoo}} object containing the time stamped power output or speed values. (Power should be in Watts, speed in meters per second.)
 #' @param w0 Inital capacity of W', as calculated based on the critical
 #' power model by Monod and Scherrer (1965).
-#' @param cp Critical power, i.e., the power which can be maintained for
+#' @param cp Critical power/speed, i.e., the power/speed which can be maintained for
 #' longer period of time. 
 #' @param version How should W' be replenished? Options include \code{"2015"}
 #' and \code{"2012"} for the versions presented in Skiba et al. (2015) and
@@ -139,11 +139,15 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"),
     if (cycling) {
         if (units$unit[units$variable == "power"] != "W"){
             changeUnits(object, variable = "power", unit = "W")
+            conversion <- match.fun(paste(units$unit[units$variable == "power"], "W", sep = "2"))
+            cp <- conversion(cp)
             units$unit[units$variable == "power"] <- "W"
         }
     } else {
         if (units$unit[units$variable == "speed"] != "m_per_s"){
             changeUnits(object, variable = "speed", unit = "m_per_s")
+            conversion <- match.fun(paste(units$unit[units$variable == "speed"], "m_per_s", sep = "2"))
+            cp <- conversion(cp)
             units$unit[units$variable == "speed"] <- "m_per_s"
         }
     }
@@ -167,6 +171,7 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"),
     attr(ret, "w0") <- if (missing(w0)) NA else w0
     attr(ret, "cp") <- cp
     attr(ret, "cycling") <- cycling
+    attr(ret, "unit") <- units[units$variable == ps,]
     class(ret) <- "trackeRWprime"
     return(ret)
 }
