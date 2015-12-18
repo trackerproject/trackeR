@@ -59,10 +59,12 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
 
     ## smooth
     if (smooth) {
+        xo <- x[session]
         if (is.null(getOperations(x)$smooth)) {
             x <- smoother(x, what = what, session = session, ...)
         } else {
             warning("This object has already been smoothed. No additional smoothing takes place.")
+            smooth <- FALSE ## it's not the plot function calling smoother
             x <- x[session]
         }
     } else {
@@ -70,7 +72,7 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     }
 
     ## get data
-    df <- fortify(x, melt = TRUE)
+    df <- if (smooth) fortify(xo, melt = TRUE) else fortify(x, melt = TRUE)
 
     ## prepare session id for panel header 
     if (dates) {
@@ -108,19 +110,46 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     }
     lab <- Vectorize(lab)
 
-    ## basic plot (make geom flexible?)
-    p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes(x = Index, y = Value)) + ggplot2::geom_line() +
+    ## basic plot 
+    p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes(x = Index, y = Value)) +
+        ggplot2::geom_line(color = if (smooth) "gray" else "black") +
         ggplot2::ylab(if(singleVariable) lab("Series", levels(df$Series)) else "") + ggplot2::xlab("time")
-    if (trend) p <- p + ggplot2::geom_smooth(method = "gam",
-                                             formula = y ~ s(x, bs = "cs"),
-                                             alpha = 0.5,
-                                             se = FALSE)
+    if (trend & !smooth){
+        p <- p + ggplot2::geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"), alpha = 0.5, se = FALSE)
+    }
     ## add facet if necessary
     if (!is.null(facets)){
         p <- p + ggplot2::facet_grid(facets, scales = "free", labeller = lab)
     }
     ## add bw theme
     p <- p + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1))
+
+
+    ## if plot did smoothing add smoothed data on top of plot
+    if (smooth){
+        ## data prep
+        dfs <- fortify(x, melt = TRUE)
+        if (dates) {
+            dfs$SessionID <- format(session[dfs$SessionID])
+            dfs$SessionID <- gsub(" ", "0", dfs$SessionID)
+            dfs$SessionID <- paste(dfs$SessionID, format(dfs$Index, "%Y-%m-%d"), sep = ": ")
+        }
+        else {
+            dfs$SessionID <- factor(dfs$SessionID, levels = seq_along(session), labels = session)
+        }
+        dfs <- subset(dfs, Series %in% what)
+        dfs$Series <- factor(dfs$Series)
+        for(l in levels(dfs$Series)){
+            if (all(is.na(subset(dfs, Series == l, select = "Value"))))
+                dfs <- dfs[!(dfs$Series == l), ]
+        }
+        ## add plot layers
+        p <- p + ggplot2::geom_line(ggplot2::aes(x = Index, y = Value), data = dfs, col = "black")
+        if (trend){
+            p <- p + ggplot2::geom_smooth(data = dfs, method = "gam", formula = y ~ s(x, bs = "cs"),
+                                          alpha = 0.5, se = FALSE)
+        }
+    }
 
     return(p)
 }
@@ -239,5 +268,4 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
     }
 
     return(p)
-
 }
