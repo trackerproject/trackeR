@@ -104,6 +104,7 @@ changeUnits.trackeRdataSummary <- function(object, variable, unit, ...){
     ## NOTE: variable is expected to contain concepts like "speed" rather than variable names like "avgSpeed" or "avgSpeedMoving".
     concept <- variable
     current <- getUnits(object)
+    object <- as.data.frame(object)
     for (i in concept){
         variables <- names(object)[grep(pattern = i, names(object), ignore.case = TRUE)]
         currentUnit <- current$unit[current$variable == i] ## $concept
@@ -120,6 +121,7 @@ changeUnits.trackeRdataSummary <- function(object, variable, unit, ...){
 
     ## update units attribute and return
     attr(object, "units") <- current
+    class(object) <- c("trackeRdataSummary", class(object))
     return(object)
 }    
 
