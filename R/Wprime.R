@@ -176,13 +176,15 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"),
 #' @param x An object of class \code{trackeRWprime} as returned by \code{\link{Wprime}}.
 #' @param session A numeric vector of the sessions to be plotted, defaults to all sessions.
 #' @param dates Logical. Should the date of the session be used in the panel header?
+#' @param scaled Logical. Should the W' be scaled to the movement variable (power or speed)
+#'     which is then plotted in the background?
 #' @param ... Currently not used.
 #' @export
 #' @examples
 #' data("runs", package = "trackeR")
 #' wexp <- Wprime(runs, session = 1:3, cp = 4, version = "2012")
 #' plot(wexp, session = 1:2) 
-plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, ...){
+plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, ...){
 
     quantity <- attr(x, "quantity")
     cp <- attr(x, "cp")
@@ -196,20 +198,21 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, ...){
     x <- x[session]
 
     ## transform W' to match power/speed scale
-    sdMov <- sd(unlist(lapply(x, function(z) z$movement)), na.rm = TRUE)
-    mMov <- mean(unlist(lapply(x, function(z) z$movement)), na.rm = TRUE)
+    if (scaled){
+        sdMov <- sd(unlist(lapply(x, function(z) z$movement)), na.rm = TRUE)
+        mMov <- mean(unlist(lapply(x, function(z) z$movement)), na.rm = TRUE)
 
-    x <- lapply(x, function(z){
-                    w <- (coredata(z$wprime) - mean(coredata(z$wprime), na.rm = TRUE)) /
-                        sd(coredata(z$wprime), na.rm = TRUE)
-                    w <- w * sdMov #sd(coredata(z$movement), na.rm = TRUE)
-                    z$wprime <- w + mMov
-                        # max(mMov, abs(min(w, na.rm = TRUE)))
-                        # max(mean(coredata(z$movement), na.rm = TRUE), abs(min(w, na.rm = TRUE)))
-                    return(z)
-                })
+        x <- lapply(x, function(z){
+                        w <- (coredata(z$wprime) - mean(coredata(z$wprime), na.rm = TRUE)) /
+                            sd(coredata(z$wprime), na.rm = TRUE)
+                        w <- w * sdMov #sd(coredata(z$movement), na.rm = TRUE)
+                        z$wprime <- w + mMov
+                                        # max(mMov, abs(min(w, na.rm = TRUE)))
+                                        # max(mean(coredata(z$movement), na.rm = TRUE), abs(min(w, na.rm = TRUE)))
+                        return(z)
+                    })
+    }
 
-    
     ## get data
     class(x) <- "trackeRWprime"
     df <- fortify(x, melt = TRUE)
@@ -234,15 +237,22 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, ...){
     singleSession <- length(session) == 1L
     facets <- if (singleSession) NULL else . ~ SessionID
 
-    ## basic plot
-    p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes(x = Index, y = Value)) +
+    if (scaled){
+        ## basic plot
+        p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes(x = Index, y = Value)) +
             ggplot2::ylab("") + ggplot2::xlab("Time")
-    ## lines for power/speed and W'
-    p <- p + ggplot2::geom_line(ggplot2::aes(group = Series, col = Series)) +
+        ## lines for power/speed and W'
+        p <- p + ggplot2::geom_line(ggplot2::aes(group = Series, col = Series)) +
             ggplot2::scale_colour_manual(name = "", labels = mylabels, values = c("gray","blue"))
-    ## add line for cp
-    p <- p + ggplot2::geom_hline(data = data.frame(cp = cp), ggplot2::aes(yintercept = cp), col = "black")
-
+        ## add line for cp
+        p <- p + ggplot2::geom_hline(data = data.frame(cp = cp), ggplot2::aes(yintercept = cp), col = "black")
+    } else {
+        ## basic plot
+        p <- ggplot2::ggplot(data = subset(df, Series == "wprime"), mapping = ggplot2::aes(x = Index, y = Value)) +
+            ggplot2::ylab(paste("W'", quantity, Wunit)) + ggplot2::xlab("Time")
+        ## lines for W'
+        p <- p + ggplot2::geom_line()        
+    }
     ## add facet if necessary
     if (!is.null(facets)){
         p <- p + ggplot2::facet_grid(facets, scales = "free")
@@ -251,7 +261,6 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, ...){
     p <- p + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1))
 
     return(p)
-    
 }
 
 

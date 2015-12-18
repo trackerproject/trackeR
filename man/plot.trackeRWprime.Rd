@@ -4,7 +4,8 @@
 \alias{plot.trackeRWprime}
 \title{Plot W'.}
 \usage{
-\method{plot}{trackeRWprime}(x, session = NULL, dates = TRUE, ...)
+\method{plot}{trackeRWprime}(x, session = NULL, dates = TRUE,
+  scaled = TRUE, ...)
 }
 \arguments{
 \item{x}{An object of class \code{trackeRWprime} as returned by \code{\link{Wprime}}.}
@@ -12,6 +13,9 @@
 \item{session}{A numeric vector of the sessions to be plotted, defaults to all sessions.}
 
 \item{dates}{Logical. Should the date of the session be used in the panel header?}
+
+\item{scaled}{Logical. Should the W' be scaled to the movement variable (power or speed)
+which is then plotted in the background?}
 
 \item{...}{Currently not used.}
 }
