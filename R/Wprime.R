@@ -195,7 +195,7 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, .
     cp <- attr(x, "cp")
     cycling <- attr(x, "cycling")
     Wunit <- if (cycling) "[J]" else "[m]"
-    mylabels <- c(ifelse(cycling, "Power [J]", "Speed [m/s]"),
+    mylabels <- c(paste0(ifelse(cycling, "Power", "Speed"), " [", prettifyUnits(attr(x, "unit")$unit), "]"),
                   paste("W'", quantity, "[scaled]"))
     
     ## select sessions
