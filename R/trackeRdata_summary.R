@@ -318,22 +318,20 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, .
         p <- p + ggplot2::geom_line(ggplot2::aes(x = xaxis, y = value, color = type))
 
     ## facets
-    lab <- function(variable, value){
-        if (variable == "variable"){
-            ## match variable with concept
-            value <- as.character(value)
-            concept <- switch(value, avgPace = "pace", avgSpeed = "speed",
-                              distance = "distance", duration = "duration",
-                              avgPower = "power", avgCadence = "cadence", avgHeartRate = "heart.rate")
-            ret <- paste0(value, " [", units$unit[units$variable == concept], "]")
-            if (value == "wrRatio") ret <- "wrRatio"
-        } else {
-            ret <- as.character(value)
-        }
-        return(ret)
+    lab_sum <- function(series){
+        series <- as.character(series)
+        if (series == "wrRatio") return("wrRatio")
+        concept <- switch(series, avgPace = "pace", avgSpeed = "speed",
+                          distance = "distance", duration = "duration",
+                          avgPower = "power", avgCadence = "cadence", avgHeartRate = "heart.rate")
+        thisunit <- units$unit[units$variable == concept]
+        prettyUnit <- prettifyUnits(thisunit)
+        paste0(series, " [", prettyUnit,"]")
     }
-    lab <- Vectorize(lab)
-    p <- p + ggplot2::facet_grid(facets = variable ~ ., scales = "free_y", labeller = lab) +
+    lab_sum <- Vectorize(lab_sum)
+
+    p <- p + ggplot2::facet_grid(facets = variable ~ ., scales = "free_y",
+                                 labeller = ggplot2::labeller(variable = lab_sum)) +
         ggplot2::theme(legend.position = "top")
 
     ## add bw theme

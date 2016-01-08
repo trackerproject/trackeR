@@ -134,15 +134,22 @@ plot.conProfile <- function(x, session = NULL, what = c("speed", "heart.rate"),
     ## make basic plot and facets
     singleVariable <- nlevels(df$Profile) == 1L
     singleSession <- nlevels(df$Series) == 1L
+    lab_data <- function(series){
+        thisunit <- units$unit[units$variable == series]
+        prettyUnit <- prettifyUnits(thisunit)
+        paste0(series, " [", prettyUnit,"]")
+    }
+    lab_data <- Vectorize(lab_data)
+
     if (multiple){
         p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes(x = Index, y = Value, group = Series, color = Series)) +
             ggplot2::geom_line() + ggplot2::ylab("dtime") +
-                ggplot2::xlab(if(singleVariable) levels(df$Profile) else "")
+                ggplot2::xlab(if(singleVariable) lab_data(levels(df$Profile)) else "")
         facets <- if(singleVariable) NULL else . ~ Profile
     } else {
         p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes(x = Index, y = Value)) + ggplot2::geom_line() +
             ggplot2::ylab("dtime") +
-                ggplot2::xlab(if(singleVariable) levels(df$Profile) else "")
+                ggplot2::xlab(if(singleVariable) lab_data(levels(df$Profile)) else "")
 
         facets <- if (singleVariable) {
             if (singleSession) NULL else Series ~ .
@@ -150,19 +157,10 @@ plot.conProfile <- function(x, session = NULL, what = c("speed", "heart.rate"),
             if(singleSession) . ~ Profile else Series ~ Profile
         }
     }
-    lab <- function(variable, value){
-        if (variable == "Profile"){
-            ret <- paste0(value, " [", units$unit[units$variable == value], "]")
-        } else {
-            ret <- as.character(value)
-        }
-        return(ret)
-    }
-    lab <- Vectorize(lab)
-    
+
     ## add facets if necessary
     if (!is.null(facets)){
-        p <- p + ggplot2::facet_grid(facets, scales = "free_x", labeller = lab)
+        p <- p + ggplot2::facet_grid(facets, scales = "free_x", labeller = ggplot2::labeller(Profile = lab_data))
     }
     
     ## add bw theme

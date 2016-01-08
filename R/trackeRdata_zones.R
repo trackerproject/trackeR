@@ -103,17 +103,15 @@ plot.trackeRdataZones <- function(x, percent = TRUE, ...){
 
     ## facets
     units <- getUnits(x)
-    lab <- function(variable, value){
-        value <- as.character(value)
-        if (variable == "variable"){
-            ret <- paste0(value, " [", units$unit[units$variable == value], "]")
-        } else {
-            ret <- as.character(value)
-        }
-        return(ret)
+    lab_data <- function(series){
+        thisunit <- units$unit[units$variable == series]
+        prettyUnit <- prettifyUnits(thisunit)
+        paste0(series, " [", prettyUnit,"]")
     }
-    lab <- Vectorize(lab)
-    p <-  p + ggplot2::facet_grid(. ~ variable, scales = "free_x", labeller = lab)
+    lab_data <- Vectorize(lab_data)
+
+    p <-  p + ggplot2::facet_grid(. ~ variable, scales = "free_x",
+                                  labeller = ggplot2::labeller(variable = lab_data))
 
     ## theme
     p <- p + ggplot2::theme_bw()

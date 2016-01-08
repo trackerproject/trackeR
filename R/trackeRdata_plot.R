@@ -100,26 +100,33 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     } else {
         if(singleSession) Series ~ . else Series ~ SessionID
     }
-    lab <- function(variable, value){
-        if (variable == "Series"){
-            ret <- paste0(value, " [", units$unit[units$variable == value], "]")
-        } else {
-            ret <- as.character(value)
-        }
-        return(ret)
+    ## lab <- function(variable, value){
+    ##     if (variable == "Series"){
+    ##         ret <- paste0(value, " [", units$unit[units$variable == value], "]")
+    ##     } else {
+    ##         ret <- as.character(value)
+    ##     }
+    ##     return(ret)
+    ## }
+    ## lab <- Vectorize(lab)
+    ## new (todo: make units an argument and move outside of plotting function
+    lab_data <- function(series){
+        thisunit <- units$unit[units$variable == series]
+        prettyUnit <- prettifyUnits(thisunit)
+        paste0(series, " [", prettyUnit,"]")
     }
-    lab <- Vectorize(lab)
+    lab_data <- Vectorize(lab_data)
 
     ## basic plot 
     p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes(x = Index, y = Value)) +
         ggplot2::geom_line(color = if (smooth) "gray" else "black") +
-        ggplot2::ylab(if(singleVariable) lab("Series", levels(df$Series)) else "") + ggplot2::xlab("time")
+        ggplot2::ylab(if(singleVariable) lab_data(levels(df$Series)) else "") + ggplot2::xlab("time")
     if (trend & !smooth){
         p <- p + ggplot2::geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"), alpha = 0.5, se = FALSE)
     }
     ## add facet if necessary
     if (!is.null(facets)){
-        p <- p + ggplot2::facet_grid(facets, scales = "free", labeller = lab)
+        p <- p + ggplot2::facet_grid(facets, scales = "free", labeller = ggplot2::labeller(Series = lab_data))
     }
     ## add bw theme
     p <- p + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1))
@@ -154,6 +161,24 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     return(p)
 }
 
+prettifyUnit <- function(unit){
+    unit <- as.character(unit)
+    prettyUnit <- switch(unit,
+                         m_per_s = "m/s",
+                         km_per_h = "km/h",
+                         ft_per_min = "ft/min",
+                         ft_per_s = "ft/s",
+                         mi_per_h = "mi/h",
+                         steps_per_min = "steps/min",
+                         rev_per_min = "revolutions/min",
+                         min_per_km = "min/km",
+                         min_per_mi = "min/mi",
+                         s_per_m = "s/m",
+                         as.character(unit))
+    return(prettyUnit)
+}
+prettifyUnits <- Vectorize(prettifyUnit)
+
 
 #' Fortify a trackeRdata object for plotting with ggplot2.
 #'
@@ -174,7 +199,6 @@ fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
     ret <- do.call("rbind", ret)
     return(ret)
 }
-
 
 #' Plot routes for training sessions.
 #'
