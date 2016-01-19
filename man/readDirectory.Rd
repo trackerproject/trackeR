@@ -44,8 +44,8 @@ file to be converted into meters per second. Default is \code{m_per_s} for tcx f
 file to be converted into meters. Default is \code{m} for tcx files and \code{km} for db3 files. See Details.}
 
 \item{cycling}{Logical. Do the data stem from cycling instead of running? If so, the default unit of
-measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min}. Argument
-\code{cycling} is overwritte if argument \code{units} is provided.}
+measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min} and power is
+imputed with \code{0}, else with \code{NA}.}
 
 \item{lgap}{Time in seconds corresponding to the minimal sampling rate.}
 

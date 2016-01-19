@@ -1,6 +1,3 @@
-## Once development of readTCX2 is complete, replace readTCX with
-## readTCX2 and edit variables names appropriately.
-
 #' Read a training file in tcx or db3 format.
 #'
 #' @param file The path to the file.
@@ -32,39 +29,90 @@
 #' ## alternatively
 #' run <- readContainer(filepath, type = "tcx", timezone = "GMT")
 #' }
+## Experimental function for reading TCX files
 readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "m", mc.cores = getOption("mc.cores", 2L)){
 
     ## relevant resource: http://gastonsanchez.com/work/webdata/getting_web_data_r4_parsing_xml_html.pdf
 
-    speedunit <- match.arg(speedunit, c("km_per_h", "mi_per_h", "m_per_s"))
-    distanceunit <- match.arg(distanceunit, c("km", "m", "mi"))
-
     ## read XML file
     doc <- XML::xmlParse(file)
     nodes <- XML::getNodeSet(doc, "//ns:Trackpoint", "ns")
-    ## mydf <- plyr::ldply(nodes, as.data.frame(XML::xmlToList))
-    ## removed dependence on ldply in order to use parallel package
-    ## (rather than adding another dependence to foreach that plyr
-    ## likes)
-    mydf <- plyr:::list_to_dataframe(parallel::mclapply(nodes, as.data.frame(XML::xmlToList), mc.cores = mc.cores))
+
+    mydf <- do.call("rbind", parallel::mclapply(nodes, function(node) {
+        ## Avoid memory leaks
+        nodeDoc <- XML::xmlDoc(node)
+        extnode <- XML::getNodeSet(nodeDoc, "//s:Extensions", "s")
+        if (length(extnode)) {
+            extnode <- extnode[[1]]
+            ns <- XML::xmlNamespaceDefinitions(extnode, recursive = TRUE, simplify = TRUE)
+            extnodeDoc <- XML::xmlDoc(extnode)
+            ## What if speed is not in an extensions node?
+            speed <- XML::xpathApply(extnodeDoc, "//o:Speed", namespaces = c(o = ns[1]), XML::xmlValue)
+            ## Check if there is cadence in nodeDoc or in an Extensions tag with distinct namespace
+            cadence2 <- XML::xpathApply(extnodeDoc, "//o:RunCadence", namespaces = c(o = ns[1]), XML::xmlValue)
+            watts <- XML::xpathApply(extnodeDoc, "//o:Watts", namespaces = c(o = ns[1]), XML::xmlValue)
+        }
+        else {
+            speed <- cadence2 <- watts <- list()
+        }
+        ## Avoid memory leaks
+        cadence1 <- XML::xpathApply(nodeDoc, "//o:Cadence", namespaces = "o", XML::xmlValue)
+        Len1 <- length(cadence1)
+        Len2 <- length(cadence2)
+        if ((!Len1 & !Len2) | (Len1 & !Len2)) cadence <- cadence1
+        if ((!Len1 & Len2) | (Len1 & Len2)) cadence <- cadence2
+        ## Cadence for cycling and running
+        longitude <- XML::xpathApply(nodeDoc, "//o:LongitudeDegrees", namespaces = "o", XML::xmlValue)
+        latitude <- XML::xpathApply(nodeDoc, "//o:LatitudeDegrees", namespaces = "o", XML::xmlValue)
+        time <- XML::xpathApply(nodeDoc, "//o:Time", namespaces = "o", XML::xmlValue)
+        altitude <- XML::xpathApply(nodeDoc, "//o:AltitudeMeters", namespaces = "o", XML::xmlValue)
+        distance <- XML::xpathApply(nodeDoc, "//o:DistanceMeters", namespaces = "o", XML::xmlValue)
+        ## What if hr is defined differently?
+        hr <- XML::xpathApply(nodeDoc, "//o:HeartRateBpm", namespaces = "o", XML::xmlValue)
+        nullout <- function(z) if (length(z)) z[[1]] else NA
+        c(time = time[[1]],
+          longitude = nullout(longitude),
+          latitude = nullout(latitude),
+          altitude = nullout(altitude),
+          distance = nullout(distance),
+          hr = nullout(hr),
+          speed = nullout(speed),
+          cadence = nullout(cadence),
+                  watts = nullout(watts))
+    }, mc.cores = mc.cores))
+
+    fac2num <- function(z) {
+        as.numeric(levels(z))[z]
+    }
 
     ## Test for useable data in container file
     if (!nrow(mydf)) {
         stop("no useable data in input")
     }
 
+    mydf <- within(as.data.frame(mydf), {
+        longitude = fac2num(longitude)
+        latitude = fac2num(latitude)
+        altitude = fac2num(altitude)
+        distance = fac2num(distance)
+        hr = fac2num(hr)
+        speed = fac2num(speed)
+        cadence = fac2num(cadence)
+        watts = fac2num(watts)
+    })
+
     ## perpare names
     allnames <- generateVariableNames()
     namesOfInterest <- allnames$tcxNames
     namesToBeUsed <- allnames$humanNames
 
-    ## handle alternative names for heart rate and speed
-    if (!("value.HeartRateBpm.Value" %in% names(mydf)) & ("value.Value" %in% names(mydf))) {
-        mydf[["value.HeartRateBpm.Value"]] <- mydf[["value.Value"]]
-    }
-    if (!("value.Extensions.TPX.Speed" %in% names(mydf)) & ("value.Speed" %in% names(mydf))) {
-        mydf[["value.Extensions.TPX.Speed"]] <- mydf[["value.Speed"]]
-    }
+    ## ## handle alternative names for heart rate and speed
+    ## if (!("value.HeartRateBpm.Value" %in% names(mydf)) & ("value.Value" %in% names(mydf))) {
+    ##     mydf[["value.HeartRateBpm.Value"]] <- mydf[["value.Value"]]
+    ## }
+    ## if (!("value.Extensions.TPX.Speed" %in% names(mydf)) & ("value.Speed" %in% names(mydf))) {
+    ##     mydf[["value.Extensions.TPX.Speed"]] <- mydf[["value.Speed"]]
+    ## }
 
     ## extract the interesting variables
     inds <- match(namesOfInterest, names(mydf), nomatch = 0)
@@ -112,6 +160,8 @@ readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "
 
     return(newdat)
 }
+
+
 
 #' @param table Character string indicating the name of the table with the GPS data in the db3 container file.
 #' @inheritParams readX
@@ -223,7 +273,7 @@ readContainer <- function(file, type = c("tcx", "db3"),
     
     ## read gps data
     dat <- switch(type,
-                  "tcx" = readTCX2(file = file, timezone = timezone, speedunit = speedunit,
+                  "tcx" = readTCX(file = file, timezone = timezone, speedunit = speedunit,
                       distanceunit = distanceunit, mc.cores = mc.cores),
                   "db3" = readDB3(file = file, table = table, timezone = timezone,
                       speedunit = speedunit, distanceunit = distanceunit)
@@ -260,27 +310,15 @@ generateVariableNames <- function() {
     ## https://en.wikipedia.org/wiki/Training_Center_XML
     ## http://www8.garmin.com/xmlschemas/index.jsp#/web/docs/xmlschemas
     ## http://www.garmindeveloper.com/schemas/tcx/v2/
-
-    ## Remove once development of readTCX2 is complete
-    tcxNames <- paste0("value.", c("Time",
-                                   "Position.LatitudeDegrees",
-                                   "Position.LongitudeDegrees",
-                                   "AltitudeMeters",
-                                   "DistanceMeters",
-                                   "HeartRateBpm.Value",
-                                   "Extensions.TPX.Speed",
-                                   "Cadence",
-                                   "Extensions.TPX.Watts"))
-
-    tcxNames2 <- c("time",
-                   "latitude",
-                   "longitude",
-                   "altitude",
-                   "distance",
-                   "hr",
-                   "speed",
-                   "cadence",
-                   "watts")
+    tcxNames <- c("time",
+                  "latitude",
+                  "longitude",
+                  "altitude",
+                  "distance",
+                  "hr",
+                  "speed",
+                  "cadence",
+                  "watts")
 
     ## Resource for db3: none... mostly reverse engineering
     db3Names <-     c("dttm",
@@ -294,145 +332,11 @@ generateVariableNames <- function() {
                       "watts")
 
     list(humanNames = humanNames,
-         tcxNames2 = tcxNames2,
-         ## Remove once development of readTCX2 is complete
          tcxNames = tcxNames,
          db3Names = db3Names)
-
 }
 
 
-## Experimental function for reading TCX files
-readTCX2 <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "m", mc.cores = getOption("mc.cores", 2L)){
-
-    ## relevant resource: http://gastonsanchez.com/work/webdata/getting_web_data_r4_parsing_xml_html.pdf
-
-    ## read XML file
-    doc <- XML::xmlParse(file)
-    nodes <- XML::getNodeSet(doc, "//ns:Trackpoint", "ns")
-
-    mydf <- do.call("rbind", parallel::mclapply(nodes, function(node) {
-        ## Avoid memory leaks
-        nodeDoc <- XML::xmlDoc(node)
-        extnode <- XML::getNodeSet(nodeDoc, "//s:Extensions", "s")
-        if (length(extnode)) {
-            extnode <- extnode[[1]]
-            ns <- XML::xmlNamespaceDefinitions(extnode, recursive = TRUE, simplify = TRUE)
-            extnodeDoc <- XML::xmlDoc(extnode)
-            ## What if speed is not in an extensions node?
-            speed <- XML::xpathApply(extnodeDoc, "//o:Speed", namespaces = c(o = ns[1]), XML::xmlValue)
-            ## Check if there is cadence in nodeDoc or in an Extensions tag with distinct namespace
-            cadence2 <- XML::xpathApply(extnodeDoc, "//o:RunCadence", namespaces = c(o = ns[1]), XML::xmlValue)
-            watts <- XML::xpathApply(extnodeDoc, "//o:Watts", namespaces = c(o = ns[1]), XML::xmlValue)
-        }
-        else {
-            speed <- cadence2 <- watts <- list()
-        }
-        ## Avoid memory leaks
-        cadence1 <- XML::xpathApply(nodeDoc, "//o:Cadence", namespaces = "o", XML::xmlValue)
-        Len1 <- length(cadence1)
-        Len2 <- length(cadence2)
-        if ((!Len1 & !Len2) | (Len1 & !Len2)) cadence <- cadence1
-        if ((!Len1 & Len2) | (Len1 & Len2)) cadence <- cadence2
-        ## Cadence for cycling and running
-        longitude <- XML::xpathApply(nodeDoc, "//o:LongitudeDegrees", namespaces = "o", XML::xmlValue)
-        latitude <- XML::xpathApply(nodeDoc, "//o:LatitudeDegrees", namespaces = "o", XML::xmlValue)
-        time <- XML::xpathApply(nodeDoc, "//o:Time", namespaces = "o", XML::xmlValue)
-        altitude <- XML::xpathApply(nodeDoc, "//o:AltitudeMeters", namespaces = "o", XML::xmlValue)
-        distance <- XML::xpathApply(nodeDoc, "//o:DistanceMeters", namespaces = "o", XML::xmlValue)
-        ## What if hr is defined differently?
-        hr <- XML::xpathApply(nodeDoc, "//o:HeartRateBpm", namespaces = "o", XML::xmlValue)
-        nullout <- function(z) if (length(z)) z[[1]] else NA
-        c(time = time[[1]],
-          longitude = nullout(longitude),
-          latitude = nullout(latitude),
-          altitude = nullout(altitude),
-          distance = nullout(distance),
-          hr = nullout(hr),
-          speed = nullout(speed),
-          cadence = nullout(cadence),
-                  watts = nullout(watts))
-    }, mc.cores = mc.cores))
-
-    fac2num <- function(z) {
-        as.numeric(levels(z))[z]
-    }
-
-    ## Test for useable data in container file
-    if (!nrow(mydf)) {
-        stop("no useable data in input")
-    }
-
-    mydf <- within(as.data.frame(mydf), {
-        longitude = fac2num(longitude)
-        latitude = fac2num(latitude)
-        altitude = fac2num(altitude)
-        distance = fac2num(distance)
-        hr = fac2num(hr)
-        speed = fac2num(speed)
-        cadence = fac2num(cadence)
-        watts = fac2num(watts)
-    })
-
-    ## perpare names
-    allnames <- generateVariableNames()
-    namesOfInterest <- allnames$tcxNames2
-    namesToBeUsed <- allnames$humanNames
-
-    ## ## handle alternative names for heart rate and speed
-    ## if (!("value.HeartRateBpm.Value" %in% names(mydf)) & ("value.Value" %in% names(mydf))) {
-    ##     mydf[["value.HeartRateBpm.Value"]] <- mydf[["value.Value"]]
-    ## }
-    ## if (!("value.Extensions.TPX.Speed" %in% names(mydf)) & ("value.Speed" %in% names(mydf))) {
-    ##     mydf[["value.Extensions.TPX.Speed"]] <- mydf[["value.Speed"]]
-    ## }
-
-    ## extract the interesting variables
-    inds <- match(namesOfInterest, names(mydf), nomatch = 0)
-    newdat <- mydf[inds]
-    names(newdat) <- namesToBeUsed[inds!=0]
-
-    ## START hack: this is a hack for instances where only the time was
-    ## recorded because if the node had only Time recordings then the
-    ## record goes to the Time variable of mydf instead of the
-    ## value.Time
-    if ("time" %in% names(newdat)) {
-        newdat$time <- as.character(newdat$time)
-        newdat$time[is.na(newdat$time)] <- as.character(mydf$Time[is.na(newdat$time)])
-    }
-    ## END hack
-
-    ## coerce time into POSIXct
-    newdat$time <- as.POSIXct(newdat$time, format = "%Y-%m-%dT%H:%M:%OSZ",
-                              tz = timezone)
-    ## coerce the numeric variables into the correct class
-    numVars <- which(names(newdat) != "time")
-    for (i in numVars){
-        newdat[,i] <- as.numeric(as.character(newdat[, i]))
-    }
-
-    ## add missing variables as NA
-    missingVars <- namesToBeUsed[match(namesToBeUsed, names(newdat), nomatch = 0) == 0]
-    if (nrow(newdat) > 0) {
-        for (nn in missingVars) {
-            newdat[[nn]] <- NA
-        }
-    }
-
-    ## convert speed to m/s from speedunit
-    speedConversion <- match.fun(paste(speedunit, "m_per_s", sep = "2"))
-    newdat$speed <- speedConversion(newdat$speed)
-
-    ## convert distance to m from distanceunit
-    distanceConversion <- match.fun(paste("m", distanceunit, sep = "2"))
-    newdat$distance <- distanceConversion(newdat$distance)
-
-    ## use variable order for trackeRdata
-    if (any(names(newdat) != allnames$humanNames))
-        newdat <- newdat[, allnames$humanNames]
-
-    return(newdat)
-}
 
 ## Reads supported container files from a supplied directory
 ## CYCLING applied to all files!
@@ -450,12 +354,15 @@ readTCX2 <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = 
 #'     file to be converted into meters per second. Default is \code{m_per_s} for tcx files and \code{km_per_h} for db3 files. See Details.
 #' @param distanceunit Character string indicating the measurement unit of the distance in the container
 #'     file to be converted into meters. Default is \code{m} for tcx files and \code{km} for db3 files. See Details.
+#' @param cycling Logical. Do the data stem from cycling instead of running? If so, the default unit of
+#'     measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min} and power is
+#'     imputed with \code{0}, else with \code{NA}.
 #' @param verbose Logical. Should progress reports be printed?
 #' @inheritParams readX
 #' @inheritParams restingPeriods
 #' @inheritParams imputeSpeeds
 #' @inheritParams trackeRdata
-#' @details  Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_per_s},
+#' @details Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_per_s},
 #'     \code{mi_per_h}, \code{ft_per_min} and \code{ft_per_s}.
 #'     Available options for \code{distanceunit} currently are \code{km}, \code{m}, \code{mi} and
 #'     \code{ft}.
@@ -495,7 +402,7 @@ readDirectory <- function(directory,
         if (aggregate){
             for (j in seq.int(ltcx)) {
                 if (verbose) cat("Reading file", tcxfiles[j], paste0("(file ", j, " out of ", ltcx, ")"), "...\n")
-                tcxData[[j]] <- try(readTCX2(tcxfiles[j],
+                tcxData[[j]] <- try(readTCX(tcxfiles[j],
                                              timezone = timezone,
                                              speedunit = speedunit$tcx,
                                              distanceunit = distanceunit$tcx,
