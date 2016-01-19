@@ -14,6 +14,8 @@
 #'     and the first imputed speed or the last imputed speed and the first
 #'     observation after a small break.
 #' @param m Number of imputed observations in each small break.
+#' @param cycling Logical. Are the data from a cycling session? If \code{TRUE}, power is
+#'     imputed with \code{0}, else with \code{NA}.
 #'
 #' @return A multivariate \code{\link[zoo]{zoo}} object with imputed observations:
 #'     0 for speed, last known position for latitude, longitude and altitude,
@@ -21,7 +23,8 @@
 #' @references Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
 #'     Endurance Runners to Training and Physiological Effects via Multi-Resolution
 #'     Elastic Net. \emph{ArXiv e-print} arXiv:1506.01388.
-imputeSpeeds <- function(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5, m = 11) {
+imputeSpeeds <- function(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5, m = 11,
+                         cycling = FALSE) {
 
     if (length(sessionData) < 2) {
         return(sessionData)
@@ -30,8 +33,18 @@ imputeSpeeds <- function(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5
     ## order variables for imputation:
     ## variables with 'content' imputation and variables with NA imputation
     originalOrder <- names(sessionData)
-    impC <- match(c("latitude", "longitude", "altitude", "distance", "speed"), names(sessionData))
-    impN <- which(is.na(match(names(sessionData), c("latitude", "longitude", "altitude", "distance", "speed"))))
+    if (cycling){
+        impC <- match(c("latitude", "longitude", "altitude", "distance", "speed", "power"), names(sessionData))
+        impN <- which(is.na(match(names(sessionData), c("latitude", "longitude", "altitude", "distance", "speed", "power"))))
+        impPower <- 0
+        nN <- length(impN)
+    }
+    else {
+        impC <- match(c("latitude", "longitude", "altitude", "distance", "speed"), names(sessionData))
+        impN <- which(is.na(match(names(sessionData), c("latitude", "longitude", "altitude", "distance", "speed"))))
+        impPower <- NA
+        nN <- length(impN) - 1
+    }
     sessionData <- sessionData[, c(impC, impN)]
 
     ## Calculate speeds
@@ -78,12 +91,13 @@ imputeSpeeds <- function(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5
                 0,
                 ## speed
                 0,
+                ## power
+                impPower,
                 ## anything else
-                rep(NA, length(impN))), ncol = ncol(sessionData),
+                rep(NA, nN)), ncol = ncol(sessionData),
                               dimnames = list(NULL, names(sessionData)))
             imputedData <- c(imputedData,
                              zoo(x = newdata, order.by = newtimes))
-            ## README: impute last known position for lat, long, alt instead of NA?
         }
     }
     ## Add observations at the begininng and end
@@ -97,8 +111,10 @@ imputeSpeeds <- function(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5
         0,
         ## speed
         0,
+        ## power
+        impPower,
         ## anything else
-        rep(NA, length(impN))), ncol = ncol(sessionData),
+        rep(NA, nN)), ncol = ncol(sessionData),
                            dimnames = list(NULL, names(sessionData)))
     newtimesEnd <- seq(shortBreaks$sessions$sessionEnd[nLaps] + 1,
                        shortBreaks$sessions$sessionEnd[nLaps] + 5,
@@ -110,8 +126,10 @@ imputeSpeeds <- function(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5
         0,
         ## speed
         0,
+        ## power
+        impPower,
         ## anything else
-        rep(NA, length(impN))), ncol = ncol(sessionData),
+        rep(NA, nN)), ncol = ncol(sessionData),
                          dimnames = list(NULL, names(sessionData)))
     imputedData <- c(imputedData,
                      zoo(x = newdataStart, order.by = newtimesStart),

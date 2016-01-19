@@ -6,8 +6,8 @@
 #' @param dat A data frame.
 #' @param units A data frame containing the unit of measurement for all variables. See Details.
 #' @param cycling Logical. Do the data stem from cycling instead of running? If so, the default unit of
-#'     measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min}. Argument
-#'     \code{cycling} is overwritte if argument \code{units} is provided.
+#'     measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min} and power is
+#'     imputed with \code{0}, else with \code{NA}.
 #' @param correctDistances Logical. Should the distances be corrected for elevation?
 #' @param country ISO3 country code for downloading altitude data. If \code{NULL}, country is derived from
 #'     longitude and latitude.
@@ -33,8 +33,9 @@
 #' 
 #'     During small breaks within a session, e.g., because the recording device was paused,
 #'     observations are imputed the following way: 
-#'     0 for speed, last known position for latitude, longitude and altitude, and
-#'     NA for all other variables. Distances are (re-)calculated based on speeds after imputation.
+#'     0 for speed, last known position for latitude, longitude and altitude,
+#'     NA or 0 power for running or cycling session, respectively, and NA for all other
+#'     variables. Distances are (re-)calculated based on speeds after imputation.
 #' @seealso \code{\link{readContainer}} for reading .tcx and .db3 files directly into \code{trackeRdata} objects.
 #' @examples
 #' \dontrun{
@@ -59,6 +60,18 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2
     if (is.null(units)) {
         units <- generateBaseUnits(cycling)
     }
+    if (cycling) {
+        if (units$unit[units$variable == "cadence"] != "rev_per_min") {
+            warning("Unit for cadence is set to 'rev_per_min' due to cycling = TRUE.")
+            units$unit[units$variable == "cadence"] <- "rev_per_min"
+        }
+    } else {
+        if (units$unit[units$variable == "cadence"] != "steps_per_min") {
+            warning("Unit for cadence is set to 'steps_per_min' due to cycling = FALSE.")
+            units$unit[units$variable == "cadence"] <- "steps_per_min"
+        }
+    }
+
     ## ensure units are characters, not factors, if provided by the user
     for (i in seq_len(ncol(units))) {
         if (is.factor(units[,i])) units[,i] <- as.character(units[,i])
@@ -75,7 +88,7 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2
     
     ## impute speeds in each session
     trackerdat <- lapply(trackerdat, imputeSpeeds, fromDistances = fromDistances,
-                         lgap = lgap, lskip = lskip, m = m)
+                         lgap = lgap, lskip = lskip, m = m, cycling = cycling)
 
     ## add pace
     ## (if unspecified: in min per 1 km if speed unit refers to km or m,
