@@ -6,7 +6,7 @@
 \usage{
 distributionProfile(object, session = NULL, what = c("speed", "heart.rate"),
   grid = list(speed = seq(0, 12.5, by = 0.05), heart.rate = seq(0, 250)),
-  parallel = TRUE, mc.cores = getOption("mc.cores", 2L))
+  scaled = FALSE, parallel = TRUE, mc.cores = getOption("mc.cores", 2L))
 }
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}
@@ -16,6 +16,8 @@ distributionProfile(object, session = NULL, what = c("speed", "heart.rate"),
 \item{what}{The variables for which the distribution profiles should be generated.}
 
 \item{grid}{A named list containing the grid for the variables in \code{what}.}
+
+\item{scaled}{Logical. Should the distribution profiles be scaled relative to their maximum value?}
 
 \item{parallel}{Logical. Should computation be carried out in parallel?}
 
