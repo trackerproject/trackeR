@@ -2,10 +2,11 @@
 #'
 #' @param object An object of class \code{\link{trackeRdata}}.
 #' @param session A numeric vector of the sessions to be summarised, defaults to all sessions.
-#' @param movingThreshold The threshold above which speed an athlete is considered moving.
+#' @param movingThreshold The threshold above which speed an athlete is considered moving (given in the unit of the speed measurements in \code{object}. If \code{NULL}, the default, the threshold corresponds to a slow walking speed (1 m/s, converted to another speed unit, if necessary). For reference, the preferred walking speed for humans is around 1.4 m/s (Bohannon, 1997).
 #' @param ... Currently not used.
 #' @return An object of class \code{trackeRdataSummary}.
 #' @seealso \code{\link{plot.trackeRdataSummary}}
+#' @references Bohannon RW (1997). "Comfortable and Maximum Walking Speed of Adults Aged 20--79 Years: Reference Values and Determinants." Age and Ageing, 26(1), 15--19. doi: 10.1093/ageing/26.1.15.
 #' @examples
 #' data(runs, package = "trackeR")
 #' runSummary <- summary(runs, session = 1:2)
@@ -20,9 +21,19 @@
 #' plot(runSummaryFull, group = c("total", "moving"),
 #'     what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
 #' @export
-summary.trackeRdata <- function(object, session = NULL, movingThreshold = 0.1, ...){
+summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, ...){
 
+    ## threshold defining 'moving'
     units <- getUnits(object)
+    if (is.null(movingThreshold)){
+        ## set to a speed (somewhat) below the preferred walking speed of ~1.4 m/s (Bohannon, 1997)
+        movingThreshold <- 1
+        speedUnit <- units$unit[units$variable == "speed"]
+        if (speedUnit != "m_per_s") {
+            conversion <- match.fun(paste("m_per_s", speedUnit, sep = "2"))
+            movingThreshold <- conversion(movingThreshold)
+        }
+    }
 
     ## select sessions
     if (is.null(session)) session <- 1:length(object)

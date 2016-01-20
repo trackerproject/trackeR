@@ -4,15 +4,15 @@
 \alias{summary.trackeRdata}
 \title{Summary of training sessions.}
 \usage{
-\method{summary}{trackeRdata}(object, session = NULL, movingThreshold = 0.1,
-  ...)
+\method{summary}{trackeRdata}(object, session = NULL,
+  movingThreshold = NULL, ...)
 }
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}
 
 \item{session}{A numeric vector of the sessions to be summarised, defaults to all sessions.}
 
-\item{movingThreshold}{The threshold above which speed an athlete is considered moving.}
+\item{movingThreshold}{The threshold above which speed an athlete is considered moving (given in the unit of the speed measurements in \code{object}. If \code{NULL}, the default, the threshold corresponds to a slow walking speed (1 m/s, converted to another speed unit, if necessary). For reference, the preferred walking speed for humans is around 1.4 m/s (Bohannon, 1997).}
 
 \item{...}{Currently not used.}
 }
@@ -35,6 +35,9 @@ runSummaryFull <- summary(runs)
 plot(runSummaryFull)
 plot(runSummaryFull, group = c("total", "moving"),
     what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
+}
+\references{
+Bohannon RW (1997). "Comfortable and Maximum Walking Speed of Adults Aged 20--79 Years: Reference Values and Determinants." Age and Ageing, 26(1), 15--19. doi: 10.1093/ageing/26.1.15.
 }
 \seealso{
 \code{\link{plot.trackeRdataSummary}}
