@@ -20,7 +20,7 @@ level and 20 to building level).}
 
 \item{threshold}{Logical. Should thresholds be applied?}
 
-\item{...}{Additional arguments passed on to \code{\link{threshold.trackeRdata}} and
+\item{...}{Additional arguments passed on to \code{\link{threshold}} and
 \code{\link[ggmap]{get_map}}, e.g., \code{source} and \code{maptype}.}
 }
 \description{

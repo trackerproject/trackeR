@@ -9,7 +9,7 @@
 #' @param smooth Logical. Should the data be smoothed?
 #' @param trend Logical. Should a smooth trend be plotted?
 #' @param dates Logical. Should the date of the session be used in the panel header?
-#' @param ... Further arguments to be passed to \code{\link{threshold.trackeRdata}} and
+#' @param ... Further arguments to be passed to \code{\link{threshold}} and
 #'     \code{\link{smootherControl.trackeRdata}}.
 #' @details Note that a threshold is always applied to the pace. This (upper) threshold
 #'     corresponds to a speed of 1.4 meters per second, the preferred walking speed of
@@ -212,7 +212,7 @@ fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
 #'     level and 20 to building level).
 #' @param speed Logical. Should the trace be colored according to speed?
 #' @param threshold Logical. Should thresholds be applied?
-#' @param ... Additional arguments passed on to \code{\link{threshold.trackeRdata}} and
+#' @param ... Additional arguments passed on to \code{\link{threshold}} and
 #'     \code{\link[ggmap]{get_map}}, e.g., \code{source} and \code{maptype}.
 #' @seealso \code{\link[ggmap]{get_map}}, \code{\link[ggmap]{ggmap}}
 #' @examples

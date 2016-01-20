@@ -4,13 +4,13 @@
 \name{trackeR}
 \alias{trackeR}
 \alias{trackeR-package}
-\title{foo: A package for computating the notorious bar statistic.}
+\title{trackeR: Infrastructure for for handling cycling and running data from GPS-enabled tracking devices}
 \description{
-The foo package provides three categories of important functions:
-foo, bar and baz.
-}
-\section{Foo functions}{
-
-The foo functions ...
+trackeR provides infrastructure for handling cycling and running
+data from GPS-enabled tracking devices. After extraction and appropriate
+manipulation of the training or competition attributes, the data are placed into
+session-aware data objects with an S3 class trackeRdata. The information in the
+resultant data objects can then be visualised, summarised and analysed through
+corresponding flexible and extensible methods.
 }
 

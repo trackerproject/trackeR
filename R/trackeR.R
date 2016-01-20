@@ -1,11 +1,12 @@
-#' foo: A package for computating the notorious bar statistic.
+#' trackeR: Infrastructure for for handling cycling and running data from GPS-enabled tracking devices
 #'
-#' The foo package provides three categories of important functions:
-#' foo, bar and baz.
+#' trackeR provides infrastructure for handling cycling and running
+#' data from GPS-enabled tracking devices. After extraction and appropriate
+#' manipulation of the training or competition attributes, the data are placed into
+#' session-aware data objects with an S3 class trackeRdata. The information in the
+#' resultant data objects can then be visualised, summarised and analysed through
+#' corresponding flexible and extensible methods.
 #' 
-#' @section Foo functions:
-#' The foo functions ...
-#'
 #' @docType package
 #' @name trackeR
 #' @import zoo
@@ -13,23 +14,14 @@
 NULL
 #> NULL
 
-## register S3 method (need a name which doesn't conflict with e.g. the smooth function from the stats package)
+## register S3 methods (need a name which doesn't conflict with e.g. the smooth function from the stats package)
+
 #' Generic function for smoothing.
 #'
 #' @param object The object to be smoothed.
 #' @param ... Arguments to be passed to methods.
 #' @export
 smoother <- function(object, ...) UseMethod("smoother")
-
-#' Generic function for thresholding data.
-#'
-#' @param object The object containing the data.
-#' @param variable A vector containing the names of the variables to which thresholding is applied.
-#' @param lower A vector containing the corresponding lower thresholds.
-#' @param upper A vector containing the corresponding upper thresholds.
-#' @param ... Arguments to be passed to methods.
-#' @export
-threshold <- function(object, variable, lower, upper, ...) UseMethod("threshold")
 
 #' Generic function for appending data to existing files.
 #'

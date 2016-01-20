@@ -23,7 +23,7 @@
 
 \item{dates}{Logical. Should the date of the session be used in the panel header?}
 
-\item{...}{Further arguments to be passed to \code{\link{threshold.trackeRdata}} and
+\item{...}{Further arguments to be passed to \code{\link{threshold}} and
 \code{\link{smootherControl.trackeRdata}}.}
 }
 \description{
