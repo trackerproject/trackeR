@@ -4,7 +4,7 @@
 \name{trackeR}
 \alias{trackeR}
 \alias{trackeR-package}
-\title{trackeR: Infrastructure for for handling cycling and running data from GPS-enabled tracking devices}
+\title{trackeR: Infrastructure for running and cycling data from GPS-enabled tracking devices}
 \description{
 trackeR provides infrastructure for handling cycling and running
 data from GPS-enabled tracking devices. After extraction and appropriate

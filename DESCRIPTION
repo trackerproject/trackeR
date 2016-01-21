@@ -1,16 +1,15 @@
 Package: trackeR
 Version: 0.0.0.9000
 Date: 2015-10-15
-Title: Infrastructure for for handling cycling and running data from GPS-enabled
-    tracking devices
+Title: trackeR: Infrastructure for running and cycling data from GPS-enabled tracking devices
 Authors@R: c(person(given = "Hannah", family = "Frick", role = c("aut", "cre"), email = "h.frick@ucl.ac.uk"),
              person(given = "Ioannis", family = "Kosmidis", role = "aut", email = "i.kosmidis@ucl.ac.uk"))
 Description: trackeR provides infrastructure for handling cycling and running
     data from GPS-enabled tracking devices. After extraction and appropriate
-    manipulation of the training or competition attributes, the data are placed into
-    session-aware data objects with an S3 class trackeRdata. The information in the
-    resultant data objects can then be visualised, summarised and analysed through
-    corresponding flexible and extensible methods.
+    manipulation of the training or competition attributes, the data are placed
+    into session-aware data objects with an S3 class trackeRdata. The
+    information in the resultant data objects can then be visualised, summarised
+    and analysed through corresponding flexible and extensible methods.
 Depends:
     R (>= 2.10.0),
     zoo
@@ -27,5 +26,4 @@ Suggests:
     raster,
     testthat
 License: GPL-2 | GPL-3
-LazyData: true
 RoxygenNote: 5.0.1

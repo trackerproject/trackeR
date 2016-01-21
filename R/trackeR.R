@@ -1,4 +1,4 @@
-#' trackeR: Infrastructure for for handling cycling and running data from GPS-enabled tracking devices
+#' trackeR: Infrastructure for running and cycling data from GPS-enabled tracking devices
 #'
 #' trackeR provides infrastructure for handling cycling and running
 #' data from GPS-enabled tracking devices. After extraction and appropriate
