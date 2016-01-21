@@ -104,6 +104,7 @@ changeUnits.trackeRdataSummary <- function(object, variable, unit, ...){
     ## NOTE: variable is expected to contain concepts like "speed" rather than variable names like "avgSpeed" or "avgSpeedMoving".
     concept <- variable
     current <- getUnits(object)
+    mvt <- attr(object, "movingThreshold")
     object <- as.data.frame(object)
     for (i in concept){
         variables <- names(object)[grep(pattern = i, names(object), ignore.case = TRUE)]
@@ -111,9 +112,13 @@ changeUnits.trackeRdataSummary <- function(object, variable, unit, ...){
         newUnit <- unit[which(concept == i)]
         if (currentUnit != newUnit) {
             conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
+            ## convert summary statistics
             for (v in variables){
                 object[,v] <- conversion(object[,v])
-            } 
+            }
+            ## convert moving threshold
+            if (i == "speed") mvt <- conversion(mvt)
+            ## update units 
             current$unit[current$variable == i] <- newUnit
         }
         
@@ -121,6 +126,7 @@ changeUnits.trackeRdataSummary <- function(object, variable, unit, ...){
 
     ## update units attribute and return
     attr(object, "units") <- current
+    attr(object, "movingThreshold") <- mvt
     class(object) <- c("trackeRdataSummary", class(object))
     return(object)
 }    

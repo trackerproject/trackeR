@@ -152,6 +152,7 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
                       wrRatio = wrRatio)
 
     attr(ret, "units") <- units
+    attr(ret, "movingThreshold") <- movingThreshold
     class(ret) <- c("trackeRdataSummary", class(ret))
     return(ret)
 }
@@ -175,52 +176,69 @@ print.trackeRdataSummary <- function(x, ..., digits = 2){
         format(x$sessionEnd[i], format = "%Y-%m-%d %H:%M:%S"), "\n ")
 
         cat("Distance:",
-            round(x$distance[i], digits), units$unit[units$variable == "distance"], "\n ")
+            round(x$distance[i], digits),
+            units$unit[units$variable == "distance"], "\n ")
 
         cat("Duration:",
-            round(as.numeric(x$duration[i]), digits), units(x$duration[i]), "\n ")
+            round(as.numeric(x$duration[i]), digits),
+            units(x$duration[i]), "\n ")
 
         cat("Moving time:",
-            round(x$durationMoving[i], digits), units(x$durationMoving[i]), "\n ")
+            round(x$durationMoving[i], digits),
+            units(x$durationMoving[i]), "\n ")
 
         cat("Average speed:",
-            round(x$avgSpeed[i], digits = digits), units$unit[units$variable == "speed"], "\n ")
+            round(x$avgSpeed[i], digits = digits),
+            units$unit[units$variable == "speed"], "\n ")
 
         cat("Average speed moving:",
-            round(x$avgSpeedMoving[i], digits = digits), units$unit[units$variable == "speed"], "\n ")
+            round(x$avgSpeedMoving[i], digits = digits),
+            units$unit[units$variable == "speed"], "\n ")
 
-        unitDist4pace <- strsplit(units$unit[units$variable == "pace"], split = "_per_")[[1]][2]
+        unitDist4pace <- strsplit(units$unit[units$variable == "pace"],
+                                  split = "_per_")[[1]][2]
         avgPace <- floor(x$avgPace[i] * 100) / 100
         cat(paste0("Average pace (per 1 ", unitDist4pace, "):"),
-            paste(floor(avgPace) , round(avgPace %% 1 * 60, 0), sep = ":"), "min:sec\n ")
+            paste(floor(avgPace), round(avgPace %% 1 * 60, 0), sep = ":"), "min:sec\n ")
 
         avgPaceMoving <- floor(x$avgPaceMoving[i] * 100) / 100
         cat(paste0("Average pace moving (per 1 ", unitDist4pace, "):"),
             paste(floor(avgPaceMoving) , round(x$avgPaceMoving[i] %% 1 * 60, 0), sep = ":"), "min:sec\n ")
 
         cat("Average cadence:",
-            round(x$avgCadence[i], digits = digits), units$unit[units$variable == "cadence"], "\n ")
+            round(x$avgCadence[i], digits = digits),
+            units$unit[units$variable == "cadence"], "\n ")
 
         cat("Average cadence moving:",
-            round(x$avgCadenceMoving[i], digits = digits), units$unit[units$variable == "cadence"], "\n ")
+            round(x$avgCadenceMoving[i], digits = digits),
+            units$unit[units$variable == "cadence"], "\n ")
 
         cat("Average power:",
-            round(x$avgPower[i], digits = digits), units$unit[units$variable == "power"], "\n ")
+            round(x$avgPower[i], digits = digits),
+            units$unit[units$variable == "power"], "\n ")
 
         cat("Average power moving:",
-            round(x$avgPowerMoving[i], digits = digits), units$unit[units$variable == "power"], "\n ")
+            round(x$avgPowerMoving[i], digits = digits),
+            units$unit[units$variable == "power"], "\n ")
 
         cat("Average heart rate:",
-            round(x$avgHeartRate[i], digits = digits), units$unit[units$variable == "heart.rate"], "\n ")
+            round(x$avgHeartRate[i], digits = digits),
+            units$unit[units$variable == "heart.rate"], "\n ")
 
         cat("Average heart rate moving:",
-            round(x$avgHeartRateMoving[i], digits = digits), units$unit[units$variable == "heart.rate"], "\n ")
+            round(x$avgHeartRateMoving[i], digits = digits),
+            units$unit[units$variable == "heart.rate"], "\n ")
 
         cat("Average heart rate resting:",
-            round(x$avgHeartRateResting[i], digits = digits), units$unit[units$variable == "heart.rate"], "\n ")
+            round(x$avgHeartRateResting[i], digits = digits),
+            units$unit[units$variable == "heart.rate"], "\n ")
 
         cat("Work to rest ratio:",
             round(x$wrRatio[i], digits), "\n")
+
+        cat("\n Moving threshold:",
+            round(attr(x, "movingThreshold"), digits = digits),
+            units$unit[units$variable == "speed"], "\n")
 
         cat("\n")
     }
