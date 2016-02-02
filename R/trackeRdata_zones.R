@@ -94,11 +94,13 @@ plot.trackeRdataZones <- function(x, percent = TRUE, ...){
     if (percent) {
         p <- p + ggplot2::geom_bar(ggplot2::aes(x = zoneF, y = percent, fill = session),
                                    stat = "identity", position = ggplot2::position_dodge()) +
-            ggplot2::ylab("Percent")
+            ggplot2::ylab("Percent") +
+            ggplot2::guides(fill = ggplot2::guide_legend(title = "Session"))
     } else {
         p <- p + ggplot2::geom_bar(ggplot2::aes(x = zoneF, y = as.numeric(time), fill = session),
                                    stat = "identity", position = ggplot2::position_dodge()) +
-            ggplot2::ylab(paste0("Time [", units(dat$time), "]"))
+            ggplot2::ylab(paste0("Time [", units(dat$time), "]")) +
+            ggplot2::guides(fill = ggplot2::guide_legend(title = "Session"))
     }
 
     ## facets

@@ -42,6 +42,8 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
             ## default thresholds
             cycling <- units$unit[units$variable == "cadence"] == "rev_per_min"
             th <- generateDefaultThresholds(cycling)
+            ## th <- th[which(th$variable %in% what),]
+            ## w <- which(units$variable %in% what)
             th <- changeUnits(th, variable = units$variable, unit = units$unit)
         }
         ## apply thresholds
@@ -120,7 +122,7 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     ## basic plot 
     p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes(x = Index, y = Value)) +
         ggplot2::geom_line(color = if (smooth) "gray" else "black") +
-        ggplot2::ylab(if(singleVariable) lab_data(levels(df$Series)) else "") + ggplot2::xlab("time")
+        ggplot2::ylab(if(singleVariable) lab_data(levels(df$Series)) else "") + ggplot2::xlab("Time")
     if (trend & !smooth){
         p <- p + ggplot2::geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"), alpha = 0.5, se = FALSE)
     }
@@ -280,15 +282,17 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
 
     ## add trace
     if (speed){
-        p <- map + ggplot2::geom_segment(ggplot2::aes(x = longitude0, xend = longitude1,
-                                                 y = latitude0, yend = latitude1,
-                                                 color = speed), data = df, lwd = 1, alpha = 0.8) +
-                                                     ggplot2::labs(x = "longitude", y = "latitude")
+        p <- map + ggplot2::geom_segment(
+                       ggplot2::aes(x = longitude0, xend = longitude1, y = latitude0, yend = latitude1,
+                                    color = speed),
+                       data = df, lwd = 1, alpha = 0.8) +
+            ggplot2::labs(x = "Longitude", y = "Latitude") +
+            ggplot2::guides(color = ggplot2::guide_colorbar(title = "Speed"))
     } else {
-        p <- map + ggplot2::geom_segment(ggplot2::aes(x = longitude0, xend = longitude1,
-                                                 y = latitude0, yend = latitude1),
-                                    data = df, lwd = 1, alpha = 0.8) +
-                                                     ggplot2::labs(x = "longitude", y = "latitude")
+        p <- map + ggplot2::geom_segment(
+                       ggplot2::aes(x = longitude0, xend = longitude1, y = latitude0, yend = latitude1),
+                       data = df, lwd = 1, alpha = 0.8) +
+            ggplot2::labs(x = "Longitude", y = "Latitude")
     }
 
     return(p)

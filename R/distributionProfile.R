@@ -228,12 +228,12 @@ plot.distrProfile <- function(x, session = NULL, what = c("speed", "heart.rate")
 
     if (multiple){
         p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes(x = Index, y = Value, group = Series, color = Series)) +
-            ggplot2::geom_line() + ggplot2::ylab("time spent above threshold") +
+            ggplot2::geom_line() + ggplot2::ylab("Time spent above threshold") +
                 ggplot2::xlab(if(singleVariable) lab_data(levels(df$Profile)) else "")
         facets <- if(singleVariable) NULL else . ~ Profile
     } else {
         p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes(x = Index, y = Value)) + ggplot2::geom_line() +
-            ggplot2::ylab("time spent above threshold") +
+            ggplot2::ylab("Time spent above threshold") +
                 ggplot2::xlab(if(singleVariable) lab_data(levels(df$Profile)) else "")
 
         facets <- if (singleVariable) {
