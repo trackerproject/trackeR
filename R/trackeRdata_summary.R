@@ -301,6 +301,9 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...){
 #'     what = c("distance", "duration", "avgSpeed"))
 #' @export
 plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, ...){
+    ## the following line is just intended to prevent R CMD check to produce the NOTE
+    ## "no visible binding for global variable *" because those variables are used in subset()
+    variable <- type <- NULL
 
     nsessions <- length(unique(x$session))
     ndates <- length(unique(x$sessionStart))
@@ -341,11 +344,11 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, .
     ## (basic) plot
     p <- ggplot2::ggplot(dat)
     if (date & ndates < nsessions) stop("All sessions must have unique starting times. Try date = FALSE instead.")
-    p <- p + ggplot2::geom_point(ggplot2::aes(x = xaxis, y = value, color = type)) +
+    p <- p + ggplot2::geom_point(ggplot2::aes_(x = quote(xaxis), y = quote(value), color = quote(type))) +
         ggplot2::labs(x = xlab, y = "") +
         ggplot2::guides(color = ggplot2::guide_legend(title = "Type"))
     if (nsessions > 1)
-        p <- p + ggplot2::geom_line(ggplot2::aes(x = xaxis, y = value, color = type)) +
+        p <- p + ggplot2::geom_line(ggplot2::aes_(x = quote(xaxis), y = quote(value), color = quote(type))) +
         ggplot2::guides(color = ggplot2::guide_legend(title = "Type"))
 
     ## facets
@@ -361,8 +364,8 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, .
     }
     lab_sum <- Vectorize(lab_sum)
 
-    p <- p + ggplot2::facet_grid(facets = variable ~ ., scales = "free_y",
-                                 labeller = ggplot2::labeller(variable = lab_sum)) +
+    p <- p + ggplot2::facet_grid(facets = "variable ~ .", scales = "free_y",
+                                 labeller = ggplot2::labeller("variable" = lab_sum)) +
         ggplot2::theme(legend.position = "top")
 
     ## add bw theme

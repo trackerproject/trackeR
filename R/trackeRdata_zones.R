@@ -86,18 +86,20 @@ plot.trackeRdataZones <- function(x, percent = TRUE, ...){
     dat$zoneF <- factor(paste0("[", paste(dat$lower, dat$upper, sep = "-"), ")"),
                         levels = unique(paste0("[", paste(dat$lower, dat$upper, sep = "-"), ")")))
     dat$session <- factor(dat$session)
+    dat$timeN <- as.numeric(dat$time)
 
     ## basic plot
     p <- ggplot2::ggplot(dat) + ggplot2::xlab("Zones")
 
     ## y: time or percent
     if (percent) {
-        p <- p + ggplot2::geom_bar(ggplot2::aes(x = zoneF, y = percent, fill = session),
+        p <- p + ggplot2::geom_bar(ggplot2::aes_(x = quote(zoneF), y = quote(percent), fill = quote(session)),
                                    stat = "identity", position = ggplot2::position_dodge()) +
             ggplot2::ylab("Percent") +
             ggplot2::guides(fill = ggplot2::guide_legend(title = "Session"))
     } else {
-        p <- p + ggplot2::geom_bar(ggplot2::aes(x = zoneF, y = as.numeric(time), fill = session),
+        p <- p + ggplot2::geom_bar(ggplot2::aes_(x = quote(zoneF), y = quote(timeN),
+                                                 fill = quote(session)),
                                    stat = "identity", position = ggplot2::position_dodge()) +
             ggplot2::ylab(paste0("Time [", units(dat$time), "]")) +
             ggplot2::guides(fill = ggplot2::guide_legend(title = "Session"))
@@ -113,7 +115,7 @@ plot.trackeRdataZones <- function(x, percent = TRUE, ...){
     lab_data <- Vectorize(lab_data)
 
     p <-  p + ggplot2::facet_grid(. ~ variable, scales = "free_x",
-                                  labeller = ggplot2::labeller(variable = lab_data))
+                                  labeller = ggplot2::labeller("variable" = lab_data))
 
     ## theme
     p <- p + ggplot2::theme_bw()

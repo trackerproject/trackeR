@@ -142,25 +142,26 @@ plot.conProfile <- function(x, session = NULL, what = c("speed", "heart.rate"),
     lab_data <- Vectorize(lab_data)
 
     if (multiple){
-        p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes(x = Index, y = Value, group = Series, color = Series)) +
+        p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index),
+                        y = quote(Value), group = quote(Series), color = quote(Series))) +
             ggplot2::geom_line() + ggplot2::ylab("dtime") +
                 ggplot2::xlab(if(singleVariable) lab_data(levels(df$Profile)) else "")
-        facets <- if(singleVariable) NULL else . ~ Profile
+        facets <- if(singleVariable) NULL else ". ~ Profile"
     } else {
-        p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes(x = Index, y = Value)) + ggplot2::geom_line() +
-            ggplot2::ylab("dtime") +
+        p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
+            ggplot2::geom_line() + ggplot2::ylab("dtime") +
                 ggplot2::xlab(if(singleVariable) lab_data(levels(df$Profile)) else "")
 
         facets <- if (singleVariable) {
-            if (singleSession) NULL else Series ~ .
+            if (singleSession) NULL else "Series ~ ."
         } else {
-            if(singleSession) . ~ Profile else Series ~ Profile
+            if(singleSession) ". ~ Profile" else "Series ~ Profile"
         }
     }
 
     ## add facets if necessary
     if (!is.null(facets)){
-        p <- p + ggplot2::facet_grid(facets, scales = "free_x", labeller = ggplot2::labeller(Profile = lab_data))
+        p <- p + ggplot2::facet_grid(facets, scales = "free_x", labeller = ggplot2::labeller("Profile" = lab_data))
     }
     
     ## add bw theme

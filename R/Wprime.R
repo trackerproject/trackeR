@@ -190,6 +190,9 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"),
 #' wexp <- Wprime(runs, session = 1:3, cp = 4, version = "2012")
 #' plot(wexp, session = 1:2) 
 plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, ...){
+    ## the following line is just intended to prevent R CMD check to produce the NOTE
+    ## "no visible binding for global variable 'Series'" because that variable is used in subset()
+    Series <- NULL
 
     quantity <- attr(x, "quantity")
     cp <- attr(x, "cp")
@@ -240,20 +243,21 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, .
 
     ## make facets
     singleSession <- length(session) == 1L
-    facets <- if (singleSession) NULL else . ~ SessionID
+    facets <- if (singleSession) NULL else ". ~ SessionID"
 
     if (scaled){
         ## basic plot
-        p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes(x = Index, y = Value)) +
+        p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
             ggplot2::ylab("") + ggplot2::xlab("Time")
         ## lines for power/speed and W'
-        p <- p + ggplot2::geom_line(ggplot2::aes(group = Series, col = Series)) +
+        p <- p + ggplot2::geom_line(ggplot2::aes_(group = quote(Series), col = quote(Series))) +
             ggplot2::scale_colour_manual(name = "", labels = mylabels, values = c("gray","blue"))
         ## add line for cp
         p <- p + ggplot2::geom_hline(data = data.frame(cp = cp), ggplot2::aes(yintercept = cp), col = "black")
     } else {
         ## basic plot
-        p <- ggplot2::ggplot(data = subset(df, Series == "wprime"), mapping = ggplot2::aes(x = Index, y = Value)) +
+        p <- ggplot2::ggplot(data = subset(df, Series == "wprime"),
+                             mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
             ggplot2::ylab(paste("W'", quantity, Wunit)) + ggplot2::xlab("Time")
         ## lines for W'
         p <- p + ggplot2::geom_line()        

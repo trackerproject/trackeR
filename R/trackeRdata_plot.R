@@ -28,6 +28,10 @@
 #' @export
 plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
                              threshold = TRUE, smooth = FALSE, trend = TRUE, dates = TRUE, ...){
+    ## the following line is just intended to prevent R CMD check to produce the NOTE
+    ## "no visible binding for global variable 'Series'" because that variable is used in subset()
+    Series <- NULL
+
     ## code inspired by autoplot.zoo
     if (is.null(session)) session <- seq_along(x)
     units <- getUnits(x)
@@ -98,9 +102,9 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     singleVariable <- nlevels(df$Series) == 1L
     singleSession <- length(session) == 1L
     facets <- if (singleVariable) {
-        if (singleSession) NULL else . ~ SessionID
+        if (singleSession) NULL else ". ~ SessionID"
     } else {
-        if(singleSession) Series ~ . else Series ~ SessionID
+        if(singleSession) "Series ~ ." else "Series ~ SessionID"
     }
     ## lab <- function(variable, value){
     ##     if (variable == "Series"){
@@ -120,7 +124,7 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     lab_data <- Vectorize(lab_data)
 
     ## basic plot 
-    p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes(x = Index, y = Value)) +
+    p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
         ggplot2::geom_line(color = if (smooth) "gray" else "black") +
         ggplot2::ylab(if(singleVariable) lab_data(levels(df$Series)) else "") + ggplot2::xlab("Time")
     if (trend & !smooth){
@@ -128,7 +132,7 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     }
     ## add facet if necessary
     if (!is.null(facets)){
-        p <- p + ggplot2::facet_grid(facets, scales = "free", labeller = ggplot2::labeller(Series = lab_data))
+        p <- p + ggplot2::facet_grid(facets, scales = "free", labeller = ggplot2::labeller("Series" = lab_data))
     }
     ## add bw theme
     p <- p + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1))
@@ -153,7 +157,7 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
                 dfs <- dfs[!(dfs$Series == l), ]
         }
         ## add plot layers
-        p <- p + ggplot2::geom_line(ggplot2::aes(x = Index, y = Value), data = dfs, col = "black")
+        p <- p + ggplot2::geom_line(ggplot2::aes_(x = quote(Index), y = quote(Value)), data = dfs, col = "black")
         if (trend){
             p <- p + ggplot2::geom_smooth(data = dfs, method = "gam", formula = y ~ s(x, bs = "cs"),
                                           alpha = 0.5, se = FALSE)
@@ -283,14 +287,16 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
     ## add trace
     if (speed){
         p <- map + ggplot2::geom_segment(
-                       ggplot2::aes(x = longitude0, xend = longitude1, y = latitude0, yend = latitude1,
-                                    color = speed),
+                       ggplot2::aes_(x = quote(longitude0), xend = quote(longitude1),
+                                     y = quote(latitude0), yend = quote(latitude1),
+                                    color = quote(speed)),
                        data = df, lwd = 1, alpha = 0.8) +
             ggplot2::labs(x = "Longitude", y = "Latitude") +
             ggplot2::guides(color = ggplot2::guide_colorbar(title = "Speed"))
     } else {
         p <- map + ggplot2::geom_segment(
-                       ggplot2::aes(x = longitude0, xend = longitude1, y = latitude0, yend = latitude1),
+                       ggplot2::aes_(x = quote(longitude0), xend = quote(longitude1),
+                                     y = quote(latitude0), yend = quote(latitude1)),
                        data = df, lwd = 1, alpha = 0.8) +
             ggplot2::labs(x = "Longitude", y = "Latitude")
     }
