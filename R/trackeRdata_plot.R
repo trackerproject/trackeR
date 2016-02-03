@@ -1,5 +1,3 @@
-## FIXME: need data to show selection of sessions and variables...
-
 #' Plot training sessions in form of trackeRdata objects.
 #'
 #' @param x An object of class \code{\link{trackeRdata}}.
@@ -18,6 +16,7 @@
 #' data(runs, package = "trackeR")
 #' ## plot heart rate and pace for the first 3 sessions
 #' plot(runs, session = 1:3)
+#' \dontrun{
 #' ## plot raw speed data for session 4
 #' plot(runs, session = 4, what = "speed", threshold = FALSE, smooth = FALSE)
 #' ## threshold speed variable
@@ -25,6 +24,7 @@
 #'     variable = "speed", lower = 0, upper = 10)
 #' ## and smooth (thresholding with default values)
 #' plot(runs, session = 4, what = "speed", threshold = TRUE, smooth = TRUE, width = 15)
+#' }
 #' @export
 plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
                              threshold = TRUE, smooth = FALSE, trend = TRUE, dates = TRUE, ...){

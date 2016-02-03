@@ -1,4 +1,3 @@
-## FIXME: examples (check devel.R for some first examples)
 #' Generate training concentration profiles.
 #'
 #' @param object An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.
@@ -46,9 +45,7 @@ concentrationProfile <- function(object, session = NULL, what = c("speed", "hear
     return(CP)
 }
 
-## FIXME: summary
 
-## FIXME: example
 #' Fortify a conProfile object for plotting with ggplot2.
 #'
 #' @param model The \code{conProfile} object.
@@ -66,7 +63,7 @@ fortify.conProfile <- function(model, data, melt = FALSE, ...){
 }
 
 
-## FIXME: example (especially for the behaviour of session!)
+## README: more examples, especially for the behaviour of session?
 #' Plot concentration profiles.
 #'
 #' @param x An object of class \code{conProfile} as returned by \code{\link{concentrationProfile}}.

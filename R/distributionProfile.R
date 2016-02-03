@@ -1,5 +1,3 @@
-## FIXME: examples (check devel.R for some first examples)
-
 #' Generate training distribution profiles.
 #'
 #' @param object An object of class \code{\link{trackeRdata}}.
@@ -74,7 +72,7 @@ distributionProfile <- function(object, session = NULL, what = c("speed", "heart
         uniqueValues <- unique(values)
         weights <- c(0, difftime(timestamps[-1], timestamps[-length(timestamps)], units = "secs"))[charOrder]
         weights <- sapply(uniqueValues, function(xx) sum(weights[values == xx]))
-        out <- approx(x = uniqueValues, y = cumsum(weights)/sum(weights), xout = grid,
+        out <- stats::approx(x = uniqueValues, y = cumsum(weights)/sum(weights), xout = grid,
                       method = "constant", yleft = 0, yright = 1, f = 0, ties = "ordered")$y
         ## Can be included for scaling
         if (scaled)
@@ -158,7 +156,6 @@ fortify.distrProfile <- function(model, data, melt = FALSE, ...){
 }
 
 
-## FIXME: example with more sessions and variables
 #' Plot distribution profiles.
 #'
 #' @param x An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.
@@ -355,7 +352,6 @@ smootherControl.distrProfile <- function(what = c("speed", "heart.rate"), k = 30
 
 
 
-## FIXME: @Ioannis: Could you check the documentation for this one?
 #' Smooth a decreasing function.
 #'
 #' This smoother ensures a positive response (Poisson) that is a monotone decreasing function of x.
@@ -369,7 +365,7 @@ smootherControl.distrProfile <- function(what = c("speed", "heart.rate"), k = 30
 decreasingSmoother <- function(x, y, k = 30, len = NULL, sp = NULL,
                                fam = "poisson") {
     dat <- data.frame(y = y, x = x)
-    scamFormula <- as.formula(paste0("y ~ s(x, k = ", k, ", bs = 'mpd')"))
+    scamFormula <- stats::as.formula(paste0("y ~ s(x, k = ", k, ", bs = 'mpd')"))
     gamfit <- scam::scam(scamFormula, family = fam, sp = sp, data = dat)
     xmin <- min(x)
     xman <- max(x)
@@ -380,7 +376,7 @@ decreasingSmoother <- function(x, y, k = 30, len = NULL, sp = NULL,
         predictionRange <- seq(xmin, xman, length.out = len)
     }
     res <- list(x = predictionRange,
-                y = predict(gamfit, type = "response",
+                y = stats::predict(gamfit, type = "response",
                     newdata = data.frame(x = predictionRange)))
     #class(res) <- "decreasingSmoother"
     res

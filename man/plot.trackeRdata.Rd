@@ -38,6 +38,7 @@ Note that a threshold is always applied to the pace. This (upper) threshold
 data(runs, package = "trackeR")
 ## plot heart rate and pace for the first 3 sessions
 plot(runs, session = 1:3)
+\dontrun{
 ## plot raw speed data for session 4
 plot(runs, session = 4, what = "speed", threshold = FALSE, smooth = FALSE)
 ## threshold speed variable
@@ -45,5 +46,6 @@ plot(runs, session = 4, what = "speed", threshold = TRUE, smooth = FALSE,
     variable = "speed", lower = 0, upper = 10)
 ## and smooth (thresholding with default values)
 plot(runs, session = 4, what = "speed", threshold = TRUE, smooth = TRUE, width = 15)
+}
 }
 

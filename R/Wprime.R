@@ -207,12 +207,12 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, .
 
     ## transform W' to match power/speed scale
     if (scaled){
-        sdMov <- sd(unlist(lapply(x, function(z) z$movement)), na.rm = TRUE)
+        sdMov <- stats::sd(unlist(lapply(x, function(z) z$movement)), na.rm = TRUE)
         mMov <- mean(unlist(lapply(x, function(z) z$movement)), na.rm = TRUE)
 
         x <- lapply(x, function(z){
                         w <- (coredata(z$wprime) - mean(coredata(z$wprime), na.rm = TRUE)) /
-                            sd(coredata(z$wprime), na.rm = TRUE)
+                            stats::sd(coredata(z$wprime), na.rm = TRUE)
                         w <- w * sdMov #sd(coredata(z$movement), na.rm = TRUE)
                         z$wprime <- w + mMov
                                         # max(mMov, abs(min(w, na.rm = TRUE)))

@@ -14,7 +14,7 @@ getAltitude <- function(object, country = NULL, mask = TRUE, ...){
     
     ## try to download altitude data
     rast <- try(raster::getData("alt", country = country, download = TRUE, mask = mask))
-    ## From documentation: "In the case of alt you can set ’mask’ to FALSE. If it is TRUE values for
+    ## From documentation: "In the case of alt you can set 'mask' to FALSE. If it is TRUE values for
     ## neighbouring countries are set to NA."
 
     if (!inherits(rast, "try-error")){
