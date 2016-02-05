@@ -97,7 +97,7 @@ Wexp <- function(object, w0, cp,
 #' @param session A numeric vector of the sessions to be used, defaults to all sessions.
 #' @param quantity Should W' \code{"expended"} or W' \code{"balance"} be returned?
 #' @inheritParams Wexp
-#' @param parallel Logical. Should computation be carried out in parallel?
+#' @param parallel Logical. Should computation be carried out in parallel? (Not supported on Windows.)
 #' @param mc.cores Number of cores for parallel computing.
 #' @param ... Currently not used.
 #'
@@ -125,7 +125,7 @@ Wexp <- function(object, w0, cp,
 #' plot(wexp)
 Wprime <- function(object, session = NULL, quantity = c("expended", "balance"),
                    w0, cp, version = c("2015", "2012"), meanRecoveryPower = FALSE,
-                   parallel = TRUE, mc.cores = getOption("mc.cores", 2L),...){
+                   parallel = FALSE, mc.cores = getOption("mc.cores", 2L),...){
     ## prep args
     quantity <- match.arg(quantity, c("expended", "balance"))
     if (quantity == "balance" & missing(w0)) stop("Please provide w0 or choose quantity = 'expended'.")

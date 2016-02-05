@@ -69,7 +69,7 @@ smoother.trackeRdata <- function(object, session = NULL, control = list(...), ..
 #' @param fun The name of the function to be matched and used to aggregate/smooth the data.
 #' @param width The width of the window in which the raw observations
 #'     get aggregated via function \code{fun}.
-#' @param parallel Logical. Should computation be carried out in parallel?
+#' @param parallel Logical. Should computation be carried out in parallel? (Not supported on Windows.)
 #' @param mc.cores Number of cores for parallel computing.
 #' @param what Vector of the names of the variables which should be smoothed.
 #' @param nsessions Vector containing the number of session. Default corresponds to all sessions
@@ -78,7 +78,7 @@ smoother.trackeRdata <- function(object, session = NULL, control = list(...), ..
 #' @seealso \code{\link{smoother.trackeRdata}}
 #' @export
 smootherControl.trackeRdata <- function(fun = "mean", width = 10,
-                                        parallel = TRUE, mc.cores = getOption("mc.cores", 2L),
+                                        parallel = FALSE, mc.cores = getOption("mc.cores", 2L),
                                         what = c("speed", "heart.rate"), nsessions = NA, ...) {
     # Basic checks for the arguments
     if (!is.character(fun)) {

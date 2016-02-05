@@ -5,7 +5,7 @@
 \title{Auxiliary function for \code{\link{smoother.trackeRdata}}. Typically used to construct
 a control argument for \code{\link{smoother.trackeRdata}}.}
 \usage{
-smootherControl.trackeRdata(fun = "mean", width = 10, parallel = TRUE,
+smootherControl.trackeRdata(fun = "mean", width = 10, parallel = FALSE,
   mc.cores = getOption("mc.cores", 2L), what = c("speed", "heart.rate"),
   nsessions = NA, ...)
 }
@@ -15,7 +15,7 @@ smootherControl.trackeRdata(fun = "mean", width = 10, parallel = TRUE,
 \item{width}{The width of the window in which the raw observations
 get aggregated via function \code{fun}.}
 
-\item{parallel}{Logical. Should computation be carried out in parallel?}
+\item{parallel}{Logical. Should computation be carried out in parallel? (Not supported on Windows.)}
 
 \item{mc.cores}{Number of cores for parallel computing.}
 

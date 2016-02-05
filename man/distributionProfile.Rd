@@ -6,7 +6,7 @@
 \usage{
 distributionProfile(object, session = NULL, what = c("speed", "heart.rate"),
   grid = list(speed = seq(0, 12.5, by = 0.05), heart.rate = seq(0, 250)),
-  scaled = FALSE, parallel = TRUE, mc.cores = getOption("mc.cores", 2L))
+  scaled = FALSE, parallel = FALSE, mc.cores = getOption("mc.cores", 2L))
 }
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}
@@ -19,7 +19,7 @@ distributionProfile(object, session = NULL, what = c("speed", "heart.rate"),
 
 \item{scaled}{Logical. Should the distribution profiles be scaled relative to their maximum value?}
 
-\item{parallel}{Logical. Should computation be carried out in parallel?}
+\item{parallel}{Logical. Should computation be carried out in parallel? (Not supported on Windows.)}
 
 \item{mc.cores}{Number of cores for parallel computing.}
 }

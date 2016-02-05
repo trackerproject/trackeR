@@ -4,7 +4,7 @@
 #' @param session A numeric vector of the sessions to be plotted, defaults to all sessions.
 #' @param what A vector of variable names.
 #' @param breaks A list of breakpoints between zones, corresponding to the variables in \code{what}.
-#' @param parallel Logical. Should computation be carried out in parallel?
+#' @param parallel Logical. Should computation be carried out in parallel? (Not supported on Windows.)
 #' @param mc.cores Number of cores for parallel computing.
 #' @param ... Currently not used.
 #' @return An object of class \code{trackeRdataZones}.
@@ -20,7 +20,7 @@
 #' @export
 zones <- function(object, session = NULL, what = c("speed", "heart.rate"),
                   breaks = list(speed = 0:10, heart.rate = c(0, seq(75, 225, by = 50), 250)),
-                  parallel = TRUE, mc.cores = getOption("mc.cores", 2L), ...){
+                  parallel = FALSE, mc.cores = getOption("mc.cores", 2L), ...){
     ## select sessions
     if (is.null(session)) session <- seq_along(object)
     object <- object[session]

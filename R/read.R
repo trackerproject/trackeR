@@ -6,7 +6,9 @@
 #'     speeds in the container file to be converted into meters per second. See Details.
 #' @param distanceunit Character string indicating the measurement unit of the
 #'     distance in the container file to be converted into meters. See Details.
+#' @param parallel Logical. Should computation be carried out in parallel? (Not supported on Windows.)
 #' @param mc.cores Number of cores for parallel computing.
+#' @param ... Currently not used.
 #' @details Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_per_s},
 #'     \code{mi_per_h}, \code{ft_per_min} and \code{ft_per_s}. The default is \code{m_per_s} for TCX files
 #'     and \code{km_per_h} for db3 files.
@@ -30,7 +32,7 @@
 #' run <- readContainer(filepath, type = "tcx", timezone = "GMT")
 #' }
 ## Experimental function for reading TCX files
-readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "m", mc.cores = getOption("mc.cores", 2L)){
+readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "m", parallel = FALSE, mc.cores = getOption("mc.cores", 2L),...){
 
     ## relevant resource: http://gastonsanchez.com/work/webdata/getting_web_data_r4_parsing_xml_html.pdf
 
@@ -38,7 +40,10 @@ readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "
     doc <- XML::xmlParse(file)
     nodes <- XML::getNodeSet(doc, "//ns:Trackpoint", "ns")
 
-    mydf <- do.call("rbind", parallel::mclapply(nodes, function(node) {
+    ## parallelisation
+    papply <- if (parallel) function(...) parallel::mclapply(..., mc.cores = mc.cores) else lapply
+
+    mydf <- do.call("rbind", papply(nodes, function(node) {
         ## Avoid memory leaks
         nodeDoc <- XML::xmlDoc(node)
         extnode <- XML::getNodeSet(nodeDoc, "//s:Extensions", "s")
@@ -79,7 +84,7 @@ readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "
           speed = nullout(speed),
           cadence = nullout(cadence),
                   watts = nullout(watts))
-    }, mc.cores = mc.cores))
+    })) ## , mc.cores = mc.cores
 
     fac2num <- function(z) {
         as.numeric(levels(z))[z]
@@ -258,7 +263,7 @@ readContainer <- function(file, type = c("tcx", "db3"),
                           speedunit = NULL, distanceunit = NULL,
                           cycling = FALSE,
                           lgap = 30, lskip = 5, m = 11,
-                          mc.cores = getOption("mc.cores", 2L)){
+                          parallel = FALSE, mc.cores = getOption("mc.cores", 2L)){
     ## prepare args
     type <- match.arg(tolower(type), choices = c("tcx", "db3"))
     if (is.null(fromDistances)){
@@ -274,7 +279,7 @@ readContainer <- function(file, type = c("tcx", "db3"),
     ## read gps data
     dat <- switch(type,
                   "tcx" = readTCX(file = file, timezone = timezone, speedunit = speedunit,
-                      distanceunit = distanceunit, mc.cores = mc.cores),
+                      distanceunit = distanceunit, parallel = parallel, mc.cores = mc.cores),
                   "db3" = readDB3(file = file, table = table, timezone = timezone,
                       speedunit = speedunit, distanceunit = distanceunit)
                   )
@@ -383,7 +388,7 @@ readDirectory <- function(directory,
                           distanceunit = list(tcx = "m", db3 = "km"),
                           cycling = FALSE,
                           lgap = 30, lskip = 5, m = 11,
-                          mc.cores = getOption("mc.cores", 2L),
+                          parallel = FALSE, mc.cores = getOption("mc.cores", 2L),
                           verbose = TRUE) {
 
     tcxfiles <- list.files(directory, pattern = "tcx", ignore.case = TRUE, full.names = TRUE,
@@ -403,10 +408,11 @@ readDirectory <- function(directory,
             for (j in seq.int(ltcx)) {
                 if (verbose) cat("Reading file", tcxfiles[j], paste0("(file ", j, " out of ", ltcx, ")"), "...\n")
                 tcxData[[j]] <- try(readTCX(tcxfiles[j],
-                                             timezone = timezone,
-                                             speedunit = speedunit$tcx,
-                                             distanceunit = distanceunit$tcx,
-                                             mc.cores = mc.cores))
+                                            timezone = timezone,
+                                            speedunit = speedunit$tcx,
+                                            distanceunit = distanceunit$tcx,
+                                            parallel = parallel,
+                                            mc.cores = mc.cores))
             }
             if (verbose) cat("Cleaning up...")
             tcxData <- do.call("rbind", tcxData[!sapply(tcxData, inherits, what = "try-error")])
@@ -440,6 +446,7 @@ readDirectory <- function(directory,
                                                   lgap = lgap,
                                                   lskip = lskip,
                                                   m = m,
+                                                  parallel = parallel,
                                                   mc.cores = mc.cores))
             }
             if (verbose) cat("Cleaning up...")

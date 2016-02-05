@@ -5,8 +5,8 @@
 \title{W': work capacity above critical power.}
 \usage{
 Wprime(object, session = NULL, quantity = c("expended", "balance"), w0, cp,
-  version = c("2015", "2012"), meanRecoveryPower = FALSE, parallel = TRUE,
-  mc.cores = getOption("mc.cores", 2L), ...)
+  version = c("2015", "2012"), meanRecoveryPower = FALSE,
+  parallel = FALSE, mc.cores = getOption("mc.cores", 2L), ...)
 }
 \arguments{
 \item{object}{A \code{\link{trackeRdata}} object.}
@@ -28,7 +28,7 @@ Skiba et al. (2012), respectively. See Details.}
 \item{meanRecoveryPower}{Should the mean of all power outputs below critical
 power be used as recovery power? See Details.}
 
-\item{parallel}{Logical. Should computation be carried out in parallel?}
+\item{parallel}{Logical. Should computation be carried out in parallel? (Not supported on Windows.)}
 
 \item{mc.cores}{Number of cores for parallel computing.}
 

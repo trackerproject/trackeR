@@ -15,7 +15,7 @@
 #' plot(cProfile)
 #' @export
 concentrationProfile <- function(object, session = NULL, what = c("speed", "heart.rate"),
-                                 parallel = TRUE, mc.cores = getOption("mc.cores", 2L)){
+                                 parallel = FALSE, mc.cores = getOption("mc.cores", 2L)){
     units <- getUnits(object)
     operations <- getOperations(object)
     
@@ -265,7 +265,7 @@ c.conProfile <- function(..., recursive = FALSE){
     
         ## if the settings for the first session are NULL, create a new reference setup
         if (is.null(getOperations(input[[1]])$smooth)){
-            operations$smooth <- list(what = NA, k = NA, sp = NA, parallel = TRUE,
+            operations$smooth <- list(what = NA, k = NA, sp = NA, parallel = FALSE,
                                       mc.cores = getOption("mc.cores", 2L), nsessions = NULL)
         }
 

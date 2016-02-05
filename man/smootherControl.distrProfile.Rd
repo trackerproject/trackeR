@@ -6,7 +6,7 @@
 a control argument for \code{\link{smoother.distrProfile}}.}
 \usage{
 smootherControl.distrProfile(what = c("speed", "heart.rate"), k = 30,
-  sp = NULL, parallel = TRUE, mc.cores = getOption("mc.cores", 2L))
+  sp = NULL, parallel = FALSE, mc.cores = getOption("mc.cores", 2L))
 }
 \arguments{
 \item{what}{Vector of the names of the variables which should be smoothed.}

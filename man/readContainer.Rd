@@ -8,7 +8,7 @@ readContainer(file, type = c("tcx", "db3"), table = "gps_data",
   timezone = "", sessionThreshold = 2, correctDistances = FALSE,
   country = NULL, mask = TRUE, fromDistances = NULL, speedunit = NULL,
   distanceunit = NULL, cycling = FALSE, lgap = 30, lskip = 5, m = 11,
-  mc.cores = getOption("mc.cores", 2L))
+  parallel = FALSE, mc.cores = getOption("mc.cores", 2L))
 }
 \arguments{
 \item{file}{The path to the file.}
@@ -54,6 +54,8 @@ and the first imputed speed or the last imputed speed and the first
 observation after a small break.}
 
 \item{m}{Number of imputed observations in each small break.}
+
+\item{parallel}{Logical. Should computation be carried out in parallel? (Not supported on Windows.)}
 
 \item{mc.cores}{Number of cores for parallel computing.}
 }

@@ -5,7 +5,7 @@
 #' @param what The variables for which the distribution profiles should be generated.
 #' @param grid A named list containing the grid for the variables in \code{what}.
 #' @param scaled Logical. Should the distribution profiles be scaled relative to their maximum value?
-#' @param parallel Logical. Should computation be carried out in parallel?
+#' @param parallel Logical. Should computation be carried out in parallel? (Not supported on Windows.)
 #' @param mc.cores Number of cores for parallel computing.
 #' @return An object of class \code{distrProfile}.
 #' @references Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
@@ -19,7 +19,7 @@
 distributionProfile <- function(object, session = NULL, what = c("speed", "heart.rate"),
                                 grid = list(speed = seq(0, 12.5, by = 0.05), heart.rate = seq(0, 250)),
                                 scaled = FALSE,
-                                parallel = TRUE, mc.cores = getOption("mc.cores", 2L)){
+                                parallel = FALSE, mc.cores = getOption("mc.cores", 2L)){
     units <- getUnits(object)
     if (is.null(session))
         session <- 1:length(object)
@@ -343,7 +343,7 @@ smoother.distrProfile <- function(object, session = NULL, control = list(...), .
 #' @export
 smootherControl.distrProfile <- function(what = c("speed", "heart.rate"), k = 30, sp = NULL,
                                          ## len = NULL, fam = "poisson",
-                                         parallel = TRUE, mc.cores = getOption("mc.cores", 2L)){
+                                         parallel = FALSE, mc.cores = getOption("mc.cores", 2L)){
     if (is.vector(what)) {
         what <- list(what)
     }
@@ -426,7 +426,7 @@ c.distrProfile <- function(..., recursive = FALSE){
 
         ## if the settings for the first session are NULL, create a new reference setup
         if (is.null(getOperations(input[[1]])$smooth)){
-            operations$smooth <- list(what = NA, k = NA, sp = NA, parallel = TRUE,
+            operations$smooth <- list(what = NA, k = NA, sp = NA, parallel = FALSE,
                                       mc.cores = getOption("mc.cores", 2L), nsessions = NULL)
         }
 
