@@ -98,7 +98,8 @@ Wexp <- function(object, w0, cp,
 #' @param quantity Should W' \code{"expended"} or W' \code{"balance"} be returned?
 #' @inheritParams Wexp
 #' @param parallel Logical. Should computation be carried out in parallel? (Not supported on Windows.)
-#' @param mc.cores Number of cores for parallel computing.
+#' @param cl Passed on to \code{\link[doParallel]{registerDoParallel}}.
+#' @param cores Number of cores for parallel computing.
 #' @param ... Currently not used.
 #'
 #' @return An object of class \code{trackeRWprime}.
@@ -125,7 +126,7 @@ Wexp <- function(object, w0, cp,
 #' plot(wexp)
 Wprime <- function(object, session = NULL, quantity = c("expended", "balance"),
                    w0, cp, version = c("2015", "2012"), meanRecoveryPower = FALSE,
-                   parallel = FALSE, mc.cores = getOption("mc.cores", 2L),...){
+                   parallel = FALSE, cl, cores = NULL, ...){
     ## prep args
     quantity <- match.arg(quantity, c("expended", "balance"))
     if (quantity == "balance" & missing(w0)) stop("Please provide w0 or choose quantity = 'expended'.")
@@ -156,6 +157,24 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"),
     if (is.null(session)) session <- 1:length(object)
     object <- object[session]
 
+    ## get W'
+    getW <- function(x){
+        W <- Wexp(x[,ps], w0 = w0, cp = cp, version = version,
+                  meanRecoveryPower = meanRecoveryPower)
+        if (quantity == "balance") W$wprime <- w0 - W$wprime
+        return(W)
+    }
+#browser()    
+    if (parallel){
+        doParallel::registerDoParallel(cl = cl, cores = cores)
+        i <- NULL
+        ret <- foreach::foreach(i = seq_along(object)) %dopar% getW(x = object[[i]])
+        doParallel::stopImplicitCluster() ## right one?
+        foreach::registerDoSEQ()
+    } else {
+        ret <- foreach::foreach(i = seq_along(object)) %do% getW(x = object[[i]])
+    }
+    if(FALSE){
     ## parallelisation
     papply <- if (parallel) function(...) parallel::mclapply(..., mc.cores = mc.cores) else lapply
 
@@ -165,7 +184,8 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"),
                       if (quantity == "balance") W$wprime <- w0 - W$wprime
                       return(W)
                   }, w0 = w0, cp = cp, version = version, meanRecoveryPower = meanRecoveryPower)
-
+    }
+        
     ## class and return
     attr(ret, "quantity") <- quantity
     attr(ret, "w0") <- if (missing(w0)) NA else w0

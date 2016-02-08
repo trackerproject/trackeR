@@ -6,7 +6,7 @@
 \usage{
 Wprime(object, session = NULL, quantity = c("expended", "balance"), w0, cp,
   version = c("2015", "2012"), meanRecoveryPower = FALSE,
-  parallel = FALSE, mc.cores = getOption("mc.cores", 2L), ...)
+  parallel = FALSE, cl, cores = NULL, ...)
 }
 \arguments{
 \item{object}{A \code{\link{trackeRdata}} object.}
@@ -30,7 +30,9 @@ power be used as recovery power? See Details.}
 
 \item{parallel}{Logical. Should computation be carried out in parallel? (Not supported on Windows.)}
 
-\item{mc.cores}{Number of cores for parallel computing.}
+\item{cl}{Passed on to \code{\link[doParallel]{registerDoParallel}}.}
+
+\item{cores}{Number of cores for parallel computing.}
 
 \item{...}{Currently not used.}
 }
