@@ -9,7 +9,7 @@ readDirectory(directory, aggregate = TRUE, table = "gps_data",
   country = NULL, mask = TRUE, fromDistances = NULL,
   speedunit = list(tcx = "m_per_s", db3 = "km_per_h"),
   distanceunit = list(tcx = "m", db3 = "km"), cycling = FALSE, lgap = 30,
-  lskip = 5, m = 11, parallel = FALSE, mc.cores = getOption("mc.cores",
+  lskip = 5, m = 11, parallel = FALSE, cores = getOption("mc.cores",
   2L), verbose = TRUE)
 }
 \arguments{
@@ -57,7 +57,7 @@ observation after a small break.}
 
 \item{parallel}{Logical. Should computation be carried out in parallel? (Not supported on Windows.)}
 
-\item{mc.cores}{Number of cores for parallel computing.}
+\item{cores}{Number of cores for parallel computing.}
 
 \item{verbose}{Logical. Should progress reports be printed?}
 }

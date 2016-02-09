@@ -5,8 +5,9 @@
 #' @param what The variables for which the distribution profiles should be generated.
 #' @param grid A named list containing the grid for the variables in \code{what}.
 #' @param scaled Logical. Should the distribution profiles be scaled relative to their maximum value?
-#' @param parallel Logical. Should computation be carried out in parallel? (Not supported on Windows.)
-#' @param mc.cores Number of cores for parallel computing.
+#' @param parallel Logical. Should computation be carried out in parallel?
+#' @param cl A cluster object as passed on to \code{\link[doParallel]{registerDoParallel}}.
+#' @param cores Number of cores for parallel computing.
 #' @return An object of class \code{distrProfile}.
 #' @references Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
 #'     Endurance Runners to Training and Physiological Effects via Multi-Resolution
@@ -18,8 +19,8 @@
 #' @export
 distributionProfile <- function(object, session = NULL, what = c("speed", "heart.rate"),
                                 grid = list(speed = seq(0, 12.5, by = 0.05), heart.rate = seq(0, 250)),
-                                scaled = FALSE,
-                                parallel = FALSE, mc.cores = getOption("mc.cores", 2L)){
+                                scaled = FALSE, parallel = FALSE, cl, cores = NULL){ 
+    
     units <- getUnits(object)
     if (is.null(session))
         session <- 1:length(object)
@@ -54,11 +55,6 @@ distributionProfile <- function(object, session = NULL, what = c("speed", "heart
 
     ## FIXME: transform grid if units of trackeRdata object are not m/s and bpm for speed and hr, respectively
 
-    ## parallelisation
-    papply <- if (parallel)
-        function(...) parallel::mclapply(..., mc.cores = mc.cores)
-    else lapply
-
     dp <- function(object, grid) {
         values <- coredata(object)
         timestamps <- index(object)
@@ -86,16 +82,28 @@ distributionProfile <- function(object, session = NULL, what = c("speed", "heart
     ## all profiles (for all sessions) of the same variable are collected in a multivariate zoo object
     ## - and not all profiles per session because the profiles might have a differently lengthed grid.
 
-    for (i in what) {
-        times <- papply(object, function(sess) {
-
-            dp(sess[, i], grid[[i]])
-        })
-        times <- zoo(matrix(unlist(times), nrow = length(grid[[i]])),
-            order.by = grid[[i]])
-        names(times) <- paste0("Session", session)
-        DP[[i]] <- times
+    if (parallel) {
+        doParallel::registerDoParallel(cl = cl, cores = cores)
+        j <- NULL
+        for (i in what) {
+            times <- foreach(j = seq_along(object)) %dopar%  dp(object[[j]][, i], grid[[i]])
+            times <- zoo(matrix(unlist(times), nrow = length(grid[[i]])),
+                         order.by = grid[[i]])
+            names(times) <- paste0("Session", session)
+            DP[[i]] <- times
+        }
+        doParallel::stopImplicitCluster() ## right one?
+        foreach::registerDoSEQ()
+    } else {
+        for (i in what) {
+            times <- foreach(j = seq_along(object)) %do%  dp(object[[j]][, i], grid[[i]])
+            times <- zoo(matrix(unlist(times), nrow = length(grid[[i]])),
+                         order.by = grid[[i]])
+            names(times) <- paste0("Session", session)
+            DP[[i]] <- times
+        }
     }
+    
     operations <- list(smooth = NULL)
     attr(DP, "operations") <- operations
     attr(DP, "units") <- units
@@ -295,26 +303,51 @@ smoother.distrProfile <- function(object, session = NULL, control = list(...), .
     for(i in seq_along(object)) object[[i]] <- object[[i]][,session]
     #availSessions <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
 
-    ## parallelisation
-    papply <- if (control$parallel) function(...) parallel::mclapply(..., mc.cores = control$mc.cores) else lapply
 
     ## smooth
     ret <- list()
+    j <- NULL
     what <- unlist(control$what)[unlist(control$what) %in% names(object)]
-    for (i in what){
-        nr <- if (is.null(nrow(object[[i]]))) length(object[[i]]) else nrow(object[[i]])
-        nc <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
-        smoothedProfile <- matrix(NA, nrow = nr, ncol = nc)
-        colnames(smoothedProfile) <- attr(object[[i]], "dimnames")[[2]]
-        for (j in seq_len(ncol(smoothedProfile))){
-            dsm <- decreasingSmoother(x = index(object[[i]]),
-                                      y = coredata(object[[i]][,j]),
-                                      k = control$k, len = NULL, sp = control$sp, fam = "poisson")
-            smoothedProfile[,j] <- dsm$y
+    if (control$parallel){
+        if(is.null(control$cl)){
+            doParallel::registerDoParallel(cores = control$cores)
+        } else {
+            doParallel::registerDoParallel(cl = control$cl, cores = control$cores)
         }
-        ret[[i]] <- zoo(smoothedProfile, order.by = index(object[[i]])) ## README: originally dsm$x which is the same as arg x of decreasingSmoother if len = NULL.
+        for (i in what){
+            nr <- if (is.null(nrow(object[[i]]))) length(object[[i]]) else nrow(object[[i]])
+            nc <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
+            smoothedProfile <- foreach(j = seq_len(nc), .combine = "cbind") %dopar% {
+                dsm <- decreasingSmoother(x = index(object[[i]]),
+                                          y = coredata(object[[i]][,j]),
+                                          k = control$k, len = NULL, sp = control$sp, fam = "poisson")
+                dsm$y
+            }
+            if (nc < 2) smoothedProfile <- as.matrix(smoothedProfile)
+            colnames(smoothedProfile) <- attr(object[[i]], "dimnames")[[2]]
+            ret[[i]] <- zoo(smoothedProfile, order.by = index(object[[i]]))
+            ## README: originally dsm$x which is the same as arg x of decreasingSmoother if len = NULL.
+        }
+        doParallel::stopImplicitCluster() ## right one?
+        foreach::registerDoSEQ()
+    } else {
+        for (i in what){
+            nr <- if (is.null(nrow(object[[i]]))) length(object[[i]]) else nrow(object[[i]])
+            nc <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
+            smoothedProfile <- foreach(j = seq_len(nc), .combine = "cbind") %do% {
+                dsm <- decreasingSmoother(x = index(object[[i]]),
+                                          y = coredata(object[[i]][,j]),
+                                          k = control$k, len = NULL, sp = control$sp, fam = "poisson")
+                dsm$y
+            }
+            if (nc < 2) smoothedProfile <- as.matrix(smoothedProfile)
+            colnames(smoothedProfile) <- attr(object[[i]], "dimnames")[[2]]
+            ret[[i]] <- zoo(smoothedProfile, order.by = index(object[[i]]))
+            ## README: originally dsm$x which is the same as arg x of decreasingSmoother if len = NULL.
+        }
     }
 
+    
     ## FIXME: add unsmoothed distribution profiles?
     unsmoothed <- names(object)[!(names(object) %in% what)]
     for (i in unsmoothed){
@@ -339,15 +372,16 @@ smoother.distrProfile <- function(object, session = NULL, control = list(...), .
 #' @param what Vector of the names of the variables which should be smoothed.
 #' @inheritParams decreasingSmoother
 #' @param parallel Logical. Should computation be carried out in parallel?
-#' @param mc.cores Number of cores for parallel computing.
+#' @param cl Passed on to \code{\link[doParallel]{registerDoParallel}}.
+#' @param cores Number of cores for parallel computing.
 #' @export
 smootherControl.distrProfile <- function(what = c("speed", "heart.rate"), k = 30, sp = NULL,
                                          ## len = NULL, fam = "poisson",
-                                         parallel = FALSE, mc.cores = getOption("mc.cores", 2L)){
+                                         parallel = FALSE, cl = NULL, cores = NULL){
     if (is.vector(what)) {
         what <- list(what)
     }
-    list(what = what, k = k, sp = sp, parallel = parallel, mc.cores = mc.cores)
+    list(what = what, k = k, sp = sp, parallel = parallel, cl = cl, cores = cores)
 }
 
 
@@ -426,8 +460,9 @@ c.distrProfile <- function(..., recursive = FALSE){
 
         ## if the settings for the first session are NULL, create a new reference setup
         if (is.null(getOperations(input[[1]])$smooth)){
-            operations$smooth <- list(what = NA, k = NA, sp = NA, parallel = FALSE,
-                                      mc.cores = getOption("mc.cores", 2L), nsessions = NULL)
+            operations$smooth <- list(what = NA, k = NA, sp = NA,
+                                      parallel = FALSE, cl = NULL, cores = NULL,
+                                      nsessions = NULL)
         }
 
         whats <- lapply(input, function(x) unique(getOperations(x)$smooth$what))

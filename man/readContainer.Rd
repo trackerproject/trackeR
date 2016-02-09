@@ -8,7 +8,7 @@ readContainer(file, type = c("tcx", "db3"), table = "gps_data",
   timezone = "", sessionThreshold = 2, correctDistances = FALSE,
   country = NULL, mask = TRUE, fromDistances = NULL, speedunit = NULL,
   distanceunit = NULL, cycling = FALSE, lgap = 30, lskip = 5, m = 11,
-  parallel = FALSE, mc.cores = getOption("mc.cores", 2L))
+  parallel = FALSE, cores = getOption("mc.cores", 2L))
 }
 \arguments{
 \item{file}{The path to the file.}
@@ -57,7 +57,7 @@ observation after a small break.}
 
 \item{parallel}{Logical. Should computation be carried out in parallel? (Not supported on Windows.)}
 
-\item{mc.cores}{Number of cores for parallel computing.}
+\item{cores}{Number of cores for parallel computing.}
 }
 \value{
 An object of class \code{\link{trackeRdata}}.

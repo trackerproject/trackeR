@@ -97,8 +97,8 @@ Wexp <- function(object, w0, cp,
 #' @param session A numeric vector of the sessions to be used, defaults to all sessions.
 #' @param quantity Should W' \code{"expended"} or W' \code{"balance"} be returned?
 #' @inheritParams Wexp
-#' @param parallel Logical. Should computation be carried out in parallel? (Not supported on Windows.)
-#' @param cl Passed on to \code{\link[doParallel]{registerDoParallel}}.
+#' @param parallel Logical. Should computation be carried out in parallel?
+#' @param cl A cluster object as passed on to \code{\link[doParallel]{registerDoParallel}}.
 #' @param cores Number of cores for parallel computing.
 #' @param ... Currently not used.
 #'
@@ -132,6 +132,7 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"),
     if (quantity == "balance" & missing(w0)) stop("Please provide w0 or choose quantity = 'expended'.")
     version <- match.arg(version, c("2015", "2012"))
     if (version == "2015" & missing(w0)) stop("Please provide w0 or choose version = '2012'.")
+    if (missing(w0)) w0 <- NA
 
     ## units
     units <- getUnits(object)
@@ -164,7 +165,6 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"),
         if (quantity == "balance") W$wprime <- w0 - W$wprime
         return(W)
     }
-#browser()    
     if (parallel){
         doParallel::registerDoParallel(cl = cl, cores = cores)
         i <- NULL
@@ -174,18 +174,7 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"),
     } else {
         ret <- foreach::foreach(i = seq_along(object)) %do% getW(x = object[[i]])
     }
-    if(FALSE){
-    ## parallelisation
-    papply <- if (parallel) function(...) parallel::mclapply(..., mc.cores = mc.cores) else lapply
 
-    ## get W' 
-    ret <- papply(object, function(x, w0, cp, version, meanRecoveryPower){
-                      W <- Wexp(x[,ps], w0 = w0, cp = cp, version = version, meanRecoveryPower = meanRecoveryPower)
-                      if (quantity == "balance") W$wprime <- w0 - W$wprime
-                      return(W)
-                  }, w0 = w0, cp = cp, version = version, meanRecoveryPower = meanRecoveryPower)
-    }
-        
     ## class and return
     attr(ret, "quantity") <- quantity
     attr(ret, "w0") <- if (missing(w0)) NA else w0

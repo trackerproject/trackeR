@@ -7,7 +7,7 @@
 #' @param distanceunit Character string indicating the measurement unit of the
 #'     distance in the container file to be converted into meters. See Details.
 #' @param parallel Logical. Should computation be carried out in parallel? (Not supported on Windows.)
-#' @param mc.cores Number of cores for parallel computing.
+#' @param cores Number of cores for parallel computing.
 #' @param ... Currently not used.
 #' @details Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_per_s},
 #'     \code{mi_per_h}, \code{ft_per_min} and \code{ft_per_s}. The default is \code{m_per_s} for TCX files
@@ -32,7 +32,8 @@
 #' run <- readContainer(filepath, type = "tcx", timezone = "GMT")
 #' }
 ## Experimental function for reading TCX files
-readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "m", parallel = FALSE, mc.cores = getOption("mc.cores", 2L),...){
+readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "m",
+                    parallel = FALSE, cores = getOption("mc.cores", 2L),...){
 
     ## relevant resource: http://gastonsanchez.com/work/webdata/getting_web_data_r4_parsing_xml_html.pdf
 
@@ -41,7 +42,7 @@ readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "
     nodes <- XML::getNodeSet(doc, "//ns:Trackpoint", "ns")
 
     ## parallelisation
-    papply <- if (parallel) function(...) parallel::mclapply(..., mc.cores = mc.cores) else lapply
+    papply <- if (parallel) function(...) parallel::mclapply(..., mc.cores = cores) else lapply
 
     mydf <- do.call("rbind", papply(nodes, function(node) {
         ## Avoid memory leaks
@@ -263,7 +264,7 @@ readContainer <- function(file, type = c("tcx", "db3"),
                           speedunit = NULL, distanceunit = NULL,
                           cycling = FALSE,
                           lgap = 30, lskip = 5, m = 11,
-                          parallel = FALSE, mc.cores = getOption("mc.cores", 2L)){
+                          parallel = FALSE, cores = getOption("mc.cores", 2L)){
     ## prepare args
     type <- match.arg(tolower(type), choices = c("tcx", "db3"))
     if (is.null(fromDistances)){
@@ -279,7 +280,7 @@ readContainer <- function(file, type = c("tcx", "db3"),
     ## read gps data
     dat <- switch(type,
                   "tcx" = readTCX(file = file, timezone = timezone, speedunit = speedunit,
-                      distanceunit = distanceunit, parallel = parallel, mc.cores = mc.cores),
+                      distanceunit = distanceunit, parallel = parallel, cores = cores),
                   "db3" = readDB3(file = file, table = table, timezone = timezone,
                       speedunit = speedunit, distanceunit = distanceunit)
                   )
@@ -388,7 +389,7 @@ readDirectory <- function(directory,
                           distanceunit = list(tcx = "m", db3 = "km"),
                           cycling = FALSE,
                           lgap = 30, lskip = 5, m = 11,
-                          parallel = FALSE, mc.cores = getOption("mc.cores", 2L),
+                          parallel = FALSE, cores = getOption("mc.cores", 2L),
                           verbose = TRUE) {
 
     tcxfiles <- list.files(directory, pattern = "tcx", ignore.case = TRUE, full.names = TRUE,
@@ -412,7 +413,7 @@ readDirectory <- function(directory,
                                             speedunit = speedunit$tcx,
                                             distanceunit = distanceunit$tcx,
                                             parallel = parallel,
-                                            mc.cores = mc.cores))
+                                            cores = cores))
             }
             if (verbose) cat("Cleaning up...")
             tcxData <- do.call("rbind", tcxData[!sapply(tcxData, inherits, what = "try-error")])
@@ -447,7 +448,7 @@ readDirectory <- function(directory,
                                                   lskip = lskip,
                                                   m = m,
                                                   parallel = parallel,
-                                                  mc.cores = mc.cores))
+                                                  cores = cores))
             }
             if (verbose) cat("Cleaning up...")
             tcxData <- do.call("c", tcxData[!sapply(tcxData, inherits, what = "try-error")])
@@ -502,7 +503,7 @@ readDirectory <- function(directory,
                                                   lgap = lgap,
                                                   lskip = lskip,
                                                   m = m,
-                                                  mc.cores = mc.cores))
+                                                  cores = cores))
             }
             if (verbose) cat("Cleaning up...")
             db3Data <- do.call("c", db3Data[!sapply(db3Data, inherits, what = "try-error")])

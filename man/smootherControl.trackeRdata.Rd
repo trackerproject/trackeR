@@ -6,7 +6,7 @@
 a control argument for \code{\link{smoother.trackeRdata}}.}
 \usage{
 smootherControl.trackeRdata(fun = "mean", width = 10, parallel = FALSE,
-  mc.cores = getOption("mc.cores", 2L), what = c("speed", "heart.rate"),
+  cl = NULL, cores = NULL, what = c("speed", "heart.rate"),
   nsessions = NA, ...)
 }
 \arguments{
@@ -15,9 +15,11 @@ smootherControl.trackeRdata(fun = "mean", width = 10, parallel = FALSE,
 \item{width}{The width of the window in which the raw observations
 get aggregated via function \code{fun}.}
 
-\item{parallel}{Logical. Should computation be carried out in parallel? (Not supported on Windows.)}
+\item{parallel}{Logical. Should computation be carried out in parallel?}
 
-\item{mc.cores}{Number of cores for parallel computing.}
+\item{cl}{A cluster object as passed on to \code{\link[doParallel]{registerDoParallel}}.}
+
+\item{cores}{Number of cores for parallel computing.}
 
 \item{what}{Vector of the names of the variables which should be smoothed.}
 

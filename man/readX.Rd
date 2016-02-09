@@ -7,7 +7,7 @@
 \title{Read a training file in tcx or db3 format.}
 \usage{
 readTCX(file, timezone = "", speedunit = "m_per_s", distanceunit = "m",
-  parallel = FALSE, mc.cores = getOption("mc.cores", 2L), ...)
+  parallel = FALSE, cores = getOption("mc.cores", 2L), ...)
 
 readDB3(file, timezone = "", table = "gps_data", speedunit = "km_per_h",
   distanceunit = "km")
@@ -25,7 +25,7 @@ distance in the container file to be converted into meters. See Details.}
 
 \item{parallel}{Logical. Should computation be carried out in parallel? (Not supported on Windows.)}
 
-\item{mc.cores}{Number of cores for parallel computing.}
+\item{cores}{Number of cores for parallel computing.}
 
 \item{...}{Currently not used.}
 

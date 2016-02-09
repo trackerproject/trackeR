@@ -41,11 +41,23 @@ smoother.trackeRdata <- function(object, session = NULL, control = list(...), ..
         stop("At least one of 'what' is not available.")
     }
 
-    ## parallelisation
-    papply <- if (control$parallel) function(...) parallel::mclapply(..., mc.cores = control$mc.cores) else lapply
+    do.smooth <- function(x){
+        zoo::rollapply(x, width = control$width, match.fun(control$fun))
+    }
 
-    ## rolling mean
-    objectNew <- papply(object, zoo::rollapply, width = control$width, match.fun(control$fun))
+    i <- NULL
+    if (control$parallel) {
+        if(is.null(control$cl)){
+            doParallel::registerDoParallel(cores = control$cores)
+        } else {
+            doParallel::registerDoParallel(cl = control$cl, cores = control$cores)
+        }
+        objectNew <- foreach(i = seq_along(object)) %dopar% do.smooth(object[[i]])
+        doParallel::stopImplicitCluster() ## right one?
+        foreach::registerDoSEQ()
+    } else {
+        objectNew <- foreach(i = seq_along(object)) %do% do.smooth(object[[i]])
+    }
 
     ## replace variables not in control$what with the corresponding original data
     for (k in seq_len(length(object))) {
@@ -69,8 +81,9 @@ smoother.trackeRdata <- function(object, session = NULL, control = list(...), ..
 #' @param fun The name of the function to be matched and used to aggregate/smooth the data.
 #' @param width The width of the window in which the raw observations
 #'     get aggregated via function \code{fun}.
-#' @param parallel Logical. Should computation be carried out in parallel? (Not supported on Windows.)
-#' @param mc.cores Number of cores for parallel computing.
+#' @param parallel Logical. Should computation be carried out in parallel?
+#' @param cl A cluster object as passed on to \code{\link[doParallel]{registerDoParallel}}.
+#' @param cores Number of cores for parallel computing.
 #' @param what Vector of the names of the variables which should be smoothed.
 #' @param nsessions Vector containing the number of session. Default corresponds to all sessions
 #'     belonging to the same group. Used only internally.
@@ -78,7 +91,7 @@ smoother.trackeRdata <- function(object, session = NULL, control = list(...), ..
 #' @seealso \code{\link{smoother.trackeRdata}}
 #' @export
 smootherControl.trackeRdata <- function(fun = "mean", width = 10,
-                                        parallel = FALSE, mc.cores = getOption("mc.cores", 2L),
+                                        parallel = FALSE, cl = NULL, cores = NULL,
                                         what = c("speed", "heart.rate"), nsessions = NA, ...) {
     # Basic checks for the arguments
     if (!is.character(fun)) {
@@ -94,7 +107,8 @@ smootherControl.trackeRdata <- function(fun = "mean", width = 10,
     list(fun = fun,
          width = width,
          parallel = parallel,
-         mc.cores = mc.cores,
+         cl = cl,
+         cores = cores,
          what = what,
          nsessions = nsessions)
 }

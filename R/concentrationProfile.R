@@ -3,6 +3,7 @@
 #' @param object An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.
 #' @param what The variables for which the concentration profiles should be generated.
 #' @inheritParams distributionProfile
+#' @param ... Currently not used.
 #' @return An object of class \code{conProfile}.
 #' @references Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
 #'     Endurance Runners to Training and Physiological Effects via Multi-Resolution
@@ -14,8 +15,7 @@
 #' plot(cProfile, smooth = FALSE)
 #' plot(cProfile)
 #' @export
-concentrationProfile <- function(object, session = NULL, what = c("speed", "heart.rate"),
-                                 parallel = FALSE, mc.cores = getOption("mc.cores", 2L)){
+concentrationProfile <- function(object, session = NULL, what = c("speed", "heart.rate"), ...){
     units <- getUnits(object)
     operations <- getOperations(object)
     
@@ -28,9 +28,6 @@ concentrationProfile <- function(object, session = NULL, what = c("speed", "hear
     availSessions <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
     if (is.null(session)) session <- 1:availSessions
     for(i in what) object[[i]] <- object[[i]][,session]
-
-    ## parallelisation
-    papply <- if (parallel) function(...) parallel::mclapply(..., mc.cores = mc.cores) else lapply
 
     ## get concentration profile
     CP <- list()
@@ -265,8 +262,9 @@ c.conProfile <- function(..., recursive = FALSE){
     
         ## if the settings for the first session are NULL, create a new reference setup
         if (is.null(getOperations(input[[1]])$smooth)){
-            operations$smooth <- list(what = NA, k = NA, sp = NA, parallel = FALSE,
-                                      mc.cores = getOption("mc.cores", 2L), nsessions = NULL)
+            operations$smooth <- list(what = NA, k = NA, sp = NA,
+                                      parallel = FALSE, cl = NULL, cores = NULL,
+                                      nsessions = NULL)
         }
 
         whats <- lapply(input, function(x) unique(getOperations(x)$smooth$what))

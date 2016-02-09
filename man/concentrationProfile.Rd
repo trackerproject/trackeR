@@ -5,7 +5,7 @@
 \title{Generate training concentration profiles.}
 \usage{
 concentrationProfile(object, session = NULL, what = c("speed",
-  "heart.rate"), parallel = FALSE, mc.cores = getOption("mc.cores", 2L))
+  "heart.rate"), ...)
 }
 \arguments{
 \item{object}{An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.}
@@ -14,9 +14,7 @@ concentrationProfile(object, session = NULL, what = c("speed",
 
 \item{what}{The variables for which the concentration profiles should be generated.}
 
-\item{parallel}{Logical. Should computation be carried out in parallel? (Not supported on Windows.)}
-
-\item{mc.cores}{Number of cores for parallel computing.}
+\item{...}{Currently not used.}
 }
 \value{
 An object of class \code{conProfile}.

@@ -28,9 +28,9 @@ Skiba et al. (2012), respectively. See Details.}
 \item{meanRecoveryPower}{Should the mean of all power outputs below critical
 power be used as recovery power? See Details.}
 
-\item{parallel}{Logical. Should computation be carried out in parallel? (Not supported on Windows.)}
+\item{parallel}{Logical. Should computation be carried out in parallel?}
 
-\item{cl}{Passed on to \code{\link[doParallel]{registerDoParallel}}.}
+\item{cl}{A cluster object as passed on to \code{\link[doParallel]{registerDoParallel}}.}
 
 \item{cores}{Number of cores for parallel computing.}
 
