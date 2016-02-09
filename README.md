@@ -3,14 +3,14 @@
 ### Description
 
 The purpose of this package is to provide infrastructure for handling
-cycling and running data from GPS-enabled tracking devices.
+running and cycling data from GPS-enabled tracking devices.
 
 The formats that are currently supported for the training activity
 files are .tcx (Training Center XML) and .db3. After extraction and
 appropriate manipulation of the training or competition attributes,
-the data are placed into session-aware data objects of class
-trackeRdata (S3 class). The information in the resultant data objects
-can then be visualised, summarised and analysed through corresponding
+the data are placed into session-based and unit-aware data objects of
+class trackeRdata (S3 class). The information in the resultant data objects
+can then be visualised, summarised, and analysed through corresponding
 flexible and extensible methods.
 
 ### Current capabilities
@@ -20,25 +20,27 @@ Read:
 - Read all supported files in a specfied directory.
 
 Data processing:
-- Automatically identify training sessions from timestamps.
+- Automatically identify sessions from timestamps.
 - Imputation of data to characterize times when the device is paused or remains stationary.
 - Correction of GPS-measured distances using elevation data.
 - Basic data cleaning capabilities e.g., no negative speeds or distances.
 - Specify and conveniently change units of measurement.
-- Organise training data into unit- and session-aware data objects of class trackeRdata.
+- Organise data into session-based and unit-aware data objects of class trackeRdata.
 
 Analysis:
-- Session summaries: distance, duration, time moving, average speed/pace/heart rate/cadence/power (overall and moving), work to rest ratio.
-- Time spent training in user-supplied zones, e.g., heart rate zones or speed zones.
-- Training distribution profiles: time spent training above thresholds of training attributes.
-- Training concentration profiles: negative derivatives of training distribution profiles.
+- Session summaries: distance, duration, time moving, average speed/pace/heart
+rate/cadence/power (overall and moving), work to rest ratio.
+- Time spent exercising in user-supplied zones, e.g., heart rate zones or speed zones.
+- Work capacity above critical power (W', W prime)
+- Distribution profiles: time spent exercising above thresholds of training attributes.
+- Concentration profiles: negative derivatives of distribution profiles.
 
 Visualisation:
 - Plot session progression in, e.g., pace, heart rate, etc.
 - Plot route covered during session on maps from various providers.
 - Plot session summary statistics.
-- Plot time spent training in zones.
-- Plot training distribution/concentration profiles.
+- Plot time spent exercising in zones.
+- Plot distribution/concentration profiles.
 
 
 ### Installation
@@ -77,7 +79,7 @@ gridSpeed <- seq(0, 12.5, length = 251)
 sp <- matrix(unlist(cpRuns$speed), ncol = 250, byrow = TRUE,
              dimnames = list(names(cpRuns$speed), gridSpeed[-1]))
 spfd <- Data2fd(argvals = gridSpeed[-1], y = t(sp),
-                fdnames = c("Speed", "session", "d Time"))
+                fdnames = c("Speed", "Session", "d Time"))
 		
 ## fit + select number of harmonics
 sppca <- pca.fd(spfd, nharm = 4)
