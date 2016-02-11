@@ -2521,7 +2521,7 @@ set.seed(1)
 dProfile <- distributionProfile(runs, session = 1:4,
     what = c("speed", "heart.rate"),
     grid = list(speed = seq(0, 12.5, by = 0.05), heart.rate = seq(0, 250)))
-dProfileS <- smoother(dProfile)
+dProfileS <- smoother(dProfile, cores = 2)
 @
 <<dProfile, echo = FALSE, eval = TRUE, results=hide>>=
 if(cache & file.exists("example_dProfile.rda")) {
@@ -2573,7 +2573,7 @@ combination of low and high speeds.
 %
 <<cprofilePlot, echo = FALSE, fig = TRUE, width = 6, height = 4>>=
 cProfile <- concentrationProfile(dProfile, what = "speed")
-plot(cProfile, multiple = TRUE)
+plot(cProfile, multiple = TRUE, cores = 2)
 ## cProfileS <- concentrationProfile(dProfileS)
 ## plot(cProfileS, what = "speed", smooth = FALSE, multiple = TRUE)
 @
@@ -2747,7 +2747,7 @@ plot(runs, session = 4, what = "speed") + ggplot2::expand_limits(y = c(0, 21))
     \begin{subfigure}[b]{0.45\textwidth}
 %
 <<thresholdPlots3, eval = TRUE, echo = FALSE, fig = TRUE, width = 3.7, height = 2.9>>=
-plot(runs, session = 4, what = "speed", smooth = TRUE, fun = "median", width = 20) + ggplot2::expand_limits(y = c(0, 12.5))
+plot(runs, session = 4, what = "speed", smooth = TRUE, fun = "median", width = 20, cores = 2) + ggplot2::expand_limits(y = c(0, 12.5))
 @
 %
     \end{subfigure}
@@ -2756,7 +2756,7 @@ plot(runs, session = 4, what = "speed", smooth = TRUE, fun = "median", width = 2
 %
 <<thresholdPlots4, eval = TRUE, echo = FALSE, fig = TRUE, width = 3.7, height = 2.9>>=
 run4 <- threshold(runs[4])
-run4S <- smoother(run4, what = "speed", fun = "median", width = 20)
+run4S <- smoother(run4, what = "speed", fun = "median", width = 20, cores = 2)
 plot(run4S, what = "speed", smooth = FALSE) + ggplot2::expand_limits(y = c(0, 12.5))
 @
 %
@@ -2830,7 +2830,7 @@ data(runs, package = "trackeR")
 runsT <- threshold(runs)
 ## get and smooth distribution profiles 
 dpRuns <- distributionProfile(runsT, what = "speed")
-dpRunsS <- smoother(dpRuns)
+dpRunsS <- smoother(dpRuns, cores = 2)
 ## get concentration profiles
 cpRuns <- concentrationProfile(dpRunsS)
 @

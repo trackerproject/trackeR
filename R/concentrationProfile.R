@@ -263,7 +263,7 @@ c.conProfile <- function(..., recursive = FALSE){
         ## if the settings for the first session are NULL, create a new reference setup
         if (is.null(getOperations(input[[1]])$smooth)){
             operations$smooth <- list(what = NA, k = NA, sp = NA,
-                                      parallel = FALSE, cl = NULL, cores = NULL,
+                                      parallel = FALSE, cores = NULL,
                                       nsessions = NULL)
         }
 

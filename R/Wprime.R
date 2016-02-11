@@ -98,8 +98,7 @@ Wexp <- function(object, w0, cp,
 #' @param quantity Should W' \code{"expended"} or W' \code{"balance"} be returned?
 #' @inheritParams Wexp
 #' @param parallel Logical. Should computation be carried out in parallel?
-#' @param cl A cluster object as passed on to \code{\link[doParallel]{registerDoParallel}}.
-#' @param cores Number of cores for parallel computing.
+#' @param cores Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options("corese")} (on Windows) or \code{options("mc.cores")} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.
 #' @param ... Currently not used.
 #'
 #' @return An object of class \code{trackeRWprime}.
@@ -126,7 +125,7 @@ Wexp <- function(object, w0, cp,
 #' plot(wexp)
 Wprime <- function(object, session = NULL, quantity = c("expended", "balance"),
                    w0, cp, version = c("2015", "2012"), meanRecoveryPower = FALSE,
-                   parallel = FALSE, cl, cores = NULL, ...){
+                   parallel = FALSE, cores = NULL, ...){
     ## prep args
     quantity <- match.arg(quantity, c("expended", "balance"))
     if (quantity == "balance" & missing(w0)) stop("Please provide w0 or choose quantity = 'expended'.")
@@ -165,14 +164,25 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"),
         if (quantity == "balance") W$wprime <- w0 - W$wprime
         return(W)
     }
-    if (parallel){
-        doParallel::registerDoParallel(cl = cl, cores = cores)
-        i <- NULL
-        ret <- foreach::foreach(i = seq_along(object)) %dopar% getW(x = object[[i]])
-        doParallel::stopImplicitCluster() ## right one?
-        foreach::registerDoSEQ()
+
+    if (parallel) {
+        dc <- parallel::detectCores()
+        if (.Platform$OS.type != "windows"){
+            if (is.null(cores))
+                cores <- getOption("mc.cores", max(floor(dc/2), 1L))
+            ## parallel::mclapply(...,  mc.cores = cores)
+            ret <- parallel::mclapply(object, getW, mc.cores = cores)
+        } else {
+            if (is.null(cores))
+                cores <- getOption("cores", max(floor(dc/2), 1L))
+            cl <- parallel::makePSOCKcluster(rep("localhost", cores))
+            ## parallel::parLapply(cl, ...)
+            ret <- parallel::parLapply(cl, object, getW)
+            parallel::stopCluster(cl)
+        }
     } else {
-        ret <- foreach::foreach(i = seq_along(object)) %do% getW(x = object[[i]])
+        ## lapply(...)
+        ret <- lapply(object, getW)
     }
 
     ## class and return

@@ -12,8 +12,7 @@ Description: The aim of this package is to provide infrastructure for handling r
     and analysed through corresponding flexible and extensible methods.
 Depends:
     R (>= 2.10.0),
-    zoo,
-    foreach
+    zoo
 Imports:
     ggplot2
 Suggests:
@@ -25,7 +24,6 @@ Suggests:
     scam,
     raster,
     testthat,
-    fda,
-    doParallel
+    fda
 License: GPL-2 | GPL-3
 RoxygenNote: 5.0.1

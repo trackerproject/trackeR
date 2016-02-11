@@ -13,17 +13,18 @@
 #'     corresponds to a speed of 1.4 meters per second, the preferred walking speed of
 #'     humans. The lower threshold is 0.
 #' @examples
+#' \dontrun{
 #' data(runs, package = "trackeR")
 #' ## plot heart rate and pace for the first 3 sessions
 #' plot(runs, session = 1:3)
-#' \dontrun{
 #' ## plot raw speed data for session 4
 #' plot(runs, session = 4, what = "speed", threshold = FALSE, smooth = FALSE)
 #' ## threshold speed variable
 #' plot(runs, session = 4, what = "speed", threshold = TRUE, smooth = FALSE,
 #'     variable = "speed", lower = 0, upper = 10)
 #' ## and smooth (thresholding with default values)
-#' plot(runs, session = 4, what = "speed", threshold = TRUE, smooth = TRUE, width = 15)
+#' plot(runs, session = 4, what = "speed", threshold = TRUE,
+#'     smooth = TRUE, width = 15, parallel = FALSE)
 #' }
 #' @export
 plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),

@@ -11,7 +11,6 @@
 #' @name trackeR
 #' @import zoo
 #' @importFrom ggplot2 fortify
-#' @import foreach
 NULL
 #> NULL
 

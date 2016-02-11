@@ -13,10 +13,10 @@
 #' ## unsmoothed speeds
 #' plot(run, smooth = FALSE)
 #' ## default smoothing
-#' plot(run, smooth = TRUE)
+#' plot(run, smooth = TRUE, cores = 2)
 #' ## smoothed with some non-default options
-#' run <- smoother(run, fun = "median", width = 20, what = "speed")
-#' plot(run, smooth = FALSE)
+#' runS <- smoother(run, fun = "median", width = 20, what = "speed", cores = 2)
+#' plot(runS, smooth = FALSE)
 #' @export
 smoother.trackeRdata <- function(object, session = NULL, control = list(...), ...){
 
@@ -41,24 +41,24 @@ smoother.trackeRdata <- function(object, session = NULL, control = list(...), ..
         stop("At least one of 'what' is not available.")
     }
 
-    do.smooth <- function(x){
-        zoo::rollapply(x, width = control$width, match.fun(control$fun))
-    }
-
-    i <- NULL
+    ## apply rolling window
     if (control$parallel) {
-        if(is.null(control$cl)){
-            doParallel::registerDoParallel(cores = control$cores)
+        if (.Platform$OS.type != "windows"){
+            objectNew <- parallel::mclapply(object, zoo::rollapply,
+                                            width = control$width, match.fun(control$fun),
+                                            mc.cores = control$cores)
         } else {
-            doParallel::registerDoParallel(cl = control$cl, cores = control$cores)
+            cl <- parallel::makePSOCKcluster(rep("localhost", control$cores))
+            objectNew <- parallel::parLapply(cl, object, zoo::rollapply,
+                                             width = control$width,
+                                             match.fun(control$fun))
+            parallel::stopCluster(cl)
         }
-        objectNew <- foreach(i = seq_along(object)) %dopar% do.smooth(object[[i]])
-        doParallel::stopImplicitCluster() ## right one?
-        foreach::registerDoSEQ()
     } else {
-        objectNew <- foreach(i = seq_along(object)) %do% do.smooth(object[[i]])
+        objectNew <- lapply(object, zoo::rollapply,
+                            width = control$width, match.fun(control$fun))
     }
-
+        
     ## replace variables not in control$what with the corresponding original data
     for (k in seq_len(length(object))) {
         inds <- index(objectNew[[k]])
@@ -82,8 +82,7 @@ smoother.trackeRdata <- function(object, session = NULL, control = list(...), ..
 #' @param width The width of the window in which the raw observations
 #'     get aggregated via function \code{fun}.
 #' @param parallel Logical. Should computation be carried out in parallel?
-#' @param cl A cluster object as passed on to \code{\link[doParallel]{registerDoParallel}}.
-#' @param cores Number of cores for parallel computing.
+#' @param cores Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options("corese")} (on Windows) or \code{options("mc.cores")} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.
 #' @param what Vector of the names of the variables which should be smoothed.
 #' @param nsessions Vector containing the number of session. Default corresponds to all sessions
 #'     belonging to the same group. Used only internally.
@@ -91,7 +90,7 @@ smoother.trackeRdata <- function(object, session = NULL, control = list(...), ..
 #' @seealso \code{\link{smoother.trackeRdata}}
 #' @export
 smootherControl.trackeRdata <- function(fun = "mean", width = 10,
-                                        parallel = FALSE, cl = NULL, cores = NULL,
+                                        parallel = FALSE, cores = NULL,
                                         what = c("speed", "heart.rate"), nsessions = NA, ...) {
     # Basic checks for the arguments
     if (!is.character(fun)) {
@@ -103,11 +102,18 @@ smootherControl.trackeRdata <- function(fun = "mean", width = 10,
     if (is.vector(what)) {
         what <- list(what)
     }
+    if (is.null(cores)){
+        dc <- parallel::detectCores()
+        if (.Platform$OS.type != "windows"){
+            cores <- getOption("mc.cores", max(floor(dc/2), 1L))
+        } else {
+            cores <- getOption("cores", max(floor(dc/2), 1L))
+        }
+    }
     
     list(fun = fun,
          width = width,
          parallel = parallel,
-         cl = cl,
          cores = cores,
          what = what,
          nsessions = nsessions)

@@ -224,7 +224,7 @@ c.trackeRdata <- function(..., recursive = FALSE){
         ## if the settings for the first session are NULL, create a new reference setup
         if (is.null(getOperations(input[[1]])$smooth)){
             operations$smooth <- list(fun = NA, width = NA,
-                                      parallel = FALSE, cl = NULL, cores = NULL,
+                                      parallel = FALSE, cores = NULL,
                                       what = NA, nsessions = NULL)
         }
 

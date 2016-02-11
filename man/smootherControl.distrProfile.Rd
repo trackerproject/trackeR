@@ -6,7 +6,7 @@
 a control argument for \code{\link{smoother.distrProfile}}.}
 \usage{
 smootherControl.distrProfile(what = c("speed", "heart.rate"), k = 30,
-  sp = NULL, parallel = FALSE, cl = NULL, cores = NULL)
+  sp = NULL, parallel = FALSE, cores = NULL)
 }
 \arguments{
 \item{what}{Vector of the names of the variables which should be smoothed.}
@@ -17,9 +17,7 @@ smootherControl.distrProfile(what = c("speed", "heart.rate"), k = 30,
 
 \item{parallel}{Logical. Should computation be carried out in parallel?}
 
-\item{cl}{Passed on to \code{\link[doParallel]{registerDoParallel}}.}
-
-\item{cores}{Number of cores for parallel computing.}
+\item{cores}{Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options("corese")} (on Windows) or \code{options("mc.cores")} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.}
 }
 \description{
 Auxiliary function for \code{\link{smoother.distrProfile}}. Typically used to construct

@@ -29,10 +29,10 @@ data(run, package = "trackeR")
 ## unsmoothed speeds
 plot(run, smooth = FALSE)
 ## default smoothing
-plot(run, smooth = TRUE)
+plot(run, smooth = TRUE, cores = 2)
 ## smoothed with some non-default options
-run <- smoother(run, fun = "median", width = 20, what = "speed")
-plot(run, smooth = FALSE)
+runS <- smoother(run, fun = "median", width = 20, what = "speed", cores = 2)
+plot(runS, smooth = FALSE)
 }
 \seealso{
 \code{\link{smootherControl.trackeRdata}}

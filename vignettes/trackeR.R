@@ -142,7 +142,7 @@ data(runs, package = "trackeR")
 runsT <- threshold(runs)
 ## get and smooth distribution profiles 
 dpRuns <- distributionProfile(runsT, what = "speed")
-dpRunsS <- smoother(dpRuns)
+dpRunsS <- smoother(dpRuns, cores = 2)
 ## get concentration profiles
 cpRuns <- concentrationProfile(dpRunsS)
 plot(cpRuns, multiple = TRUE, smooth = FALSE) + theme(legend.position="none")

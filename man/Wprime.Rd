@@ -6,7 +6,7 @@
 \usage{
 Wprime(object, session = NULL, quantity = c("expended", "balance"), w0, cp,
   version = c("2015", "2012"), meanRecoveryPower = FALSE,
-  parallel = FALSE, cl, cores = NULL, ...)
+  parallel = FALSE, cores = NULL, ...)
 }
 \arguments{
 \item{object}{A \code{\link{trackeRdata}} object.}
@@ -30,9 +30,7 @@ power be used as recovery power? See Details.}
 
 \item{parallel}{Logical. Should computation be carried out in parallel?}
 
-\item{cl}{A cluster object as passed on to \code{\link[doParallel]{registerDoParallel}}.}
-
-\item{cores}{Number of cores for parallel computing.}
+\item{cores}{Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options("corese")} (on Windows) or \code{options("mc.cores")} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.}
 
 \item{...}{Currently not used.}
 }

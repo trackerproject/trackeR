@@ -6,7 +6,7 @@
 \usage{
 zones(object, session = NULL, what = c("speed", "heart.rate"),
   breaks = list(speed = 0:10, heart.rate = c(0, seq(75, 225, by = 50), 250)),
-  parallel = FALSE, cl, cores = NULL, ...)
+  parallel = FALSE, cores = NULL, ...)
 }
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}
@@ -19,9 +19,7 @@ zones(object, session = NULL, what = c("speed", "heart.rate"),
 
 \item{parallel}{Logical. Should computation be carried out in parallel?}
 
-\item{cl}{A cluster object as passed on to \code{\link[doParallel]{registerDoParallel}}.}
-
-\item{cores}{Number of cores for parallel computing.}
+\item{cores}{Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options("corese")} (on Windows) or \code{options("mc.cores")} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.}
 
 \item{...}{Currently not used.}
 }
