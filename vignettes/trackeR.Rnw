@@ -72,7 +72,7 @@ options(width = 70, prompt = "R> ", continue = "+  ")
 library("trackeR")
 library("ggplot2")
 set.seed(403)
-cache <- TRUE
+cache <- FALSE
 @
 
 \begin{document}
