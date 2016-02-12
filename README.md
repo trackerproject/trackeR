@@ -1,5 +1,7 @@
 # trackeR
 
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/trackeR)](http://cran.r-project.org/package=trackeR)
+
 ### Description
 
 The purpose of this package is to provide infrastructure for handling
@@ -17,11 +19,11 @@ flexible and extensible methods.
 
 Read:
 - Read data from .tcx or .db3 files.
-- Read all supported files in a specfied directory.
+- Read all supported files in a specified directory.
 
 Data processing:
 - Automatically identify sessions from timestamps.
-- Imputation of data to characterize times when the device is paused or remains stationary.
+- Imputation of data to characterise times when the device is paused or remains stationary.
 - Correction of GPS-measured distances using elevation data.
 - Basic data cleaning capabilities e.g., no negative speeds or distances.
 - Specify and conveniently change units of measurement.
@@ -45,7 +47,13 @@ Visualisation:
 
 ### Installation
 
-Install the development version from github:
+Install the released version from CRAN:
+
+```
+install.packages("trackeR")
+```
+
+Or the development version from github:
 
 ```
 # install.packages("devtools")
@@ -54,7 +62,7 @@ devtools::install_github("hfrick/trackeR")
 
 ### Example
 
-Summarize sessions
+Summarise sessions
 ```
 library("trackeR")
 data(runs, package = "trackeR")
@@ -65,7 +73,8 @@ plot(runsSummary, group = c("total", "moving"),
 
 Generate distribution and concentration profiles
 ```{r}
-dpRuns <- distributionProfile(runs)
+runsT <- threshold(runs)
+dpRuns <- distributionProfile(runsT, what = "speed")
 dpRunsS <- smoother(dpRuns)
 cpRuns <- concentrationProfile(dpRunsS)
 plot(cpRuns, multiple = TRUE, smooth = FALSE)
