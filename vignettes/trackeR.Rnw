@@ -125,7 +125,7 @@ The available packages focus on topics such as sports management
 \citep[\pkg{RcmdrPlugin.SM},][]{trackeR:pkg:RcmdrPlugin.SM}, ranking
 sports teams \citep[\pkg{mvglmmRank},][]{trackeR:pkg:mvglmmRank}, and
 accessing betting odds
-\citep[\pkg{pinnacle.API},][]{trackeR:pkg:pinnacle.API}. \pkg{SportsAnalytics}
+\citep[\pkg{pinnacle.API},][]{trackeR:pkg:pinnacle.API}. \linebreak \pkg{SportsAnalytics}
 is a package that focuses on the analysis of performance data, and currently
  offers only ``a selection of data sets, functions to fetch sports data, 
  examples, and demos'' \citep{trackeR:pkg:SportsAnalytics}. 
@@ -159,7 +159,7 @@ of \pkg{trackeR}. Section~\ref{sec:summaries} is devoted to the
 calculation of relevant summaries (time in zones, work capacity,
 distribution and concentration profiles) and the corresponding methods
 for visualisation. Section~\ref{sec:units} and Section~\ref{sec:smoothing}
-focus on basic methods for unit manipulation, smoothing and
+focus on basic methods for unit manipulation as well as smoothing and
 thresholding. The case study in Section~\ref{sec:casestudy}
 investigates the key features in 26 sessions through a
 functional principal components analysis
@@ -1288,7 +1288,7 @@ A list of all functionality is provided in Table~\ref{tab:pkg:functions}.
     \fct{plot} & \class{trackeRdata} & plot session profiles \\
     \fct{plotRoute} & \class{trackeRdata} & plot route taken during a session \\
     \fct{threshold} & \class{trackeRdata} & apply lower and upper bounds on data range \\
-    \fct{smoother} & \class{trackeRdata} & smooth variables by applying a summary
+    \fct{smoother} & \class{trackeRdata} & smooth data by applying a summary
     function such as mean or median to a window \\
     %
     \fct{getUnits} & \class{trackeRdata} & access units of measurement \\
@@ -1310,9 +1310,9 @@ A list of all functionality is provided in Table~\ref{tab:pkg:functions}.
     for plotting \\
     \fct{plot} & \class{trackeRdataZones} & plot zone summaries \\
     %
-    \fct{Wprime} & \class{trackeRdata} & calculate \emph{$W'$ balance} and
+    \fct{Wprime} & \class{trackeRdata} & calculate \emph{$W'$ balance} or
     \emph{$W'$ expended} \\
-    \fct{plot} & \class{trackeRWprime} & plot \emph{$W'$ balance} and \emph{$W'$
+    \fct{plot} & \class{trackeRWprime} & plot \emph{$W'$ balance} or \emph{$W'$
       expended} \\
     %
     \fct{distributionProfile} & \class{trackeRdata} & calculate distribution profiles \\
@@ -1347,7 +1347,7 @@ A list of all functionality is provided in Table~\ref{tab:pkg:functions}.
 
 \section{Import utilities}\label{sec:import}
 
-\pkg{trackeR} provides utilities for data from common
+\pkg{trackeR} provides utilities for data in common
 formats from GPS-enabled tracking devices. The family of the supplied
 reading functions, \fct{read*}, currently includes functions for
 reading TCX (Training Centre XML) and DB3 (for SQLite, used, e.g., by devices
@@ -2386,7 +2386,7 @@ combined to describe the change over the interval as
 
 The amount of $W'$ left at time point $t_j$, $j \in \{ 1, \ldots, n \}$, can thus be
 described through the initial amount $W'_0$ and the changes happening in the $j$
-intervals of constant power previous to $t_j$
+intervals of constant power previous to $t_j$:
 %
 \begin{align}
   W'(t_j) = {} & W'_0 + \sum_{i=1}^{j}{ ( W'(t_i) - W'(t_{i-1}) ) }  \nonumber \\
@@ -2662,7 +2662,7 @@ changeUnits(runSummary, variable = "speed", unit = "ft_per_h")
 \section{Thresholding and smoothing}\label{sec:smoothing}
 
 There are instances where the data include artefacts due to
-inaccuracies in the GPS measurements. These are handled with the
+inaccuracies in the GPS measurements. These can be handled with the
 \fct{threshold} method for objects of class \class{trackeRdata}, which
 replaces values outside the specified thresholds with \code{NA}. The variables
 and the (lower and upper) thresholds which should be applied for each variable
@@ -2822,7 +2822,21 @@ The code chunk below calculates the smoothed distribution profiles for the
 26~sessions. The corresponding concentration profiles are shown in
 Figure~\ref{fig:app:cpsmooth}.
 %
-<<AppProfiles0, eval = FALSE>>=
+<<casestudyData, eval = FALSE, echo = TRUE>>=
+library("trackeR")
+## load data
+data(runs, package = "trackeR")
+## apply default thresholds
+runsT <- threshold(runs)
+## get and smooth distribution profiles 
+dpRuns <- distributionProfile(runsT, what = "speed")
+dpRunsS <- smoother(dpRuns)
+## get concentration profiles
+cpRuns <- concentrationProfile(dpRunsS)
+@
+%
+%
+<<AppProfiles0, eval = FALSE, echo = FALSE>>=
 library("trackeR")
 ## load data
 data(runs, package = "trackeR")
@@ -3128,7 +3142,7 @@ ggplot(d) + geom_point(aes(x = avgSpeedMoving, y = speed_pc2)) + theme_bw() + la
 Package \pkg{trackeR} provides tools to import data from GPS-enabled tracking
 devices in \proglang{R}. Currently it supports TCX and db3 formats, but the
 package structure allows the easy inclusion of other formats. 
-After careful processing, the data are stored in a session-based, unit-aware, and
+After careful processing, the data are stored in session-based, unit-aware, and
 operation-aware objects. Core infrastructure for handling units of measurement
 as well as for summarising and visualising tracking data is provided. Time in
 zones, work capacity, and distribution and concentration profiles can be derived
