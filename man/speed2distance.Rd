@@ -4,12 +4,14 @@
 \alias{speed2distance}
 \title{Convert speed to distance.}
 \usage{
-speed2distance(speed, time, cumulative = TRUE)
+speed2distance(speed, time, timeunit, cumulative = TRUE)
 }
 \arguments{
 \item{speed}{Speed in meters per second.}
 
 \item{time}{Time.}
+
+\item{timeunit}{Time unit in speed, e.g., "hours" for speed in *_per_h.}
 
 \item{cumulative}{Logical. Should the cumulative distances be returned?}
 }

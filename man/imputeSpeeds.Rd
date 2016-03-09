@@ -5,7 +5,7 @@
 \title{Impute speeds.}
 \usage{
 imputeSpeeds(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5,
-  m = 11, cycling = FALSE)
+  m = 11, cycling = FALSE, units = NULL)
 }
 \arguments{
 \item{sessionData}{A multivariate \code{\link[zoo]{zoo}} object with
@@ -25,6 +25,8 @@ observation after a small break.}
 
 \item{cycling}{Logical. Are the data from a cycling session? If \code{TRUE}, power is
 imputed with \code{0}, else with \code{NA}.}
+
+\item{units}{Units of measurement.}
 }
 \value{
 A multivariate \code{\link[zoo]{zoo}} object with imputed observations:

@@ -4,12 +4,14 @@
 \alias{distance2speed}
 \title{Convert distance to speed.}
 \usage{
-distance2speed(distance, time)
+distance2speed(distance, time, timeunit)
 }
 \arguments{
 \item{distance}{Distance in meters.}
 
 \item{time}{Time.}
+
+\item{timeunit}{Time unit in speed, e.g., "hours" for speed in *_per_h.}
 }
 \value{
 Speed in meters per second.

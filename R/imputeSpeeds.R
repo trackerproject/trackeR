@@ -16,6 +16,7 @@
 #' @param m Number of imputed observations in each small break.
 #' @param cycling Logical. Are the data from a cycling session? If \code{TRUE}, power is
 #'     imputed with \code{0}, else with \code{NA}.
+#' @param units Units of measurement.
 #'
 #' @return A multivariate \code{\link[zoo]{zoo}} object with imputed observations:
 #'     0 for speed, last known position for latitude, longitude and altitude,
@@ -24,11 +25,18 @@
 #'     Endurance Runners to Training and Physiological Effects via Multi-Resolution
 #'     Elastic Net. \emph{ArXiv e-print} arXiv:1506.01388.
 imputeSpeeds <- function(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5, m = 11,
-                         cycling = FALSE) {
+                         cycling = FALSE, units = NULL) {
 
     if (length(sessionData) < 2) {
         return(sessionData)
     }
+
+    if (is.null(units)) units <- generateBaseUnits(cycling)
+    distUnit <- units$unit[units$variable == "distance"]
+    speedUnits <- strsplit(units$unit[units$variable == "speed"], "_per_")[[1]]
+    distUnitSpeed <- speedUnits[1]
+    timeUnitSpeed <- switch(speedUnits[2], "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days") ## README: can be avoided if we use the same names...
+
 
     ## order variables for imputation:
     ## variables with 'content' imputation and variables with NA imputation
@@ -54,8 +62,13 @@ imputeSpeeds <- function(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5
             return(sessionData)
         } else {
             sessionData <- sessionData[!is.na(sessionData$distance)]
-            ##sessionData$speed <- c(diff(sessionData$distance)/unclass(diff(index(sessionData))), NA)
-            sessionData$speed <- distance2speed(coredata(sessionData$distance), index(sessionData))
+            if (distUnit != distUnitSpeed){
+                conversion <- match.fun(paste(distUnit, distUnitSpeed, sep = "2"))
+                dist <- conversion(coredata(sessionData$distance))
+            } else {
+                dist <- coredata(sessionData$distance)
+            }
+            sessionData$speed <- distance2speed(dist, index(sessionData), timeunit = timeUnitSpeed)
         }
     }
     else {
@@ -138,8 +151,12 @@ imputeSpeeds <- function(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5
 
 
     ## update distances
-    sessionData$distance <- zoo(speed2distance(sessionData$speed, index(sessionData)),
-                                order.by = index(sessionData)) ## cumsum doesn't return a zoo object
+    updatedDistance <- speed2distance(sessionData$speed, index(sessionData), timeunit = timeUnitSpeed)
+    if (distUnit != distUnitSpeed) {
+        conversion <- match.fun(paste(distUnitSpeed, distUnit, sep = "2"))
+        updatedDistance <- conversion(updatedDistance)
+    }
+    sessionData$distance <- zoo(updatedDistance, order.by = index(sessionData)) ## cumsum doesn't return a zoo object
 
 
     ## clean up and return
@@ -152,9 +169,10 @@ imputeSpeeds <- function(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5
 #'
 #' @param distance Distance in meters.
 #' @param time Time.
+#' @param timeunit Time unit in speed, e.g., "hours" for speed in *_per_h.
 #' @return Speed in meters per second.
-distance2speed <- function(distance, time){
-    speed <- c(diff(distance) / unclass(diff(time, units = "secs")), 0)
+distance2speed <- function(distance, time, timeunit){
+    speed <- c(diff(distance) / unclass(difftime(time[-1], time[-length(time)], units = timeunit)), 0)
     ## README: doesn't work if pervious distance is NA, needs to be impute with last known distance.
     return(speed)
 }
@@ -163,10 +181,11 @@ distance2speed <- function(distance, time){
 #'
 #' @param speed Speed in meters per second.
 #' @param time Time.
+#' @param timeunit Time unit in speed, e.g., "hours" for speed in *_per_h.
 #' @param cumulative Logical. Should the cumulative distances be returned?
 #' @return Distance in meters.
-speed2distance <- function(speed, time, cumulative = TRUE){
-    distance <- c(0, speed[-length(speed)] * unclass(diff(time, units = "secs")))
+speed2distance <- function(speed, time, timeunit, cumulative = TRUE){
+    distance <- c(0, speed[-length(speed)] * unclass(difftime(time[-1], time[-length(time)], units = timeunit)))
     if (cumulative) distance <- cumsum(distance)  ## README: cumsum can't handle NAs
     return(distance)
 }

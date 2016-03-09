@@ -88,7 +88,7 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2
     
     ## impute speeds in each session
     trackerdat <- lapply(trackerdat, imputeSpeeds, fromDistances = fromDistances,
-                         lgap = lgap, lskip = lskip, m = m, cycling = cycling)
+                         lgap = lgap, lskip = lskip, m = m, cycling = cycling, units = units)
 
     ## add pace
     ## (if unspecified: in min per 1 km if speed unit refers to km or m,
