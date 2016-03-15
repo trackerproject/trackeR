@@ -61,6 +61,8 @@ distributionProfile <- function(object, session = NULL, what = c("speed", "heart
         missing <- is.na(values)
         values <- values[!missing]
         timestamps <- timestamps[!missing]
+        ## Return NA if all values are missing
+        if (all(missing)) return(rep(NA, length(grid)))
         ## Calculate dp
         charOrder <- order(values)
         values <- values[charOrder]
@@ -436,9 +438,6 @@ smootherControl.distrProfile <- function(what = c("speed", "heart.rate"), k = 30
 #' @param fam A family object passed on to the \code{family} argument of \code{\link[scam]{scam}}.
 decreasingSmoother <- function(x, y, k = 30, len = NULL, sp = NULL,
                                fam = "poisson") {
-    dat <- data.frame(y = y, x = x)
-    scamFormula <- stats::as.formula(paste0("y ~ s(x, k = ", k, ", bs = 'mpd')"))
-    gamfit <- scam::scam(scamFormula, family = fam, sp = sp, data = dat)
     xmin <- min(x)
     xman <- max(x)
     if (is.null(len)) {
@@ -447,6 +446,11 @@ decreasingSmoother <- function(x, y, k = 30, len = NULL, sp = NULL,
     else {
         predictionRange <- seq(xmin, xman, length.out = len)
     }
+    if (all(is.na(y)))
+        return(list(x = predictionRange, y = rep(NA, length(predictionRange))))
+    dat <- data.frame(y = y, x = x)
+    scamFormula <- stats::as.formula(paste0("y ~ s(x, k = ", k, ", bs = 'mpd')"))
+    gamfit <- scam::scam(scamFormula, family = fam, sp = sp, data = dat)
     res <- list(x = predictionRange,
                 y = stats::predict(gamfit, type = "response",
                     newdata = data.frame(x = predictionRange)))
