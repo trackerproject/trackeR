@@ -38,6 +38,42 @@ imputeSpeeds <- function(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5
     timeUnitSpeed <- switch(speedUnits[2], "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days") ## README: can be avoided if we use the same names...
 
 
+    ## Calculate speeds
+    if (fromDistances){
+        if (all(is.na(sessionData$distance))) {
+            warning("No distances are available to calculate the speeds. If available, measurements of speed are used instead.")
+            ## check if speed data is available as an alternative, otherwise return sessionData
+            if (all(is.na(sessionData$speed))) {
+                return(sessionData)
+            }
+        } else {
+            sessionData <- sessionData[!is.na(sessionData$distance)]
+            if (distUnit != distUnitSpeed){
+                conversion <- match.fun(paste(distUnit, distUnitSpeed, sep = "2"))
+                dist <- conversion(coredata(sessionData$distance))
+            } else {
+                dist <- coredata(sessionData$distance)
+            }
+            sessionData$speed <- distance2speed(dist, index(sessionData), timeunit = timeUnitSpeed)
+        }
+    } else {
+        if (all(is.na(sessionData$speed))) {
+            warning("No speeds are available. If available, distances are used to calculate speed.")
+            if (!all(is.na(sessionData$distance))) {
+                sessionData <- sessionData[!is.na(sessionData$distance)]
+                if (distUnit != distUnitSpeed){
+                    conversion <- match.fun(paste(distUnit, distUnitSpeed, sep = "2"))
+                    dist <- conversion(coredata(sessionData$distance))
+                } else {
+                    dist <- coredata(sessionData$distance)
+                }
+                sessionData$speed <- distance2speed(dist, index(sessionData), timeunit = timeUnitSpeed)
+            } else {
+                return(sessionData)
+            }
+        }
+    }
+
     ## order variables for imputation:
     ## variables with 'content' imputation and variables with NA imputation
     originalOrder <- names(sessionData)
@@ -54,29 +90,6 @@ imputeSpeeds <- function(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5
         nN <- length(impN) - 1
     }
     sessionData <- sessionData[, c(impC, impN)]
-
-    ## Calculate speeds
-    if (fromDistances){
-        if (all(is.na(sessionData$distance))) {
-            warning("No distances are available to calculate the speeds.")
-            return(sessionData)
-        } else {
-            sessionData <- sessionData[!is.na(sessionData$distance)]
-            if (distUnit != distUnitSpeed){
-                conversion <- match.fun(paste(distUnit, distUnitSpeed, sep = "2"))
-                dist <- conversion(coredata(sessionData$distance))
-            } else {
-                dist <- coredata(sessionData$distance)
-            }
-            sessionData$speed <- distance2speed(dist, index(sessionData), timeunit = timeUnitSpeed)
-        }
-    }
-    else {
-        if (all(is.na(sessionData$speed))) {
-            warning("No speeds are available.")
-            return(sessionData)
-        }
-    }
 
     ## Remove observations with negative or missing speeds
     sessionData <- sessionData[sessionData$speed >= 0 & !is.na(sessionData$speed)]
