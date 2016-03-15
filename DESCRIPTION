@@ -16,7 +16,6 @@ Depends:
 Imports:
     ggplot2
 Suggests:
-    plyr,
     XML,
     RSQLite,
     parallel,
