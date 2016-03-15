@@ -82,6 +82,10 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2
 
     ## separate sessions and cast to zoo objects
     trackerdat <- getSessions(dat, sessionThreshold = sessionThreshold)
+
+    ## remove sessions which only contain NA
+    empty <- which(sapply(trackerdat, function(x) all(is.na(x))))
+    trackerdat <- trackerdat[-empty]
     
     ## correct GPS distances for elevation
     if (correctDistances) trackerdat <- lapply(trackerdat, distanceCorrection, country = country, mask = mask)
