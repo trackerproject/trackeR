@@ -36,6 +36,14 @@ Wexp <- function(object, w0, cp,
     ind <- dp > 0
 
     wna <- is.na(power)
+    ## if all power values are NA, return NA
+    if (all(wna)) {
+        ret <- cbind(coredata(object), power)
+        colnames(ret) <- c("movement", "wprime")
+        ret <- zoo(ret, order.by = index(object))
+        return(ret)
+    }
+    ## otherwise carry on
     time <- time[!wna]
     power <- power[!wna]
     dp <- dp[!wna]
