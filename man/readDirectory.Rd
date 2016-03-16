@@ -7,10 +7,10 @@
 readDirectory(directory, aggregate = TRUE, table = "gps_data",
   timezone = "", sessionThreshold = 2, correctDistances = FALSE,
   country = NULL, mask = TRUE, fromDistances = NULL,
-  speedunit = list(tcx = "m_per_s", db3 = "km_per_h"),
-  distanceunit = list(tcx = "m", db3 = "km"), cycling = FALSE, lgap = 30,
-  lskip = 5, m = 11, parallel = FALSE, cores = getOption("mc.cores",
-  2L), verbose = TRUE)
+  speedunit = list(tcx = "m_per_s", db3 = "km_per_h", json = "km_per_h"),
+  distanceunit = list(tcx = "m", db3 = "km", json = "km"), cycling = FALSE,
+  lgap = 30, lskip = 5, m = 11, parallel = FALSE,
+  cores = getOption("mc.cores", 2L), verbose = TRUE)
 }
 \arguments{
 \item{directory}{The path to the directory.}
@@ -19,7 +19,8 @@ readDirectory(directory, aggregate = TRUE, table = "gps_data",
 
 \item{table}{The name of the table in the database for db3 files.}
 
-\item{timezone}{The timezone of the observations as passed on to \code{\link[base]{as.POSIXct}}.}
+\item{timezone}{The timezone of the observations as passed on to \code{\link[base]{as.POSIXct}}.
+Ignored for JSON files.}
 
 \item{sessionThreshold}{The threshold in hours for the time
 difference between consecutive timestamps above which they are
@@ -34,14 +35,14 @@ longitude and latitude.}
 \code{country} be extracted (\code{TRUE}) or also those for the neighboring countries (\code{FALSE})?}
 
 \item{fromDistances}{Logical. Should the speeds be calculated from the distance recordings
-instead of taken from the speed recordings directly. Defaults to \code{TRUE} for tcx
-files and to \code{FALSE} for db3 files.}
+instead of taken from the speed recordings directly. Defaults to \code{TRUE} for tcx and
+Golden Cheetah's json files and to \code{FALSE} for db3 files.}
 
 \item{speedunit}{Character string indicating the measurement unit of the speeds in the container
-file to be converted into meters per second. Default is \code{m_per_s} for tcx files and \code{km_per_h} for db3 files. See Details.}
+file to be converted into meters per second. Default is \code{m_per_s} for tcx files and \code{km_per_h} for db3 and Golden Cheetah's json files. See Details.}
 
 \item{distanceunit}{Character string indicating the measurement unit of the distance in the container
-file to be converted into meters. Default is \code{m} for tcx files and \code{km} for db3 files. See Details.}
+file to be converted into meters. Default is \code{m} for tcx files and \code{km} for db3 and Golden Cheetah's json files. See Details.}
 
 \item{cycling}{Logical. Do the data stem from cycling instead of running? If so, the default unit of
 measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min} and power is
@@ -72,8 +73,10 @@ Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_pe
     \code{mi_per_h}, \code{ft_per_min} and \code{ft_per_s}.
     Available options for \code{distanceunit} currently are \code{km}, \code{m}, \code{mi} and
     \code{ft}.
+
+    Reading Golden Cheetah's JSON files is experimental.
 }
 \seealso{
-\code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}
+\code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}, \code{\link{readJSON}}
 }
 

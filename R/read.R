@@ -1,7 +1,65 @@
-#' Read a training file in tcx or db3 format.
+##' Generate variables names for internal use in readX functions. the
+##' variables vecotrs need to correspond one by on interms of variable
+##' type
+generateVariableNames <- function() {
+    humanNames <- c("time",
+                    "latitude",
+                    "longitude",
+                    "altitude",
+                    "distance",
+                    "heart.rate",
+                    "speed",
+                    "cadence",
+                    "power")
+
+    ## resources for tcx:
+    ## https://en.wikipedia.org/wiki/Training_Center_XML
+    ## http://www8.garmin.com/xmlschemas/index.jsp#/web/docs/xmlschemas
+    ## http://www.garmindeveloper.com/schemas/tcx/v2/
+    tcxNames <- c("time",
+                  "latitude",
+                  "longitude",
+                  "altitude",
+                  "distance",
+                  "hr",
+                  "speed",
+                  "cadence",
+                  "watts")
+
+    ## Resource for db3: none... mostly reverse engineering
+    db3Names <-     c("dttm",
+                      "lat",
+                      "lon",
+                      "altitude",
+                      "dist",
+                      "hr",
+                      "velocity",
+                      "cadence",
+                      "watts")
+    
+    ## Resource for Golden Cheetah JSON: reverse engineering
+    jsonNames <- c("SECS",
+                   "LAT",
+                   "LON",
+                   "ALT",
+                   "KM",
+                   "HR",
+                   "KPH",
+                   "CAD",
+                   "WATTS")
+
+    list(humanNames = humanNames,
+         tcxNames = tcxNames,
+         db3Names = db3Names,
+         jsonNames = jsonNames)
+}
+
+
+#' Read a training file in TCX, db3 or Golden Cheetah's JSON format.
 #'
 #' @param file The path to the file.
 #' @param timezone The timezone of the observations as passed on to \code{\link[base]{as.POSIXct}}.
+#'     Ignored for JSON files.
 #' @param speedunit Character string indicating the measurement unit of the
 #'     speeds in the container file to be converted into meters per second. See Details.
 #' @param distanceunit Character string indicating the measurement unit of the
@@ -11,9 +69,9 @@
 #' @param ... Currently not used.
 #' @details Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_per_s},
 #'     \code{mi_per_h}, \code{ft_per_min} and \code{ft_per_s}. The default is \code{m_per_s} for TCX files
-#'     and \code{km_per_h} for db3 files.
+#'     and \code{km_per_h} for db3 and Golden Cheetah's json files.
 #'     Available options for \code{distanceunit} currently are \code{km}, \code{m}, \code{mi} and
-#'     \code{ft}. The default is \code{m} for TCX files and \code{km} for db3 files.
+#'     \code{ft}. The default is \code{m} for TCX files and \code{km} for db3 and Golden Cheetah's json files.
 #' @export
 #' @name readX
 #' @examples
@@ -31,7 +89,6 @@
 #' ## alternatively
 #' run <- readContainer(filepath, type = "tcx", timezone = "GMT")
 #' }
-## Experimental function for reading TCX files
 readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "m",
                     parallel = FALSE, cores = getOption("mc.cores", 2L),...){
 
@@ -152,13 +209,17 @@ readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "
         }
     }
 
-    ## convert speed to m/s from speedunit
-    speedConversion <- match.fun(paste(speedunit, "m_per_s", sep = "2"))
-    newdat$speed <- speedConversion(newdat$speed)
+    ## convert speed from speedunit to m/s
+    if (speedunit != "m_per_s"){
+        speedConversion <- match.fun(paste(speedunit, "m_per_s", sep = "2"))
+        newdat$speed <- speedConversion(newdat$speed)
+    }
 
-    ## convert distance to m from distanceunit
-    distanceConversion <- match.fun(paste("m", distanceunit, sep = "2"))
-    newdat$distance <- distanceConversion(newdat$distance)
+    ## convert distance from distanceunit to m
+    if (distanceunit != "m"){
+        distanceConversion <- match.fun(paste(distanceunit, "m", sep = "2"))
+        newdat$distance <- distanceConversion(newdat$distance)
+    }
 
     ## use variable order for trackeRdata
     if (any(names(newdat) != allnames$humanNames))
@@ -206,13 +267,17 @@ readDB3 <- function(file, timezone = "", table = "gps_data",
         }
     }
 
-    ## convert speed to m/s from speedunit
-    speedConversion <- match.fun(paste(speedunit, "m_per_s", sep = "2"))
-    newdat$speed <- speedConversion(newdat$speed)
+    ## convert speed from speedunit to m/s
+    if (speedunit != "m_per_s"){
+        speedConversion <- match.fun(paste(speedunit, "m_per_s", sep = "2"))
+        newdat$speed <- speedConversion(newdat$speed)
+    }
 
-    ## convert distance to m from distanceunit
-    distanceConversion <- match.fun(paste("m", distanceunit, sep = "2"))
-    newdat$distance <- distanceConversion(newdat$distance)
+    ## convert distance from distanceunit to m
+    if (distanceunit != "m"){
+        distanceConversion <- match.fun(paste(distanceunit, "m", sep = "2"))
+        newdat$distance <- distanceConversion(newdat$distance)
+    }
 
     ## use variable order for trackeRdata
     if (any(names(newdat) != allnames$humanNames))
@@ -222,21 +287,81 @@ readDB3 <- function(file, timezone = "", table = "gps_data",
 }
 
 
+#' @inheritParams readX
+#' @details Reading Golden Cheetah's JSON files is experimental.
+#' @export
+#' @rdname readX
+readJSON <- function(file, timezone = "", speedunit = "km_per_h", distanceunit = "km"){
+    ## get all data
+    jslist <- jsonlite::fromJSON(file)$RIDE
+    
+    ## starting time
+    stime <- strsplit(jslist$STARTTIME, " ")[[1]]
+    if (timezone == "") timezone <- stime[3]
+    stime <- as.POSIXct(strptime(paste(stime[1:2], collapse = "T"),
+                                 format = "%Y/%m/%dT%H:%M:%S"), tz = timezone)
+
+    ## tracking data
+    if (!("SAMPLES" %in% names(jslist))) stop("No tracking data available.")
+    mydf <- jslist$SAMPLES
+
+    ## prepare names
+    allnames <- generateVariableNames()
+    namesOfInterest <- allnames$jsonNames
+    namesToBeUsed <- allnames$humanNames
+
+    ## extract the interesting variables
+    inds <- match(namesOfInterest, names(mydf), nomatch = 0)
+    newdat <- mydf[inds]
+    names(newdat) <- namesToBeUsed[inds!=0]
+
+    ## coerce time into POSIXct
+    newdat$time <- stime + newdat$time
+
+    ## add missing variables as NA
+    missingVars <- namesToBeUsed[match(namesToBeUsed, names(newdat), nomatch = 0) == 0]
+    if (nrow(newdat) > 0) {
+        for (nn in missingVars) {
+            newdat[[nn]] <- NA
+        }
+    }
+
+    ## convert speed from speedunit to m/s 
+    if (speedunit != "m_per_s"){
+        speedConversion <- match.fun(paste(speedunit, "m_per_s", sep = "2"))
+        newdat$speed <- speedConversion(newdat$speed)
+    }
+
+    ## convert distance from distanceunit to m
+    if (distanceunit != "m"){
+        distanceConversion <- match.fun(paste(distanceunit, "m", sep = "2"))
+        newdat$distance <- distanceConversion(newdat$distance)
+    }
+
+    ## use variable order for trackeRdata
+    if (any(names(newdat) != allnames$humanNames))
+        newdat <- newdat[, allnames$humanNames]
+
+    return(newdat)
+
+}
+
+
 #' Read a GPS container file.
 #'
 #' @param file The path to the file.
-#' @param type The type of the GPS container file. Supported so far are \code{tcx} and \code{db3}.
+#' @param type The type of the GPS container file. Supported so far are \code{tcx}, \code{db3}, and \code{json}.
 #' @param table The name of the table in the database if \code{type} is set to \code{db3},
 #'     ignored otherwise.
 #' @param fromDistances Logical. Should the speeds be calculated from the distance recordings
 #'     instead of taken from the speed recordings directly. Defaults to \code{TRUE} for \code{tcx}
-#'     files and to \code{FALSE} for \code{db3} files.
+#'     and Golden Cheetah's json files and to \code{FALSE} for \code{db3} files.
 #' @param speedunit Character string indicating the measurement unit of the speeds in the container
 #'     file to be converted into meters per second. Default is \code{m_per_s} when \code{type} is
-#'     \code{tcx} and \code{km_per_h} when \code{type} is \code{db3}. See Details.
+#'     \code{tcx} and \code{km_per_h} when \code{type} is \code{db3} or \code{json}. See Details.
 #' @param distanceunit Character string indicating the measurement unit of the distance in the container
 #'     file to be converted into meters. Default is \code{m} when \code{type} is
-#'     \code{tcx} and \code{km} when \code{type} is \code{db3}. See Details.
+#'     \code{tcx} and \code{km} when \code{type} is \code{db3} or \code{json}. See Details.
 #' @param cycling Logical. Do the data stem from cycling instead of running? If so, the unit of
 #'     measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min}.
 #' @inheritParams readX
@@ -247,8 +372,10 @@ readDB3 <- function(file, timezone = "", table = "gps_data",
 #'     \code{mi_per_h}, \code{ft_per_min} and \code{ft_per_s}.
 #'     Available options for \code{distanceunit} currently are \code{km}, \code{m}, \code{mi} and
 #'     \code{ft}.
+#'
+#'     Reading Golden Cheetah's JSON files is experimental.
 #' @return An object of class \code{\link{trackeRdata}}.
-#' @seealso \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}
+#' @seealso \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}, \code{\link{readJSON}}
 #'
 #' @export
 #' @examples
@@ -256,7 +383,7 @@ readDB3 <- function(file, timezone = "", table = "gps_data",
 #' filepath <- system.file("extdata", "2013-06-08-090442.TCX", package = "trackeR")
 #' run <- readContainer(filepath, type = "tcx", timezone = "GMT")
 #' }
-readContainer <- function(file, type = c("tcx", "db3"),
+readContainer <- function(file, type = c("tcx", "db3", "json"),
                           table = "gps_data", timezone = "", sessionThreshold = 2,
                           correctDistances = FALSE,
                           country = NULL, mask = TRUE,
@@ -266,15 +393,21 @@ readContainer <- function(file, type = c("tcx", "db3"),
                           lgap = 30, lskip = 5, m = 11,
                           parallel = FALSE, cores = getOption("mc.cores", 2L)){
     ## prepare args
-    type <- match.arg(tolower(type), choices = c("tcx", "db3"))
+    type <- match.arg(tolower(type), choices = c("tcx", "db3", "json"))
     if (is.null(fromDistances)){
         fromDistances <- if (type == "db3") FALSE else TRUE
     }
     if (is.null(speedunit)){
-        speedunit <- switch(type, "tcx" = "m_per_s", "db3" = "km_per_h")
+        speedunit <- switch(type,
+                            "tcx" = "m_per_s",
+                            "db3" = "km_per_h",
+                            "json" = "km_per_h")
     }
     if (is.null(distanceunit)) {
-        distanceunit <- switch(type, "tcx" = "m", "db3" = "km")
+        distanceunit <- switch(type,
+                               "tcx" = "m",
+                               "db3" = "km",
+                               "json" = "km")
     }
     
     ## read gps data
@@ -282,64 +415,21 @@ readContainer <- function(file, type = c("tcx", "db3"),
                   "tcx" = readTCX(file = file, timezone = timezone, speedunit = speedunit,
                       distanceunit = distanceunit, parallel = parallel, cores = cores),
                   "db3" = readDB3(file = file, table = table, timezone = timezone,
-                      speedunit = speedunit, distanceunit = distanceunit)
+                                  speedunit = speedunit, distanceunit = distanceunit),
+                  "json" = readJSON(file = file, timezone = timezone, speedunit = speedunit,
+                      distanceunit = distanceunit)
                   )
     ## units of measurement 
     units <- generateBaseUnits(cycling) ## readX returns default units
     #units <- units[-which(units$variable == "duration"), ]
 
     ## make trackeRdata object (with all necessary data handling)
-    trackerdat <- trackeRdata(dat, units = units,
+    trackerdat <- trackeRdata(dat, units = units, cycling = cycling,
                               correctDistances = correctDistances, country = country, mask = mask,
                               sessionThreshold = sessionThreshold,
                               fromDistances = fromDistances, lgap = lgap, lskip = lskip, m = m)
 
     return(trackerdat)
-}
-
-
-##' Generate variables names for internal use in readX functions. the
-##' variables vecotrs need to correspond one by on interms of variable
-##' type
-generateVariableNames <- function() {
-    humanNames <- c("time",
-                    "latitude",
-                    "longitude",
-                    "altitude",
-                    "distance",
-                    "heart.rate",
-                    "speed",
-                    "cadence",
-                    "power")
-
-    ## resources for tcx:
-    ## https://en.wikipedia.org/wiki/Training_Center_XML
-    ## http://www8.garmin.com/xmlschemas/index.jsp#/web/docs/xmlschemas
-    ## http://www.garmindeveloper.com/schemas/tcx/v2/
-    tcxNames <- c("time",
-                  "latitude",
-                  "longitude",
-                  "altitude",
-                  "distance",
-                  "hr",
-                  "speed",
-                  "cadence",
-                  "watts")
-
-    ## Resource for db3: none... mostly reverse engineering
-    db3Names <-     c("dttm",
-                      "lat",
-                      "lon",
-                      "altitude",
-                      "dist",
-                      "hr",
-                      "velocity",
-                      "cadence",
-                      "watts")
-
-    list(humanNames = humanNames,
-         tcxNames = tcxNames,
-         db3Names = db3Names)
 }
 
 
@@ -354,12 +444,12 @@ generateVariableNames <- function() {
 #' @param aggregate Logical. Aggregate data from different files to the same session if observations are less then \code{sessionThreshold} hours apart? Alternatively, data from different files is stored in different sessions.
 #' @param table The name of the table in the database for db3 files.
 #' @param fromDistances Logical. Should the speeds be calculated from the distance recordings
-#'     instead of taken from the speed recordings directly. Defaults to \code{TRUE} for tcx
-#'     files and to \code{FALSE} for db3 files.
+#'     instead of taken from the speed recordings directly. Defaults to \code{TRUE} for tcx and
+#'     Golden Cheetah's json files and to \code{FALSE} for db3 files.
 #' @param speedunit Character string indicating the measurement unit of the speeds in the container
-#'     file to be converted into meters per second. Default is \code{m_per_s} for tcx files and \code{km_per_h} for db3 files. See Details.
+#'     file to be converted into meters per second. Default is \code{m_per_s} for tcx files and \code{km_per_h} for db3 and Golden Cheetah's json files. See Details.
 #' @param distanceunit Character string indicating the measurement unit of the distance in the container
-#'     file to be converted into meters. Default is \code{m} for tcx files and \code{km} for db3 files. See Details.
+#'     file to be converted into meters. Default is \code{m} for tcx files and \code{km} for db3 and Golden Cheetah's json files. See Details.
 #' @param cycling Logical. Do the data stem from cycling instead of running? If so, the default unit of
 #'     measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min} and power is
 #'     imputed with \code{0}, else with \code{NA}.
@@ -372,8 +462,10 @@ generateVariableNames <- function() {
 #'     \code{mi_per_h}, \code{ft_per_min} and \code{ft_per_s}.
 #'     Available options for \code{distanceunit} currently are \code{km}, \code{m}, \code{mi} and
 #'     \code{ft}.
+#'
+#'     Reading Golden Cheetah's JSON files is experimental.
 #' @return An object of class \code{\link{trackeRdata}}.
-#' @seealso \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}
+#' @seealso \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}, \code{\link{readJSON}}
 #'
 #' @export
 readDirectory <- function(directory,
@@ -385,8 +477,8 @@ readDirectory <- function(directory,
                           country = NULL,
                           mask = TRUE,
                           fromDistances = NULL,
-                          speedunit = list(tcx = "m_per_s", db3 = "km_per_h"),
-                          distanceunit = list(tcx = "m", db3 = "km"),
+                          speedunit = list(tcx = "m_per_s", db3 = "km_per_h", json = "km_per_h"),
+                          distanceunit = list(tcx = "m", db3 = "km", json = "km"),
                           cycling = FALSE,
                           lgap = 30, lskip = 5, m = 11,
                           parallel = FALSE, cores = getOption("mc.cores", 2L),
@@ -396,9 +488,12 @@ readDirectory <- function(directory,
                            no.. = TRUE)
     db3files <- list.files(directory, pattern = "db3", ignore.case = TRUE, full.names = TRUE,
                            no.. = TRUE)
+    jsonfiles <- list.files(directory, pattern = "json", ignore.case = TRUE, full.names = TRUE,
+                           no.. = TRUE)
     ltcx <- length(tcxfiles)
     ldb3 <- length(db3files)
-    if ((ltcx == 0) & (ldb3 == 0)) {
+    ljson <- length(jsonfiles)
+    if ((ltcx == 0) & (ldb3 == 0) & (ljson == 0)) {
         stop("The supplied directory contains no files with the supported formats.")
     }
     
@@ -513,8 +608,61 @@ readDirectory <- function(directory,
         db3Data <- NULL
     }
 
+    ## Read json files
+    if (ljson) {
+        jsonData <- list()
+        if (aggregate){
+            for (j in seq.int(ljson)) {
+                if (verbose) cat("Reading file", jsonfiles[j], paste0("(file ", j, " out of ", ljson, ")"), "...\n")
+                jsonData[[j]] <- try(readJSON(jsonfiles[j],
+                                              timezone = timezone,
+                                              speedunit = speedunit$json,
+                                              distanceunit = distanceunit$json))
+            }
+            if (verbose) cat("Cleaning up...")
+            jsonData <- do.call("rbind", jsonData[!sapply(jsonData, inherits, what = "try-error")])
+            fromDistancesJSON <- if(is.null(fromDistances)) FALSE else fromDistances
+            jsonData <- trackeRdata(jsonData,
+                                   sessionThreshold = sessionThreshold,
+                                   correctDistances = correctDistances,
+                                   country = country,
+                                   mask = mask,
+                                   fromDistances = fromDistancesJSON,
+                                   cycling = cycling,
+                                   lgap = lgap,
+                                   lskip = lskip,
+                                   m = m)
+            if (verbose) cat("Done\n")
+        } else {
+            for (j in seq.int(ljson)) {
+                if (verbose) cat("Reading file", jsonfiles[j], paste0("(file ", j, " out of ", ljson, ")"), "...\n")
+                jsonData[[j]] <- try(readContainer(jsonfiles[j],
+                                                  type = "json",
+                                                  table = table,
+                                                  timezone = timezone,
+                                                  sessionThreshold = sessionThreshold,
+                                                  correctDistances = correctDistances,
+                                                  country = country,
+                                                  mask = mask,
+                                                  fromDistances = fromDistances,
+                                                  speedunit = speedunit$json,
+                                                  distanceunit = distanceunit$json,
+                                                  cycling = cycling,
+                                                  lgap = lgap,
+                                                  lskip = lskip,
+                                                  m = m,
+                                                  cores = cores))
+            }
+            if (verbose) cat("Cleaning up...")
+            jsonData <- do.call("c", jsonData[!sapply(jsonData, inherits, what = "try-error")])
+            if (verbose) cat("Done\n")  
+        }
+    } else {
+        jsonData <- NULL
+    }
+    
     ## combine and return
-    allData <- list(tcxData, db3Data)
+    allData <- list(tcxData, db3Data, jsonData)
     allData <- allData[!sapply(allData, is.null)]
     ret <- do.call("c", allData)
     return(ret)

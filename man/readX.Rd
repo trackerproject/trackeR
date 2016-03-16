@@ -2,20 +2,24 @@
 % Please edit documentation in R/read.R
 \name{readX}
 \alias{readDB3}
+\alias{readJSON}
 \alias{readTCX}
 \alias{readX}
-\title{Read a training file in tcx or db3 format.}
+\title{Read a training file in TCX, db3 or Golden Cheetah's JSON format.}
 \usage{
 readTCX(file, timezone = "", speedunit = "m_per_s", distanceunit = "m",
   parallel = FALSE, cores = getOption("mc.cores", 2L), ...)
 
 readDB3(file, timezone = "", table = "gps_data", speedunit = "km_per_h",
   distanceunit = "km")
+
+readJSON(file, timezone = "", speedunit = "km_per_h", distanceunit = "km")
 }
 \arguments{
 \item{file}{The path to the file.}
 
-\item{timezone}{The timezone of the observations as passed on to \code{\link[base]{as.POSIXct}}.}
+\item{timezone}{The timezone of the observations as passed on to \code{\link[base]{as.POSIXct}}.
+Ignored for JSON files.}
 
 \item{speedunit}{Character string indicating the measurement unit of the
 speeds in the container file to be converted into meters per second. See Details.}
@@ -32,14 +36,16 @@ distance in the container file to be converted into meters. See Details.}
 \item{table}{Character string indicating the name of the table with the GPS data in the db3 container file.}
 }
 \description{
-Read a training file in tcx or db3 format.
+Read a training file in TCX, db3 or Golden Cheetah's JSON format.
 }
 \details{
 Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_per_s},
     \code{mi_per_h}, \code{ft_per_min} and \code{ft_per_s}. The default is \code{m_per_s} for TCX files
-    and \code{km_per_h} for db3 files.
+    and \code{km_per_h} for db3 and Golden Cheetah's json files.
     Available options for \code{distanceunit} currently are \code{km}, \code{m}, \code{mi} and
-    \code{ft}. The default is \code{m} for TCX files and \code{km} for db3 files.
+    \code{ft}. The default is \code{m} for TCX files and \code{km} for db3 and Golden Cheetah's json files.
+
+Reading Golden Cheetah's JSON files is experimental.
 }
 \examples{
 \dontrun{

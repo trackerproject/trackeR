@@ -4,7 +4,7 @@
 \alias{readContainer}
 \title{Read a GPS container file.}
 \usage{
-readContainer(file, type = c("tcx", "db3"), table = "gps_data",
+readContainer(file, type = c("tcx", "db3", "json"), table = "gps_data",
   timezone = "", sessionThreshold = 2, correctDistances = FALSE,
   country = NULL, mask = TRUE, fromDistances = NULL, speedunit = NULL,
   distanceunit = NULL, cycling = FALSE, lgap = 30, lskip = 5, m = 11,
@@ -13,12 +13,13 @@ readContainer(file, type = c("tcx", "db3"), table = "gps_data",
 \arguments{
 \item{file}{The path to the file.}
 
-\item{type}{The type of the GPS container file. Supported so far are \code{tcx} and \code{db3}.}
+\item{type}{The type of the GPS container file. Supported so far are \code{tcx}, \code{db3}, and \code{json}.}
 
 \item{table}{The name of the table in the database if \code{type} is set to \code{db3},
 ignored otherwise.}
 
-\item{timezone}{The timezone of the observations as passed on to \code{\link[base]{as.POSIXct}}.}
+\item{timezone}{The timezone of the observations as passed on to \code{\link[base]{as.POSIXct}}.
+Ignored for JSON files.}
 
 \item{sessionThreshold}{The threshold in hours for the time
 difference between consecutive timestamps above which they are
@@ -34,15 +35,15 @@ longitude and latitude.}
 
 \item{fromDistances}{Logical. Should the speeds be calculated from the distance recordings
 instead of taken from the speed recordings directly. Defaults to \code{TRUE} for \code{tcx}
-files and to \code{FALSE} for \code{db3} files.}
+and Golden Cheetah's json files and to \code{FALSE} for \code{db3} files.}
 
 \item{speedunit}{Character string indicating the measurement unit of the speeds in the container
 file to be converted into meters per second. Default is \code{m_per_s} when \code{type} is
-\code{tcx} and \code{km_per_h} when \code{type} is \code{db3}. See Details.}
+\code{tcx} and \code{km_per_h} when \code{type} is \code{db3} or \code{json}. See Details.}
 
 \item{distanceunit}{Character string indicating the measurement unit of the distance in the container
 file to be converted into meters. Default is \code{m} when \code{type} is
-\code{tcx} and \code{km} when \code{type} is \code{db3}. See Details.}
+\code{tcx} and \code{km} when \code{type} is \code{db3} or \code{json}. See Details.}
 
 \item{cycling}{Logical. Do the data stem from cycling instead of running? If so, the unit of
 measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min}.}
@@ -70,6 +71,8 @@ Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_pe
     \code{mi_per_h}, \code{ft_per_min} and \code{ft_per_s}.
     Available options for \code{distanceunit} currently are \code{km}, \code{m}, \code{mi} and
     \code{ft}.
+
+    Reading Golden Cheetah's JSON files is experimental.
 }
 \examples{
 \dontrun{
@@ -78,6 +81,6 @@ run <- readContainer(filepath, type = "tcx", timezone = "GMT")
 }
 }
 \seealso{
-\code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}
+\code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}, \code{\link{readJSON}}
 }
 
