@@ -55,7 +55,7 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
     } else {
         units <- rbind(units, c("duration", durUnit))
     }
-    
+
     ## moving time (based on speed)
     durationMoving <- sapply(object, function(x) timeAboveThreshold(x$speed, threshold = movingThreshold, ge = FALSE))
     attr(durationMoving, "units") <- "secs"
@@ -142,13 +142,13 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
 
 
     ret <- data.frame(session = session, sessionStart = sessionStart, sessionEnd = sessionEnd,
-                      distance = distance, duration = duration, durationMoving = durationMoving, 
+                      distance = distance, duration = duration, durationMoving = durationMoving,
                       avgSpeed = avgSpeed, avgSpeedMoving = avgSpeedMoving,
                       avgPace = avgPace, avgPaceMoving = avgPaceMoving,
                       avgCadence = avgCadence, avgCadenceMoving = avgCadenceMoving,
                       avgPower = avgPower, avgPowerMoving = avgPowerMoving,
                       avgHeartRate = avgHeartRate, avgHeartRateMoving = avgHeartRateMoving,
-                      avgHeartRateResting = avgHeartRateResting, 
+                      avgHeartRateResting = avgHeartRateResting,
                       wrRatio = wrRatio)
 
     attr(ret, "units") <- units
@@ -265,19 +265,19 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...){
         varsMoving <- c("duration", "avgSpeed", "avgPace", "avgCadence", "avgPower", "avgHeartRate")
         varsResting <- c("avgHeartRate")
 
-        dfTotal <- data.frame(basic[rep(ret$session, times = length(varsTotal)),],
+        dfTotal <- data.frame(basic[rep(seq_along(ret$session), times = length(varsTotal)),],
                               variable = rep(varsTotal, each = nrow(ret)),
                               value = unlist(ret[, varsTotal]),
                               type = "total")
-        dfMoving <- data.frame(basic[rep(ret$session, times = length(varsMoving)),],
+        dfMoving <- data.frame(basic[rep(seq_along(ret$session), times = length(varsMoving)),],
                                variable = rep(varsMoving, each = nrow(ret)),
                                value = unlist(ret[, paste0(varsMoving, "Moving")]),
                                type = "moving")
-        dfResting <- data.frame(basic[rep(ret$session, times = length(varsResting)),],
+        dfResting <- data.frame(basic[rep(seq_along(ret$session), times = length(varsResting)),],
                                variable = rep(varsResting, each = nrow(ret)),
                                value = unlist(ret[, paste0(varsResting, "Resting")]),
                                type = "resting")
-        
+
         ret <- rbind(dfTotal, dfMoving, dfResting)
     }
     return(ret)
