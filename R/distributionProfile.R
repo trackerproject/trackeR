@@ -164,7 +164,7 @@ scaled.distrProfile <- function(x, session  = NULL, what = c("speed", "heart.rat
     }
 
     ## class and return
-    operations <- list()
+    operations <- getOperations(x)
     attr(ret, "operations") <- c(operations, list(scale = NULL))
     attr(ret, "units") <- getUnits(x)
     class(ret) <- "distrProfile"
