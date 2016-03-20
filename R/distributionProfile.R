@@ -138,7 +138,7 @@ distributionProfile <- function(object, session = NULL, what = c("speed", "heart
 #' @param session A numeric vector of the sessions to be plotted, defaults to all sessions.
 #' @param what Which variables should be scaled?
 #' @export
-scale.distrProfile <- function(x, session  = NULL, what = c("speed", "heart.rate")){
+scaled.distrProfile <- function(x, session  = NULL, what = c("speed", "heart.rate")){
     operations <- getOperations(x)
 
     ## select sessions

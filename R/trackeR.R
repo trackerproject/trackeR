@@ -6,7 +6,7 @@
 #' session-aware data objects with an S3 class trackeRdata. The information in the
 #' resultant data objects can then be visualised, summarised and analysed through
 #' corresponding flexible and extensible methods.
-#' 
+#'
 #' @docType package
 #' @name trackeR
 #' @import zoo
@@ -22,6 +22,14 @@ NULL
 #' @param ... Arguments to be passed to methods.
 #' @export
 smoother <- function(object, ...) UseMethod("smoother")
+
+#' Generic function for scaling.
+#'
+#' @param x The object to be smoothed.
+#' @param ... Arguments to be passed to methods.
+#' @export
+scaled <- function(object, ...) UseMethod("scaled")
+
 
 #' Generic function for appending data to existing files.
 #'
@@ -53,3 +61,4 @@ changeUnits <- function(object, variable, unit, ...) UseMethod("changeUnits")
 #' @param ... Arguments to be passed to methods.
 #' @export
 getOperations <- function(object, ...) UseMethod("getOperations")
+
