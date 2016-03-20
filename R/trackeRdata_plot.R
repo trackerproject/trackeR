@@ -81,7 +81,7 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     ## get data
     df <- if (smooth) fortify(xo, melt = TRUE) else fortify(x, melt = TRUE)
 
-    ## prepare session id for panel header 
+    ## prepare session id for panel header
     if (dates) {
         df$SessionID <- format(session[df$SessionID])
         df$SessionID <- gsub(" ", "0", df$SessionID)
@@ -101,7 +101,11 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
 
     ## make facets
     singleVariable <- nlevels(df$Series) == 1L
-    singleSession <- length(session) == 1L
+    ## Include the labels even if there is a single session. This will
+    ## have the (undesirable?) effect that sessions which extend
+    ## beyond midnight will be split in two panels at midnight
+    singleSession <- FALSE #length(session) == 1L
+
     facets <- if (singleVariable) {
         if (singleSession) NULL else ". ~ SessionID"
     } else {
@@ -124,7 +128,7 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     }
     lab_data <- Vectorize(lab_data)
 
-    ## basic plot 
+    ## basic plot
     p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
         ggplot2::geom_line(color = if (smooth) "gray" else "black") +
         ggplot2::ylab(if(singleVariable) lab_data(levels(df$Series)) else "") + ggplot2::xlab("Time")
@@ -231,10 +235,10 @@ fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
 #' }
 #' @export
 plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRUE, ...){
-    
+
     units <- getUnits(x)
 
-    ## get sessions 
+    ## get sessions
     x <- x[session]
 
     ## threshold
