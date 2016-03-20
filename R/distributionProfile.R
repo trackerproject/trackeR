@@ -138,36 +138,35 @@ distributionProfile <- function(object, session = NULL, what = c("speed", "heart
 #' @param session A numeric vector of the sessions to be plotted, defaults to all sessions.
 #' @param what Which variables should be scaled?
 #' @export
-scale.distrProfile <- function(object, session  = NULL, what = c("speed", "heart.rate"),
-                               ...){
-    operations <- getOperations(object)
+scale.distrProfile <- function(x, session  = NULL, what = c("speed", "heart.rate"){
+    operations <- getOperations(x)
 
     ## select sessions
-    availSessions <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
+    availSessions <- if (is.null(ncol(x[[1]]))) 1 else ncol(x[[1]])
     if (is.null(session)) session <- 1:availSessions
-    for(i in seq_along(object)) object[[i]] <- object[[i]][,session]
-    #availSessions <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
+    for(i in seq_along(x)) x[[i]] <- x[[i]][,session]
+    #availSessions <- if (is.null(ncol(x[[1]]))) 1 else ncol(x[[1]])
 
     ret <- list()
-    what <- unlist(what)[unlist(what) %in% names(object)]
+    what <- unlist(what)[unlist(what) %in% names(x)]
 
     for (i in what){
-        nc <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
-        cdat <- coredata(object[[i]])
+        nc <- if (is.null(ncol(x[[1]]))) 1 else ncol(x[[1]])
+        cdat <- coredata(x[[i]])
         scaledProfile <- sweep(cdat, 2, apply(cdat, 2, max), "/")
-        colnames(scaledProfile) <- attr(object[[i]], "dimnames")[[2]]
-        ret[[i]] <- zoo(scaledProfile, order.by = index(object[[i]]))
+        colnames(scaledProfile) <- attr(x[[i]], "dimnames")[[2]]
+        ret[[i]] <- zoo(scaledProfile, order.by = index(x[[i]]))
     }
 
-    unscaled <- names(object)[!(names(object) %in% what)]
+    unscaled <- names(x)[!(names(x) %in% what)]
     for (i in unscaled){
-        ret[[i]] <- object[[i]]
+        ret[[i]] <- x[[i]]
     }
 
     ## class and return
     operations <- list()
     attr(ret, "operations") <- c(operations, list(scale = NULL))
-    attr(ret, "units") <- getUnits(object)
+    attr(ret, "units") <- getUnits(x)
     class(ret) <- "distrProfile"
     return(ret)
 }
