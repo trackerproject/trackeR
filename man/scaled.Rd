@@ -7,9 +7,9 @@
 scaled(object, ...)
 }
 \arguments{
-\item{...}{Arguments to be passed to methods.}
+\item{object}{The object to be scaled.}
 
-\item{x}{The object to be smoothed.}
+\item{...}{Arguments to be passed to methods.}
 }
 \description{
 Generic function for scaling.

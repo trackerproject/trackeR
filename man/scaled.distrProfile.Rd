@@ -4,15 +4,17 @@
 \alias{scaled.distrProfile}
 \title{Scale the distribution profile relative to its maximum value}
 \usage{
-\method{scaled}{distrProfile}(x, session = NULL, what = c("speed",
-  "heart.rate"))
+\method{scaled}{distrProfile}(object, session = NULL, what = c("speed",
+  "heart.rate"), ...)
 }
 \arguments{
+\item{object}{An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.}
+
 \item{session}{A numeric vector of the sessions to be plotted, defaults to all sessions.}
 
 \item{what}{Which variables should be scaled?}
 
-\item{object}{An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.}
+\item{...}{Currently not used.}
 }
 \description{
 Scale the distribution profile relative to its maximum value

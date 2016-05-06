@@ -25,11 +25,10 @@ smoother <- function(object, ...) UseMethod("smoother")
 
 #' Generic function for scaling.
 #'
-#' @param x The object to be smoothed.
+#' @param object The object to be scaled.
 #' @param ... Arguments to be passed to methods.
 #' @export
 scaled <- function(object, ...) UseMethod("scaled")
-
 
 #' Generic function for appending data to existing files.
 #'
