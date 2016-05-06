@@ -130,10 +130,11 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
 
     ## basic plot
     p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
-        ggplot2::geom_line(color = if (smooth) "gray" else "black") +
+        ggplot2::geom_line(color = if (smooth) "gray" else "black", na.rm = TRUE) +
         ggplot2::ylab(if(singleVariable) lab_data(levels(df$Series)) else "") + ggplot2::xlab("Time")
     if (trend & !smooth){
-        p <- p + ggplot2::geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"), alpha = 0.5, se = FALSE)
+        p <- p + ggplot2::geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"),
+                                      alpha = 0.5, se = FALSE, na.rm = TRUE)
     }
     ## add facet if necessary
     if (!is.null(facets)){
@@ -162,10 +163,11 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
                 dfs <- dfs[!(dfs$Series == l), ]
         }
         ## add plot layers
-        p <- p + ggplot2::geom_line(ggplot2::aes_(x = quote(Index), y = quote(Value)), data = dfs, col = "black")
+        p <- p + ggplot2::geom_line(ggplot2::aes_(x = quote(Index), y = quote(Value)),
+                                    data = dfs, col = "black", na.rm = TRUE)
         if (trend){
             p <- p + ggplot2::geom_smooth(data = dfs, method = "gam", formula = y ~ s(x, bs = "cs"),
-                                          alpha = 0.5, se = FALSE)
+                                          alpha = 0.5, se = FALSE, na.rm = TRUE)
         }
     }
 
@@ -295,14 +297,14 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
                        ggplot2::aes_(x = quote(longitude0), xend = quote(longitude1),
                                      y = quote(latitude0), yend = quote(latitude1),
                                     color = quote(speed)),
-                       data = df, lwd = 1, alpha = 0.8) +
+                       data = df, lwd = 1, alpha = 0.8, na.rm = TRUE) +
             ggplot2::labs(x = "Longitude", y = "Latitude") +
             ggplot2::guides(color = ggplot2::guide_colorbar(title = "Speed"))
     } else {
         p <- map + ggplot2::geom_segment(
                        ggplot2::aes_(x = quote(longitude0), xend = quote(longitude1),
                                      y = quote(latitude0), yend = quote(latitude1)),
-                       data = df, lwd = 1, alpha = 0.8) +
+                       data = df, lwd = 1, alpha = 0.8, na.rm = TRUE) +
             ggplot2::labs(x = "Longitude", y = "Latitude")
     }
 

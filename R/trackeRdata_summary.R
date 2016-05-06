@@ -344,11 +344,13 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, .
     ## (basic) plot
     p <- ggplot2::ggplot(dat)
     if (date & ndates < nsessions) stop("All sessions must have unique starting times. Try date = FALSE instead.")
-    p <- p + ggplot2::geom_point(ggplot2::aes_(x = quote(xaxis), y = quote(value), color = quote(type))) +
+    p <- p + ggplot2::geom_point(ggplot2::aes_(x = quote(xaxis), y = quote(value), color = quote(type)),
+                                 na.rm = TRUE) +
         ggplot2::labs(x = xlab, y = "") +
         ggplot2::guides(color = ggplot2::guide_legend(title = "Type"))
     if (nsessions > 1)
-        p <- p + ggplot2::geom_line(ggplot2::aes_(x = quote(xaxis), y = quote(value), color = quote(type))) +
+        p <- p + ggplot2::geom_line(ggplot2::aes_(x = quote(xaxis), y = quote(value), color = quote(type)),
+                                    na.rm = TRUE) +
         ggplot2::guides(color = ggplot2::guide_legend(title = "Type"))
 
     ## facets

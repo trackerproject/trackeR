@@ -277,7 +277,7 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, .
         p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
             ggplot2::ylab("") + ggplot2::xlab("Time")
         ## lines for power/speed and W'
-        p <- p + ggplot2::geom_line(ggplot2::aes_(group = quote(Series), col = quote(Series))) +
+        p <- p + ggplot2::geom_line(ggplot2::aes_(group = quote(Series), col = quote(Series)), na.rm = TRUE) +
             ggplot2::scale_colour_manual(name = "", labels = mylabels, values = c("gray","blue"))
         ## add line for cp
         p <- p + ggplot2::geom_hline(data = data.frame(cp = cp), ggplot2::aes(yintercept = cp), col = "black")
@@ -287,7 +287,7 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, .
                              mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
             ggplot2::ylab(paste("W'", quantity, Wunit)) + ggplot2::xlab("Time")
         ## lines for W'
-        p <- p + ggplot2::geom_line()        
+        p <- p + ggplot2::geom_line(na.rm = TRUE)
     }
     ## add facet if necessary
     if (!is.null(facets)){

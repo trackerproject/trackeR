@@ -138,12 +138,12 @@ plot.conProfile <- function(x, session = NULL, what = c("speed", "heart.rate"),
     if (multiple){
         p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index),
                         y = quote(Value), group = quote(Series), color = quote(Series))) +
-            ggplot2::geom_line() + ggplot2::ylab("dtime") +
+            ggplot2::geom_line(na.rm = TRUE) + ggplot2::ylab("dtime") +
                 ggplot2::xlab(if(singleVariable) lab_data(levels(df$Profile)) else "")
         facets <- if(singleVariable) NULL else ". ~ Profile"
     } else {
         p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
-            ggplot2::geom_line() + ggplot2::ylab("dtime") +
+            ggplot2::geom_line(na.rm = TRUE) + ggplot2::ylab("dtime") +
                 ggplot2::xlab(if(singleVariable) lab_data(levels(df$Profile)) else "")
 
         facets <- if (singleVariable) {
