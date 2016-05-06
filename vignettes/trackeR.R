@@ -27,8 +27,8 @@ runTr1 <- readContainer(filepath, type = "tcx", timezone = "GMT")
 identical(runTr0, runTr1)
 
 ## data for examples
-data(run, package = "trackeR")
-data(runs, package = "trackeR")
+data("run", package = "trackeR")
+data("runs", package = "trackeR")
 
 
 #################################
@@ -85,8 +85,8 @@ plot(wexp, scaled = TRUE)
 
 ## distribution profiles
 dProfile <- distributionProfile(runs, session = 1:4,
-    what = c("speed", "heart.rate"),
-    grid = list(speed = seq(0, 12.5, by = 0.05), heart.rate = seq(0, 250)))
+  what = c("speed", "heart.rate"),
+  grid = list(speed = seq(0, 12.5, by = 0.05), heart.rate = seq(0, 250)))
 plot(dProfile, multiple = TRUE)
 
 ## concentration profiles
@@ -120,7 +120,7 @@ plot(runs, session = 4, what = "speed", threshold = FALSE)
 plot(runs, session = 4, what = "speed") + ggplot2::expand_limits(y = c(0, 21))
 ## with default thresholds and smoothing
 plot(runs, session = 4, what = "speed", smooth = TRUE, fun = "median", width = 20) +
-    ggplot2::expand_limits(y = c(0, 12.5))
+  ggplot2::expand_limits(y = c(0, 12.5))
 ## thresholding and smoothing outside of plot method
 run4 <- threshold(runs[4])
 run4S <- smoother(run4, what = "speed", fun = "median", width = 20)
@@ -133,11 +133,8 @@ plot(run4S, what = "speed", smooth = FALSE) + ggplot2::expand_limits(y = c(0, 12
 ############################
 
 library("trackeR")
-data(runs, package = "trackeR")
-
-library("trackeR")
 ## load data
-data(runs, package = "trackeR")
+data("runs", package = "trackeR")
 ## apply default thresholds
 runsT <- threshold(runs)
 ## get and smooth distribution profiles 
@@ -145,13 +142,13 @@ dpRuns <- distributionProfile(runsT, what = "speed")
 dpRunsS <- smoother(dpRuns)
 ## get concentration profiles
 cpRuns <- concentrationProfile(dpRunsS)
-plot(cpRuns, multiple = TRUE, smooth = FALSE) + theme(legend.position="none")
+plot(cpRuns, multiple = TRUE, smooth = FALSE) + ggplot2::theme(legend.position = "none")
 
 ## prepare functional data
 library("fda")
 gridSpeed <- seq(0, 12.5, length = 251)
 sp <- matrix(unlist(cpRuns$speed), ncol = 250, byrow = TRUE,
-             dimnames = list(names(cpRuns$speed), gridSpeed[-1]))
+  dimnames = list(names(cpRuns$speed), gridSpeed[-1]))
 spfd <- Data2fd(argvals = gridSpeed[-1], y = t(sp))
 ## fit functional PCA
 sppca <- pca.fd(spfd, nharm = 4)
@@ -303,7 +300,7 @@ mypcaplot <- function (x, nx = 128, pointplot = TRUE, harm = 0, expand = 0,
 
 par(mfrow = c(2,1), ask = FALSE)
 mypcaplot(sppca, harm = 1:2, pointplot = FALSE, xlab = "Speed [m/s]") 
-par(mfrow = c(1,1), ask = TRUE)
+par(mfrow = c(1,1))
 
 
 ## plot scores vs summary statistics

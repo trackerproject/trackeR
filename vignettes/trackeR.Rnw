@@ -178,7 +178,7 @@ boxes. An arrow from an object to a method indicates that the method
 applies to objects of the respective class; an arrow from a method to
 an object indicates that the method outputs objects of the respective
 class. A bi-directional arrow between a method and an object indicates
-that the method's input and output are of the same class (e.g. the
+that the method's input and output are of the same class (e.g., the
 method \fct{threshold} and objects of class
 \class{trackeRdata}). Arrows to or from groups of boxes apply to
 each box in the group (for example, the method \fct{changeUnits}
@@ -1360,10 +1360,9 @@ function using a TCX file that ships with the package, and shows the
 name and type of variables that are present in the resulting data
 frame.
 <<eval = TRUE>>=
-filepath <- system.file("extdata", "2013-06-08-090442.TCX", package = "trackeR")
-## read raw data
+filepath <- system.file("extdata", "2013-06-08-090442.TCX", 
+  package = "trackeR")
 runDF <- readTCX(file = filepath, timezone = "GMT")
-## runDF is a data.frame with the following structure
 str(runDF)
 @
 %
@@ -1410,8 +1409,8 @@ The interface of the constructor function for class
 \class{trackeRdata} is
 \begin{Code}
 trackeRdata(dat, units = NULL, cycling = FALSE, sessionThreshold = 2,
-    correctDistances = FALSE, country = NULL, mask = TRUE,
-    fromDistances = TRUE, lgap = 30, lskip = 5, m = 11)
+  correctDistances = FALSE, country = NULL, mask = TRUE,
+  fromDistances = TRUE, lgap = 30, lskip = 5, m = 11)
 \end{Code}
 
 \code{dat} is the data frame containing the tracking data and
@@ -2009,10 +2008,9 @@ consecutive observations, according to
 where $s_i$ and $d_i$ denote the speed and cumulative distance at time
 point $t_i$, respectively. 
 
-The following code chunk takes as input the raw data in \code{runDF}
-and constructs the corresponding \class{trackeRdata} object.
+The following code chunk takes as input the raw data in the data frame
+\code{runDF} and constructs the corresponding \class{trackeRdata} object.
 <<eval = TRUE>>=
-## turn the raw data in runDF into a trackeRdata object
 runTr0 <- trackeRdata(runDF)
 @
 
@@ -2040,8 +2038,8 @@ are always stored in separate sessions.
 and 26 running sessions, respectively, and which can be loaded via
 %
 <<dataLoad>>=
-data(run, package = "trackeR")
-data(runs, package = "trackeR")
+data("run", package = "trackeR")
+data("runs", package = "trackeR")
 @
 %
 We will use those objects for the illustrations throughout the paper.
@@ -2166,7 +2164,7 @@ code chunk produces Figure~\ref{fig:summaryPlot}.
 <<summarySessions, eval = FALSE>>=
 runSummaryFull <- summary(runs)
 plot(runSummaryFull, group = c("total", "moving"),
-    what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
+  what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
 @
 %
 
@@ -2177,7 +2175,7 @@ plot(runSummaryFull, group = c("total", "moving"),
 <<summarySessionsPlot, echo = FALSE, fig = TRUE, width = 7, height = 6.3>>=
 runSummaryFull <- summary(runs)
 plot(runSummaryFull, group = c("total", "moving"),
-    what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
+  what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
 @
 %
   \caption{Selected session summaries for all 26~sessions.}
@@ -2197,13 +2195,16 @@ and their respective zones via the arguments \code{what} and \code{breaks},
 respectively. Figure~\ref{fig:zonesPlot} shows a graphical representation of the
 zones summary, making it easier to see that more (relative) time was spent
 training with high speed ($> \, 4 \, m/s$) in sessions~3 and~4 than in
-sessions~1 and~2.
+sessions~1 and~2. The following code chunk illustrates three equivalent ways
+to specify the zones for a single variable: 1) in the standard way through
+arguments \code{what} and \code{breaks} 2) if \code{breaks} is a named list,
+argument \code{what} can be left unspecified and 3) if only a single variable is
+to be evaluated, \code{breaks} can also be a vector.
 %
 <<zones, eval = FALSE>>=
-runZones <- zones(runs[1:4], what = "speed", breaks = list(speed = c(0, 2:6, 12.5)))
-## if breaks is a named list, argument 'what' can be left unspecified
+runZones <- zones(runs[1:4], what = "speed", 
+  breaks = list(speed = c(0, 2:6, 12.5)))
 runZones <- zones(runs[1:4], breaks = list(speed = c(0, 2:6, 12.5)))
-## if only a single variable is to be evaluated, 'breaks' can also be a vector
 runZones <- zones(runs[1:4], what = "speed", breaks = c(0, 2:6, 12.5))
 plot(runZones)
 @
@@ -2214,10 +2215,9 @@ plot(runZones)
   \centering
 %
 <<zonesPlot, echo = FALSE, fig = TRUE, width = 7, height = 4>>=
-runZones <- zones(runs[1:4], what = "speed", breaks = list(speed = c(0, 2:6, 12.5)))
-## if breaks is a named list, argument 'what' can be left unspecified
+runZones <- zones(runs[1:4], what = "speed", 
+  breaks = list(speed = c(0, 2:6, 12.5)))
 runZones <- zones(runs[1:4], breaks = list(speed = c(0, 2:6, 12.5)))
-## if only a single variable is to be evaluated, 'breaks' can also be a vector
 runZones <- zones(runs[1:4], what = "speed", breaks = c(0, 2:6, 12.5))
 plot(runZones)
 @
@@ -2431,7 +2431,7 @@ profile.
 %
 <<Wprime, echo = TRUE, eval = FALSE>>=
 wexp <- Wprime(runs, session = 11, quantity = "expended",
-               cp = 4, version = "2012")
+  cp = 4, version = "2012")
 plot(wexp, scaled = TRUE)
 @
 %
@@ -2509,8 +2509,8 @@ which to calculate profiles and the respective grids.
 %
 <<distrProfiles, eval = FALSE>>=
 dProfile <- distributionProfile(runs, session = 1:4,
-    what = c("speed", "heart.rate"),
-    grid = list(speed = seq(0, 12.5, by = 0.05), heart.rate = seq(0, 250)))
+  what = c("speed", "heart.rate"),
+  grid = list(speed = seq(0, 12.5, by = 0.05), heart.rate = seq(0, 250)))
 plot(dProfile, multiple = TRUE)
 @
 %
@@ -2519,8 +2519,8 @@ plot(dProfile, multiple = TRUE)
 <<dProfile0, echo = FALSE, eval = FALSE>>=
 set.seed(1)
 dProfile <- distributionProfile(runs, session = 1:4,
-    what = c("speed", "heart.rate"),
-    grid = list(speed = seq(0, 12.5, by = 0.05), heart.rate = seq(0, 250)))
+  what = c("speed", "heart.rate"),
+  grid = list(speed = seq(0, 12.5, by = 0.05), heart.rate = seq(0, 250)))
 dProfileS <- smoother(dProfile, cores = 2)
 @
 <<dProfile, echo = FALSE, eval = TRUE, results=hide>>=
@@ -2592,13 +2592,11 @@ Data objects of class \class{trackeRdata} and all objects derived from these
 relevant units of measurement. The \fct{getUnits} method returns the units of
 measurement for each variable and the \fct{changeUnits} method can be
 used to change one or more variables from one set of units to another.
-For example,
+The following code chunk displays the current units of \code{run}, changes the
+unit for speed to miles per hour, and displays the changed units.
 %
 <<eval = TRUE>>=
-## get the units for the variables in run
 getUnits(run)
-
-## change the unit of speed into miles per hour
 runTr2 <- changeUnits(run, variable = "speed", unit = "mi_per_h")
 getUnits(runTr2)
 @
@@ -2709,16 +2707,14 @@ Bolt, August 16, 2009) is 9.58 seconds which translates to an average speed of
 default thresholds and then smoothing the data through a rolling median with a
 window width of 20 observations, either done within the \fct{plot} method
 (bottom left) or explicitly via the \fct{threshold} and \fct{smoother} methods
-(bottom right).
+(bottom right). The following code chunk produces the four plots in
+Figure~\ref{fig:thresholdPlots}.
 %
 <<thresholdPlots, eval = FALSE>>=
-## without thresholds
 plot(runs, session = 4, what = "speed", threshold = FALSE)
-## with default thresholds
 plot(runs, session = 4, what = "speed")
-## with default thresholds and smoothing
-plot(runs, session = 4, what = "speed", smooth = TRUE, fun = "median", width = 20)
-## thresholding and smoothing outside of plot method
+plot(runs, session = 4, what = "speed", smooth = TRUE, fun = "median", 
+  width = 20)
 run4 <- threshold(runs[4])
 run4S <- smoother(run4, what = "speed", fun = "median", width = 20)
 plot(run4S, what = "speed", smooth = FALSE) 
@@ -2789,7 +2785,7 @@ the profiles prior to plotting by default.
 
 <<AppData, echo = FALSE>>=
 library("trackeR")
-data(runs, package = "trackeR")
+data("runs", package = "trackeR")
 runsSummary <- summary(runs)
 @
 
@@ -2818,34 +2814,26 @@ spent moving almost the entire time.
 %%   \label{fig:app:summary}
 %% \end{figure}
 
-The code chunk below calculates the smoothed distribution profiles for the
-26~sessions. The corresponding concentration profiles are shown in
-Figure~\ref{fig:app:cpsmooth}.
+The code chunk below loads the data, applies thresholds, and calculates the
+smoothed distribution profiles for the 26~sessions. The corresponding
+concentration profiles are shown in Figure~\ref{fig:app:cpsmooth}.
 %
 <<casestudyData, eval = FALSE, echo = TRUE>>=
 library("trackeR")
-## load data
-data(runs, package = "trackeR")
-## apply default thresholds
+data("runs", package = "trackeR")
 runsT <- threshold(runs)
-## get and smooth distribution profiles 
 dpRuns <- distributionProfile(runsT, what = "speed")
 dpRunsS <- smoother(dpRuns)
-## get concentration profiles
 cpRuns <- concentrationProfile(dpRunsS)
 @
 %
 %
 <<AppProfiles0, eval = FALSE, echo = FALSE>>=
 library("trackeR")
-## load data
-data(runs, package = "trackeR")
-## apply default thresholds
+data("runs", package = "trackeR")
 runsT <- threshold(runs)
-## get and smooth distribution profiles 
 dpRuns <- distributionProfile(runsT, what = "speed")
 dpRunsS <- smoother(dpRuns, cores = 2)
-## get concentration profiles
 cpRuns <- concentrationProfile(dpRunsS)
 @
 %
@@ -2867,7 +2855,7 @@ if(cache) {
   \centering
 %
 <<AppCPplot, echo = FALSE, fig = TRUE, width = 8, height = 4>>=
-plot(cpRuns, multiple = TRUE, smooth = FALSE) + theme(legend.position="none")
+plot(cpRuns, multiple = TRUE, smooth = FALSE) + theme(legend.position = "none")
 @
 %
   \caption{Smoothed speed concentration profiles for all 26 sessions.}
@@ -2882,18 +2870,15 @@ e.g.,][]{trackeR:Ramsay+Silverman:2005}. Here, we use the implementation
 provided in the \fct{pca.df} function of the \pkg{fda} \proglang{R}
 package \citep{trackeR:pkg:fda}. After preparing the concentration profiles in
 the required functional data format, a functional PCA with four principal
-components is fitted. 
+components is fitted and the share of variance displayed.
 % 
 <<AppFunPrep>>=
-## prepare functional data
 library("fda")
 gridSpeed <- seq(0, 12.5, length = 251)
 sp <- matrix(unlist(cpRuns$speed), ncol = 250, byrow = TRUE,
-             dimnames = list(names(cpRuns$speed), gridSpeed[-1]))
+  dimnames = list(names(cpRuns$speed), gridSpeed[-1]))
 spfd <- Data2fd(argvals = gridSpeed[-1], y = t(sp))
-## fit functional PCA
 sppca <- pca.fd(spfd, nharm = 4)
-## share of variance
 varprop <- round(sppca$varprop * 100); names(varprop) <- 1:4
 varprop
 @
@@ -3138,23 +3123,44 @@ ggplot(d) + geom_point(aes(x = avgSpeedMoving, y = speed_pc2)) + theme_bw() + la
 
 \section{Concluding remarks} \label{sec:outro}
 
+The \pkg{trackeR} package provides classes and methods for importing and
+handling the irregularly sampled spatio-temporal data that arise from
+GPS-enabled tracking devices in sports. Currently it supports TCX and db3
+formats, but the package structure allows the easy inclusion of other
+formats. After careful processing, the data are stored in session-based,
+unit-aware, and operation-aware objects of class \class{trackeRdata}. Associated
+methods handle conversion between units of measurement, calculation of relevant
+summaries and the visualisation of tracking data. Time in zones, work capacity,
+and distribution and concentration profiles can also be readily calculated and
+used for further statistical analyses. An example of such analysis is presented
+in Section~\ref{sec:casestudy}, where functional principal components analysis
+is used to characterise the apparent variability between speed concentration
+profiles. 
 
-Package \pkg{trackeR} provides tools to import data from GPS-enabled tracking
-devices in \proglang{R}. Currently it supports TCX and db3 formats, but the
-package structure allows the easy inclusion of other formats. 
-After careful processing, the data are stored in session-based, unit-aware, and
-operation-aware objects. Core infrastructure for handling units of measurement
-as well as for summarising and visualising tracking data is provided. Time in
-zones, work capacity, and distribution and concentration profiles can be derived
-and used in further statistical analyses, such as the functional principal
-component analysis of speed concentration profiles presented here.
+Infrastructure for irregularly sampled spatio-temporal data in general is also
+provided in the \pkg{trajectories} package \citep{trackeR:pkg:trajectories},
+which is developed around the \class{STIDF} class of the \pkg{spacetime} package
+\citep{trackeR:Pebesma:2012}. In order to provide users with access to an as
+wide range of data-analytic methods as is possible, we aim to provide a sensible
+coercion function from \class{trackeRdata} to \class{STIDF}. One of the
+challenges we are facing is that the \class{STIDF} class does not 
+accommodate missing values in positional or temporal information, which is
+commonly the case in data from GPS-enabled tracking devices (e.g., sequences of
+missing values in the positional data because the GPS signal is temporarily
+lost). Other packages that offer tools for spatio-temporal data include
+\pkg{adehabtitatLT} \citep{trackeR:Calenge:2006}, \pkg{trip}
+\citep{trackeR:pkg:trip} and \pkg{move} \citep{trackeR:pkg:move}. The main focus
+of those packages is on animal tracking (e.g., estimation of habitat choices)
+and they are not directly suitable for tracking the various aspects of athlete activity. 
 
 Areas for further development include the extension of the reading capabilities
 to more file formats and the implementation of more analytic tools, such as
 record power profiles \citep{trackeR:Pinot+Grappe:2011}. The case study in
-Section~\ref{sec:casestudy} draws some links to functional data analysis. We
-are also investigating options for including capabilities for the analysis of
-the positional information.
+Section~\ref{sec:casestudy} draws some links to functional data analysis which
+is another area of further exploration for analytic tools for the package. 
+
+
+
 
 
 
