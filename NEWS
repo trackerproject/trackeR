@@ -1,3 +1,9 @@
+Changes in Version 0.0.3
+
+  o plotRoute() can now include more than one session in one plot. The new
+    function plotRoute2() uses the leaflet package to produce an interactive map.
+
+
 Changes in Version 0.0.2
 
   o The scale options has been removed from the distribution profile and is

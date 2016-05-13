@@ -219,7 +219,7 @@ fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
 #' Internet connection is required to download the background map.
 #'
 #' @param x A object of class \code{\link{trackeRdata}}.
-#' @param session The session to be plotted.
+#' @param session A numeric vector of the sessions to be plotted. Defaults to the first session, all sessions can be plotted by \code{session = NULL}.
 #' @param zoom The zoom level for the background map as passed on to
 #'     \code{\link[ggmap]{get_map}} (2 corresponds roughly to continent
 #'     level and 20 to building level).
@@ -238,9 +238,120 @@ fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
 #' @export
 plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRUE, ...){
 
+    ## get prepared data.frame
+    df <- prepRoute(x, session = session, threshold = threshold, ...)
+    if (is.null(zoom)) zoom <- attr(df, "autozoom")
+    
+    
+    ## get map
+    map <- ggmap::get_map(location = c(lon = attr(df, "centerLon"), lat = attr(df, "centerLat")), zoom = zoom, ...)
+    p <- ggmap::ggmap(map)
+
+    ## add trace
+    if (speed){
+        p <- p + ggplot2::geom_segment(
+                       ggplot2::aes_(x = quote(longitude0), xend = quote(longitude1),
+                                     y = quote(latitude0), yend = quote(latitude1),
+                                    color = quote(speed)),
+                       data = df, lwd = 1, alpha = 0.8, na.rm = TRUE) +
+            ggplot2::guides(color = ggplot2::guide_colorbar(title = "Speed"))
+        ## FIXME: add annotation which route is from which session
+    } else {
+        p <- p + ggplot2::geom_segment(
+                       ggplot2::aes_(x = quote(longitude0), xend = quote(longitude1),
+                                     y = quote(latitude0), yend = quote(latitude1)),
+                     data = df, lwd = 1, alpha = 0.8, na.rm = TRUE)
+
+    }
+
+    p <- p + ggplot2::labs(x = "Longitude", y = "Latitude")
+    
+    return(p)
+}
+
+
+
+#' Plot routes for training sessions.
+#'
+#' Plot the route ran/cycled during training on an interactive map.
+#' Internet connection is required to download the background map.
+#'
+#' @param x A object of class \code{\link{trackeRdata}}.
+#' @param session A numeric vector of the sessions to be plotted. Defaults to
+#'     the first session, all sessions can be plotted by \code{session = NULL}.
+#' @param speed Logical. Should the trace be colored according to speed?
+#' @param threshold Logical. Should thresholds be applied?
+#' @param ... Additional arguments passed on to \code{\link{threshold}}.
+#' @examples
+#' \dontrun{
+#' data(runs, package = "trackeR")
+#' plotRoute2(runs, session = 22:23)
+#' }
+#' @export
+plotRoute2 <- function(x, session = 1, speed = TRUE, threshold = TRUE, ...){
+
+    ## get prepared data.frame
+    df <- prepRoute(x, session = session, threshold = threshold, ...)
+    
+    ## get map
+    p <- leaflet::leaflet()
+    p <- leaflet::addTiles(p, group = "OSM (default)")
+    p <- leaflet::addProviderTiles(p, "Stamen.Toner", group = "Toner")
+    p <- leaflet::addProviderTiles(p, "Stamen.TonerLite", group = "Toner Lite")
+    
+    ## add trace
+    if (speed){
+        ncol <- 10
+        mypal <- colorspace::heat_hcl(n = ncol)
+
+        for (i in session){
+            dfi <- df[df$SessionID == which(i == session), , drop = FALSE]
+
+            speedCat <- cut(df$speed, breaks = seq(min(df$speed), max(df$speed), length.out = ncol + 1),
+                            include.lowest = TRUE, labels = FALSE)
+            mycol <- mypal[speedCat]
+            for (j in 1:nrow(dfi)){
+                p <- leaflet::addPolylines(p, group = paste("Session:", i),
+                                           lng = c(dfi$longitude0[j], dfi$longitude1[j]),
+                                           lat = c(dfi$latitude0[j], dfi$latitude1[j]),
+                                           col = mycol[j])
+            }
+            ## ## alternative for making the palette
+            ## pal <- leaflet::colorNumeric(palette = mypal, domain = dfi$speed)
+            ## ## however, still just a single colour for the entire path
+            ## p <- leaflet::addPolylines(p, group = paste("Session:", i),
+            ##                            lng = dfi$longitude, lat = dfi$latitude,
+            ##                            color = pal(dfi$speed))
+            p <- leaflet::addMarkers(p, group = paste("Session:", i), 
+                            lng = dfi$longitude[1], lat = dfi$latitude[1],
+                            popup = htmltools::htmlEscape(paste("Start session", i)))                            
+        }
+    } else {
+        for (i in session){
+            dfi <- df[df$SessionID == which(i == session), , drop = FALSE]
+            p <- leaflet::addPolylines(p, group = paste("Session:", i),
+                                       lng = dfi$longitude, lat = dfi$latitude)
+            p <- leaflet::addMarkers(p, group = paste("Session:", i),
+                            lng = dfi$longitude[1], lat = dfi$latitude[1],
+                            popup = htmltools::htmlEscape(paste("Start session", i)))                            
+        }
+    }
+
+    ## add control panel
+    p <- leaflet::addLayersControl(p, baseGroups = c("OSM (default)", "Toner", "Toner Lite"),
+                          overlayGroups = paste("Session:", session),
+                          options = leaflet::layersControlOptions(collapsed = FALSE))
+
+    return(p)
+}
+
+
+prepRoute <- function(x, session = 1, threshold = TRUE, ...){
+    ## get units for thresholds
     units <- getUnits(x)
 
     ## get sessions
+    if (is.null(session)) session <- seq_along(x)
     x <- x[session]
 
     ## threshold
@@ -258,11 +369,13 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
         ## apply thresholds
         x <- threshold(x, th)
     }
+    
     ## get data
     df <- fortify(x, melt = FALSE)
+    if (length(session) < 2) df$SessionID <- 1
 
     ## clean data
-    df <- df[, c("longitude", "latitude", "speed")]
+    df <- df[, c("longitude", "latitude", "speed", "SessionID")]
     df <- df[!apply(df[, c("longitude", "latitude")], 1, function(x) any(is.na(x))), ]
 
     ## get range of coordinates
@@ -274,39 +387,28 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
     lengthLat <- diff(rangeLat)
     centerLon <- rangeLon[1] + lengthLon / 2
     centerLat <- rangeLat[1] + lengthLat / 2
-    if (is.null(zoom)) {
-        zoomLon <- ceiling(0.9*log2(360 * 2 / lengthLon))
-        zoomLat <- ceiling(0.9*log2(180 * 2 / lengthLat))
-        zoom <- max(zoomLon, zoomLat)
+    zoomLon <- ceiling(0.9*log2(360 * 2 / lengthLon))
+    zoomLat <- ceiling(0.9*log2(180 * 2 / lengthLat))
+    zoom <- max(zoomLon, zoomLat)
+
+    ## prepare df for segments
+    dfSplit <- vector("list", length(session))
+    names(dfSplit) <- as.character(session)
+    #browser()
+    for (i in session){
+        dfSub <- df[df$SessionID == which(i == session), , drop = FALSE]
+        dfSub$longitude0 <- c(dfSub$longitude[-nrow(dfSub)], 0)
+        dfSub$longitude1 <- c(dfSub$longitude[-1], 0)
+        dfSub$latitude0 <- c(dfSub$latitude[-nrow(dfSub)], 0)
+        dfSub$latitude1 <- c(dfSub$latitude[-1], 0)
+
+        dfSplit[[as.character(i)]] <- dfSub[-nrow(dfSub), ]
     }
+    df <- do.call(rbind, dfSplit)
 
-    ## get map
-    map <- ggmap::get_map(location = c(lon = centerLon, lat = centerLat), zoom = zoom, ...)
-    map <- ggmap::ggmap(map)
-
-    ## prepare df for geom_segments
-    df$longitude0 <- c(df$longitude[-nrow(df)], 0)
-    df$longitude1 <- c(df$longitude[-1], 0)
-    df$latitude0 <- c(df$latitude[-nrow(df)], 0)
-    df$latitude1 <- c(df$latitude[-1], 0)
-    df <- df[-nrow(df), ]
-
-    ## add trace
-    if (speed){
-        p <- map + ggplot2::geom_segment(
-                       ggplot2::aes_(x = quote(longitude0), xend = quote(longitude1),
-                                     y = quote(latitude0), yend = quote(latitude1),
-                                    color = quote(speed)),
-                       data = df, lwd = 1, alpha = 0.8, na.rm = TRUE) +
-            ggplot2::labs(x = "Longitude", y = "Latitude") +
-            ggplot2::guides(color = ggplot2::guide_colorbar(title = "Speed"))
-    } else {
-        p <- map + ggplot2::geom_segment(
-                       ggplot2::aes_(x = quote(longitude0), xend = quote(longitude1),
-                                     y = quote(latitude0), yend = quote(latitude1)),
-                       data = df, lwd = 1, alpha = 0.8, na.rm = TRUE) +
-            ggplot2::labs(x = "Longitude", y = "Latitude")
-    }
-
-    return(p)
+    ## add attributes and return
+    attr(df, "centerLon") <- centerLon
+    attr(df, "centerLat") <- centerLat
+    attr(df, "autozoom") <- zoom
+    return(df)
 }

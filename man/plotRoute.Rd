@@ -10,7 +10,7 @@ plotRoute(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRUE,
 \arguments{
 \item{x}{A object of class \code{\link{trackeRdata}}.}
 
-\item{session}{The session to be plotted.}
+\item{session}{A numeric vector of the sessions to be plotted. Defaults to the first session, all sessions can be plotted by \code{session = NULL}.}
 
 \item{zoom}{The zoom level for the background map as passed on to
 \code{\link[ggmap]{get_map}} (2 corresponds roughly to continent
