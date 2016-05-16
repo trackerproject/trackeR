@@ -24,7 +24,7 @@
 Plot distribution profiles.
 }
 \examples{
-data(runs, package = "trackeR")
+data("runs", package = "trackeR")
 dProfile <- distributionProfile(runs, session = 1:2,
     what = "speed", grid = seq(0, 12.5, by = 0.05))
 plot(dProfile, smooth = FALSE)

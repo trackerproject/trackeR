@@ -28,7 +28,7 @@ An object of class \code{distrProfile}.
 Generate training distribution profiles.
 }
 \examples{
-data(run, package = "trackeR")
+data("run", package = "trackeR")
 dProfile <- distributionProfile(run, what = "speed", grid = seq(0, 12.5, by = 0.05))
 plot(dProfile, smooth = FALSE)
 }

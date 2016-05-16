@@ -25,7 +25,7 @@ An object of class \code{\link{trackeRdata}}.
 Smoother for \code{\link{trackeRdata}} objects.
 }
 \examples{
-data(run, package = "trackeR")
+data("run", package = "trackeR")
 ## unsmoothed speeds
 plot(run, smooth = FALSE)
 ## default smoothing

@@ -8,7 +8,7 @@
 #' @seealso \code{\link{plot.trackeRdataSummary}}
 #' @references Bohannon RW (1997). "Comfortable and Maximum Walking Speed of Adults Aged 20--79 Years: Reference Values and Determinants." Age and Ageing, 26(1), 15--19. doi: 10.1093/ageing/26.1.15.
 #' @examples
-#' data(runs, package = "trackeR")
+#' data("runs", package = "trackeR")
 #' runSummary <- summary(runs, session = 1:2)
 #' ## print summary
 #' runSummary
@@ -294,7 +294,7 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...){
 #' @param ... Currently not used.
 #' @seealso \code{\link{summary.trackeRdata}}
 #' @examples
-#' data(runs, package = "trackeR")
+#' data("runs", package = "trackeR")
 #' runSummary <- summary(runs)
 #' plot(runSummary)
 #' plot(runSummary, date = FALSE, group = "total",

@@ -36,7 +36,7 @@ Note that a threshold is always applied to the pace. This (upper) threshold
 }
 \examples{
 \dontrun{
-data(runs, package = "trackeR")
+data("runs", package = "trackeR")
 ## plot heart rate and pace for the first 3 sessions
 plot(runs, session = 1:3)
 ## plot raw speed data for session 4

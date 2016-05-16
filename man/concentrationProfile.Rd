@@ -23,7 +23,7 @@ An object of class \code{conProfile}.
 Generate training concentration profiles.
 }
 \examples{
-data(run, package = "trackeR")
+data("run", package = "trackeR")
 dProfile <- distributionProfile(run, what = "speed", grid = seq(0, 12.5, by = 0.05))
 cProfile <- concentrationProfile(dProfile)
 plot(cProfile, smooth = FALSE)

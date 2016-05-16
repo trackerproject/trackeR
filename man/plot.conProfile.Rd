@@ -26,7 +26,7 @@ or a numeric vector with the relative position of the session(s).}
 Plot concentration profiles.
 }
 \examples{
-data(runs, package = "trackeR")
+data("runs", package = "trackeR")
 dProfile <- distributionProfile(runs, session = 1:3,
     what = "speed", grid = seq(0, 12.5, by = 0.05))
 cProfile <- concentrationProfile(dProfile)

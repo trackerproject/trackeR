@@ -23,7 +23,7 @@ An object of class \code{trackeRdataSummary}.
 Summary of training sessions.
 }
 \examples{
-data(runs, package = "trackeR")
+data("runs", package = "trackeR")
 runSummary <- summary(runs, session = 1:2)
 ## print summary
 runSummary

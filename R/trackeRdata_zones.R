@@ -10,7 +10,7 @@
 #' @return An object of class \code{trackeRdataZones}.
 #' @seealso \code{\link{plot.trackeRdataZones}}
 #' @examples
-#' data(run, package = "trackeR")
+#' data("run", package = "trackeR")
 #' runZones <- zones(run, what = "speed", breaks = list(speed = c(0, 2:6, 12.5)))
 #' ## if breaks is a named list, argument 'what' can be left unspecified
 #' runZones <- zones(run, breaks = list(speed = c(0, 2:6, 12.5)))
@@ -101,7 +101,7 @@ zones <- function(object, session = NULL, what = c("speed", "heart.rate"),
 #' @param percent Logical. Should the relative or absolute times spent training in the different zones be plotted?
 #' @param ... Currently not used.
 #' @examples
-#' data(run, package = "trackeR")
+#' data("run", package = "trackeR")
 #' runZones <- zones(run, what = "speed", breaks = c(0, 2:6, 12.5))
 #' plot(runZones, percent = FALSE)
 #' @export

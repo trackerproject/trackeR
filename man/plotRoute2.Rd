@@ -24,7 +24,7 @@ Internet connection is required to download the background map.
 }
 \examples{
 \dontrun{
-data(runs, package = "trackeR")
+data("runs", package = "trackeR")
 plotRoute2(runs, session = 22:23)
 }
 }

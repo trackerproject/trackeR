@@ -14,7 +14,7 @@
 #'     humans. The lower threshold is 0.
 #' @examples
 #' \dontrun{
-#' data(runs, package = "trackeR")
+#' data("runs", package = "trackeR")
 #' ## plot heart rate and pace for the first 3 sessions
 #' plot(runs, session = 1:3)
 #' ## plot raw speed data for session 4
@@ -230,7 +230,7 @@ fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
 #' @seealso \code{\link[ggmap]{get_map}}, \code{\link[ggmap]{ggmap}}
 #' @examples
 #' \dontrun{
-#' data(runs, package = "trackeR")
+#' data("runs", package = "trackeR")
 #' plotRoute(runs, session = 4, zoom = 13)
 #' plotRoute(runs, session = 4, zoom = 13, maptype = "hybrid")
 #' plotRoute(runs, session = 4, zoom = 13, source = "osm")
@@ -284,7 +284,7 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
 #' @param ... Additional arguments passed on to \code{\link{threshold}}.
 #' @examples
 #' \dontrun{
-#' data(runs, package = "trackeR")
+#' data("runs", package = "trackeR")
 #' plotRoute2(runs, session = 22:23)
 #' }
 #' @export
