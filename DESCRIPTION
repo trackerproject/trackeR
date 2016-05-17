@@ -25,6 +25,6 @@ Suggests:
     raster,
     testthat,
     fda,
-    leaflet, colorspace, htmltools
+    leaflet
 License: GPL-2 | GPL-3
 RoxygenNote: 5.0.1

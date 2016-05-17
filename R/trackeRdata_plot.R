@@ -244,7 +244,8 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
     
     
     ## get map
-    map <- ggmap::get_map(location = c(lon = attr(df, "centerLon"), lat = attr(df, "centerLat")), zoom = zoom, ...)
+    map <- ggmap::get_map(location = c(lon = attr(df, "centerLon"),
+                                       lat = attr(df, "centerLat")), zoom = zoom, ...)
     p <- ggmap::ggmap(map)
 
     ## add trace
@@ -264,78 +265,119 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
 
     }
 
+    ## FIXME: multiple sessions in different panels via gridExtra
     p <- p + ggplot2::labs(x = "Longitude", y = "Latitude")
     
     return(p)
 }
 
 
-
 #' Plot routes for training sessions.
 #'
 #' Plot the route ran/cycled during training on an interactive map.
 #' Internet connection is required to download the background map.
+#' Icons are by Maps Icons Collection \url{https://mapicons.mapsmarker.com}
 #'
 #' @param x A object of class \code{\link{trackeRdata}}.
 #' @param session A numeric vector of the sessions to be plotted. Defaults to
-#'     the first session, all sessions can be plotted by \code{session = NULL}.
-#' @param speed Logical. Should the trace be colored according to speed?
+#'     all sessions.
 #' @param threshold Logical. Should thresholds be applied?
 #' @param ... Additional arguments passed on to \code{\link{threshold}}.
 #' @examples
 #' \dontrun{
 #' data("runs", package = "trackeR")
-#' plotRoute2(runs, session = 22:23)
+#' leafletRoute(runs, session = 22:23)
 #' }
 #' @export
-plotRoute2 <- function(x, session = 1, speed = TRUE, threshold = TRUE, ...){
+leafletRoute <- function(x, session = NULL, threshold = TRUE, ...){
 
     ## get prepared data.frame
     df <- prepRoute(x, session = session, threshold = threshold, ...)
+
+    ## prepare markers
+    startIcon <- leaflet::makeIcon(
+        iconUrl = system.file("icons", "start.png", package = "trackeR"),
+        iconWidth = 32, iconHeight = 37, iconAnchorX = 16, iconAnchorY = 37
+    )
+    finishIcon <- leaflet::makeIcon(
+        iconUrl = system.file("icons", "finish.png", package = "trackeR"),
+        iconWidth = 32, iconHeight = 37, iconAnchorX = 16, iconAnchorY = 37
+    )
     
+    ## prepare popups
+    units <- getUnits(x)
+    sumX <- summary(x)
+    popupText <- function(session){
+        w <- which(sumX$session == session)
+        unitDist4pace <- strsplit(units$unit[units$variable == "pace"],
+                                  split = "_per_")[[1]][2]
+        avgPace <- floor(sumX$avgPace[w] * 100) / 100
+
+        paste(
+            paste("<b> Start of session", session, "</b>"),
+            paste(sumX$sessionStart[w], "-", sumX$sessionEnd[w]),
+            paste("Distance:", round(sumX$distance[w], 2), units$unit[units$variable == "distance"]),
+            paste("Duration:", round(as.numeric(sumX$duration[w]), 2), units(sumX$duration[w])),
+            paste(paste0("Avg. pace (per 1 ", unitDist4pace, "):"),
+                  paste(floor(avgPace), round(avgPace %% 1 * 60, 0), sep = ":"), "min:sec"),
+            sep = "<br/>"
+        )
+    }
+
     ## get map
     p <- leaflet::leaflet()
     p <- leaflet::addTiles(p, group = "OSM (default)")
     p <- leaflet::addProviderTiles(p, "Stamen.Toner", group = "Toner")
     p <- leaflet::addProviderTiles(p, "Stamen.TonerLite", group = "Toner Lite")
     
-    ## add trace
-    if (speed){
-        ncol <- 10
-        mypal <- colorspace::heat_hcl(n = ncol)
+    ## add trace + markers + popups
+    for (i in session){
+        dfi <- df[df$SessionID == which(i == session), , drop = FALSE]
+        p <- leaflet::addPolylines(p, group = paste("Session:", i),
+                                   lng = dfi$longitude, lat = dfi$latitude)
 
-        for (i in session){
-            dfi <- df[df$SessionID == which(i == session), , drop = FALSE]
-
-            speedCat <- cut(df$speed, breaks = seq(min(df$speed), max(df$speed), length.out = ncol + 1),
-                            include.lowest = TRUE, labels = FALSE)
-            mycol <- mypal[speedCat]
-            for (j in 1:nrow(dfi)){
-                p <- leaflet::addPolylines(p, group = paste("Session:", i),
-                                           lng = c(dfi$longitude0[j], dfi$longitude1[j]),
-                                           lat = c(dfi$latitude0[j], dfi$latitude1[j]),
-                                           col = mycol[j])
-            }
-            ## ## alternative for making the palette
-            ## pal <- leaflet::colorNumeric(palette = mypal, domain = dfi$speed)
-            ## ## however, still just a single colour for the entire path
-            ## p <- leaflet::addPolylines(p, group = paste("Session:", i),
-            ##                            lng = dfi$longitude, lat = dfi$latitude,
-            ##                            color = pal(dfi$speed))
-            p <- leaflet::addMarkers(p, group = paste("Session:", i), 
-                            lng = dfi$longitude[1], lat = dfi$latitude[1],
-                            popup = htmltools::htmlEscape(paste("Start session", i)))                            
-        }
-    } else {
-        for (i in session){
-            dfi <- df[df$SessionID == which(i == session), , drop = FALSE]
-            p <- leaflet::addPolylines(p, group = paste("Session:", i),
-                                       lng = dfi$longitude, lat = dfi$latitude)
-            p <- leaflet::addMarkers(p, group = paste("Session:", i),
-                            lng = dfi$longitude[1], lat = dfi$latitude[1],
-                            popup = htmltools::htmlEscape(paste("Start session", i)))                            
-        }
+        p <- leaflet::addMarkers(p, group = paste("Session:", i),
+                                 lng = dfi$longitude[1], lat = dfi$latitude[1],
+                                 #popup = htmltools::htmlEscape(popupText(session = i)))
+                                 popup = popupText(session = i), icon = startIcon)
+        p <- leaflet::addMarkers(p, group = paste("Session:", i),
+                                 lng = dfi$longitude[nrow(dfi)], lat = dfi$latitude[nrow(dfi)],
+                                 popup = paste("End session", i), icon = finishIcon)
     }
+
+    ## color trace according to speed is disabled for now as it is
+    ## typically too slow to plot all the segments separately.
+    ##
+    ## if (speed){
+    ##     ncol <- 10
+    ##     mypal <- colorspace::heat_hcl(n = ncol)
+
+    ##     for (i in session){
+    ##         dfi <- df[df$SessionID == which(i == session), , drop = FALSE]
+
+    ##         speedCat <- cut(df$speed, breaks = seq(min(df$speed), max(df$speed), length.out = ncol + 1),
+    ##                         include.lowest = TRUE, labels = FALSE)
+    ##         mycol <- mypal[speedCat]
+    ##         for (j in 1:nrow(dfi)){
+    ##             p <- leaflet::addPolylines(p, group = paste("Session:", i),
+    ##                                        lng = c(dfi$longitude0[j], dfi$longitude1[j]),
+    ##                                        lat = c(dfi$latitude0[j], dfi$latitude1[j]),
+    ##                                        col = mycol[j])
+    ##         }
+    ##         ## ## alternative for making the palette
+    ##         ## pal <- leaflet::colorNumeric(palette = mypal, domain = dfi$speed)
+    ##         ## ## however, still just a single colour for the entire path
+    ##         ## p <- leaflet::addPolylines(p, group = paste("Session:", i),
+    ##         ##                            lng = dfi$longitude, lat = dfi$latitude,
+    ##         ##                            color = pal(dfi$speed))
+    ##         p <- leaflet::addMarkers(p, group = paste("Session:", i),
+    ##                         lng = dfi$longitude[1], lat = dfi$latitude[1],
+    ##                         popup = htmltools::htmlEscape(paste("Start session", i)))
+    ##         p <- leaflet::addMarkers(p, group = paste("Session:", i),
+    ##                         lng = dfi$longitude[nrow(dfi)], lat = dfi$latitude[nrow(dfi)],
+    ##                         popup = htmltools::htmlEscape(paste("End session", i)))
+    ##     }
+    ## }
 
     ## add control panel
     p <- leaflet::addLayersControl(p, baseGroups = c("OSM (default)", "Toner", "Toner Lite"),
@@ -394,9 +436,11 @@ prepRoute <- function(x, session = 1, threshold = TRUE, ...){
     ## prepare df for segments
     dfSplit <- vector("list", length(session))
     names(dfSplit) <- as.character(session)
-    #browser()
+
     for (i in session){
+
         dfSub <- df[df$SessionID == which(i == session), , drop = FALSE]
+
         dfSub$longitude0 <- c(dfSub$longitude[-nrow(dfSub)], 0)
         dfSub$longitude1 <- c(dfSub$longitude[-1], 0)
         dfSub$latitude0 <- c(dfSub$latitude[-nrow(dfSub)], 0)
