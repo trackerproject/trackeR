@@ -25,6 +25,8 @@ Suggests:
     raster,
     testthat,
     fda,
-    leaflet
+    leaflet,
+    knitr, rmarkdown
+VignetteBuilder: knitr    
 License: GPL-2 | GPL-3
 RoxygenNote: 5.0.1

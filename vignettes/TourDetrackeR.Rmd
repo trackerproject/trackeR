@@ -1,0 +1,132 @@
+---
+title: "Tour de trackeR"
+author: "[Hannah Frick](http://www.ucl.ac.uk/~ucakhfr) and [Ioannis Kosmidis](http://www.ucl.ac.uk/~ucakiko/)"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Tour de trackeR}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+
+The **trackeR** package provides infrastructure for handling running and cycling
+data from GPS-enabled tracking devices. A short tour of its functionality is
+given below through an analysis of running data. A more comprehensive introduction
+to the package can be found in the vignette "Infrastructure for Running and 
+Cycling Data" accessible via
+
+```{r, eval = FALSE}
+vignette("trackeR", package = "trackeR")
+```
+
+
+## Reading data
+
+**trackeR** currently supports files in the Training Centre XML (TCX) format and
+.db3 files (for SQLite, used, e.g., by devices from GPSports) through the corresponding
+functions *readTCX*() and *readDB3*().
+
+```{r, message = FALSE}
+library("trackeR") 
+filepath <- system.file("extdata", "2013-06-08-090442.TCX", package = "trackeR")
+runDF <- readTCX(file = filepath, timezone = "GMT")
+```
+
+These reading function return a `data.frame` of the following structure
+
+```{r}
+str(runDF)
+```
+
+which can be fed to the constructor function for **trackeR**'s session-based and
+unit-aware data class, *trackeRdata*, for tracking data.
+
+```{r}
+runTr0 <- trackeRdata(runDF)
+```
+
+These two steps can be combined in the *readContainer*() function for reading GPS
+container files of a supported type. All files of a supported type can be read and
+turned into *trackeRdata* objects via *readDirectory*().
+
+```{r}
+runTr1 <- readContainer(filepath, type = "tcx", timezone = "GMT")
+identical(runTr0, runTr1)
+```
+
+
+
+
+## Visualisations
+
+The package includes an example dataset which can be accessed through
+
+```{r}
+data("runs", package = "trackeR")
+```
+
+The *plot* method for *trackeRdata* objects shows how heart rate and pace
+(the defaults) evolve over time. 
+
+```{r, fig.width = 7.2, fig.height = 4}
+plot(runs, session = 1:7)
+```
+
+The elevation profile of a training session is also accessible, here along with the pace.
+
+```{r, fig.width = 7.2, fig.height = 4}
+plot(runs, session = 26, what = c("altitude", "pace"))
+```
+
+The route taken during a training session can be plotted with different background maps,
+e.g., from OpenStreetMap. This can be done either on a static map
+
+```{r, message = FALSE, fig.width = 6, fig.height = 6}
+plotRoute(runs, session = 4, zoom = 13, source = "osm")
+```
+
+or on an interactive map.
+
+```{r, fig.width = 7, fig.height = 5}
+leafletRoute(runs, session = 22:23)
+```
+
+## Session summaries
+
+The summary of sessions includes basic statistics like duration,
+time spent moving, average speed, pace, and heart rate. The speed threshold used to
+distinguish moving from resting can be set by the argument *movingThreshold*.
+
+```{r}
+summary(runs, session = 1, movingThreshold = 1)
+```
+
+For summaries of multiple session, a plot is usually helpful, here for average
+heart rate, average speed, distance, and duration.
+
+```{r, fig.width = 7, fig.height = 6.3}
+runsSummary <- summary(runs)
+plot(runsSummary, group = c("total", "moving"),
+  what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
+```
+
+## Time in zones
+
+The time spent training in certain zones, e.g., speed zones, can also be calulated and visualised.
+
+```{r, fig.width = 7, fig.height = 4}
+runZones <- zones(runs[1:4], what = "speed", breaks = c(0, 2:6, 12.5))
+plot(runZones)
+```
+
+## Quantifying work capacity via W' (W prime)
+
+The work capacity quatified as W' (spoken W prime) can also be calculated and visualised.
+See the comprehensive vignette "Infrastructure for Running and Cycling Data" for more
+details on the *version* and *quantity* arguments. 
+
+```{r, fig.width = 7, fig.height = 4}
+wexp <- Wprime(runs, session = 11, quantity = "expended", cp = 4, version = "2012")
+plot(wexp, scaled = TRUE)
+```
