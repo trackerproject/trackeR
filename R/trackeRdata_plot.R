@@ -456,3 +456,10 @@ prepRoute <- function(x, session = 1, threshold = TRUE, ...){
     attr(df, "autozoom") <- zoom
     return(df)
 }
+
+
+#' @export
+timeline.trackeRdata <- function(object, lims = NULL, ...) {
+    sobject <- summary.trackeRdata(object, ...)
+    timeline.trackeRdataSummary(sobject, lims = lims)
+}

@@ -62,7 +62,7 @@ The \code{units} argument takes a data frame with two variables named \code{vari
     argument \code{cycling}.
 
     During small breaks within a session, e.g., because the recording device was paused,
-    observations are imputed the following way: 
+    observations are imputed the following way:
     0 for speed, last known position for latitude, longitude and altitude,
     NA or 0 power for running or cycling session, respectively, and NA for all other
     variables. Distances are (re-)calculated based on speeds after imputation.
@@ -74,7 +74,7 @@ filepath <- system.file("extdata", "2013-06-08-090442.TCX", package = "trackeR")
 run <- readTCX(file = filepath, timezone = "GMT")
 
 ## turn into trackeRdata object
-run <- trackeRdata(run, units = data.frame(variable = c("latitude", "longitude", 
+run <- trackeRdata(run, units = data.frame(variable = c("latitude", "longitude",
     "altitude", "distance", "heart.rate", "speed", "cadence", "power"),
     unit = c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "W"),
     stringsAsFactors = FALSE))

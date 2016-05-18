@@ -108,6 +108,11 @@ plot(runsSummary, group = c("total", "moving"),
   what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
 ```
 
+The timeline plot is useful to visualise the date and time that the sessions took place and provide information of their relative duration
+```{r, fig.width = 7, fig.height = 6.3}
+timeline(runsSummary)
+```
+
 ## Time in zones
 
 The time spent training in certain zones, e.g., speed zones, can also be calculated and visualised.

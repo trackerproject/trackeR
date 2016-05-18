@@ -68,3 +68,22 @@ getOperations <- function(object, ...) UseMethod("getOperations")
 #' @export
 nsessions <- function(object, variable, unit, ...) UseMethod("nsessions")
 
+
+#' Generic function for visualising the sessions on a time versus date plot
+#'
+#' @param object An object of class trackeRdata or trackeRdataSummary
+#' @param lims An optional vector of two times in HH:MM format. Default is NULL. If supplied, the times are used to define the limits of the time axis.
+#' @param ... Arguments passed to \code{\link{summary.trackeRdata}}
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' data("runs", package = "trackeR")
+#' ## timeline plot applied on the trackeRdata object directly and with inferred limits for the time axis
+#' timeline(runs)
+#'
+#' ## the same timeline plot applied on the trackeRdataSummary object with the time axis spanning between "00:01" and "23:59"
+#' runSummary <- summary(runs)
+#' timeline(runSummary, lims = c("00:01", "23:59"))
+#' }
+timeline <- function(object, lims, ...) UseMethod("timeline")
