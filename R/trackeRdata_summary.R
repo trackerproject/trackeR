@@ -291,6 +291,7 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...){
 #' @param what Name of variables which should be plotted. Default is all.
 #' @param group Which group of variables should be plotted? This can either be
 #'     \code{total} or \code{moving}. Default is both.
+#' @param lines Should interpolating lines be plotted?
 #' @param ... Currently not used.
 #' @seealso \code{\link{summary.trackeRdata}}
 #' @examples
@@ -300,7 +301,7 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...){
 #' plot(runSummary, date = FALSE, group = "total",
 #'     what = c("distance", "duration", "avgSpeed"))
 #' @export
-plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, ...){
+plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, lines = TRUE, ...){
     ## the following line is just intended to prevent R CMD check to produce the NOTE
     ## "no visible binding for global variable *" because those variables are used in subset()
     variable <- type <- NULL
@@ -348,11 +349,13 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, .
                                  na.rm = TRUE) +
         ggplot2::labs(x = xlab, y = "") +
         ggplot2::guides(color = ggplot2::guide_legend(title = "Type"))
-    if (nsessions > 1)
-        p <- p + ggplot2::geom_line(ggplot2::aes_(x = quote(xaxis), y = quote(value), color = quote(type)),
-                                    na.rm = TRUE) +
-        ggplot2::guides(color = ggplot2::guide_legend(title = "Type"))
-
+    if (nsessions > 1) {
+        if (lines) {
+            p <- p + ggplot2::geom_line(ggplot2::aes_(x = quote(xaxis), y = quote(value), color = quote(type)),
+                                        na.rm = TRUE)
+        }
+        p <- p + ggplot2::guides(color = ggplot2::guide_legend(title = "Type"))
+    }
     ## facets
     lab_sum <- function(series){
         series <- as.character(series)
