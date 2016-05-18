@@ -241,8 +241,8 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
     ## get prepared data.frame
     df <- prepRoute(x, session = session, threshold = threshold, ...)
     if (is.null(zoom)) zoom <- attr(df, "autozoom")
-    
-    
+
+
     ## get map
     map <- ggmap::get_map(location = c(lon = attr(df, "centerLon"),
                                        lat = attr(df, "centerLat")), zoom = zoom, ...)
@@ -267,7 +267,7 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
 
     ## FIXME: multiple sessions in different panels via gridExtra
     p <- p + ggplot2::labs(x = "Longitude", y = "Latitude")
-    
+
     return(p)
 }
 
@@ -303,18 +303,18 @@ leafletRoute <- function(x, session = NULL, threshold = TRUE, ...){
         iconUrl = system.file("icons", "finish.png", package = "trackeR"),
         iconWidth = 32, iconHeight = 37, iconAnchorX = 16, iconAnchorY = 37
     )
-    
+
     ## prepare popups
     units <- getUnits(x)
     sumX <- summary(x)
-    popupText <- function(session){
+    popupText <- function(session, start = TRUE){
         w <- which(sumX$session == session)
         unitDist4pace <- strsplit(units$unit[units$variable == "pace"],
                                   split = "_per_")[[1]][2]
         avgPace <- floor(sumX$avgPace[w] * 100) / 100
 
         paste(
-            paste("<b> Start of session", session, "</b>"),
+            paste("<b>", ifelse(start, "Start", "End"), "of session", session, "</b>"),
             paste(sumX$sessionStart[w], "-", sumX$sessionEnd[w]),
             paste("Distance:", round(sumX$distance[w], 2), units$unit[units$variable == "distance"]),
             paste("Duration:", round(as.numeric(sumX$duration[w]), 2), units(sumX$duration[w])),
@@ -329,7 +329,7 @@ leafletRoute <- function(x, session = NULL, threshold = TRUE, ...){
     p <- leaflet::addTiles(p, group = "OSM (default)")
     p <- leaflet::addProviderTiles(p, "Stamen.Toner", group = "Toner")
     p <- leaflet::addProviderTiles(p, "Stamen.TonerLite", group = "Toner Lite")
-    
+
     ## add trace + markers + popups
     for (i in session){
         dfi <- df[df$SessionID == which(i == session), , drop = FALSE]
@@ -339,10 +339,10 @@ leafletRoute <- function(x, session = NULL, threshold = TRUE, ...){
         p <- leaflet::addMarkers(p, group = paste("Session:", i),
                                  lng = dfi$longitude[1], lat = dfi$latitude[1],
                                  #popup = htmltools::htmlEscape(popupText(session = i)))
-                                 popup = popupText(session = i), icon = startIcon)
+                                 popup = popupText(session = i, start = TRUE), icon = startIcon)
         p <- leaflet::addMarkers(p, group = paste("Session:", i),
                                  lng = dfi$longitude[nrow(dfi)], lat = dfi$latitude[nrow(dfi)],
-                                 popup = paste("End session", i), icon = finishIcon)
+                                 popup = popupText(session = i, start = FALSE), icon = finishIcon)
     }
 
     ## color trace according to speed is disabled for now as it is
@@ -411,7 +411,7 @@ prepRoute <- function(x, session = 1, threshold = TRUE, ...){
         ## apply thresholds
         x <- threshold(x, th)
     }
-    
+
     ## get data
     df <- fortify(x, melt = FALSE)
     if (length(session) < 2) df$SessionID <- 1
