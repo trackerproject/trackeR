@@ -386,3 +386,7 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, .
     class(ret) <- c("trackeRdataSummary", class(ret))
     return(ret)
 }
+
+nsessions.trackeRdataSummary <- function(object) {
+    length(object)
+}

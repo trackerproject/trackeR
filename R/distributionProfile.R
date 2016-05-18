@@ -610,3 +610,6 @@ c.distrProfile <- function(..., recursive = FALSE){
 
 ## FIXME: implement [] method
 
+nsessions.distrProfile <- function(object) {
+    if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
+}

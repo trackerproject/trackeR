@@ -61,3 +61,10 @@ changeUnits <- function(object, variable, unit, ...) UseMethod("changeUnits")
 #' @export
 getOperations <- function(object, ...) UseMethod("getOperations")
 
+#' Generic function for calculating number of sessions
+#'
+#' @param object An object of class trackeRdata, trackeRdataSummary, trackeRdataZones, conProfile, or distrProfile
+#'
+#' @export
+nsessions <- function(object, variable, unit, ...) UseMethod("nsessions")
+

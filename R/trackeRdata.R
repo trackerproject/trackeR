@@ -1,8 +1,8 @@
 #' Create a trackeRdata object.
 #'
 #' Create a trackeRdata object from a data frame with observations being divided in
-#' separate training sessions. For breaks within a session observations are imputed. 
-#' 
+#' separate training sessions. For breaks within a session observations are imputed.
+#'
 #' @param dat A data frame.
 #' @param units A data frame containing the unit of measurement for all variables. See Details.
 #' @param cycling Logical. Do the data stem from cycling instead of running? If so, the default unit of
@@ -30,9 +30,9 @@
 #'     \code{m} for variables \code{altitude} and \code{distance}, \code{m_per_s} for variable \code{speed} as well
 #'     as \code{W} for variable \code{power}. The default for variable \code{cadence} depends on the value of
 #'     argument \code{cycling}.
-#' 
+#'
 #'     During small breaks within a session, e.g., because the recording device was paused,
-#'     observations are imputed the following way: 
+#'     observations are imputed the following way:
 #'     0 for speed, last known position for latitude, longitude and altitude,
 #'     NA or 0 power for running or cycling session, respectively, and NA for all other
 #'     variables. Distances are (re-)calculated based on speeds after imputation.
@@ -44,7 +44,7 @@
 #' run <- readTCX(file = filepath, timezone = "GMT")
 #'
 #' ## turn into trackeRdata object
-#' run <- trackeRdata(run, units = data.frame(variable = c("latitude", "longitude", 
+#' run <- trackeRdata(run, units = data.frame(variable = c("latitude", "longitude",
 #'     "altitude", "distance", "heart.rate", "speed", "cadence", "power"),
 #'     unit = c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "W"),
 #'     stringsAsFactors = FALSE))
@@ -54,7 +54,7 @@
 #' }
 #' @export
 trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2,
-                        correctDistances = FALSE, country = NULL, mask = TRUE, 
+                        correctDistances = FALSE, country = NULL, mask = TRUE,
                         fromDistances = TRUE, lgap = 30, lskip = 5, m = 11){
     ## prep units
     if (is.null(units)) {
@@ -86,10 +86,10 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2
     ## remove sessions which only contain NA
     empty <- sapply(trackerdat, function(x) all(is.na(x)))
     trackerdat <- trackerdat[!empty]
-    
+
     ## correct GPS distances for elevation
     if (correctDistances) trackerdat <- lapply(trackerdat, distanceCorrection, country = country, mask = mask)
-    
+
     ## impute speeds in each session
     trackerdat <- lapply(trackerdat, imputeSpeeds, fromDistances = fromDistances,
                          lgap = lgap, lskip = lskip, m = m, cycling = cycling, units = units)
@@ -103,7 +103,7 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2
         conversion <- match.fun(paste(units$unit[units$variable == "speed"],
                                       paste(distUnit4pace, "min", sep = "_per_"), sep = "2"))
         units <- rbind(units, c("pace", paste0("min_per_", distUnit4pace)))
-        
+
     } else {
         paceInv <- strsplit(units$unit[units$variable == "pace"], split = "_per_")[[1]][2:1]
         paceInv <- paste(paceInv, collapse = "_per_")
@@ -115,8 +115,8 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2
                              x$pace[is.infinite(x$pace)] <- NA
                              return(x)
                          })
-                         
-                         
+
+
     ## Set attributes
     attr(trackerdat, "operations") <- list(smooth = NULL, threshold = NULL)
     attr(trackerdat, "units") <- units
@@ -224,7 +224,7 @@ c.trackeRdata <- function(..., recursive = FALSE){
 
     ## if all smoother settings are NULL, skip whole aggregation process
     if (!all(sapply(input, function(x) is.null(getOperations(x)$smooth)))) {
-    
+
         ## if the settings for the first session are NULL, create a new reference setup
         if (is.null(getOperations(input[[1]])$smooth)){
             operations$smooth <- list(fun = NA, width = NA,
@@ -232,14 +232,14 @@ c.trackeRdata <- function(..., recursive = FALSE){
                                       what = NA, nsessions = NULL)
         }
 
-        
+
         funs <- sapply(input, function(x) getOperations(x)$smooth$fun)
         funs <- funs[!sapply(funs, is.null)]
         funs <- funs[!sapply(funs, is.na)]
-        if(any(!sapply(funs, function(x) isTRUE(all.equal(funs[[1]], x))))) 
+        if(any(!sapply(funs, function(x) isTRUE(all.equal(funs[[1]], x)))))
             stop("Smoothing function must be the same for all sessions.")
         if (is.na(operations$smooth$fun)) operations$smooth$fun <- funs[[1]]
-    
+
         widths <- lapply(input, function(x) unique(getOperations(x)$smooth$width))
         whats <- lapply(input, function(x) unique(getOperations(x)$smooth$what))
         changeWidth <- any(!sapply(widths, function(x) isTRUE(all.equal(widths[[1]], x))))
@@ -282,13 +282,13 @@ c.trackeRdata <- function(..., recursive = FALSE){
             input[[i]] <- threshold(input[[i]], th)
         }
     }
-        
+
     ## check/change units attribute
     units <- lapply(input, getUnits)
     changeU <- !all(sapply(units, function(x) isTRUE(all.equal(units[[1]], x))))
     if(changeU) {
         warning("The sessions have different units. The units of the first session are applied to all sessions.")
-        ## change units 
+        ## change units
         for (i in 2:ninput){
             input[[i]] <- changeUnits(input[[i]], variable = units1$variable, unit = units1$unit)
         }
@@ -336,7 +336,7 @@ c.trackeRdata <- function(..., recursive = FALSE){
             ## NOTE:
             ## k <- unique(j) ; smooth$nsessions <- as.numeric(table(j))
             ## does not allow to split sessions from one block - but x[i] does allow it.
-            ## Thus the following aggregation to k and nsessions:        
+            ## Thus the following aggregation to k and nsessions:
             counter <- breakpoints <- rep(NA, length(j))
             counter[1] <- 1
             breakpoints[1] <- TRUE
@@ -353,7 +353,7 @@ c.trackeRdata <- function(..., recursive = FALSE){
             k <- j[breakpoints]
             nsessions <- counter[c(which(breakpoints)[-1] - 1, length(j))]
         }
-        
+
         smooth$width <- smooth$width[k]
         smooth$what <- smooth$what[k]
         smooth$nsessions <- nsessions
@@ -364,7 +364,7 @@ c.trackeRdata <- function(..., recursive = FALSE){
     class(ret) <- c("trackeRdata", "list")
     attr(ret, "units") <- units
     attr(ret, "operations") <- operations
-    
+
     return(ret)
 }
 
@@ -379,4 +379,8 @@ append.trackeRdata <- function(object, file, ...){
     old <- load(file)
     new <- c(old, object)
     save(new, file)
+}
+
+nsessions.trackeRdata <- function(object) {
+    length(object)
 }
