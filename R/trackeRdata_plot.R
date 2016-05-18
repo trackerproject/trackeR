@@ -37,6 +37,8 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     if (is.null(session)) session <- seq_along(x)
     units <- getUnits(x)
 
+    x <- x[session]
+
     ## threshold
     if (threshold){
         dots <- list(...)
@@ -66,16 +68,16 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
 
     ## smooth
     if (smooth) {
-        xo <- x[session]
+        xo <- x
         if (is.null(getOperations(x)$smooth)) {
-            x <- smoother(x, what = what, session = session, ...)
+            x <- smoother(x, what = what, ...)
         } else {
             warning("This object has already been smoothed. No additional smoothing takes place.")
             smooth <- FALSE ## it's not the plot function calling smoother
-            x <- x[session]
+            x <- x
         }
     } else {
-        x <- x[session]
+        x <- x
     }
 
     ## get data
