@@ -79,10 +79,12 @@ nsessions <- function(object, variable, unit, ...) UseMethod("nsessions")
 #' @examples
 #' \dontrun{
 #' data("runs", package = "trackeR")
-#' ## timeline plot applied on the trackeRdata object directly and with inferred limits for the time axis
+#' ## timeline plot applied on the trackeRdata object directly and with
+#' ## inferred limits for the time axis
 #' timeline(runs)
 #'
-#' ## the same timeline plot applied on the trackeRdataSummary object with the time axis spanning between "00:01" and "23:59"
+#' ## the same timeline plot applied on the trackeRdataSummary object
+## ## with the time axis spanning between "00:01" and "23:59"
 #' runSummary <- summary(runs)
 #' timeline(runSummary, lims = c("00:01", "23:59"))
 #' }

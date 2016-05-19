@@ -380,7 +380,7 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, l
 }
 
 #' @export
-timeline.trackeRdataSummary <- function(object, lims = NULL) {
+timeline.trackeRdataSummary <- function(object, lims = NULL, ...) {
     startdates <- as.Date(object$sessionStart)
     enddates <- as.Date(object$sessionEnd)
     ## Hack to extract times
@@ -397,7 +397,7 @@ timeline.trackeRdataSummary <- function(object, lims = NULL) {
     }
     p <- ggplot2::ggplot(df) +
         ## geom_point(aes(x = start, y = sday), alpha = 0.5) + geom_point(aes(x = end, y = eday), alpha = 0.5) +
-        ggplot2::geom_segment(ggplot2::aes(x = start, xend = end, y = sday, yend = eday), alpha = 0.5)
+        ggplot2::geom_segment(ggplot2::aes_(x = quote(start), xend = quote(end), y = quote(sday), yend = quote(eday)), alpha = 0.5)
     ## take care of breaks, limits on the time axes and style of breakpoints
     p <- p + ggplot2::scale_x_datetime(date_labels = "%H:%m", date_breaks = "4 hour", limits = lims)
     p <- p + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1)) + ggplot2::xlab("Time") + ggplot2::ylab("Date")
