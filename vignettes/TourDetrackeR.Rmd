@@ -58,7 +58,7 @@ The *readDirectory*() function can be used to read `all` supported files in a di
 
 ## Visualisations
 
-The package includes an example dataset which can be accessed through
+The package includes an example data set which can be accessed through
 
 ```{r}
 data("runs", package = "trackeR")
@@ -77,7 +77,7 @@ The elevation profile of a training session is also accessible, here along with 
 plot(runs, session = 26, what = c("altitude", "pace"))
 ```
 
-The route taken during a training session can also be plotted on maps from carious sources
+The route taken during a training session can also be plotted on maps from various sources
 e.g., from OpenStreetMap. This can be done either on a static map
 
 ```{r, message = FALSE, fig.width = 6, fig.height = 6}
@@ -124,7 +124,7 @@ plot(runZones)
 
 ## Quantifying work capacity via W' (W prime)
 
-*trackeR* can also be used to calculate and visulalise the work capacity W' (pronounced as `W prime`).
+*trackeR* can also be used to calculate and visualise the work capacity W' (pronounced as `W prime`).
 The comprehensive vignette "Infrastructure for Running and Cycling Data" provides the definition of work capacity and details on the *version* and *quantity* arguments.
 
 ```{r, fig.width = 7, fig.height = 4}
