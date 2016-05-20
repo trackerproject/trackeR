@@ -26,6 +26,7 @@ Suggests:
     testthat,
     fda,
     leaflet,
+    gridExtra,
     knitr, rmarkdown
 VignetteBuilder: knitr    
 License: GPL-2 | GPL-3

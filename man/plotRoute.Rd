@@ -5,7 +5,7 @@
 \title{Plot routes for training sessions.}
 \usage{
 plotRoute(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRUE,
-  ...)
+  mfrow = NULL, ...)
 }
 \arguments{
 \item{x}{A object of class \code{\link{trackeRdata}}.}
@@ -19,6 +19,9 @@ level and 20 to building level).}
 \item{speed}{Logical. Should the trace be colored according to speed?}
 
 \item{threshold}{Logical. Should thresholds be applied?}
+
+\item{mfrow}{A vector of 2 elements, number of rows and number of columns,
+specifying the layout for multiple sessions.}
 
 \item{...}{Additional arguments passed on to \code{\link{threshold}} and
 \code{\link[ggmap]{get_map}}, e.g., \code{source} and \code{maptype}.}

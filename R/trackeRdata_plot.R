@@ -227,6 +227,8 @@ fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
 #'     level and 20 to building level).
 #' @param speed Logical. Should the trace be colored according to speed?
 #' @param threshold Logical. Should thresholds be applied?
+#' @param mfrow A vector of 2 elements, number of rows and number of columns,
+#'     specifying the layout for multiple sessions.
 #' @param ... Additional arguments passed on to \code{\link{threshold}} and
 #'     \code{\link[ggmap]{get_map}}, e.g., \code{source} and \code{maptype}.
 #' @seealso \code{\link[ggmap]{get_map}}, \code{\link[ggmap]{ggmap}}
@@ -238,39 +240,64 @@ fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
 #' plotRoute(runs, session = 4, zoom = 13, source = "osm")
 #' }
 #' @export
-plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRUE, ...){
+plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRUE, mfrow = NULL, ...){
 
+    ## prep
+    if (is.null(session)) session <- seq_along(x)
+    ## FIXME: make zoom and speed a vector (one element for each sesssion)?
+
+    
     ## get prepared data.frame
     df <- prepRoute(x, session = session, threshold = threshold, ...)
     if (is.null(zoom)) zoom <- attr(df, "autozoom")
+    centers <- attr(df, "centers")
 
+    if (speed) speedRange <- range(df[["speed"]], na.rm = TRUE)
 
-    ## get map
-    map <- ggmap::get_map(location = c(lon = attr(df, "centerLon"),
-                                       lat = attr(df, "centerLat")), zoom = zoom, ...)
-    p <- ggmap::ggmap(map)
+    ## loop over sessions
+    plotList <- vector("list", length(session))
+    names(plotList) <- as.character(session)
 
-    ## add trace
-    if (speed){
-        p <- p + ggplot2::geom_segment(
-                       ggplot2::aes_(x = quote(longitude0), xend = quote(longitude1),
-                                     y = quote(latitude0), yend = quote(latitude1),
-                                    color = quote(speed)),
-                       data = df, lwd = 1, alpha = 0.8, na.rm = TRUE) +
-            ggplot2::guides(color = ggplot2::guide_colorbar(title = "Speed"))
-        ## FIXME: add annotation which route is from which session
-    } else {
-        p <- p + ggplot2::geom_segment(
-                       ggplot2::aes_(x = quote(longitude0), xend = quote(longitude1),
-                                     y = quote(latitude0), yend = quote(latitude1)),
-                     data = df, lwd = 1, alpha = 0.8, na.rm = TRUE)
+    for (ses in session){
 
+        dfs <- df[df$SessionID == which(ses == session), , drop = FALSE]
+        
+        ## get map
+        map <- ggmap::get_map(location = c(lon = centers[centers$SessionID == ses, "centerLon"],
+                                           lat = centers[centers$SessionID == ses, "centerLat"]),
+                              zoom = centers[centers$SessionID == ses, "zoom"])#, ...)
+        p <- ggmap::ggmap(map)
+
+        ## add trace
+        if (speed){
+            p <- p + ggplot2::geom_segment(
+                         ggplot2::aes_(x = quote(longitude0), xend = quote(longitude1),
+                                       y = quote(latitude0), yend = quote(latitude1),
+                                       color = quote(speed)),
+                         data = dfs, lwd = 1, alpha = 0.8, na.rm = TRUE) +
+                ##ggplot2::guides(color = ggplot2::guide_colorbar(title = "Speed"))
+                ggplot2::scale_color_gradient(limits = speedRange, guide = ggplot2::guide_colorbar(title = "Speed"))
+        } else {
+            p <- p + ggplot2::geom_segment(
+                         ggplot2::aes_(x = quote(longitude0), xend = quote(longitude1),
+                                       y = quote(latitude0), yend = quote(latitude1)),
+                         data = dfs, lwd = 1, alpha = 0.8, na.rm = TRUE)
+        }
+
+        p <- p + ggplot2::labs(title = paste("Session:", ses),
+                               x = "Longitude", y = "Latitude")
+        plotList[[as.character(ses)]] <- p
     }
 
-    ## FIXME: multiple sessions in different panels via gridExtra
-    p <- p + ggplot2::labs(x = "Longitude", y = "Latitude")
-
-    return(p)
+    ## ## add colour bar guide to first plot
+    ## plotList[[1]] <- plotList[[1]] + ggplot2:::guides(color = ggplot2::guide_colorbar(title = "Speed"))
+    ## ## distorts proportions
+    
+    ## arrange separate plots
+    if (is.null(mfrow))  mfrow <- grDevices::n2mfrow(length(session))
+    ## FIXME: reduce the margins between plots
+    arrange <- function(...) gridExtra::grid.arrange(...,  nrow = mfrow[1], ncol = mfrow[2])
+    do.call(arrange, plotList)
 }
 
 
@@ -293,6 +320,8 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
 #' @export
 leafletRoute <- function(x, session = NULL, threshold = TRUE, ...){
 
+    if (is.null(session)) session <- seq_along(x)
+    
     ## get prepared data.frame
     df <- prepRoute(x, session = session, threshold = threshold, ...)
 
@@ -422,7 +451,7 @@ prepRoute <- function(x, session = 1, threshold = TRUE, ...){
     df <- df[, c("longitude", "latitude", "speed", "SessionID")]
     df <- df[!apply(df[, c("longitude", "latitude")], 1, function(x) any(is.na(x))), ]
 
-    ## get range of coordinates
+    ## get range of coordinates for all sessions
     rangeLon <- range(df$longitude, na.rm = TRUE)
     rangeLat <- range(df$latitude, na.rm = TRUE)
 
@@ -435,14 +464,33 @@ prepRoute <- function(x, session = 1, threshold = TRUE, ...){
     zoomLat <- ceiling(0.9*log2(180 * 2 / lengthLat))
     zoom <- max(zoomLon, zoomLat)
 
-    ## prepare df for segments
-    dfSplit <- vector("list", length(session))
-    names(dfSplit) <- as.character(session)
+
+    dfSplit <- centers <- vector("list", length(session))
+    names(dfSplit) <- names(centers) <- as.character(session)
+
+    ## centers <- data.frame(session, NA, NA, NA)
+    ## names(centers) <- c("SessionID", "centerLon", "centerLat", "zoom")
 
     for (i in session){
-
+        ## get subset for session
         dfSub <- df[df$SessionID == which(i == session), , drop = FALSE]
 
+        ## get range of coordinates
+        rangeLonI <- range(dfSub$longitude, na.rm = TRUE)
+        rangeLatI <- range(dfSub$latitude, na.rm = TRUE)
+        
+        ## convert range to center and zoom (adapted from ggmap::get_map)
+        lengthLonI <- diff(rangeLonI)
+        lengthLatI <- diff(rangeLatI)
+        centerLonI <- rangeLonI[1] + lengthLonI / 2
+        centerLatI <- rangeLatI[1] + lengthLatI / 2
+        zoomLonI <- ceiling(0.9*log2(360 * 2 / lengthLonI))
+        zoomLatI <- ceiling(0.9*log2(180 * 2 / lengthLatI))
+        zoomI <- max(zoomLonI, zoomLatI)
+
+        centers[[as.character(i)]] <- c(centerLonI, centerLatI, zoomI)
+        
+        ## prep lon/lat for segments
         dfSub$longitude0 <- c(dfSub$longitude[-nrow(dfSub)], 0)
         dfSub$longitude1 <- c(dfSub$longitude[-1], 0)
         dfSub$latitude0 <- c(dfSub$latitude[-nrow(dfSub)], 0)
@@ -451,11 +499,14 @@ prepRoute <- function(x, session = 1, threshold = TRUE, ...){
         dfSplit[[as.character(i)]] <- dfSub[-nrow(dfSub), ]
     }
     df <- do.call(rbind, dfSplit)
+    centers <- data.frame(session, do.call(rbind, centers))
+    names(centers) <- c("SessionID", "centerLon", "centerLat", "zoom")
 
     ## add attributes and return
     attr(df, "centerLon") <- centerLon
     attr(df, "centerLat") <- centerLat
     attr(df, "autozoom") <- zoom
+    attr(df, "centers") <- centers
     return(df)
 }
 
