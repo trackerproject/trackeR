@@ -61,15 +61,14 @@ changeUnits <- function(object, variable, unit, ...) UseMethod("changeUnits")
 #' @export
 getOperations <- function(object, ...) UseMethod("getOperations")
 
-#' Generic function for calculating number of sessions
+#' Generic function for calculating number of sessions.
 #'
-#' @param object An object of class trackeRdata, trackeRdataSummary, trackeRdataZones, conProfile, or distrProfile
-#'
+#' @param object The object for which to calculate the number of sessions.
+#' @param ... Arguments to be passed to methods.
 #' @export
-nsessions <- function(object, variable, unit, ...) UseMethod("nsessions")
+nsessions <- function(object, ...) UseMethod("nsessions")
 
-
-#' Generic function for visualising the sessions on a time versus date plot
+#' Generic function for visualising the sessions on a time versus date plot.
 #'
 #' @param object An object of class trackeRdata or trackeRdataSummary
 #' @param lims An optional vector of two times in HH:MM format. Default is NULL.

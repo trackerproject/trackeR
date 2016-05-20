@@ -148,6 +148,7 @@ plot.trackeRdataZones <- function(x, percent = TRUE, ...){
     return(p)
 }
 
-nsessions.trackeRdataZones <- function(object) {
+#' @export
+nsessions.trackeRdataZones <- function(object, ...) {
     length(unique(object[[1]]$session))
 }

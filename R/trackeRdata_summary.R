@@ -416,6 +416,7 @@ timeline.trackeRdataSummary <- function(object, lims = NULL, ...) {
     return(ret)
 }
 
-nsessions.trackeRdataSummary <- function(object) {
+#' @export
+nsessions.trackeRdataSummary <- function(object, ...) {
     length(object)
 }

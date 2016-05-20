@@ -331,6 +331,7 @@ c.conProfile <- function(..., recursive = FALSE){
 
 ## FIXME: implement [] method
 
-nsessions.conProfile <- function(object) {
+#' @export
+nsessions.conProfile <- function(object, ...) {
     if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
 }

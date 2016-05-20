@@ -11,6 +11,12 @@ Changes in Version 0.0.3
   o Added a second, shorter vignette "Tour de trackeR" to illustrate basic
     features and the new leafletRoute function.
 
+  o Added a new timeline plot for trackeRdata object to visualise the date
+    time of the sessions.
+
+  o Added a new nsessions method to access the number of sessions in
+    various trackeR objects.
+
 
 Changes in Version 0.0.2
 

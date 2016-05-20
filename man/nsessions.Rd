@@ -2,14 +2,16 @@
 % Please edit documentation in R/trackeR.R
 \name{nsessions}
 \alias{nsessions}
-\title{Generic function for calculating number of sessions}
+\title{Generic function for calculating number of sessions.}
 \usage{
-nsessions(object, variable, unit, ...)
+nsessions(object, ...)
 }
 \arguments{
-\item{object}{An object of class trackeRdata, trackeRdataSummary, trackeRdataZones, conProfile, or distrProfile}
+\item{object}{The object for which to calculate the number of sessions.}
+
+\item{...}{Arguments to be passed to methods.}
 }
 \description{
-Generic function for calculating number of sessions
+Generic function for calculating number of sessions.
 }
 

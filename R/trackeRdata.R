@@ -381,6 +381,7 @@ append.trackeRdata <- function(object, file, ...){
     save(new, file)
 }
 
-nsessions.trackeRdata <- function(object) {
+#' @export
+nsessions.trackeRdata <- function(object, ...) {
     length(object)
 }
