@@ -4,6 +4,10 @@ Changes in Version 0.0.3
     function leafletRoute() uses the leaflet package to produce an
     interactive map.
 
+  o Added a method for distribution and concentration profiles to fit a
+    functional principal components analysis and a plot function to
+    accompany it.
+
   o Added a second, shorter vignette "Tour de trackeR" to illustrate basic
     features and the new leafletRoute function.
 

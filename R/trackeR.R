@@ -72,7 +72,8 @@ nsessions <- function(object, variable, unit, ...) UseMethod("nsessions")
 #' Generic function for visualising the sessions on a time versus date plot
 #'
 #' @param object An object of class trackeRdata or trackeRdataSummary
-#' @param lims An optional vector of two times in HH:MM format. Default is NULL. If supplied, the times are used to define the limits of the time axis.
+#' @param lims An optional vector of two times in HH:MM format. Default is NULL.
+#'     If supplied, the times are used to define the limits of the time axis.
 #' @param ... Arguments passed to \code{\link{summary.trackeRdata}}
 #' @export
 #'
@@ -89,3 +90,10 @@ nsessions <- function(object, variable, unit, ...) UseMethod("nsessions")
 #' timeline(runSummary, lims = c("00:01", "23:59"))
 #' }
 timeline <- function(object, lims, ...) UseMethod("timeline")
+
+#' Generic function for functional principal components analysis.
+#'
+#' @param object The object to which a functional principal components analysis is applied.
+#' @param ... Arguments to be passed to methods.
+#' @export
+funPCA <- function(object, ...) UseMethod("funPCA")

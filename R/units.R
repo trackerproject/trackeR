@@ -52,6 +52,10 @@ getUnits.trackeRdataZones <- function(object, ...){
     attr(object, "units")
 }
 
+getUnits.trackeRfpca <- function(object, ...){
+    attr(object, "units")
+}
+
 #' Change the units of the variables in an \code{trackeRdata} object.
 #'
 #' @param object An object of class \code{\link{trackeRdata}}.
