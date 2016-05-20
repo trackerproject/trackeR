@@ -238,6 +238,7 @@ fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
 #' plotRoute(runs, session = 4, zoom = 13)
 #' plotRoute(runs, session = 4, zoom = 13, maptype = "hybrid")
 #' plotRoute(runs, session = 4, zoom = 13, source = "osm")
+#' plotRoute(runs, session = c(1:5, 8:11), zoom = 10, source = "osm")
 #' }
 #' @export
 plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRUE, mfrow = NULL, ...){
@@ -246,7 +247,7 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
     if (is.null(session)) session <- seq_along(x)
     ## FIXME: make zoom and speed a vector (one element for each sesssion)?
 
-    
+
     ## get prepared data.frame
     df <- prepRoute(x, session = session, threshold = threshold, ...)
     if (is.null(zoom)) zoom <- attr(df, "autozoom")
@@ -261,7 +262,7 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
     for (ses in session){
 
         dfs <- df[df$SessionID == which(ses == session), , drop = FALSE]
-        
+
         ## get map
         map <- ggmap::get_map(location = c(lon = centers[centers$SessionID == ses, "centerLon"],
                                            lat = centers[centers$SessionID == ses, "centerLat"]),
@@ -284,20 +285,35 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
                          data = dfs, lwd = 1, alpha = 0.8, na.rm = TRUE)
         }
 
-        p <- p + ggplot2::labs(title = paste("Session:", ses),
-                               x = "Longitude", y = "Latitude")
-        plotList[[as.character(ses)]] <- p
+
+        ## Extract legend from the first plot
+        if (ses == session[1] & speed) {
+            legend <- gtable::gtable_filter(ggplot_gtable(ggplot_build(p)), "guide-box")
+        }
+
+        p <- p + ggplot2::labs(title = paste("Session:", ses))
+                               ## x = "Longitude", y = "Latitude")
+        plotList[[as.character(ses)]] <- p +  theme(legend.position = "none",
+                                                    axis.title.x = element_blank(),
+                                                    axis.title.y = element_blank())
     }
 
     ## ## add colour bar guide to first plot
     ## plotList[[1]] <- plotList[[1]] + ggplot2:::guides(color = ggplot2::guide_colorbar(title = "Speed"))
     ## ## distorts proportions
-    
+
     ## arrange separate plots
     if (is.null(mfrow))  mfrow <- grDevices::n2mfrow(length(session))
-    ## FIXME: reduce the margins between plots
-    arrange <- function(...) gridExtra::grid.arrange(...,  nrow = mfrow[1], ncol = mfrow[2])
-    do.call(arrange, plotList)
+    arrange <- function(...) gridExtra:::arrangeGrob(..., nrow = mfrow[1], ncol = mfrow[2],
+                                                     left = grid::textGrob("Latitude", rot = 90),
+                                                     bottom = grid::textGrob("Longitude", rot = 00))
+
+    if (speed)
+        gridExtra::grid.arrange(do.call(arrange, plotList),
+                                legend = if (speed) legend else NULL,
+                                widths = grid::unit.c(grid::unit(1, "npc") - legend$width, legend$width), nrow = 1)
+    else
+        gridExtra::grid.arrange(do.call(arrange, plotList))
 }
 
 
@@ -321,7 +337,7 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
 leafletRoute <- function(x, session = NULL, threshold = TRUE, ...){
 
     if (is.null(session)) session <- seq_along(x)
-    
+
     ## get prepared data.frame
     df <- prepRoute(x, session = session, threshold = threshold, ...)
 
@@ -478,7 +494,7 @@ prepRoute <- function(x, session = 1, threshold = TRUE, ...){
         ## get range of coordinates
         rangeLonI <- range(dfSub$longitude, na.rm = TRUE)
         rangeLatI <- range(dfSub$latitude, na.rm = TRUE)
-        
+
         ## convert range to center and zoom (adapted from ggmap::get_map)
         lengthLonI <- diff(rangeLonI)
         lengthLatI <- diff(rangeLatI)
@@ -489,7 +505,7 @@ prepRoute <- function(x, session = 1, threshold = TRUE, ...){
         zoomI <- max(zoomLonI, zoomLatI)
 
         centers[[as.character(i)]] <- c(centerLonI, centerLatI, zoomI)
-        
+
         ## prep lon/lat for segments
         dfSub$longitude0 <- c(dfSub$longitude[-nrow(dfSub)], 0)
         dfSub$longitude1 <- c(dfSub$longitude[-1], 0)
