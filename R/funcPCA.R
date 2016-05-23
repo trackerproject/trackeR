@@ -81,7 +81,7 @@ funPCA.distrProfile <- funPCA.concProfile <- function(object, what, nharm = 4, .
 ## function works for both types of profiles
 #' @rdname funPCA
 #' @export
-funPCA.concProfile <- funPCA.distrProfile
+funPCA.conProfile <- funPCA.distrProfile
 
 
 

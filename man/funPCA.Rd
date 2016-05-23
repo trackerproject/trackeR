@@ -2,13 +2,13 @@
 % Please edit documentation in R/funcPCA.R, R/trackeR.R
 \name{funPCA}
 \alias{funPCA}
-\alias{funPCA.concProfile}
+\alias{funPCA.conProfile}
 \alias{funPCA.distrProfile}
 \title{Functional principal components analysis of distribution or concentration profiles.}
 \usage{
 \method{funPCA}{distrProfile}(object, what, nharm = 4, ...)
 
-\method{funPCA}{concProfile}(object, what, nharm = 4, ...)
+\method{funPCA}{conProfile}(object, what, nharm = 4, ...)
 
 funPCA(object, ...)
 }
