@@ -24,7 +24,7 @@ Icons are by Maps Icons Collection \url{https://mapicons.mapsmarker.com}
 \examples{
 \dontrun{
 data("runs", package = "trackeR")
-leafletRoute(runs, session = 22:23)
+leafletRoute(runs, session = 23:24)
 }
 }
 

@@ -13,24 +13,28 @@ run <- readContainer(filepath,
                      lgap = 30,
                      lskip = 5,
                      m = 11,
-                     mc.cores = getOption("mc.cores", 2L))
+                     parallel = FALSE,
+                     cores = getOption("mc.cores", 2L))
 save(run, file = "data/run.rda", compress = "xz")
 
-## all of June = 33 files, 26 sessions
-filedir <- system.file("extdata", package = "trackeR")
+## all of June = 33 files, 27 sessions
+filedir <- system.file("extdata", package = "trackeR") ## needs to point to git folder
 runs <- readDirectory(filedir,
                      aggregate = TRUE,
                      table = "gps_data",
                      timezone = "",
-                     sessionThreshold = 2,
+                     sessionThreshold = 1.5, ## not the default, splits session 20
                      country = NULL,
                      mask = TRUE,
                      fromDistances = NULL,
-                     speedunit = list(tcx = "m_per_s", db3 = "km_per_h"),
-                     distanceunit = list(tcx = "m", db3 = "km"),
+                     speedunit = list(tcx = "m_per_s", db3 = "km_per_h", json = "km_per_h"),
+                     distanceunit = list(tcx = "m", db3 = "km", json = "km"),
                      cycling = FALSE,
-                     lgap = 30, lskip = 5, m = 11,
-                     mc.cores = getOption("mc.cores", 2L),
+                     lgap = 30,
+                     lskip = 5,
+                     m = 11,
+                     parallel = TRUE,
+                     cores = getOption("mc.cores", 2L),
                      verbose = TRUE)
 save(runs, file = "data/runs.rda", compress = "xz")
 

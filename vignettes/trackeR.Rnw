@@ -2034,10 +2034,17 @@ into the same session as the central part of training, even if they are recorded
 in separate container files. Alternatively, data from different container files
 are always stored in separate sessions.
 
-\pkg{trackeR} ships with two \class{trackeRdata} objects containing 1
-and 26 running sessions, respectively, and which can be loaded via
 %
-<<dataLoad>>=
+<<dataLoad, echo = FALSE>>=
+data("run", package = "trackeR")
+data("runs", package = "trackeR")
+@
+%
+\pkg{trackeR} ships with two \class{trackeRdata} objects containing 
+\Sexpr{nsessions(run)} and \Sexpr{nsessions(runs)} running sessions, respectively, 
+and which can be loaded via
+%
+<<dataLoad0, eval = FALSE>>=
 data("run", package = "trackeR")
 data("runs", package = "trackeR")
 @
@@ -2790,7 +2797,7 @@ runsSummary <- summary(runs)
 @
 
 The example data set included in the package contains
-\Sexpr{length(runs)}~sessions of a single male runner in June 2013. A
+\Sexpr{nsessions(runs)}~sessions of a single male runner in June 2013. A
 visualisation of scalar summaries for the sessions can be found in
 Figure~\ref{fig:summaryPlot}. The distance covered in those sessions ranges from
 \Sexpr{round(min(runsSummary$distance) / 1000, 2)} km to
@@ -2815,8 +2822,8 @@ spent moving almost the entire time.
 %% \end{figure}
 
 The code chunk below loads the data, applies thresholds, and calculates the
-smoothed distribution profiles for the 26~sessions. The corresponding
-concentration profiles are shown in Figure~\ref{fig:app:cpsmooth}.
+smoothed distribution profiles for the \Sexpr{nsessions(runs)}~sessions. The 
+corresponding concentration profiles are shown in Figure~\ref{fig:app:cpsmooth}.
 %
 <<casestudyData, eval = FALSE, echo = TRUE>>=
 library("trackeR")

@@ -80,7 +80,7 @@ plot(runs, session = 1:7)
 The elevation profile of a training session is also accessible, here along with the pace.
 
 ```{r, fig.width = 7.2, fig.height = 4}
-plot(runs, session = 26, what = c("altitude", "pace"))
+plot(runs, session = 27, what = c("altitude", "pace"))
 ```
 
 The route taken during a training session can also be plotted on maps from various sources

@@ -61,7 +61,7 @@ with a power output below critical power, not just those prior to the current ti
 }
 \examples{
 data("runs", package = "trackeR")
-wexp <- Wprime(runs, session = 11:13, cp = 4, version = "2012")
+wexp <- Wprime(runs, session = c(11,13), cp = 4, version = "2012")
 plot(wexp)
 }
 \references{

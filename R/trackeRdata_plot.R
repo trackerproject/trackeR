@@ -332,7 +332,7 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
 #' @examples
 #' \dontrun{
 #' data("runs", package = "trackeR")
-#' leafletRoute(runs, session = 22:23)
+#' leafletRoute(runs, session = 23:24)
 #' }
 #' @export
 leafletRoute <- function(x, session = NULL, threshold = TRUE, ...){

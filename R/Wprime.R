@@ -129,7 +129,7 @@ Wexp <- function(object, w0, cp,
 #' @export
 #' @examples
 #' data("runs", package = "trackeR")
-#' wexp <- Wprime(runs, session = 11:13, cp = 4, version = "2012")
+#' wexp <- Wprime(runs, session = c(11,13), cp = 4, version = "2012")
 #' plot(wexp)
 Wprime <- function(object, session = NULL, quantity = c("expended", "balance"),
                    w0, cp, version = c("2015", "2012"), meanRecoveryPower = FALSE,
