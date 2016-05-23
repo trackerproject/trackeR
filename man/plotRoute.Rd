@@ -10,7 +10,8 @@ plotRoute(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRUE,
 \arguments{
 \item{x}{A object of class \code{\link{trackeRdata}}.}
 
-\item{session}{A numeric vector of the sessions to be plotted. Defaults to the first session, all sessions can be plotted by \code{session = NULL}.}
+\item{session}{A numeric vector of the sessions to be plotted. Defaults
+to the first session, all sessions can be plotted by \code{session = NULL}.}
 
 \item{zoom}{The zoom level for the background map as passed on to
 \code{\link[ggmap]{get_map}} (2 corresponds roughly to continent
@@ -36,6 +37,10 @@ data("runs", package = "trackeR")
 plotRoute(runs, session = 4, zoom = 13)
 plotRoute(runs, session = 4, zoom = 13, maptype = "hybrid")
 plotRoute(runs, session = 4, zoom = 13, source = "osm")
+## multiple sessions
+plotRoute(runs, session = c(1:5, 8:11), zoom = 10, source = "osm")
+## different zoom level per panel
+plotRoute(runs, session = 6:7, source = "osm", zoom = c(13, 14))
 }
 }
 \seealso{

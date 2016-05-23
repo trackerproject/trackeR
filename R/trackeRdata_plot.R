@@ -221,7 +221,8 @@ fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
 #' Internet connection is required to download the background map.
 #'
 #' @param x A object of class \code{\link{trackeRdata}}.
-#' @param session A numeric vector of the sessions to be plotted. Defaults to the first session, all sessions can be plotted by \code{session = NULL}.
+#' @param session A numeric vector of the sessions to be plotted. Defaults
+#'     to the first session, all sessions can be plotted by \code{session = NULL}.
 #' @param zoom The zoom level for the background map as passed on to
 #'     \code{\link[ggmap]{get_map}} (2 corresponds roughly to continent
 #'     level and 20 to building level).
@@ -238,19 +239,21 @@ fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
 #' plotRoute(runs, session = 4, zoom = 13)
 #' plotRoute(runs, session = 4, zoom = 13, maptype = "hybrid")
 #' plotRoute(runs, session = 4, zoom = 13, source = "osm")
+#' ## multiple sessions
 #' plotRoute(runs, session = c(1:5, 8:11), zoom = 10, source = "osm")
+#' ## different zoom level per panel
+#' plotRoute(runs, session = 6:7, source = "osm", zoom = c(13, 14))
 #' }
 #' @export
 plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRUE, mfrow = NULL, ...){
 
     ## prep
     if (is.null(session)) session <- seq_along(x)
-    ## FIXME: make zoom and speed a vector (one element for each sesssion)?
+    if (!is.null(zoom)) zoom <- rep(zoom, length.out = length(session))
 
 
     ## get prepared data.frame
     df <- prepRoute(x, session = session, threshold = threshold, ...)
-    if (is.null(zoom)) zoom <- attr(df, "autozoom")
     centers <- attr(df, "centers")
 
     if (speed) speedRange <- range(df[["speed"]], na.rm = TRUE)
@@ -262,11 +265,12 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
     for (ses in session){
 
         dfs <- df[df$SessionID == which(ses == session), , drop = FALSE]
+        zooms <- if (is.null(zoom)) centers[centers$SessionID == ses, "zoom"] else zoom[which(ses == session)]
 
         ## get map
         map <- ggmap::get_map(location = c(lon = centers[centers$SessionID == ses, "centerLon"],
                                            lat = centers[centers$SessionID == ses, "centerLat"]),
-                              zoom = centers[centers$SessionID == ses, "zoom"])#, ...)
+                              zoom = zooms, ...)
         p <- ggmap::ggmap(map)
 
         ## add trace
@@ -277,7 +281,8 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
                                        color = quote(speed)),
                          data = dfs, lwd = 1, alpha = 0.8, na.rm = TRUE) +
                 ##ggplot2::guides(color = ggplot2::guide_colorbar(title = "Speed"))
-                ggplot2::scale_color_gradient(limits = speedRange, guide = ggplot2::guide_colorbar(title = "Speed"))
+                ggplot2::scale_color_gradient(limits = speedRange,
+                                              guide = ggplot2::guide_colorbar(title = "Speed"))
         } else {
             p <- p + ggplot2::geom_segment(
                          ggplot2::aes_(x = quote(longitude0), xend = quote(longitude1),
@@ -288,19 +293,15 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
 
         ## Extract legend from the first plot
         if (ses == session[1] & speed) {
-            legend <- gtable::gtable_filter(ggplot_gtable(ggplot_build(p)), "guide-box")
+            legend <- gtable::gtable_filter(ggplot2::ggplot_gtable(ggplot2::ggplot_build(p)), "guide-box")
         }
 
         p <- p + ggplot2::labs(title = paste("Session:", ses))
                                ## x = "Longitude", y = "Latitude")
-        plotList[[as.character(ses)]] <- p +  theme(legend.position = "none",
-                                                    axis.title.x = element_blank(),
-                                                    axis.title.y = element_blank())
+        plotList[[as.character(ses)]] <- p +  ggplot2::theme(legend.position = "none",
+                                                             axis.title.x = ggplot2::element_blank(),
+                                                             axis.title.y = ggplot2::element_blank())
     }
-
-    ## ## add colour bar guide to first plot
-    ## plotList[[1]] <- plotList[[1]] + ggplot2:::guides(color = ggplot2::guide_colorbar(title = "Speed"))
-    ## ## distorts proportions
 
     ## arrange separate plots
     if (is.null(mfrow))  mfrow <- grDevices::n2mfrow(length(session))
