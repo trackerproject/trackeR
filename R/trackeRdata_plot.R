@@ -305,7 +305,7 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
 
     ## arrange separate plots
     if (is.null(mfrow))  mfrow <- grDevices::n2mfrow(length(session))
-    arrange <- function(...) gridExtra:::arrangeGrob(..., nrow = mfrow[1], ncol = mfrow[2],
+    arrange <- function(...) gridExtra::arrangeGrob(..., nrow = mfrow[1], ncol = mfrow[2],
                                                      left = grid::textGrob("Latitude", rot = 90),
                                                      bottom = grid::textGrob("Longitude", rot = 00))
 
