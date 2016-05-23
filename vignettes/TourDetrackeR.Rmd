@@ -3,6 +3,7 @@ title: "Tour de trackeR"
 author: "[Hannah Frick](http://www.ucl.ac.uk/~ucakhfr) and [Ioannis Kosmidis](http://www.ucl.ac.uk/~ucakiko/)"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
+bibliography: trackeR.bib
 vignette: >
   %\VignetteIndexEntry{Tour de trackeR}
   %\VignetteEngine{knitr::rmarkdown}
@@ -24,8 +25,9 @@ vignette("trackeR", package = "trackeR")
 ## Reading data
 
 **trackeR** can currently import files in the Training Centre XML (TCX) format and
-.db3 files (SQLite databases, used, for example, by devices from GPSports) through the corresponding
-functions *readTCX*() and *readDB3*().
+.db3 files (SQLite databases, used, for example, by devices from GPSports) through the
+corresponding functions *readTCX*() and *readDB3*(). It also offers experimental support
+for JSON files from [Golden Cheetah](http://goldencheetah.org/) via *readJSON*().
 
 ```{r, message = FALSE}
 library("trackeR")
@@ -39,21 +41,25 @@ These read functions return a `data.frame` of the following structure
 str(runDF)
 ```
 
-That `data.frame` can be used as an input to the constructor function for **trackeR**'s *trackeRdata* class, to produce a session-based and unit-aware object that can be used for further analyses.
+That `data.frame` can be used as an input to the constructor function for **trackeR**'s
+*trackeRdata* class, to produce a session-based and unit-aware object that can be used
+for further analyses.
 
 ```{r}
 runTr0 <- trackeRdata(runDF)
 ```
 
-The *readContainer*() function combines the two steps of importing the data and constructing the *trackeRdata*
-object.
+The *readContainer*() function combines the two steps of importing the data and constructing
+the *trackeRdata* object.
 
 ```{r}
 runTr1 <- readContainer(filepath, type = "tcx", timezone = "GMT")
 identical(runTr0, runTr1)
 ```
 
-The *readDirectory*() function can be used to read `all` supported files in a directory and produce the corresponding *trackeRdata* objects.
+The *readDirectory*() function can be used to read `all` supported files in a directory and
+produce the corresponding *trackeRdata* objects.
+
 
 
 ## Visualisations
@@ -90,6 +96,8 @@ or on an interactive map.
 leafletRoute(runs, session = 8:15)
 ```
 
+
+
 ## Session summaries
 
 The summary of sessions includes basic statistics like duration,
@@ -100,7 +108,9 @@ distinguish moving from resting can be set by the argument *movingThreshold*.
 summary(runs, session = 1, movingThreshold = 1)
 ```
 
-It is usually desirable to visualise summaries from multiple sessions. This can be done using the *plot* method for summary objects. Below, we produce such a plot for average heart rate, average speed, distance, and duration.
+It is usually desirable to visualise summaries from multiple sessions. This can be done
+using the *plot* method for summary objects. Below, we produce such a plot for average
+heart rate, average speed, distance, and duration.
 
 ```{r, fig.width = 7, fig.height = 6.3}
 runsSummary <- summary(runs)
@@ -108,26 +118,118 @@ plot(runsSummary, group = c("total", "moving"),
   what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
 ```
 
-The timeline plot is useful to visualise the date and time that the sessions took place and provide information of their relative duration
+The timeline plot is useful to visualise the date and time that the sessions took place and
+provide information of their relative duration.
+
 ```{r, fig.width = 7, fig.height = 6.3}
 timeline(runsSummary)
 ```
 
+
+
 ## Time in zones
 
-The time spent training in certain zones, e.g., speed zones, can also be calculated and visualised.
+The time spent training in certain zones, e.g., speed zones, can also be calculated and
+visualised.
 
 ```{r, fig.width = 7, fig.height = 4}
 runZones <- zones(runs[1:4], what = "speed", breaks = c(0, 2:6, 12.5))
 plot(runZones)
 ```
 
+
+
 ## Quantifying work capacity via W' (W prime)
 
-*trackeR* can also be used to calculate and visualise the work capacity W' (pronounced as `W prime`).
-The comprehensive vignette "Infrastructure for Running and Cycling Data" provides the definition of work capacity and details on the *version* and *quantity* arguments.
+*trackeR* can also be used to calculate and visualise the work capacity W' (pronounced
+as `W prime`). The comprehensive vignette "Infrastructure for Running and Cycling Data"
+provides the definition of work capacity and details on the *version* and *quantity* arguments.
 
 ```{r, fig.width = 7, fig.height = 4}
 wexp <- Wprime(runs, session = 11, quantity = "expended", cp = 4, version = "2012")
 plot(wexp, scaled = TRUE)
 ```
+
+
+
+## Distribution and concentration profiles
+
+@trackeR:Kosmidis+Passfield:2015 introduce the concept of distribution and concentration
+profiles for which **trackeR** provides an implementation. These profiles are motivated
+by the need to compare sessions and use information on such variables as heart rate or
+speed during a session for further modelling.
+
+The distribution profile for a variable such as speed or heart rate describes the time
+exercising above a (speed or heart rate) threshold.
+
+Here, the distribution profiles for the first 4 sessions are calculated for speed with
+thresholds ranging from 0 to 12.5 m/s in increments of 0.05 m/s.
+
+```{r, fig.width = 7, fig.height = 5}
+dProfile <- distributionProfile(runs, session = 1:4, what = "speed",
+  grid = list(speed = seq(0, 12.5, by = 0.05)))
+plot(dProfile, multiple = TRUE)
+```
+
+Sessions 4 and 1 are longer than session 2 and 3, as visible by the higher amount of time
+spent exercising above 0 m/s. However sessions 3 and 4 show a larger amount of time spent
+exercising above 4 m/s than the other sessions. This is easier to spot in the concentration
+profiles which are the negative derivative of the distribution profiles.
+The concentration profile for session 3 has a mode at around 3.5 meters per second and
+another one above 4 meters per second, showing that this session involved training at a
+combination of low and high speeds.
+
+```{r, fig.width = 7, fig.height = 5}
+cProfile <- concentrationProfile(dProfile, what = "speed")
+plot(cProfile, multiple = TRUE)
+```
+
+More details on distribution and concentration profiles can be found in the comprehensive
+vignette "Infrastructure for Running and Cycling Data".
+
+
+
+## Functional principal components analysis
+
+The distribution and concentration can be used for further analysis such as a functional
+principal components analysis (PCA) to describe the differences between the profiles.
+
+The concentration profiles for all session 
+
+```{r, fig.width = 7, fig.height = 5}
+runsT <- threshold(runs)
+dpRuns <- distributionProfile(runsT, what = "speed")
+dpRunsS <- smoother(dpRuns, cores = 2)
+cpRuns <- concentrationProfile(dpRunsS)
+plot(cpRuns, multiple = TRUE, smooth = FALSE)
+```
+
+vary in their shape (unimodal or multimodal), height, and location (revealing
+concentrations at higher or lower speeds). The function *funPCA*() can be used
+to fit a functional PCA, here with 4 principal components.
+
+```{r}
+cpPCA <- funPCA(cpRuns, what = "speed", nharm = 4)
+```
+
+For the speed concentration profiles here, the first two components cover
+`r round(sum(cpPCA$varprop[1:2]*100))`% of the variability in the profiles. 
+
+```{r, fig.width = 7, fig.height = 8}
+round(cpPCA$varprop, 2)
+plot(cpPCA, harm = 1:2)
+```
+
+A plot of the first two principal components reveals that the profiles here differ mostly
+in the general height of the curves and the location. These two aspects of the profiles
+can be captured by two univariate measures of the sessions, the time spent moving and the
+average speed moving. 
+
+```{r, fig.show = 'hold', fig.width = 7, fig.height = 3.5}
+par(mfrow = c(1,2))
+plot(runsSummary$durationMoving, cpPCA$scores[,1], xlab = "duration moving", ylab = "PC 1")
+plot(runsSummary$avgSpeedMoving, cpPCA$scores[,2], xlab = "average speed moving", ylab = "PC 2")
+```
+
+
+## References
