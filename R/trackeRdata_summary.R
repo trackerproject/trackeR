@@ -356,16 +356,26 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, l
         }
         p <- p + ggplot2::guides(color = ggplot2::guide_legend(title = "Type"))
     }
+
     ## facets
     lab_sum <- function(series){
         series <- as.character(series)
-        if (series == "wrRatio") return("wrRatio")
         concept <- switch(series, avgPace = "pace", avgSpeed = "speed",
                           distance = "distance", duration = "duration",
                           avgPower = "power", avgCadence = "cadence", avgHeartRate = "heart.rate")
         thisunit <- units$unit[units$variable == concept]
         prettyUnit <- prettifyUnits(thisunit)
-        paste0(series, " [", prettyUnit,"]")
+        ret <- switch(series,
+                      distance = paste0("distance \n [", prettyUnit,"]"),
+                      duration = paste0("duration \n [", prettyUnit,"]"),
+                      avgSpeed = paste0("avg. speed \n [", prettyUnit,"]"),
+                      avgPace = paste0("avg. pace \n [", prettyUnit,"]"),
+                      avgCadence = paste0("avg. cadence \n [", prettyUnit,"]"),
+                      avgPower = paste0("avg. power \n [", prettyUnit,"]"),
+                      avgHeartRate = paste0("avg. heart rate \n [", prettyUnit,"]"),
+                      wrRatio = "work-to-rest \n ratio"
+                      )
+        ret
     }
     lab_sum <- Vectorize(lab_sum)
 
@@ -374,7 +384,7 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, l
         ggplot2::theme(legend.position = "top")
 
     ## add bw theme
-    p <- p + ggplot2::theme_bw()
+    p <- p + ggplot2::theme_bw() ##+ ggplot2::theme(legend.position = "top")
 
     return(p)
 }

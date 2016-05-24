@@ -136,7 +136,10 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
         ggplot2::ylab(if(singleVariable) lab_data(levels(df$Series)) else "") + ggplot2::xlab("Time")
     if (trend & !smooth){
         p <- p + ggplot2::geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"),
-                                      alpha = 0.5, se = FALSE, na.rm = TRUE)
+                                      ## mapping = ggplot2::aes_(alpha = 0.5),
+                                      ## aes should understand alpha but doesn't?
+                                      alpha = 0.5,
+                                      se = FALSE, na.rm = TRUE)
     }
     ## add facet if necessary
     if (!is.null(facets)){
@@ -169,6 +172,8 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
                                     data = dfs, col = "black", na.rm = TRUE)
         if (trend){
             p <- p + ggplot2::geom_smooth(data = dfs, method = "gam", formula = y ~ s(x, bs = "cs"),
+                                          ## mapping = ggplot2::aes_(alpha = 0.5),
+                                          ## aes should understand alpha but doesn't?
                                           alpha = 0.5, se = FALSE, na.rm = TRUE)
         }
     }

@@ -22,7 +22,7 @@ concentrationProfile <- function(object, session = NULL, what = c("speed", "hear
     ## select variables
     what <- what[what %in% names(object)]
     object <- object[what] ## FIXME: implement [] method profiles/variables instead of sessions
-    class(object) <- "conProfile"; attr(object, "operations") <- operations; attr(object, "unit") <- units
+    attr(object, "operations") <- operations; attr(object, "units") <- units; class(object) <- "distrProfile"
 
     ## select sessions
     availSessions <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
@@ -159,7 +159,7 @@ plot.conProfile <- function(x, session = NULL, what = c("speed", "heart.rate"),
     }
 
     ## add bw theme
-    p <- p + ggplot2::theme_bw()
+    p <- p + ggplot2::theme_bw() ##+ ggplot2::theme(legend.position = "top")
 
     return(p)
 }

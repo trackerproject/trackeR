@@ -143,7 +143,7 @@ plot.trackeRdataZones <- function(x, percent = TRUE, ...){
                                   labeller = ggplot2::labeller("variable" = lab_data))
 
     ## theme
-    p <- p + ggplot2::theme_bw()
+    p <- p + ggplot2::theme_bw() ##+ ggplot2::theme(legend.position = "top")
 
     return(p)
 }
