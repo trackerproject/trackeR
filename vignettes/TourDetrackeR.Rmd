@@ -215,7 +215,7 @@ cpPCA <- funPCA(cpRuns, what = "speed", nharm = 4)
 For the speed concentration profiles here, the first two components cover
 `r round(sum(cpPCA$varprop[1:2]*100))`% of the variability in the profiles. 
 
-```{r, fig.width = 7, fig.height = 8}
+```{r, fig.width = 7, fig.height = 7}
 round(cpPCA$varprop, 2)
 plot(cpPCA, harm = 1:2)
 ```
@@ -226,9 +226,16 @@ can be captured by two univariate measures of the sessions, the time spent movin
 average speed moving. 
 
 ```{r, fig.show = 'hold', fig.width = 7, fig.height = 3.5}
-par(mfrow = c(1,2))
-plot(runsSummary$durationMoving, cpPCA$scores[,1], xlab = "duration moving", ylab = "PC 1")
-plot(runsSummary$avgSpeedMoving, cpPCA$scores[,2], xlab = "average speed moving", ylab = "PC 2")
+## plot scores vs summary statistics
+scoresSP <- data.frame(cpPCA$scores)
+names(scoresSP) <- paste0("speed_pc", 1:4)
+d <- cbind(runsSummary, scoresSP)
+
+library("ggplot2")
+## pc1 ~ session duration (moving)
+ggplot(d) + geom_point(aes(x = as.numeric(durationMoving), y = speed_pc1)) + theme_bw()
+## pc2 ~ avg speed (moving)
+ggplot(d) + geom_point(aes(x = avgSpeedMoving, y = speed_pc2)) + theme_bw()
 ```
 
 
