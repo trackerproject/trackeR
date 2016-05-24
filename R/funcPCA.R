@@ -60,7 +60,7 @@ profile2fd <- function(object, what, ...){
 #' plot(sumRuns$durationMoving, dp.pca$scores[,1])
 #' @name funPCA
 #' @export
-funPCA.distrProfile <- funPCA.concProfile <- function(object, what, nharm = 4, ...){
+funPCA.distrProfile <- function(object, what, nharm = 4, ...){
 
     ## transform to functional data format
     fdname3 <- if (class(object) == "distrProfile") "Time above threshold" else "d time"
