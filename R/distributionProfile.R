@@ -271,8 +271,11 @@ plot.distrProfile <- function(x, session = NULL, what = c("speed", "heart.rate")
     ## if (length(session) > 1L) df <- subset(df, Series %in% paste0("Session", session))
     ## df <- subset(df, Profile %in% what)
     ## HACK: If there is only one session (=series) to be plotted, give it a proper name for multiple = TRUE.
-    if (length(session) < 2) df$Series <- paste0("Session", session)
-    df$Series <- factor(df$Series)
+    if (length(session) < 2) {
+        df$Series <- session
+        ## df$Series <- factor(df$Series)
+    }
+    df$Series <- as.numeric(sapply(strsplit(as.character(df$Series), "Session"), function(x) x[2]))
     df$Profile <- factor(df$Profile)
 
     ## ## check that there is data to plot
