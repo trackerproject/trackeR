@@ -318,7 +318,7 @@ plot.distrProfile <- function(x, session = NULL, what = c("speed", "heart.rate")
     }
 
     ## add bw theme
-    p <- p + ggplot2::theme_bw() ##+ ggplot2::theme(legend.position = "top")
+    p <- p + ggplot2::theme_bw() + ggplot2::scale_colour_continuous(name  = "Session")
 
     return(p)
 }
