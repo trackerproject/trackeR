@@ -19,7 +19,9 @@ distributionProfile(object, session = NULL, what = c("speed", "heart.rate"),
 
 \item{parallel}{Logical. Should computation be carried out in parallel?}
 
-\item{cores}{Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options("corese")} (on Windows) or \code{options("mc.cores")} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.}
+\item{cores}{Number of cores for parallel computing. If NULL, the number of cores is
+set to the value of \code{options("cores")} (on Windows) or \code{options("mc.cores")}
+(elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.}
 }
 \value{
 An object of class \code{distrProfile}.

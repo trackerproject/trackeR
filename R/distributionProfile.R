@@ -5,7 +5,9 @@
 #' @param what The variables for which the distribution profiles should be generated.
 #' @param grid A named list containing the grid for the variables in \code{what}.
 #' @param parallel Logical. Should computation be carried out in parallel?
-#' @param cores Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options("corese")} (on Windows) or \code{options("mc.cores")} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.
+#' @param cores Number of cores for parallel computing. If NULL, the number of cores is
+#'     set to the value of \code{options("cores")} (on Windows) or \code{options("mc.cores")}
+#'     (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.
 #' @return An object of class \code{distrProfile}.
 #' @references Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
 #'     Endurance Runners to Training and Physiological Effects via Multi-Resolution
@@ -274,8 +276,9 @@ plot.distrProfile <- function(x, session = NULL, what = c("speed", "heart.rate")
     if (length(session) < 2) {
         df$Series <- session
         ## df$Series <- factor(df$Series)
+    } else {
+        df$Series <- as.numeric(sapply(strsplit(as.character(df$Series), "Session"), function(x) x[2]))
     }
-    df$Series <- as.numeric(sapply(strsplit(as.character(df$Series), "Session"), function(x) x[2]))
     df$Profile <- factor(df$Profile)
 
     ## ## check that there is data to plot
@@ -318,7 +321,7 @@ plot.distrProfile <- function(x, session = NULL, what = c("speed", "heart.rate")
     }
 
     ## add bw theme
-    p <- p + ggplot2::theme_bw() + ggplot2::scale_colour_continuous(name  = "Session")
+    p <- p + ggplot2::theme_bw() + ggplot2::scale_colour_continuous(name = "Session")
 
     return(p)
 }

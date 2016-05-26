@@ -115,8 +115,12 @@ plot.conProfile <- function(x, session = NULL, what = c("speed", "heart.rate"),
     ## if (length(session) > 1L) df <- subset(df, Series %in% session)
     ## df <- subset(df, Profile %in% what)
     ## HACK: If there is only one session (=series) to be plotted, give it a proper name for multiple = TRUE.
-    if (length(session) < 2) df$Series <- paste0("Session", session)
-    df$Series <- factor(df$Series)
+    if (length(session) < 2) {
+        df$Series <- session ## paste0("Session", session)
+        ## df$Series <- factor(df$Series)
+    } else {
+        df$Series <- as.numeric(sapply(strsplit(as.character(df$Series), "Session"), function(x) x[2]))
+    }
     df$Profile <- factor(df$Profile)
 
     ## ## check that there is data to plot
@@ -159,7 +163,7 @@ plot.conProfile <- function(x, session = NULL, what = c("speed", "heart.rate"),
     }
 
     ## add bw theme
-    p <- p + ggplot2::theme_bw() ##+ ggplot2::theme(legend.position = "top")
+    p <- p + ggplot2::theme_bw() + ggplot2::scale_colour_continuous(name = "Session")
 
     return(p)
 }
