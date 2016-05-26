@@ -1,6 +1,7 @@
 README.md
 README.Rmd
 README_files/
+README.html
 
 data-raw/
 data/runs_ATI.rda

@@ -62,25 +62,6 @@ Summarise sessions
 
 ``` r
 library("trackeR")
-```
-
-    ## Loading required package: zoo
-
-    ## 
-    ## Attaching package: 'zoo'
-
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     as.Date, as.Date.numeric
-
-    ## 
-    ## Attaching package: 'trackeR'
-
-    ## The following object is masked from 'package:base':
-    ## 
-    ##     append
-
-``` r
 data(runs, package = "trackeR")
 runsSummary <- summary(runs)
 plot(runsSummary, group = c("total", "moving"),

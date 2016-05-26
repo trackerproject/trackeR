@@ -77,7 +77,7 @@ devtools::install_github("hfrick/trackeR")
 
 Summarise sessions
 
-```{r, summary}
+```{r, summary, message = FALSE}
 library("trackeR")
 data(runs, package = "trackeR")
 runsSummary <- summary(runs)
