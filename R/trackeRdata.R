@@ -385,3 +385,113 @@ append.trackeRdata <- function(object, file, ...){
 nsessions.trackeRdata <- function(object, ...) {
     length(object)
 }
+
+
+#' Coercion function for use in Golden Cheetah
+#'
+#' Experimental state.
+#'
+#' @param gc Output of \code{GC.activities}.
+#' @param cycling Logical. Does the data stem from cycling instead of running?
+#' @inheritParams trackeRdata
+#' @inheritParams restingPeriods
+#' @inheritParams imputeSpeeds
+#' @seealso \code{\link{trackeRdata}}
+#' @export
+GC2trackeRdata <- function(gc, cycling = TRUE,
+                           correctDistances = FALSE, country = NULL, mask = TRUE,
+                           fromDistances = FALSE, lgap = 30, lskip = 5, m = 11){
+
+    units <- data.frame(variable = c("latitude", "longitude", "altitude", "distance",
+                                       "heart.rate", "speed", "cadence", "power", "pace"),
+                          unit = c("degree", "degree", "m", "km",
+                                   "bpm", "km_per_h", "rev_per_min", "W", "min_per_km"),
+                          stringsAsFactors = FALSE)
+
+    ## clear out sessions without any data
+    gc <- gc[sapply(gc, function(x) nrow(x) > 0)]
+
+    ## get variables, cast to zoo
+    trackerdat <- lapply(gc, function(x){
+        ## select variables
+        x <- x[, c("time", "latitude", "longitude", "altitude", "distance",
+                   "heart.rate", "speed", "cadence", "power")]
+
+        ## basic edits
+        x <- basicEdits(x)
+        ## README: add arg sort = T/F to basicEdits() so we don't need to
+        ## sort the observations again if we can be sure that GC already does this
+
+        ## cast to multivariate zoo
+        wtime <- which(names(x) == "time")
+        x <- zoo(x[, -wtime], order.by = x[, "time"])
+    })
+
+    ## remove sessions which only contain NA
+    empty <- sapply(trackerdat, function(x) is.null(x) | all(is.na(x)))
+    trackerdat <- trackerdat[!empty]
+
+    ## correct GPS distances for elevation
+    if (correctDistances) trackerdat <- lapply(trackerdat, distanceCorrection, country = country, mask = mask)
+
+    ## impute speeds in each session
+    trackerdat <- lapply(trackerdat, imputeSpeeds, fromDistances = fromDistances,
+                         lgap = lgap, lskip = lskip, m = m, cycling = cycling, units = units)
+
+    ## add pace
+    trackerdat <- lapply(trackerdat, function(x) {
+        x$pace <- 1 / km_per_h2km_per_min(x$speed)
+        x$pace[is.infinite(x$pace)] <- NA
+        return(x)
+    })
+
+    ## Set attributes
+    attr(trackerdat, "operations") <- list(smooth = NULL, threshold = NULL)
+    attr(trackerdat, "units") <- units
+
+    ## class and return
+    class(trackerdat) <- c("trackeRdata", class(trackerdat))
+    return(trackerdat)
+
+}
+
+
+
+
+
+## coercion function from output of GC.activies (or GC.activity) to trackeRdata
+GC2trackeRdataOld <- function(gc, units = NULL, cycling = FALSE, sessionThreshold = 2,
+                       correctDistances = FALSE, country = NULL, mask = TRUE,
+                       fromDistances = TRUE, lgap = 30, lskip = 5, m = 11){
+
+    units <- data.frame(variable = c("latitude", "longitude", "altitude", "distance",
+                                       "heart.rate", "speed", "cadence", "power", "pace"),
+                          unit = c("degree", "degree", "m", "km",
+                                   "bpm", "km_per_h", "rev_per_min", "W", "min_per_km"),
+                          stringsAsFactors = FALSE)
+
+    ## pick variables for trackeR
+    ## (other variables are not always the same, which breaks the call to rbind)
+    gc <- lapply(gc, function(x){
+        x[, c("time", "latitude", "longitude", "altitude", "distance", "heart.rate", "speed", "cadence", "power")]
+    })
+
+    ## Alternative 1: let trackeR do the splitting into sessions
+    ## get one data.frame for all sessions
+    gcdf <- do.call("rbind", gc)
+
+    ## make trackeRdata object
+    ret <- trackeRdata(dat = gcdf,
+                       units = units, ## units from GC
+                       cycling = TRUE, ## always true?
+                       sessionThreshold = sessionThreshold,
+                       correctDistances = correctDistances,
+                       country = country,
+                       mask = mask,
+                       fromDistances = fromDistances,
+                       lgap = lgap,
+                       lskip = lskip,
+                       m = m)
+
+    return(ret)
+}
