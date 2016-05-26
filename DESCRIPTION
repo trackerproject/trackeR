@@ -12,23 +12,24 @@ Description: This package provides infrastructure for handling running and cycli
     and analysed through corresponding flexible and extensible methods.
 Depends:
     R (>= 2.10.0),
-    zoo
-Imports:
+    zoo,
     ggplot2
-Suggests:
+Imports:
+    parallel,
     XML,
     RSQLite,
     jsonlite,
-    parallel,
-    ggmap,
-    scam,
     raster,
-    testthat,
+    scam,
     fda,
+    ggmap,
     leaflet,
     gridExtra,
-    gtable,
-    knitr, rmarkdown
+    gtable    
+Suggests:
+    testthat,
+    knitr,
+    rmarkdown
 VignetteBuilder: knitr
 License: GPL-2 | GPL-3
 RoxygenNote: 5.0.1
