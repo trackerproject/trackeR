@@ -9,7 +9,7 @@ GC2trackeRdata(gc, cycling = TRUE, correctDistances = FALSE,
   lskip = 5, m = 11)
 }
 \arguments{
-\item{gc}{Output of \code{GC.activities}.}
+\item{gc}{Output of \code{GC.activity}.}
 
 \item{cycling}{Logical. Does the data stem from cycling instead of running?}
 

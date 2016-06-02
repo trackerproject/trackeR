@@ -391,7 +391,7 @@ nsessions.trackeRdata <- function(object, ...) {
 #'
 #' Experimental state.
 #'
-#' @param gc Output of \code{GC.activities}.
+#' @param gc Output of \code{GC.activity}.
 #' @param cycling Logical. Does the data stem from cycling instead of running?
 #' @inheritParams trackeRdata
 #' @inheritParams restingPeriods
@@ -453,45 +453,4 @@ GC2trackeRdata <- function(gc, cycling = TRUE,
     class(trackerdat) <- c("trackeRdata", class(trackerdat))
     return(trackerdat)
 
-}
-
-
-
-
-
-## coercion function from output of GC.activies (or GC.activity) to trackeRdata
-GC2trackeRdataOld <- function(gc, units = NULL, cycling = FALSE, sessionThreshold = 2,
-                       correctDistances = FALSE, country = NULL, mask = TRUE,
-                       fromDistances = TRUE, lgap = 30, lskip = 5, m = 11){
-
-    units <- data.frame(variable = c("latitude", "longitude", "altitude", "distance",
-                                       "heart.rate", "speed", "cadence", "power", "pace"),
-                          unit = c("degree", "degree", "m", "km",
-                                   "bpm", "km_per_h", "rev_per_min", "W", "min_per_km"),
-                          stringsAsFactors = FALSE)
-
-    ## pick variables for trackeR
-    ## (other variables are not always the same, which breaks the call to rbind)
-    gc <- lapply(gc, function(x){
-        x[, c("time", "latitude", "longitude", "altitude", "distance", "heart.rate", "speed", "cadence", "power")]
-    })
-
-    ## Alternative 1: let trackeR do the splitting into sessions
-    ## get one data.frame for all sessions
-    gcdf <- do.call("rbind", gc)
-
-    ## make trackeRdata object
-    ret <- trackeRdata(dat = gcdf,
-                       units = units, ## units from GC
-                       cycling = TRUE, ## always true?
-                       sessionThreshold = sessionThreshold,
-                       correctDistances = correctDistances,
-                       country = country,
-                       mask = mask,
-                       fromDistances = fromDistances,
-                       lgap = lgap,
-                       lskip = lskip,
-                       m = m)
-
-    return(ret)
 }
