@@ -193,6 +193,7 @@ readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "
     ## END hack
 
     ## coerce time into POSIXct
+    newdat$time <- gsub("[\t\n]", "", newdat$time)
     newdat$time <- convertTCXTimes2POSIXct(newdat$time, timezone = timezone)
     ## newdat$time <- as.POSIXct(newdat$time, format = "%Y-%m-%dT%H:%M:%OSZ",
     ##                           tz = timezone)
