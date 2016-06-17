@@ -7,6 +7,19 @@
 #' resultant data objects can then be visualised, summarised and analysed through
 #' corresponding flexible and extensible methods.
 #'
+#' @section Note:
+#'
+#' Core facilities in the trackeR package, including reading functions
+#' (see \link{\code{readX}}), data pre-processing strategies (see
+#' \link{\code{trackeRdata}}), and calculation of concentration and
+#' distribution profiles (see \link{\code{distributionProfile}} and
+#' \link{\code{concentrationProfile}}) are based on un-packaged R code
+#' that was developed by Ioannis Kosmidis for the requirements of the
+#' analyses in Kosmidis & Passfield (2015).
+#'
+#' @references Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
+#'     Endurance Runners to Training and Physiological Effects via Multi-Resolution
+#'     Elastic Net. \emph{ArXiv e-print} arXiv:1506.01388.
 #' @docType package
 #' @name trackeR
 #' @import zoo
