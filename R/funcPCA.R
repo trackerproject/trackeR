@@ -33,9 +33,15 @@ profile2fd <- function(object, what, ...){
     profiles <- object[[what]]
     grid <- zoo::index(profiles)
 
-    ## contruct functional data object
+    ## prepare matrix
     profilesMat <- matrix(unlist(profiles), nrow = length(grid),
                           dimnames = list(grid, names(profiles)))
+
+    ## remove sessions for which the whole profiles consists of NA only
+    na <- apply(profilesMat, 2, function(x) all(is.na(x)))
+    profilesMat <- profilesMat[, !na, drop = FALSE]
+
+    ## contruct functional data object
     fd <- fda::Data2fd(argvals = grid, y = profilesMat, ...)
     
     return(fd)    
@@ -49,6 +55,7 @@ profile2fd <- function(object, what, ...){
 #' @param nharm The number of principal components estimated.
 #' @details The \code{...} argument is passed on to \code{\link[fda]{pca.fd}}.
 #' @return An object of class \code{trackeRfpca}.
+#' @references Ramsay JO, Silverman BW (2005). Functional Data Analysis. Springer-Verlag New York.
 #' @examples
 #' data("runs", package = "trackeR")
 #' dp <- distributionProfile(runs, what = "speed")
@@ -95,6 +102,7 @@ funPCA.conProfile <- funPCA.distrProfile
 #'     point characters? Otherwise, lines are used.
 #' @param ... Currently not used.
 #' @seealso \code{\link[fda]{plot.pca.fd}}
+#' @references Ramsay JO, Silverman BW (2005). Functional Data Analysis. Springer-Verlag New York.
 #' @examples
 #' data("runs", package = "trackeR")
 #' dp <- distributionProfile(runs, what = "speed")

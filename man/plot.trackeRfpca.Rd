@@ -31,6 +31,9 @@ dp.pca <- funPCA(dp, what = "speed", nharm = 4)
 plot(dp.pca)
 plot(dp.pca, harm = 1, pointplot = FALSE)
 }
+\references{
+Ramsay JO, Silverman BW (2005). Functional Data Analysis. Springer-Verlag New York.
+}
 \seealso{
 \code{\link[fda]{plot.pca.fd}}
 }

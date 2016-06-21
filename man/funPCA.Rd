@@ -42,4 +42,7 @@ plot(dp.pca, harm = 1)
 sumRuns <- summary(runs)
 plot(sumRuns$durationMoving, dp.pca$scores[,1])
 }
+\references{
+Ramsay JO, Silverman BW (2005). Functional Data Analysis. Springer-Verlag New York.
+}
 
