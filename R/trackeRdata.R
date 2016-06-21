@@ -454,3 +454,20 @@ GC2trackeRdata <- function(gc, cycling = TRUE,
     return(trackerdat)
 
 }
+
+
+
+##as.data.frame(x, row.names = NULL, optional = FALSE, ...)
+#' @export
+as.data.frame.trackeRdata <- function(x, ...){
+
+    ret <- vector(length = length(x), "list")
+
+    for (i in seq_along(x)){
+        ret[[i]] <- cbind(session = i, time = index(x[[i]]), as.data.frame(x[[i]]))
+    }
+
+    ret <- do.call(rbind, ret)
+
+    return(ret)
+}
