@@ -10,10 +10,10 @@
 #' @section Note:
 #'
 #' Core facilities in the trackeR package, including reading functions
-#' (see \link{\code{readX}}), data pre-processing strategies (see
-#' \link{\code{trackeRdata}}), and calculation of concentration and
-#' distribution profiles (see \link{\code{distributionProfile}} and
-#' \link{\code{concentrationProfile}}) are based on un-packaged R code
+#' (see \code{\link{readX}}), data pre-processing strategies (see
+#' \code{\link{trackeRdata}}), and calculation of concentration and
+#' distribution profiles (see \code{\link{distributionProfile}} and
+#' \code{\link{concentrationProfile}}) are based on un-packaged R code
 #' that was developed by Ioannis Kosmidis for the requirements of the
 #' analyses in Kosmidis & Passfield (2015).
 #'
