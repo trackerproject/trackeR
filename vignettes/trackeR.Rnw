@@ -71,6 +71,7 @@
 options(width = 70, prompt = "R> ", continue = "+  ")
 library("trackeR")
 library("ggplot2")
+data("runs", package = "trackeR")
 set.seed(403)
 cache <- FALSE
 @
@@ -161,7 +162,7 @@ distribution and concentration profiles) and the corresponding methods
 for visualisation. Section~\ref{sec:units} and Section~\ref{sec:smoothing}
 focus on basic methods for unit manipulation as well as smoothing and
 thresholding. The case study in Section~\ref{sec:casestudy}
-investigates the key features in 26 sessions through a
+investigates the key features in \Sexpr{nsessions(runs)} sessions through a
 functional principal components analysis
 \citep[e.g.,][]{trackeR:Ramsay+Silverman:2005} on the concentration profiles for
 speed. Finally, Section~\ref{sec:outro} gives some concluding remarks and
@@ -2101,11 +2102,12 @@ plotRoute(runs, session = 4, zoom = 13, source = "osm")
 \setkeys{Gin}{width=0.8\textwidth}
 \begin{figure}[t]
   \centering
-%
-<<routePlot, eval = TRUE, echo = FALSE, fig = TRUE, width = 6, height = 6>>=
-plotRoute(runs, session = 4, zoom = 13, source = "osm")
-@
-%
+% %
+% <<routePlot, eval = TRUE, echo = FALSE, fig = TRUE, width = 6, height = 6>>=
+% plotRoute(runs, session = 4, zoom = 13, source = "osm")
+% @
+% %
+  \includegraphics{plotRoute}
   \caption{Route covered during session~4 on a map from Open Street Map.}
   \label{fig:routePlot}
 \end{figure}
@@ -2185,7 +2187,7 @@ plot(runSummaryFull, group = c("total", "moving"),
   what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
 @
 %
-  \caption{Selected session summaries for all 26~sessions.}
+  \caption{Selected session summaries for all \Sexpr{nsessions(runs)}~sessions.}
   \label{fig:summaryPlot}
 \end{figure}
 
@@ -2452,7 +2454,7 @@ meters per second and \emph{$W'$~expended} drops again.
 \begin{figure}
   \centering
 %
-<<WprimePlot2, eval = TRUE, echo = FALSE, fig = TRUE, width = 7, height = 3>>=
+<<WprimePlot2, eval = TRUE, echo = FALSE, fig = TRUE, width = 7, height = 3.5>>=
 wexp <- Wprime(runs, session = 11, quantity = "expended", cp = 4, version = "2012")
 plot(wexp, scaled = TRUE)
 @
@@ -2787,6 +2789,7 @@ The \fct{plot} methods for \class{distrProfile} and \class{conProfile} smooth
 the profiles prior to plotting by default.
 
 
+\clearpage
 
 \section{Case study}\label{sec:casestudy}
 
@@ -2862,10 +2865,10 @@ if(cache) {
   \centering
 %
 <<AppCPplot, echo = FALSE, fig = TRUE, width = 8, height = 4>>=
-plot(cpRuns, multiple = TRUE, smooth = FALSE) + theme(legend.position = "none")
+plot(cpRuns, multiple = TRUE, smooth = FALSE) #+ theme(legend.position = "none")
 @
 %
-  \caption{Smoothed speed concentration profiles for all 26 sessions.}
+  \caption{Smoothed speed concentration profiles for all \Sexpr{nsessions(runs)} sessions.}
   \label{fig:app:cpsmooth}
 \end{figure}
 The majority of the profiles for speed concentrate around 4~meters per
