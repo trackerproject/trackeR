@@ -294,7 +294,7 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, .
         p <- p + ggplot2::facet_grid(facets, scales = "free")
     }
     ## add bw theme
-    p <- p + ggplot2::theme_bw() + ggplot2::theme(#legend.position = "top",
+    p <- p + ggplot2::theme_bw() + ggplot2::theme(legend.position = "top",
         axis.text.x = ggplot2::element_text(angle = 50, hjust = 1))
 
     return(p)

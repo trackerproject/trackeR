@@ -384,7 +384,7 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, l
         ggplot2::theme(legend.position = "top")
 
     ## add bw theme
-    p <- p + ggplot2::theme_bw() ##+ ggplot2::theme(legend.position = "top")
+    p <- p + ggplot2::theme_bw() + ggplot2::theme(legend.position = "top")
 
     return(p)
 }
