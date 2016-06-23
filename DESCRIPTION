@@ -1,10 +1,10 @@
 Package: trackeR
-Version: 0.0.2.900
-Date: 2016-05-06
+Version: 0.0.3
+Date: 2016-06-23
 Title: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices
 Authors@R: c(person(given = "Hannah", family = "Frick", role = c("aut", "cre"), email = "h.frick@ucl.ac.uk"),
              person(given = "Ioannis", family = "Kosmidis", role = "aut", email = "i.kosmidis@ucl.ac.uk"))
-Description: This package provides infrastructure for handling running and cycling
+Description: The aim of this package is to provide infrastructure for handling running and cycling
     data from GPS-enabled tracking devices. After extraction and appropriate
     manipulation of the training or competition attributes, the data are placed
     into session-based and unit-aware data objects of class trackeRdata (S3 class). The
