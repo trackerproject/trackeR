@@ -27,7 +27,7 @@ vignette("trackeR", package = "trackeR")
 **trackeR** can currently import files in the Training Centre XML (TCX) format and
 .db3 files (SQLite databases, used, for example, by devices from GPSports) through the
 corresponding functions *readTCX*() and *readDB3*(). It also offers experimental support
-for JSON files from [Golden Cheetah](http://goldencheetah.org/) via *readJSON*().
+for JSON files from [Golden Cheetah](http://www.goldencheetah.org/) via *readJSON*().
 
 ```{r, message = FALSE}
 library("trackeR")
