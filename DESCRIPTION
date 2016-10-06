@@ -1,5 +1,5 @@
 Package: trackeR
-Version: 0.0.3
+Version: 0.0.3.900
 Date: 2016-06-23
 Title: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices
 Authors@R: c(person(given = "Hannah", family = "Frick", role = c("aut", "cre"), email = "h.frick@ucl.ac.uk"),

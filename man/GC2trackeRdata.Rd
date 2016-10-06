@@ -6,7 +6,7 @@
 \usage{
 GC2trackeRdata(gc, cycling = TRUE, correctDistances = FALSE,
   country = NULL, mask = TRUE, fromDistances = FALSE, lgap = 30,
-  lskip = 5, m = 11)
+  lskip = 5, m = 11, silent = FALSE)
 }
 \arguments{
 \item{gc}{Output of \code{GC.activity}.}
@@ -31,6 +31,8 @@ and the first imputed speed or the last imputed speed and the first
 observation after a small break.}
 
 \item{m}{Number of imputed observations in each small break.}
+
+\item{silent}{Logical. Should warnings be generated if any of the sanity checks on the data are triggered?}
 }
 \description{
 Experimental state.

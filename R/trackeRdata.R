@@ -13,6 +13,7 @@
 #'     longitude and latitude.
 #' @param mask Logical. Passed on to \code{\link[raster]{getData}}. Should only the altitudes for the specified
 #'     \code{country} be extracted (\code{TRUE}) or also those for the neighboring countries (\code{FALSE})?
+#' @inheritParams sanityChecks
 #' @inheritParams restingPeriods
 #' @inheritParams imputeSpeeds
 #' @details The \code{units} argument takes a data frame with two variables named \code{variable} and \code{unit}.
@@ -55,7 +56,7 @@
 #' @export
 trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2,
                         correctDistances = FALSE, country = NULL, mask = TRUE,
-                        fromDistances = TRUE, lgap = 30, lskip = 5, m = 11){
+                        fromDistances = TRUE, lgap = 30, lskip = 5, m = 11, silent = FALSE){
     ## prep units
     if (is.null(units)) {
         units <- generateBaseUnits(cycling)
@@ -78,7 +79,7 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2
     }
 
     ## basic edits on time stamps
-    dat <- basicEdits(dat)
+    dat <- sanityChecks(dat = dat, silent = silent)
 
     ## separate sessions and cast to zoo objects
     trackerdat <- getSessions(dat, sessionThreshold = sessionThreshold)
@@ -161,19 +162,36 @@ inPeriod <- function(dates, start, end) {
     (dates >= start) & (dates <=end)
 }
 
-
-basicEdits <- function(dat){
+#' Sanity checks for tracking data.
+#' 
+#' Heart rate measurements of 0 are set to NA, assuming the athlete is alive.
+#' Observations with missing or duplicated time stamps are removed.
+#' 
+#' @param dat Data set to be clean up.
+#' @param silent Logical. Should warnings be generated if any of the sanity checks on the data are triggered?
+sanityChecks <- function(dat, silent){
     ## replace heart rate 0 with NA
-    dat$heart.rate[dat$heart.rate == 0] <- NA
+    hr0 <- dat$heart.rate == 0
+    if (any(hr0, na.rm = TRUE)){
+        if (!silent) warning("Heart rate measurements of 0 are set to NA.")
+        dat$heart.rate[hr0] <- NA
+    }
 
     ## handle NAs
     natime <- is.na(dat$time)
     if (all(natime))
         stop("The are no useable timestamps.")
-    dat <- dat[!natime, ]
+    if (any(natime)){
+        if (!silent) warning("Observations with missing time stamps are removed.")
+        dat <- dat[!natime, ]
+    }
 
     ## remove duplicates
-    dat <- dat[!duplicated(dat$time),]
+    duptime <- duplicated(dat$time)
+    if (any(duptime)){
+        if (!silent) warning("Observations with duplicated time stamps are removed.")
+        dat <- dat[!duptime,]
+    }
 
     ## order according to time
     dat <- dat[order(dat$time), ]
@@ -394,13 +412,14 @@ nsessions.trackeRdata <- function(object, ...) {
 #' @param gc Output of \code{GC.activity}.
 #' @param cycling Logical. Does the data stem from cycling instead of running?
 #' @inheritParams trackeRdata
+#' @inheritParams sanityChecks
 #' @inheritParams restingPeriods
 #' @inheritParams imputeSpeeds
 #' @seealso \code{\link{trackeRdata}}
 #' @export
 GC2trackeRdata <- function(gc, cycling = TRUE,
                            correctDistances = FALSE, country = NULL, mask = TRUE,
-                           fromDistances = FALSE, lgap = 30, lskip = 5, m = 11){
+                           fromDistances = FALSE, lgap = 30, lskip = 5, m = 11, silent = FALSE){
 
     units <- data.frame(variable = c("latitude", "longitude", "altitude", "distance",
                                        "heart.rate", "speed", "cadence", "power", "pace"),
@@ -418,8 +437,8 @@ GC2trackeRdata <- function(gc, cycling = TRUE,
                    "heart.rate", "speed", "cadence", "power")]
 
         ## basic edits
-        x <- basicEdits(x)
-        ## README: add arg sort = T/F to basicEdits() so we don't need to
+        x <- sanityChecks(dat = x, silent = silent)
+        ## README: add arg sort = T/F to sanityChecks() so we don't need to
         ## sort the observations again if we can be sure that GC already does this
 
         ## cast to multivariate zoo

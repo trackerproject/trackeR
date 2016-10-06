@@ -6,7 +6,7 @@
 \usage{
 trackeRdata(dat, units = NULL, cycling = FALSE, sessionThreshold = 2,
   correctDistances = FALSE, country = NULL, mask = TRUE,
-  fromDistances = TRUE, lgap = 30, lskip = 5, m = 11)
+  fromDistances = TRUE, lgap = 30, lskip = 5, m = 11, silent = FALSE)
 }
 \arguments{
 \item{dat}{A data frame.}
@@ -39,6 +39,8 @@ and the first imputed speed or the last imputed speed and the first
 observation after a small break.}
 
 \item{m}{Number of imputed observations in each small break.}
+
+\item{silent}{Logical. Should warnings be generated if any of the sanity checks on the data are triggered?}
 }
 \description{
 Create a trackeRdata object from a data frame with observations being divided in

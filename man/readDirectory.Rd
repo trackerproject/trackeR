@@ -9,7 +9,7 @@ readDirectory(directory, aggregate = TRUE, table = "gps_data",
   country = NULL, mask = TRUE, fromDistances = NULL,
   speedunit = list(tcx = "m_per_s", db3 = "km_per_h", json = "km_per_h"),
   distanceunit = list(tcx = "m", db3 = "km", json = "km"), cycling = FALSE,
-  lgap = 30, lskip = 5, m = 11, parallel = FALSE,
+  lgap = 30, lskip = 5, m = 11, silent = FALSE, parallel = FALSE,
   cores = getOption("mc.cores", 2L), verbose = TRUE)
 }
 \arguments{
@@ -55,6 +55,8 @@ and the first imputed speed or the last imputed speed and the first
 observation after a small break.}
 
 \item{m}{Number of imputed observations in each small break.}
+
+\item{silent}{Logical. Should warnings be generated if any of the sanity checks on the data are triggered?}
 
 \item{parallel}{Logical. Should computation be carried out in parallel? (Not supported on Windows.)}
 

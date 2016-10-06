@@ -372,6 +372,7 @@ readJSON <- function(file, timezone = "", speedunit = "km_per_h", distanceunit =
 #' @inheritParams restingPeriods
 #' @inheritParams imputeSpeeds
 #' @inheritParams trackeRdata
+#' @inheritParams sanityChecks
 #' @details  Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_per_s},
 #'     \code{mi_per_h}, \code{ft_per_min} and \code{ft_per_s}.
 #'     Available options for \code{distanceunit} currently are \code{km}, \code{m}, \code{mi} and
@@ -395,6 +396,7 @@ readContainer <- function(file, type = c("tcx", "db3", "json"),
                           speedunit = NULL, distanceunit = NULL,
                           cycling = FALSE,
                           lgap = 30, lskip = 5, m = 11,
+                          silent = FALSE,
                           parallel = FALSE, cores = getOption("mc.cores", 2L)){
     ## prepare args
     type <- match.arg(tolower(type), choices = c("tcx", "db3", "json"))
@@ -431,7 +433,9 @@ readContainer <- function(file, type = c("tcx", "db3", "json"),
     trackerdat <- trackeRdata(dat, units = units, cycling = cycling,
                               correctDistances = correctDistances, country = country, mask = mask,
                               sessionThreshold = sessionThreshold,
-                              fromDistances = fromDistances, lgap = lgap, lskip = lskip, m = m)
+                              fromDistances = fromDistances,
+                              lgap = lgap, lskip = lskip, m = m,
+                              silent = silent)
 
     return(trackerdat)
 }
@@ -462,6 +466,7 @@ readContainer <- function(file, type = c("tcx", "db3", "json"),
 #' @inheritParams restingPeriods
 #' @inheritParams imputeSpeeds
 #' @inheritParams trackeRdata
+#' @inheritParams sanityChecks
 #' @details Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_per_s},
 #'     \code{mi_per_h}, \code{ft_per_min} and \code{ft_per_s}.
 #'     Available options for \code{distanceunit} currently are \code{km}, \code{m}, \code{mi} and
@@ -485,6 +490,7 @@ readDirectory <- function(directory,
                           distanceunit = list(tcx = "m", db3 = "km", json = "km"),
                           cycling = FALSE,
                           lgap = 30, lskip = 5, m = 11,
+                          silent = FALSE,
                           parallel = FALSE, cores = getOption("mc.cores", 2L),
                           verbose = TRUE) {
 
@@ -526,7 +532,8 @@ readDirectory <- function(directory,
                                    cycling = cycling,
                                    lgap = lgap,
                                    lskip = lskip,
-                                   m = m)
+                                   m = m,
+                                   silent = silent)
             if (verbose) cat("Done\n")
         } else {
             for (j in seq.int(ltcx)) {
@@ -546,6 +553,7 @@ readDirectory <- function(directory,
                                                   lgap = lgap,
                                                   lskip = lskip,
                                                   m = m,
+                                                  silent = silent,
                                                   parallel = parallel,
                                                   cores = cores))
             }
@@ -582,7 +590,8 @@ readDirectory <- function(directory,
                                    cycling = cycling,
                                    lgap = lgap,
                                    lskip = lskip,
-                                   m = m)
+                                   m = m,
+                                   silent = silent)
             if (verbose) cat("Done\n")
         } else {
             for (j in seq.int(ldb3)) {
@@ -602,6 +611,7 @@ readDirectory <- function(directory,
                                                   lgap = lgap,
                                                   lskip = lskip,
                                                   m = m,
+                                                  silent = silent,
                                                   cores = cores))
             }
             if (verbose) cat("Cleaning up...")
@@ -635,7 +645,8 @@ readDirectory <- function(directory,
                                    cycling = cycling,
                                    lgap = lgap,
                                    lskip = lskip,
-                                   m = m)
+                                   m = m,
+                                   silent = silent)
             if (verbose) cat("Done\n")
         } else {
             for (j in seq.int(ljson)) {
@@ -655,6 +666,7 @@ readDirectory <- function(directory,
                                                   lgap = lgap,
                                                   lskip = lskip,
                                                   m = m,
+                                                  silent = silent,
                                                   cores = cores))
             }
             if (verbose) cat("Cleaning up...")
