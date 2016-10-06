@@ -349,9 +349,9 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, l
                                  na.rm = TRUE) +
         ggplot2::labs(x = xlab, y = "") +
         ggplot2::guides(color = ggplot2::guide_legend(title = "Type")) +
-        ggplot2::scale_colour_manual(values = c("total" = "#5EB3F0", "moving" = "#F68BA2", "resting" = "#76BD58"))
+        ggplot2::scale_colour_manual(values = c("total" = "#76BD58", "moving" = "#F68BA2", "resting" = "#5EB3F0"))
     ## color palette comes from
-    ## colorspace::rainbow_hcl(3, c = 70)[c(3,1,2)]
+    ## colorspace::rainbow_hcl(3, c = 70)[c(2,1,3)]
     ## [1] "#5EB3F0" "#F68BA2" "#76BD58"
     ## an alternative from http://colorbrewer2.org/#type=qualitative&scheme=Dark2&n=3
     ##ggplot2::scale_colour_manual(values = c("total" = "#1b9e77", "moving" = "#d95f02", "resting" = "#7570b3"))
