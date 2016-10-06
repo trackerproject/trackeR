@@ -130,6 +130,10 @@ plot.trackeRdataZones <- function(x, percent = TRUE, ...){
             ggplot2::guides(fill = ggplot2::guide_legend(title = "Session"))
     }
 
+    ## set colors
+    hclpal <- colorspace::rainbow_hcl(n = nlevels(dat$session), c = 60)
+    p <- p + ggplot2::scale_fill_manual(values = hclpal)
+
     ## facets
     units <- getUnits(x)
     lab_data <- function(series){

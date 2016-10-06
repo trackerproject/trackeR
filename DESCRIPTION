@@ -25,7 +25,8 @@ Imports:
     ggmap,
     leaflet,
     gridExtra,
-    gtable    
+    gtable,
+    colorspace
 Suggests:
     testthat,
     knitr,
