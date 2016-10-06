@@ -348,13 +348,20 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, l
     p <- p + ggplot2::geom_point(ggplot2::aes_(x = quote(xaxis), y = quote(value), color = quote(type)),
                                  na.rm = TRUE) +
         ggplot2::labs(x = xlab, y = "") +
-        ggplot2::guides(color = ggplot2::guide_legend(title = "Type"))
+        ggplot2::guides(color = ggplot2::guide_legend(title = "Type")) +
+        ggplot2::scale_colour_manual(values = c("total" = "#5EB3F0", "moving" = "#F68BA2", "resting" = "#76BD58"))
+    ## color palette comes from
+    ## colorspace::rainbow_hcl(3, c = 70)[c(3,1,2)]
+    ## [1] "#5EB3F0" "#F68BA2" "#76BD58"
+    ## an alternative from http://colorbrewer2.org/#type=qualitative&scheme=Dark2&n=3
+    ##ggplot2::scale_colour_manual(values = c("total" = "#1b9e77", "moving" = "#d95f02", "resting" = "#7570b3"))
+
+    ## possibly add lines for 2 or more sessions
     if (nsessions > 1) {
         if (lines) {
             p <- p + ggplot2::geom_line(ggplot2::aes_(x = quote(xaxis), y = quote(value), color = quote(type)),
                                         na.rm = TRUE)
         }
-        p <- p + ggplot2::guides(color = ggplot2::guide_legend(title = "Type"))
     }
 
     ## facets
@@ -380,10 +387,9 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, l
     lab_sum <- Vectorize(lab_sum)
 
     p <- p + ggplot2::facet_grid(facets = "variable ~ .", scales = "free_y",
-                                 labeller = ggplot2::labeller("variable" = lab_sum)) +
-        ggplot2::theme(legend.position = "top")
+                                 labeller = ggplot2::labeller("variable" = lab_sum)) ## +
 
-    ## add bw theme
+    ## add bw theme and position of legend 
     p <- p + ggplot2::theme_bw() + ggplot2::theme(legend.position = "top")
 
     return(p)
