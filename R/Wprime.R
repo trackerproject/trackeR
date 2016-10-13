@@ -318,3 +318,8 @@ fortify.trackeRWprime <- function(model, data, melt = FALSE, ...){
     ret <- do.call("rbind", ret)
     return(ret)
 }
+
+#' @export
+nsessions.trackeRWprime <- function(object, ...) {
+    length(object)
+}
