@@ -36,12 +36,12 @@
   monitors is becoming increasingly common in sports and fitness
   activities. The \pkg{trackeR} package aims to fill the gap
   between the routine collection of data from such devices and their
-  analyses in a modern statistical environment like \proglang{R}. The
-  package provides methods to read tracking data and store them in
-  session-based, unit-aware, and operation-aware objects of class
-  \class{trackeRdata}. The package also implements core infrastructure for
-  relevant summaries and visualisations, as well as support for handling units of
-  measurement. There are also methods for relevant analytic tools such
+  analyses in \proglang{R}. 
+  The package provides methods to import tracking data into data structures 
+  which preserve units of measurement and are organised in sessions.
+  The package implements core infrastructure for
+  relevant summaries and visualisations, as well as support for handling units 
+  of measurement. There are also methods for relevant analytic tools such
   as time spent in zones, work capacity above critical power (known as
   $W'$), and distribution and concentration profiles. A case study
   illustrates how the latter can be used to summarise the information
@@ -87,8 +87,9 @@ sport. The focus of this paper is on data collected by GPS-enabled tracking
 devices and heart rate monitors. Such devices are routinely used in fitness
 activities such as running and cycling, and also during training in sports like
 field hockey and football. Basic questions associated with tracking data include
-how often, much, or hard an individual or a group trains, and a more advanced outlook
-tries to explain the impact of training on athlete physiology or performance.
+how often, much, or hard an individual or a group trains, and a more advanced 
+outlook tries to explain the impact of training on athlete physiology or 
+performance.
 
 %% tools: commercial, GC
 Tools for basic analytics are usually offered by the manufacturers of the
@@ -106,21 +107,42 @@ analysis of such sports tracking data.
 %% tools: R in general
 The \proglang{R} system for statistical computing \citep{trackeR:R}
 with its ecosystem of add-on packages provides a wide range of
-possibilities for the analysis of tracking data. For example, mixed
-effects regression modelling \citep[e.g.,
-\pkg{lme4},][]{trackeR:Bates+Maechler+Bolker:2015}, clustering \citep[e.g.,
-\pkg{mclust},][]{trackeR:Fraley+Raftery+Murphy:2012, trackeR:Fraley+Raftery:2002}, 
-time series and changepoint analysis \citep[e.g., \pkg{forecast} and
-\pkg{strucchange},][respectively]{trackeR:Hyndman+Khandakar:2008,
-  trackeR:Zeileis+Leisch+Hornik:2002}, methods for spatial statistics
-\citep[e.g., \pkg{sp},][]{trackeR:Pebesma+Bivand:2005}, and functional data
-analysis \citep[e.g., \pkg{fda},][]{trackeR:pkg:fda} are all relevant to data
-analytic tasks in the context of sport and are supported by comprehensive and
-actively developed packages in the \proglang{R} ecosystem. 
-% elastic net \cite{trackeR:Kosmidis+Passfield:2015} \citep[e.g.,][]{}
+possibilities for the handling and analysis of tracking data. 
+% For example, mixed
+% effects regression modelling \citep[e.g.,
+% \pkg{lme4},][]{trackeR:Bates+Maechler+Bolker:2015}, clustering \citep[e.g.,
+% \pkg{mclust},][]{trackeR:Fraley+Raftery+Murphy:2012, trackeR:Fraley+Raftery:2002}, 
+% time series and changepoint analysis \citep[e.g., \pkg{forecast} and
+% \pkg{strucchange},][respectively]{trackeR:Hyndman+Khandakar:2008,
+%   trackeR:Zeileis+Leisch+Hornik:2002}, methods for spatial statistics
+% \citep[e.g., \pkg{sp},][]{trackeR:Pebesma+Bivand:2005}, and functional data
+% analysis \citep[e.g., \pkg{fda},][]{trackeR:pkg:fda} are all relevant to data
+% analytic tasks in the context of sport and are supported by comprehensive and
+% actively developed packages in the \proglang{R} ecosystem. 
+% % elastic net \cite{trackeR:Kosmidis+Passfield:2015} \citep[e.g.,][]{}
 
-% Sports-related packages in \proglang{R}
-Despite this wide range of \proglang{R} packages, there is
+%% other packages for trajectory data 
+GPS-enabled tracking devices typically record irregularly sampled 
+spatio-temporal data. Infrastructure for such data is provided in the 
+\pkg{trajectories} package \citep{trackeR:pkg:trajectories},
+which is developed around the \class{STIDF} class of the \pkg{spacetime} package
+\citep{trackeR:Pebesma:2012}. However, the \class{STIDF} class does not 
+accommodate missing values in positional or temporal information. Since this is
+commonly the case in data from GPS-enabled tracking devices (e.g., sequences of
+missing values in the positional data because the GPS signal is temporarily
+lost), a different approach is taken in \pkg{trackeR} 
+(see Section~\ref{sec:trackeRdata}).
+% 
+Other packages that offer tools for spatio-temporal data include
+\pkg{adehabtitatLT} \citep{trackeR:Calenge:2006}, \pkg{trip}
+\citep{trackeR:pkg:trip} and \pkg{move} \citep{trackeR:pkg:move}. The main focus
+of those packages is on animal tracking, e.g., estimation of habitat choices,
+and they are not directly suitable for tracking the various aspects of athlete 
+activity. 
+
+
+%% Sports-related packages in \proglang{R}
+Despite the wide range of \proglang{R} packages available, there is
 only a handful of packages specific to sport data and their analysis. 
 The available packages focus on topics such as sports management
 \citep[\pkg{RcmdrPlugin.SM},][]{trackeR:pkg:RcmdrPlugin.SM}, ranking
@@ -135,20 +157,25 @@ The \pkg{cycleRtools} package \citep{trackeR:pkg:cycleRtools} provides
 functionality to import cycling data into \proglang{R} as well as
 tools for cycling-specific, descriptive analyses.
 %% Additionally, it provides access to the API of Golden Cheetah.
+%% %% Note: the successor of cycleRtools, elpatron, is currently not on CRAN
+%% %% anymore due to license issues.
+
+
 
 %% trackeR
 The \pkg{trackeR} package aims to fill the gap between the routine
 collection of data from GPS-enabled tracking devices and the analyses
 of such data within the \proglang{R} ecosystem. The package provides utilities
 to import sports data from GPS-enabled devices, and, after careful processing,
-organises them in session-based, unit-aware, and operation-aware objects in
-\proglang{R}. The package also 
-implements core infrastructure for the handling of measurement units
-and for summarising and visualising tracking data. It also provides
-functionality for calculating time in zones
-\citep[e.g.,][]{trackeR:Seiler+Kjerland:2006}, work capacity $W'$
-\citep{trackeR:Skiba+Chidnok+Vanhatalo:2012}, and distribution and concentration
-profiles \citep{trackeR:Kosmidis+Passfield:2015}.
+organises them in data objects which are organised in separate sessions/workouts 
+and carry information about the units of measurement (e.g., distance and speed 
+units) as well as of any data operations that have been carried out (e.g., smoothing).
+The package also implements core infrastructure for the handling of measurement units
+and for summarising and visualising tracking data. It also provides functionality 
+for calculating time in zones \citep[e.g.,][]{trackeR:Seiler+Kjerland:2006}, 
+work capacity $W'$ \citep{trackeR:Skiba+Chidnok+Vanhatalo:2012}, and distribution 
+and concentration profiles \citep{trackeR:Kosmidis+Passfield:2015}, including 
+a few methods for the analysis of these profiles.
 
 %% paper structure
 Section~\ref{sec:pkgstructure} gives an overview of the package and
@@ -165,37 +192,38 @@ thresholding. The case study in Section~\ref{sec:casestudy}
 investigates the key features in \Sexpr{nsessions(runs)} sessions through a
 functional principal components analysis
 \citep[e.g.,][]{trackeR:Ramsay+Silverman:2005} on the concentration profiles for
-speed. Finally, Section~\ref{sec:outro} gives some concluding remarks and
-directions for further development.
+speed. % Finally, Section~\ref{sec:outro} gives some concluding remarks and
+% directions for further development.
 
 
 \section{Package structure}\label{sec:pkgstructure}
 
-Figure~\ref{fig:pkgstructure} shows a schematic overview of the
-package structure. Squared boxes indicate objects of a particular class,
+Figures~\ref{fig:pkgstructure:read} and~\ref{fig:pkgstructure:rest} show a 
+schematic overview of the package structure, split into two parts for reading
+data and further operations. Squared boxes indicate objects of a particular 
+class, diamonds indicate files of a particular format, 
 and boxes with rounded corners represent methods that apply to those
-objects. The respective class and method names are given in the
-boxes. An arrow from an object to a method indicates that the method
+objects. The respective class and method names are given in the boxes.
+An arrow from an object/file type to a method indicates that the method
 applies to objects of the respective class; an arrow from a method to
 an object indicates that the method outputs objects of the respective
 class. A bi-directional arrow between a method and an object indicates
-that the method's input and output are of the same class (e.g., the
+that the method's input and output are of the same class, such as the
 method \fct{threshold} and objects of class
 \class{trackeRdata}). Arrows to or from groups of boxes apply to
-each box in the group (for example, the method \fct{changeUnits}
+each box in the group. For example, the method \fct{changeUnits}
 applies to objects of classes \class{trackeRdataZones},
 \class{trackeRdataSummary}, \class{trackeRWprime},
-\class{distrProfile}, and \class{conProfile}).
+\class{distrProfile}, and \class{conProfile}.
 %
 \begin{figure}[t]
   \centering
   {\scriptsize %\tiny %\footnotesize
-  %\input{pkg_structure} %% NOTE: \setlength{\du}{10\unitlength} was changed manually.
-    
+    %\input{pkg_structure_revision_read} %% NOTE: \setlength{\du}{10\unitlength} was changed manually.
 % Graphic for TeX using PGF
-% Title: /home/frick/svn/EISproject/pkg/trackeR/vignettes/pkg_structure.dia
+% Title: /home/frick/svn/EISproject/pkg/trackeR/vignettes/pkg_structure_revision_read.dia
 % Creator: Dia v0.97.3
-% CreationDate: Wed Jan 20 21:36:21 2016
+% CreationDate: Wed Oct 12 20:25:09 2016
 % For: frick
 % \usepackage{tikz}
 % The following commands are not supported in PSTricks at present
@@ -223,42 +251,42 @@ applies to objects of classes \class{trackeRdataZones},
 \pgfsetdash{}{0pt}
 \definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
 \pgfsetfillcolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{10.716857\du}{4.743440\du}}
-\pgfpathlineto{\pgfpoint{14.026967\du}{4.743440\du}}
-\pgfpathcurveto{\pgfpoint{14.483998\du}{4.743440\du}}{\pgfpoint{14.854495\du}{5.215539\du}}{\pgfpoint{14.854495\du}{5.797903\du}}
-\pgfpathcurveto{\pgfpoint{14.854495\du}{6.380267\du}}{\pgfpoint{14.483998\du}{6.852366\du}}{\pgfpoint{14.026967\du}{6.852366\du}}
-\pgfpathlineto{\pgfpoint{10.716857\du}{6.852366\du}}
-\pgfpathcurveto{\pgfpoint{10.259826\du}{6.852366\du}}{\pgfpoint{9.889330\du}{6.380267\du}}{\pgfpoint{9.889330\du}{5.797903\du}}
-\pgfpathcurveto{\pgfpoint{9.889330\du}{5.215539\du}}{\pgfpoint{10.259826\du}{4.743440\du}}{\pgfpoint{10.716857\du}{4.743440\du}}
+\pgfpathmoveto{\pgfpoint{10.721112\du}{4.744720\du}}
+\pgfpathlineto{\pgfpoint{14.031222\du}{4.744720\du}}
+\pgfpathcurveto{\pgfpoint{14.488253\du}{4.744720\du}}{\pgfpoint{14.858749\du}{5.216819\du}}{\pgfpoint{14.858749\du}{5.799183\du}}
+\pgfpathcurveto{\pgfpoint{14.858749\du}{6.381547\du}}{\pgfpoint{14.488253\du}{6.853646\du}}{\pgfpoint{14.031222\du}{6.853646\du}}
+\pgfpathlineto{\pgfpoint{10.721112\du}{6.853646\du}}
+\pgfpathcurveto{\pgfpoint{10.264081\du}{6.853646\du}}{\pgfpoint{9.893584\du}{6.381547\du}}{\pgfpoint{9.893584\du}{5.799183\du}}
+\pgfpathcurveto{\pgfpoint{9.893584\du}{5.216819\du}}{\pgfpoint{10.264081\du}{4.744720\du}}{\pgfpoint{10.721112\du}{4.744720\du}}
 \pgfusepath{fill}
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{10.716857\du}{4.743440\du}}
-\pgfpathlineto{\pgfpoint{14.026967\du}{4.743440\du}}
-\pgfpathcurveto{\pgfpoint{14.483998\du}{4.743440\du}}{\pgfpoint{14.854495\du}{5.215539\du}}{\pgfpoint{14.854495\du}{5.797903\du}}
-\pgfpathcurveto{\pgfpoint{14.854495\du}{6.380267\du}}{\pgfpoint{14.483998\du}{6.852366\du}}{\pgfpoint{14.026967\du}{6.852366\du}}
-\pgfpathlineto{\pgfpoint{10.716857\du}{6.852366\du}}
-\pgfpathcurveto{\pgfpoint{10.259826\du}{6.852366\du}}{\pgfpoint{9.889330\du}{6.380267\du}}{\pgfpoint{9.889330\du}{5.797903\du}}
-\pgfpathcurveto{\pgfpoint{9.889330\du}{5.215539\du}}{\pgfpoint{10.259826\du}{4.743440\du}}{\pgfpoint{10.716857\du}{4.743440\du}}
+\pgfpathmoveto{\pgfpoint{10.721112\du}{4.744720\du}}
+\pgfpathlineto{\pgfpoint{14.031222\du}{4.744720\du}}
+\pgfpathcurveto{\pgfpoint{14.488253\du}{4.744720\du}}{\pgfpoint{14.858749\du}{5.216819\du}}{\pgfpoint{14.858749\du}{5.799183\du}}
+\pgfpathcurveto{\pgfpoint{14.858749\du}{6.381547\du}}{\pgfpoint{14.488253\du}{6.853646\du}}{\pgfpoint{14.031222\du}{6.853646\du}}
+\pgfpathlineto{\pgfpoint{10.721112\du}{6.853646\du}}
+\pgfpathcurveto{\pgfpoint{10.264081\du}{6.853646\du}}{\pgfpoint{9.893584\du}{6.381547\du}}{\pgfpoint{9.893584\du}{5.799183\du}}
+\pgfpathcurveto{\pgfpoint{9.893584\du}{5.216819\du}}{\pgfpoint{10.264081\du}{4.744720\du}}{\pgfpoint{10.721112\du}{4.744720\du}}
 \pgfusepath{stroke}
 % setfont left to latex
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\node at (12.371912\du,5.903736\du){readTCX};
+\node at (12.376167\du,5.905016\du){readTCX};
 \definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
 \pgfsetfillcolor{dialinecolor}
-\fill (14.161400\du,8.754150\du)--(14.161400\du,11.160223\du)--(18.875579\du,11.160223\du)--(18.875579\du,8.754150\du)--cycle;
+\fill (18.908243\du,8.754150\du)--(18.908243\du,11.160223\du)--(23.622422\du,11.160223\du)--(23.622422\du,8.754150\du)--cycle;
 \pgfsetlinewidth{0.042000\du}
 \pgfsetdash{}{0pt}
 \pgfsetdash{}{0pt}
 \pgfsetmiterjoin
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\draw (14.161400\du,8.754150\du)--(14.161400\du,11.160223\du)--(18.875579\du,11.160223\du)--(18.875579\du,8.754150\du)--cycle;
+\draw (18.908243\du,8.754150\du)--(18.908243\du,11.160223\du)--(23.622422\du,11.160223\du)--(23.622422\du,8.754150\du)--cycle;
 % setfont left to latex
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\node at (16.518490\du,10.058020\du){data.frame};
+\node at (21.265333\du,10.058020\du){data.frame};
 \pgfsetlinewidth{0.042000\du}
 \pgfsetdash{}{0pt}
 \pgfsetdash{}{0pt}
@@ -270,56 +298,42 @@ applies to objects of classes \class{trackeRdataZones},
 \pgfsetdash{}{0pt}
 \definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
 \pgfsetfillcolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{14.566240\du}{12.820200\du}}
-\pgfpathlineto{\pgfpoint{18.470799\du}{12.820200\du}}
-\pgfpathcurveto{\pgfpoint{19.009906\du}{12.820200\du}}{\pgfpoint{19.446939\du}{13.382959\du}}{\pgfpoint{19.446939\du}{14.077157\du}}
-\pgfpathcurveto{\pgfpoint{19.446939\du}{14.771356\du}}{\pgfpoint{19.009906\du}{15.334115\du}}{\pgfpoint{18.470799\du}{15.334115\du}}
-\pgfpathlineto{\pgfpoint{14.566240\du}{15.334115\du}}
-\pgfpathcurveto{\pgfpoint{14.027132\du}{15.334115\du}}{\pgfpoint{13.590100\du}{14.771356\du}}{\pgfpoint{13.590100\du}{14.077157\du}}
-\pgfpathcurveto{\pgfpoint{13.590100\du}{13.382959\du}}{\pgfpoint{14.027132\du}{12.820200\du}}{\pgfpoint{14.566240\du}{12.820200\du}}
+\pgfpathmoveto{\pgfpoint{19.313083\du}{13.047147\du}}
+\pgfpathlineto{\pgfpoint{23.217642\du}{13.047147\du}}
+\pgfpathcurveto{\pgfpoint{23.756749\du}{13.047147\du}}{\pgfpoint{24.193782\du}{13.609905\du}}{\pgfpoint{24.193782\du}{14.304104\du}}
+\pgfpathcurveto{\pgfpoint{24.193782\du}{14.998303\du}}{\pgfpoint{23.756749\du}{15.561062\du}}{\pgfpoint{23.217642\du}{15.561062\du}}
+\pgfpathlineto{\pgfpoint{19.313083\du}{15.561062\du}}
+\pgfpathcurveto{\pgfpoint{18.773975\du}{15.561062\du}}{\pgfpoint{18.336943\du}{14.998303\du}}{\pgfpoint{18.336943\du}{14.304104\du}}
+\pgfpathcurveto{\pgfpoint{18.336943\du}{13.609905\du}}{\pgfpoint{18.773975\du}{13.047147\du}}{\pgfpoint{19.313083\du}{13.047147\du}}
 \pgfusepath{fill}
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{14.566240\du}{12.820200\du}}
-\pgfpathlineto{\pgfpoint{18.470799\du}{12.820200\du}}
-\pgfpathcurveto{\pgfpoint{19.009906\du}{12.820200\du}}{\pgfpoint{19.446939\du}{13.382959\du}}{\pgfpoint{19.446939\du}{14.077157\du}}
-\pgfpathcurveto{\pgfpoint{19.446939\du}{14.771356\du}}{\pgfpoint{19.009906\du}{15.334115\du}}{\pgfpoint{18.470799\du}{15.334115\du}}
-\pgfpathlineto{\pgfpoint{14.566240\du}{15.334115\du}}
-\pgfpathcurveto{\pgfpoint{14.027132\du}{15.334115\du}}{\pgfpoint{13.590100\du}{14.771356\du}}{\pgfpoint{13.590100\du}{14.077157\du}}
-\pgfpathcurveto{\pgfpoint{13.590100\du}{13.382959\du}}{\pgfpoint{14.027132\du}{12.820200\du}}{\pgfpoint{14.566240\du}{12.820200\du}}
+\pgfpathmoveto{\pgfpoint{19.313083\du}{13.047147\du}}
+\pgfpathlineto{\pgfpoint{23.217642\du}{13.047147\du}}
+\pgfpathcurveto{\pgfpoint{23.756749\du}{13.047147\du}}{\pgfpoint{24.193782\du}{13.609905\du}}{\pgfpoint{24.193782\du}{14.304104\du}}
+\pgfpathcurveto{\pgfpoint{24.193782\du}{14.998303\du}}{\pgfpoint{23.756749\du}{15.561062\du}}{\pgfpoint{23.217642\du}{15.561062\du}}
+\pgfpathlineto{\pgfpoint{19.313083\du}{15.561062\du}}
+\pgfpathcurveto{\pgfpoint{18.773975\du}{15.561062\du}}{\pgfpoint{18.336943\du}{14.998303\du}}{\pgfpoint{18.336943\du}{14.304104\du}}
+\pgfpathcurveto{\pgfpoint{18.336943\du}{13.609905\du}}{\pgfpoint{18.773975\du}{13.047147\du}}{\pgfpoint{19.313083\du}{13.047147\du}}
 \pgfusepath{stroke}
 % setfont left to latex
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\node at (16.518519\du,14.182991\du){trackeRdata};
+\node at (21.265362\du,14.409937\du){trackeRdata};
 \definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
 \pgfsetfillcolor{dialinecolor}
-\fill (13.535800\du,17.687100\du)--(13.535800\du,20.607669\du)--(19.501243\du,20.607669\du)--(19.501243\du,17.687100\du)--cycle;
+\fill (18.282643\du,17.687100\du)--(18.282643\du,20.607669\du)--(24.248086\du,20.607669\du)--(24.248086\du,17.687100\du)--cycle;
 \pgfsetlinewidth{0.042000\du}
 \pgfsetdash{}{0pt}
 \pgfsetdash{}{0pt}
 \pgfsetmiterjoin
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\draw (13.535800\du,17.687100\du)--(13.535800\du,20.607669\du)--(19.501243\du,20.607669\du)--(19.501243\du,17.687100\du)--cycle;
+\draw (18.282643\du,17.687100\du)--(18.282643\du,20.607669\du)--(24.248086\du,20.607669\du)--(24.248086\du,17.687100\du)--cycle;
 % setfont left to latex
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\node at (16.518521\du,19.248218\du){trackeRdata};
-\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
-\pgfsetfillcolor{dialinecolor}
-\fill (17.698600\du,0.900131\du)--(17.698600\du,3.295699\du)--(22.249477\du,3.295699\du)--(22.249477\du,0.900131\du)--cycle;
-\pgfsetlinewidth{0.042000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetmiterjoin
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\draw (17.698600\du,0.900131\du)--(17.698600\du,3.295699\du)--(22.249477\du,3.295699\du)--(22.249477\du,0.900131\du)--cycle;
-% setfont left to latex
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\node at (19.974039\du,2.198748\du){db3 file};
+\node at (21.265364\du,19.248218\du){trackeRdata};
 \pgfsetlinewidth{0.040000\du}
 \pgfsetdash{}{0pt}
 \pgfsetdash{}{0pt}
@@ -331,28 +345,61 @@ applies to objects of classes \class{trackeRdataZones},
 \pgfsetdash{}{0pt}
 \definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
 \pgfsetfillcolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{3.972521\du}{8.829420\du}}
-\pgfpathlineto{\pgfpoint{8.057163\du}{8.829420\du}}
-\pgfpathcurveto{\pgfpoint{8.621135\du}{8.829420\du}}{\pgfpoint{9.078324\du}{9.334335\du}}{\pgfpoint{9.078324\du}{9.957180\du}}
-\pgfpathcurveto{\pgfpoint{9.078324\du}{10.580025\du}}{\pgfpoint{8.621135\du}{11.084940\du}}{\pgfpoint{8.057163\du}{11.084940\du}}
-\pgfpathlineto{\pgfpoint{3.972521\du}{11.084940\du}}
-\pgfpathcurveto{\pgfpoint{3.408549\du}{11.084940\du}}{\pgfpoint{2.951360\du}{10.580025\du}}{\pgfpoint{2.951360\du}{9.957180\du}}
-\pgfpathcurveto{\pgfpoint{2.951360\du}{9.334335\du}}{\pgfpoint{3.408549\du}{8.829420\du}}{\pgfpoint{3.972521\du}{8.829420\du}}
+\pgfpathmoveto{\pgfpoint{5.950199\du}{10.515309\du}}
+\pgfpathlineto{\pgfpoint{10.034841\du}{10.515309\du}}
+\pgfpathcurveto{\pgfpoint{10.598813\du}{10.515309\du}}{\pgfpoint{11.056002\du}{11.020224\du}}{\pgfpoint{11.056002\du}{11.643069\du}}
+\pgfpathcurveto{\pgfpoint{11.056002\du}{12.265914\du}}{\pgfpoint{10.598813\du}{12.770829\du}}{\pgfpoint{10.034841\du}{12.770829\du}}
+\pgfpathlineto{\pgfpoint{5.950199\du}{12.770829\du}}
+\pgfpathcurveto{\pgfpoint{5.386227\du}{12.770829\du}}{\pgfpoint{4.929038\du}{12.265914\du}}{\pgfpoint{4.929038\du}{11.643069\du}}
+\pgfpathcurveto{\pgfpoint{4.929038\du}{11.020224\du}}{\pgfpoint{5.386227\du}{10.515309\du}}{\pgfpoint{5.950199\du}{10.515309\du}}
 \pgfusepath{fill}
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{3.972521\du}{8.829420\du}}
-\pgfpathlineto{\pgfpoint{8.057163\du}{8.829420\du}}
-\pgfpathcurveto{\pgfpoint{8.621135\du}{8.829420\du}}{\pgfpoint{9.078324\du}{9.334335\du}}{\pgfpoint{9.078324\du}{9.957180\du}}
-\pgfpathcurveto{\pgfpoint{9.078324\du}{10.580025\du}}{\pgfpoint{8.621135\du}{11.084940\du}}{\pgfpoint{8.057163\du}{11.084940\du}}
-\pgfpathlineto{\pgfpoint{3.972521\du}{11.084940\du}}
-\pgfpathcurveto{\pgfpoint{3.408549\du}{11.084940\du}}{\pgfpoint{2.951360\du}{10.580025\du}}{\pgfpoint{2.951360\du}{9.957180\du}}
-\pgfpathcurveto{\pgfpoint{2.951360\du}{9.334335\du}}{\pgfpoint{3.408549\du}{8.829420\du}}{\pgfpoint{3.972521\du}{8.829420\du}}
+\pgfpathmoveto{\pgfpoint{5.950199\du}{10.515309\du}}
+\pgfpathlineto{\pgfpoint{10.034841\du}{10.515309\du}}
+\pgfpathcurveto{\pgfpoint{10.598813\du}{10.515309\du}}{\pgfpoint{11.056002\du}{11.020224\du}}{\pgfpoint{11.056002\du}{11.643069\du}}
+\pgfpathcurveto{\pgfpoint{11.056002\du}{12.265914\du}}{\pgfpoint{10.598813\du}{12.770829\du}}{\pgfpoint{10.034841\du}{12.770829\du}}
+\pgfpathlineto{\pgfpoint{5.950199\du}{12.770829\du}}
+\pgfpathcurveto{\pgfpoint{5.386227\du}{12.770829\du}}{\pgfpoint{4.929038\du}{12.265914\du}}{\pgfpoint{4.929038\du}{11.643069\du}}
+\pgfpathcurveto{\pgfpoint{4.929038\du}{11.020224\du}}{\pgfpoint{5.386227\du}{10.515309\du}}{\pgfpoint{5.950199\du}{10.515309\du}}
 \pgfusepath{stroke}
 % setfont left to latex
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\node at (6.014842\du,10.063013\du){readContainer};
+\node at (7.992520\du,11.748903\du){readContainer};
+\pgfsetlinewidth{0.042000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetlinewidth{0.042000\du}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetdash{}{0pt}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{16.600717\du}{4.744720\du}}
+\pgfpathlineto{\pgfpoint{19.910827\du}{4.744720\du}}
+\pgfpathcurveto{\pgfpoint{20.367858\du}{4.744720\du}}{\pgfpoint{20.738354\du}{5.216819\du}}{\pgfpoint{20.738354\du}{5.799183\du}}
+\pgfpathcurveto{\pgfpoint{20.738354\du}{6.381547\du}}{\pgfpoint{20.367858\du}{6.853646\du}}{\pgfpoint{19.910827\du}{6.853646\du}}
+\pgfpathlineto{\pgfpoint{16.600717\du}{6.853646\du}}
+\pgfpathcurveto{\pgfpoint{16.143686\du}{6.853646\du}}{\pgfpoint{15.773190\du}{6.381547\du}}{\pgfpoint{15.773190\du}{5.799183\du}}
+\pgfpathcurveto{\pgfpoint{15.773190\du}{5.216819\du}}{\pgfpoint{16.143686\du}{4.744720\du}}{\pgfpoint{16.600717\du}{4.744720\du}}
+\pgfusepath{fill}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{16.600717\du}{4.744720\du}}
+\pgfpathlineto{\pgfpoint{19.910827\du}{4.744720\du}}
+\pgfpathcurveto{\pgfpoint{20.367858\du}{4.744720\du}}{\pgfpoint{20.738354\du}{5.216819\du}}{\pgfpoint{20.738354\du}{5.799183\du}}
+\pgfpathcurveto{\pgfpoint{20.738354\du}{6.381547\du}}{\pgfpoint{20.367858\du}{6.853646\du}}{\pgfpoint{19.910827\du}{6.853646\du}}
+\pgfpathlineto{\pgfpoint{16.600717\du}{6.853646\du}}
+\pgfpathcurveto{\pgfpoint{16.143686\du}{6.853646\du}}{\pgfpoint{15.773190\du}{6.381547\du}}{\pgfpoint{15.773190\du}{5.799183\du}}
+\pgfpathcurveto{\pgfpoint{15.773190\du}{5.216819\du}}{\pgfpoint{16.143686\du}{4.744720\du}}{\pgfpoint{16.600717\du}{4.744720\du}}
+\pgfusepath{stroke}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (18.255772\du,5.905016\du){readDB3};
 \pgfsetlinewidth{0.040000\du}
 \pgfsetdash{}{0pt}
 \pgfsetdash{}{0pt}
@@ -364,489 +411,28 @@ applies to objects of classes \class{trackeRdataZones},
 \pgfsetdash{}{0pt}
 \definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
 \pgfsetfillcolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{9.578618\du}{23.870800\du}}
-\pgfpathlineto{\pgfpoint{13.339502\du}{23.870800\du}}
-\pgfpathcurveto{\pgfpoint{13.858771\du}{23.870800\du}}{\pgfpoint{14.279722\du}{24.324826\du}}{\pgfpoint{14.279722\du}{24.884895\du}}
-\pgfpathcurveto{\pgfpoint{14.279722\du}{25.444965\du}}{\pgfpoint{13.858771\du}{25.898991\du}}{\pgfpoint{13.339502\du}{25.898991\du}}
-\pgfpathlineto{\pgfpoint{9.578618\du}{25.898991\du}}
-\pgfpathcurveto{\pgfpoint{9.059349\du}{25.898991\du}}{\pgfpoint{8.638398\du}{25.444965\du}}{\pgfpoint{8.638398\du}{24.884895\du}}
-\pgfpathcurveto{\pgfpoint{8.638398\du}{24.324826\du}}{\pgfpoint{9.059349\du}{23.870800\du}}{\pgfpoint{9.578618\du}{23.870800\du}}
-\pgfusepath{fill}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{9.578618\du}{23.870800\du}}
-\pgfpathlineto{\pgfpoint{13.339502\du}{23.870800\du}}
-\pgfpathcurveto{\pgfpoint{13.858771\du}{23.870800\du}}{\pgfpoint{14.279722\du}{24.324826\du}}{\pgfpoint{14.279722\du}{24.884895\du}}
-\pgfpathcurveto{\pgfpoint{14.279722\du}{25.444965\du}}{\pgfpoint{13.858771\du}{25.898991\du}}{\pgfpoint{13.339502\du}{25.898991\du}}
-\pgfpathlineto{\pgfpoint{9.578618\du}{25.898991\du}}
-\pgfpathcurveto{\pgfpoint{9.059349\du}{25.898991\du}}{\pgfpoint{8.638398\du}{25.444965\du}}{\pgfpoint{8.638398\du}{24.884895\du}}
-\pgfpathcurveto{\pgfpoint{8.638398\du}{24.324826\du}}{\pgfpoint{9.059349\du}{23.870800\du}}{\pgfpoint{9.578618\du}{23.870800\du}}
-\pgfusepath{stroke}
-% setfont left to latex
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\node at (11.459060\du,24.990729\du){summary};
-\pgfsetlinewidth{0.042000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetlinewidth{0.042000\du}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetdash{}{0pt}
-\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
-\pgfsetfillcolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{24.148418\du}{26.263705\du}}
-\pgfpathlineto{\pgfpoint{29.919690\du}{26.263705\du}}
-\pgfpathcurveto{\pgfpoint{30.716537\du}{26.263705\du}}{\pgfpoint{31.362509\du}{26.716585\du}}{\pgfpoint{31.362509\du}{27.275242\du}}
-\pgfpathcurveto{\pgfpoint{31.362509\du}{27.833898\du}}{\pgfpoint{30.716537\du}{28.286778\du}}{\pgfpoint{29.919690\du}{28.286778\du}}
-\pgfpathlineto{\pgfpoint{24.148418\du}{28.286778\du}}
-\pgfpathcurveto{\pgfpoint{23.351571\du}{28.286778\du}}{\pgfpoint{22.705600\du}{27.833898\du}}{\pgfpoint{22.705600\du}{27.275242\du}}
-\pgfpathcurveto{\pgfpoint{22.705600\du}{26.716585\du}}{\pgfpoint{23.351571\du}{26.263705\du}}{\pgfpoint{24.148418\du}{26.263705\du}}
-\pgfusepath{fill}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{24.148418\du}{26.263705\du}}
-\pgfpathlineto{\pgfpoint{29.919690\du}{26.263705\du}}
-\pgfpathcurveto{\pgfpoint{30.716537\du}{26.263705\du}}{\pgfpoint{31.362509\du}{26.716585\du}}{\pgfpoint{31.362509\du}{27.275242\du}}
-\pgfpathcurveto{\pgfpoint{31.362509\du}{27.833898\du}}{\pgfpoint{30.716537\du}{28.286778\du}}{\pgfpoint{29.919690\du}{28.286778\du}}
-\pgfpathlineto{\pgfpoint{24.148418\du}{28.286778\du}}
-\pgfpathcurveto{\pgfpoint{23.351571\du}{28.286778\du}}{\pgfpoint{22.705600\du}{27.833898\du}}{\pgfpoint{22.705600\du}{27.275242\du}}
-\pgfpathcurveto{\pgfpoint{22.705600\du}{26.716585\du}}{\pgfpoint{23.351571\du}{26.263705\du}}{\pgfpoint{24.148418\du}{26.263705\du}}
-\pgfusepath{stroke}
-% setfont left to latex
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\node at (27.034054\du,27.381075\du){distributionProfile};
-\pgfsetlinewidth{0.042000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetlinewidth{0.042000\du}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetdash{}{0pt}
-\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
-\pgfsetfillcolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{13.778730\du}{26.255600\du}}
-\pgfpathlineto{\pgfpoint{17.443370\du}{26.255600\du}}
-\pgfpathcurveto{\pgfpoint{17.949352\du}{26.255600\du}}{\pgfpoint{18.359531\du}{26.712109\du}}{\pgfpoint{18.359531\du}{27.275242\du}}
-\pgfpathcurveto{\pgfpoint{18.359531\du}{27.838374\du}}{\pgfpoint{17.949352\du}{28.294883\du}}{\pgfpoint{17.443370\du}{28.294883\du}}
-\pgfpathlineto{\pgfpoint{13.778730\du}{28.294883\du}}
-\pgfpathcurveto{\pgfpoint{13.272748\du}{28.294883\du}}{\pgfpoint{12.862569\du}{27.838374\du}}{\pgfpoint{12.862569\du}{27.275242\du}}
-\pgfpathcurveto{\pgfpoint{12.862569\du}{26.712109\du}}{\pgfpoint{13.272748\du}{26.255600\du}}{\pgfpoint{13.778730\du}{26.255600\du}}
-\pgfusepath{fill}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{13.778730\du}{26.255600\du}}
-\pgfpathlineto{\pgfpoint{17.443370\du}{26.255600\du}}
-\pgfpathcurveto{\pgfpoint{17.949352\du}{26.255600\du}}{\pgfpoint{18.359531\du}{26.712109\du}}{\pgfpoint{18.359531\du}{27.275242\du}}
-\pgfpathcurveto{\pgfpoint{18.359531\du}{27.838374\du}}{\pgfpoint{17.949352\du}{28.294883\du}}{\pgfpoint{17.443370\du}{28.294883\du}}
-\pgfpathlineto{\pgfpoint{13.778730\du}{28.294883\du}}
-\pgfpathcurveto{\pgfpoint{13.272748\du}{28.294883\du}}{\pgfpoint{12.862569\du}{27.838374\du}}{\pgfpoint{12.862569\du}{27.275242\du}}
-\pgfpathcurveto{\pgfpoint{12.862569\du}{26.712109\du}}{\pgfpoint{13.272748\du}{26.255600\du}}{\pgfpoint{13.778730\du}{26.255600\du}}
-\pgfusepath{stroke}
-% setfont left to latex
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\node at (15.611050\du,27.381075\du){zones};
-\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
-\pgfsetfillcolor{dialinecolor}
-\fill (7.268120\du,34.427100\du)--(7.268120\du,37.310600\du)--(15.650000\du,37.310600\du)--(15.650000\du,34.427100\du)--cycle;
-\pgfsetlinewidth{0.042000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetmiterjoin
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\draw (7.268120\du,34.427100\du)--(7.268120\du,37.310600\du)--(15.650000\du,37.310600\du)--(15.650000\du,34.427100\du)--cycle;
-% setfont left to latex
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\node at (11.459060\du,35.969683\du){trackeRdataSummary};
-\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
-\pgfsetfillcolor{dialinecolor}
-\fill (10.096500\du,0.900131\du)--(10.096500\du,3.295699\du)--(14.647377\du,3.295699\du)--(14.647377\du,0.900131\du)--cycle;
-\pgfsetlinewidth{0.042000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetmiterjoin
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\draw (10.096500\du,0.900131\du)--(10.096500\du,3.295699\du)--(14.647377\du,3.295699\du)--(14.647377\du,0.900131\du)--cycle;
-% setfont left to latex
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\node at (12.371939\du,2.198748\du){tcx file};
-\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
-\pgfsetfillcolor{dialinecolor}
-\fill (25.012600\du,0.900131\du)--(25.012600\du,3.295699\du)--(29.563477\du,3.295699\du)--(29.563477\du,0.900131\du)--cycle;
-\pgfsetlinewidth{0.040000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetmiterjoin
-\definecolor{dialinecolor}{rgb}{0.498039, 0.498039, 0.498039}
-\pgfsetstrokecolor{dialinecolor}
-\draw (25.012600\du,0.900131\du)--(25.012600\du,3.295699\du)--(29.563477\du,3.295699\du)--(29.563477\du,0.900131\du)--cycle;
-% setfont left to latex
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\node at (27.288039\du,2.198748\du){};
-\pgfsetlinewidth{0.042000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetlinewidth{0.042000\du}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetdash{}{0pt}
-\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
-\pgfsetfillcolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{18.319027\du}{4.743440\du}}
-\pgfpathlineto{\pgfpoint{21.629137\du}{4.743440\du}}
-\pgfpathcurveto{\pgfpoint{22.086168\du}{4.743440\du}}{\pgfpoint{22.456665\du}{5.215539\du}}{\pgfpoint{22.456665\du}{5.797903\du}}
-\pgfpathcurveto{\pgfpoint{22.456665\du}{6.380267\du}}{\pgfpoint{22.086168\du}{6.852366\du}}{\pgfpoint{21.629137\du}{6.852366\du}}
-\pgfpathlineto{\pgfpoint{18.319027\du}{6.852366\du}}
-\pgfpathcurveto{\pgfpoint{17.861996\du}{6.852366\du}}{\pgfpoint{17.491500\du}{6.380267\du}}{\pgfpoint{17.491500\du}{5.797903\du}}
-\pgfpathcurveto{\pgfpoint{17.491500\du}{5.215539\du}}{\pgfpoint{17.861996\du}{4.743440\du}}{\pgfpoint{18.319027\du}{4.743440\du}}
-\pgfusepath{fill}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{18.319027\du}{4.743440\du}}
-\pgfpathlineto{\pgfpoint{21.629137\du}{4.743440\du}}
-\pgfpathcurveto{\pgfpoint{22.086168\du}{4.743440\du}}{\pgfpoint{22.456665\du}{5.215539\du}}{\pgfpoint{22.456665\du}{5.797903\du}}
-\pgfpathcurveto{\pgfpoint{22.456665\du}{6.380267\du}}{\pgfpoint{22.086168\du}{6.852366\du}}{\pgfpoint{21.629137\du}{6.852366\du}}
-\pgfpathlineto{\pgfpoint{18.319027\du}{6.852366\du}}
-\pgfpathcurveto{\pgfpoint{17.861996\du}{6.852366\du}}{\pgfpoint{17.491500\du}{6.380267\du}}{\pgfpoint{17.491500\du}{5.797903\du}}
-\pgfpathcurveto{\pgfpoint{17.491500\du}{5.215539\du}}{\pgfpoint{17.861996\du}{4.743440\du}}{\pgfpoint{18.319027\du}{4.743440\du}}
-\pgfusepath{stroke}
-% setfont left to latex
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\node at (19.974082\du,5.903736\du){readDB3};
-\pgfsetlinewidth{0.040000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetlinewidth{0.040000\du}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetdash{}{0pt}
-\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
-\pgfsetfillcolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{25.632927\du}{4.743440\du}}
-\pgfpathlineto{\pgfpoint{28.943037\du}{4.743440\du}}
-\pgfpathcurveto{\pgfpoint{29.400068\du}{4.743440\du}}{\pgfpoint{29.770565\du}{5.215539\du}}{\pgfpoint{29.770565\du}{5.797903\du}}
-\pgfpathcurveto{\pgfpoint{29.770565\du}{6.380267\du}}{\pgfpoint{29.400068\du}{6.852366\du}}{\pgfpoint{28.943037\du}{6.852366\du}}
-\pgfpathlineto{\pgfpoint{25.632927\du}{6.852366\du}}
-\pgfpathcurveto{\pgfpoint{25.175896\du}{6.852366\du}}{\pgfpoint{24.805400\du}{6.380267\du}}{\pgfpoint{24.805400\du}{5.797903\du}}
-\pgfpathcurveto{\pgfpoint{24.805400\du}{5.215539\du}}{\pgfpoint{25.175896\du}{4.743440\du}}{\pgfpoint{25.632927\du}{4.743440\du}}
+\pgfpathmoveto{\pgfpoint{28.232621\du}{4.744720\du}}
+\pgfpathlineto{\pgfpoint{31.542731\du}{4.744720\du}}
+\pgfpathcurveto{\pgfpoint{31.999762\du}{4.744720\du}}{\pgfpoint{32.370258\du}{5.216819\du}}{\pgfpoint{32.370258\du}{5.799183\du}}
+\pgfpathcurveto{\pgfpoint{32.370258\du}{6.381547\du}}{\pgfpoint{31.999762\du}{6.853646\du}}{\pgfpoint{31.542731\du}{6.853646\du}}
+\pgfpathlineto{\pgfpoint{28.232621\du}{6.853646\du}}
+\pgfpathcurveto{\pgfpoint{27.775590\du}{6.853646\du}}{\pgfpoint{27.405094\du}{6.381547\du}}{\pgfpoint{27.405094\du}{5.799183\du}}
+\pgfpathcurveto{\pgfpoint{27.405094\du}{5.216819\du}}{\pgfpoint{27.775590\du}{4.744720\du}}{\pgfpoint{28.232621\du}{4.744720\du}}
 \pgfusepath{fill}
 \definecolor{dialinecolor}{rgb}{0.498039, 0.498039, 0.498039}
 \pgfsetstrokecolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{25.632927\du}{4.743440\du}}
-\pgfpathlineto{\pgfpoint{28.943037\du}{4.743440\du}}
-\pgfpathcurveto{\pgfpoint{29.400068\du}{4.743440\du}}{\pgfpoint{29.770565\du}{5.215539\du}}{\pgfpoint{29.770565\du}{5.797903\du}}
-\pgfpathcurveto{\pgfpoint{29.770565\du}{6.380267\du}}{\pgfpoint{29.400068\du}{6.852366\du}}{\pgfpoint{28.943037\du}{6.852366\du}}
-\pgfpathlineto{\pgfpoint{25.632927\du}{6.852366\du}}
-\pgfpathcurveto{\pgfpoint{25.175896\du}{6.852366\du}}{\pgfpoint{24.805400\du}{6.380267\du}}{\pgfpoint{24.805400\du}{5.797903\du}}
-\pgfpathcurveto{\pgfpoint{24.805400\du}{5.215539\du}}{\pgfpoint{25.175896\du}{4.743440\du}}{\pgfpoint{25.632927\du}{4.743440\du}}
+\pgfpathmoveto{\pgfpoint{28.232621\du}{4.744720\du}}
+\pgfpathlineto{\pgfpoint{31.542731\du}{4.744720\du}}
+\pgfpathcurveto{\pgfpoint{31.999762\du}{4.744720\du}}{\pgfpoint{32.370258\du}{5.216819\du}}{\pgfpoint{32.370258\du}{5.799183\du}}
+\pgfpathcurveto{\pgfpoint{32.370258\du}{6.381547\du}}{\pgfpoint{31.999762\du}{6.853646\du}}{\pgfpoint{31.542731\du}{6.853646\du}}
+\pgfpathlineto{\pgfpoint{28.232621\du}{6.853646\du}}
+\pgfpathcurveto{\pgfpoint{27.775590\du}{6.853646\du}}{\pgfpoint{27.405094\du}{6.381547\du}}{\pgfpoint{27.405094\du}{5.799183\du}}
+\pgfpathcurveto{\pgfpoint{27.405094\du}{5.216819\du}}{\pgfpoint{27.775590\du}{4.744720\du}}{\pgfpoint{28.232621\du}{4.744720\du}}
 \pgfusepath{stroke}
 % setfont left to latex
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\node at (27.287982\du,5.903736\du){};
-\pgfsetlinewidth{0.042000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetlinewidth{0.042000\du}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetdash{}{0pt}
-\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
-\pgfsetfillcolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{23.267578\du}{13.946100\du}}
-\pgfpathlineto{\pgfpoint{27.139491\du}{13.946100\du}}
-\pgfpathcurveto{\pgfpoint{27.674090\du}{13.946100\du}}{\pgfpoint{28.107469\du}{14.386275\du}}{\pgfpoint{28.107469\du}{14.929259\du}}
-\pgfpathcurveto{\pgfpoint{28.107469\du}{15.472242\du}}{\pgfpoint{27.674090\du}{15.912417\du}}{\pgfpoint{27.139491\du}{15.912417\du}}
-\pgfpathlineto{\pgfpoint{23.267578\du}{15.912417\du}}
-\pgfpathcurveto{\pgfpoint{22.732978\du}{15.912417\du}}{\pgfpoint{22.299600\du}{15.472242\du}}{\pgfpoint{22.299600\du}{14.929259\du}}
-\pgfpathcurveto{\pgfpoint{22.299600\du}{14.386275\du}}{\pgfpoint{22.732978\du}{13.946100\du}}{\pgfpoint{23.267578\du}{13.946100\du}}
-\pgfusepath{fill}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{23.267578\du}{13.946100\du}}
-\pgfpathlineto{\pgfpoint{27.139491\du}{13.946100\du}}
-\pgfpathcurveto{\pgfpoint{27.674090\du}{13.946100\du}}{\pgfpoint{28.107469\du}{14.386275\du}}{\pgfpoint{28.107469\du}{14.929259\du}}
-\pgfpathcurveto{\pgfpoint{28.107469\du}{15.472242\du}}{\pgfpoint{27.674090\du}{15.912417\du}}{\pgfpoint{27.139491\du}{15.912417\du}}
-\pgfpathlineto{\pgfpoint{23.267578\du}{15.912417\du}}
-\pgfpathcurveto{\pgfpoint{22.732978\du}{15.912417\du}}{\pgfpoint{22.299600\du}{15.472242\du}}{\pgfpoint{22.299600\du}{14.929259\du}}
-\pgfpathcurveto{\pgfpoint{22.299600\du}{14.386275\du}}{\pgfpoint{22.732978\du}{13.946100\du}}{\pgfpoint{23.267578\du}{13.946100\du}}
-\pgfusepath{stroke}
-% setfont left to latex
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\node at (25.203534\du,15.035092\du){plotRoute};
-\pgfsetlinewidth{0.042000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetlinewidth{0.042000\du}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetdash{}{0pt}
-\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
-\pgfsetfillcolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{25.430664\du}{17.380200\du}}
-\pgfpathlineto{\pgfpoint{29.021721\du}{17.380200\du}}
-\pgfpathcurveto{\pgfpoint{29.517543\du}{17.380200\du}}{\pgfpoint{29.919485\du}{17.862930\du}}{\pgfpoint{29.919485\du}{18.458408\du}}
-\pgfpathcurveto{\pgfpoint{29.919485\du}{19.053886\du}}{\pgfpoint{29.517543\du}{19.536616\du}}{\pgfpoint{29.021721\du}{19.536616\du}}
-\pgfpathlineto{\pgfpoint{25.430664\du}{19.536616\du}}
-\pgfpathcurveto{\pgfpoint{24.934843\du}{19.536616\du}}{\pgfpoint{24.532900\du}{19.053886\du}}{\pgfpoint{24.532900\du}{18.458408\du}}
-\pgfpathcurveto{\pgfpoint{24.532900\du}{17.862930\du}}{\pgfpoint{24.934843\du}{17.380200\du}}{\pgfpoint{25.430664\du}{17.380200\du}}
-\pgfusepath{fill}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{25.430664\du}{17.380200\du}}
-\pgfpathlineto{\pgfpoint{29.021721\du}{17.380200\du}}
-\pgfpathcurveto{\pgfpoint{29.517543\du}{17.380200\du}}{\pgfpoint{29.919485\du}{17.862930\du}}{\pgfpoint{29.919485\du}{18.458408\du}}
-\pgfpathcurveto{\pgfpoint{29.919485\du}{19.053886\du}}{\pgfpoint{29.517543\du}{19.536616\du}}{\pgfpoint{29.021721\du}{19.536616\du}}
-\pgfpathlineto{\pgfpoint{25.430664\du}{19.536616\du}}
-\pgfpathcurveto{\pgfpoint{24.934843\du}{19.536616\du}}{\pgfpoint{24.532900\du}{19.053886\du}}{\pgfpoint{24.532900\du}{18.458408\du}}
-\pgfpathcurveto{\pgfpoint{24.532900\du}{17.862930\du}}{\pgfpoint{24.934843\du}{17.380200\du}}{\pgfpoint{25.430664\du}{17.380200\du}}
-\pgfusepath{stroke}
-% setfont left to latex
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\node at (27.226193\du,18.564241\du){threshold};
-\pgfsetlinewidth{0.042000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetlinewidth{0.042000\du}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetdash{}{0pt}
-\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
-\pgfsetfillcolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{18.012060\du}{23.788200\du}}
-\pgfpathlineto{\pgfpoint{21.676701\du}{23.788200\du}}
-\pgfpathcurveto{\pgfpoint{22.182682\du}{23.788200\du}}{\pgfpoint{22.592861\du}{24.244709\du}}{\pgfpoint{22.592861\du}{24.807842\du}}
-\pgfpathcurveto{\pgfpoint{22.592861\du}{25.370974\du}}{\pgfpoint{22.182682\du}{25.827483\du}}{\pgfpoint{21.676701\du}{25.827483\du}}
-\pgfpathlineto{\pgfpoint{18.012060\du}{25.827483\du}}
-\pgfpathcurveto{\pgfpoint{17.506079\du}{25.827483\du}}{\pgfpoint{17.095900\du}{25.370974\du}}{\pgfpoint{17.095900\du}{24.807842\du}}
-\pgfpathcurveto{\pgfpoint{17.095900\du}{24.244709\du}}{\pgfpoint{17.506079\du}{23.788200\du}}{\pgfpoint{18.012060\du}{23.788200\du}}
-\pgfusepath{fill}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{18.012060\du}{23.788200\du}}
-\pgfpathlineto{\pgfpoint{21.676701\du}{23.788200\du}}
-\pgfpathcurveto{\pgfpoint{22.182682\du}{23.788200\du}}{\pgfpoint{22.592861\du}{24.244709\du}}{\pgfpoint{22.592861\du}{24.807842\du}}
-\pgfpathcurveto{\pgfpoint{22.592861\du}{25.370974\du}}{\pgfpoint{22.182682\du}{25.827483\du}}{\pgfpoint{21.676701\du}{25.827483\du}}
-\pgfpathlineto{\pgfpoint{18.012060\du}{25.827483\du}}
-\pgfpathcurveto{\pgfpoint{17.506079\du}{25.827483\du}}{\pgfpoint{17.095900\du}{25.370974\du}}{\pgfpoint{17.095900\du}{24.807842\du}}
-\pgfpathcurveto{\pgfpoint{17.095900\du}{24.244709\du}}{\pgfpoint{17.506079\du}{23.788200\du}}{\pgfpoint{18.012060\du}{23.788200\du}}
-\pgfusepath{stroke}
-% setfont left to latex
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\node at (19.844381\du,24.913675\du){Wprime};
-\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
-\pgfsetfillcolor{dialinecolor}
-\fill (12.122100\du,30.162800\du)--(12.122100\du,33.084856\du)--(19.100000\du,33.084856\du)--(19.100000\du,30.162800\du)--cycle;
-\pgfsetlinewidth{0.042000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetmiterjoin
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\draw (12.122100\du,30.162800\du)--(12.122100\du,33.084856\du)--(19.100000\du,33.084856\du)--(19.100000\du,30.162800\du)--cycle;
-% setfont left to latex
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\node at (15.611050\du,31.724661\du){trackeRdataZones};
-\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
-\pgfsetfillcolor{dialinecolor}
-\fill (16.439400\du,34.407800\du)--(16.439400\du,37.329856\du)--(23.249516\du,37.329856\du)--(23.249516\du,34.407800\du)--cycle;
-\pgfsetlinewidth{0.042000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetmiterjoin
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\draw (16.439400\du,34.407800\du)--(16.439400\du,37.329856\du)--(23.249516\du,37.329856\du)--(23.249516\du,34.407800\du)--cycle;
-% setfont left to latex
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\node at (19.844458\du,35.969661\du){trackeRWprime};
-\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
-\pgfsetfillcolor{dialinecolor}
-\fill (20.944100\du,30.038500\du)--(20.944100\du,33.209220\du)--(27.109490\du,33.209220\du)--(27.109490\du,30.038500\du)--cycle;
-\pgfsetlinewidth{0.042000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetmiterjoin
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\draw (20.944100\du,30.038500\du)--(20.944100\du,33.209220\du)--(27.109490\du,33.209220\du)--(27.109490\du,30.038500\du)--cycle;
-% setfont left to latex
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\node at (24.026795\du,31.724693\du){distrProfile};
-\pgfsetlinewidth{0.042000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetlinewidth{0.042000\du}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetdash{}{0pt}
-\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
-\pgfsetfillcolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{21.064018\du}{39.998100\du}}
-\pgfpathlineto{\pgfpoint{26.835290\du}{39.998100\du}}
-\pgfpathcurveto{\pgfpoint{27.632137\du}{39.998100\du}}{\pgfpoint{28.278109\du}{40.450980\du}}{\pgfpoint{28.278109\du}{41.009636\du}}
-\pgfpathcurveto{\pgfpoint{28.278109\du}{41.568293\du}}{\pgfpoint{27.632137\du}{42.021173\du}}{\pgfpoint{26.835290\du}{42.021173\du}}
-\pgfpathlineto{\pgfpoint{21.064018\du}{42.021173\du}}
-\pgfpathcurveto{\pgfpoint{20.267171\du}{42.021173\du}}{\pgfpoint{19.621200\du}{41.568293\du}}{\pgfpoint{19.621200\du}{41.009636\du}}
-\pgfpathcurveto{\pgfpoint{19.621200\du}{40.450980\du}}{\pgfpoint{20.267171\du}{39.998100\du}}{\pgfpoint{21.064018\du}{39.998100\du}}
-\pgfusepath{fill}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{21.064018\du}{39.998100\du}}
-\pgfpathlineto{\pgfpoint{26.835290\du}{39.998100\du}}
-\pgfpathcurveto{\pgfpoint{27.632137\du}{39.998100\du}}{\pgfpoint{28.278109\du}{40.450980\du}}{\pgfpoint{28.278109\du}{41.009636\du}}
-\pgfpathcurveto{\pgfpoint{28.278109\du}{41.568293\du}}{\pgfpoint{27.632137\du}{42.021173\du}}{\pgfpoint{26.835290\du}{42.021173\du}}
-\pgfpathlineto{\pgfpoint{21.064018\du}{42.021173\du}}
-\pgfpathcurveto{\pgfpoint{20.267171\du}{42.021173\du}}{\pgfpoint{19.621200\du}{41.568293\du}}{\pgfpoint{19.621200\du}{41.009636\du}}
-\pgfpathcurveto{\pgfpoint{19.621200\du}{40.450980\du}}{\pgfpoint{20.267171\du}{39.998100\du}}{\pgfpoint{21.064018\du}{39.998100\du}}
-\pgfusepath{stroke}
-% setfont left to latex
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\node at (23.949654\du,41.115470\du){concentrationProfile};
-\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
-\pgfsetfillcolor{dialinecolor}
-\fill (24.922700\du,34.313000\du)--(24.922700\du,37.424597\du)--(31.381551\du,37.424597\du)--(31.381551\du,34.313000\du)--cycle;
-\pgfsetlinewidth{0.042000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetmiterjoin
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\draw (24.922700\du,34.313000\du)--(24.922700\du,37.424597\du)--(31.381551\du,37.424597\du)--(31.381551\du,34.313000\du)--cycle;
-% setfont left to latex
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\node at (28.152126\du,35.969632\du){conProfile};
-\pgfsetlinewidth{0.040000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetlinewidth{0.040000\du}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetdash{}{0pt}
-\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
-\pgfsetfillcolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{3.418128\du}{26.326600\du}}
-\pgfpathlineto{\pgfpoint{6.222639\du}{26.326600\du}}
-\pgfpathcurveto{\pgfpoint{6.609861\du}{26.326600\du}}{\pgfpoint{6.923766\du}{26.761493\du}}{\pgfpoint{6.923766\du}{27.297961\du}}
-\pgfpathcurveto{\pgfpoint{6.923766\du}{27.834429\du}}{\pgfpoint{6.609861\du}{28.269322\du}}{\pgfpoint{6.222639\du}{28.269322\du}}
-\pgfpathlineto{\pgfpoint{3.418128\du}{28.269322\du}}
-\pgfpathcurveto{\pgfpoint{3.030905\du}{28.269322\du}}{\pgfpoint{2.717000\du}{27.834429\du}}{\pgfpoint{2.717000\du}{27.297961\du}}
-\pgfpathcurveto{\pgfpoint{2.717000\du}{26.761493\du}}{\pgfpoint{3.030905\du}{26.326600\du}}{\pgfpoint{3.418128\du}{26.326600\du}}
-\pgfusepath{fill}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{3.418128\du}{26.326600\du}}
-\pgfpathlineto{\pgfpoint{6.222639\du}{26.326600\du}}
-\pgfpathcurveto{\pgfpoint{6.609861\du}{26.326600\du}}{\pgfpoint{6.923766\du}{26.761493\du}}{\pgfpoint{6.923766\du}{27.297961\du}}
-\pgfpathcurveto{\pgfpoint{6.923766\du}{27.834429\du}}{\pgfpoint{6.609861\du}{28.269322\du}}{\pgfpoint{6.222639\du}{28.269322\du}}
-\pgfpathlineto{\pgfpoint{3.418128\du}{28.269322\du}}
-\pgfpathcurveto{\pgfpoint{3.030905\du}{28.269322\du}}{\pgfpoint{2.717000\du}{27.834429\du}}{\pgfpoint{2.717000\du}{27.297961\du}}
-\pgfpathcurveto{\pgfpoint{2.717000\du}{26.761493\du}}{\pgfpoint{3.030905\du}{26.326600\du}}{\pgfpoint{3.418128\du}{26.326600\du}}
-\pgfusepath{stroke}
-% setfont left to latex
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\node at (4.820383\du,27.403794\du){plot};
-\pgfsetlinewidth{0.040000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetlinewidth{0.040000\du}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetdash{}{0pt}
-\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
-\pgfsetfillcolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{28.255321\du}{21.078800\du}}
-\pgfpathlineto{\pgfpoint{32.016204\du}{21.078800\du}}
-\pgfpathcurveto{\pgfpoint{32.535474\du}{21.078800\du}}{\pgfpoint{32.956425\du}{21.532826\du}}{\pgfpoint{32.956425\du}{22.092895\du}}
-\pgfpathcurveto{\pgfpoint{32.956425\du}{22.652965\du}}{\pgfpoint{32.535474\du}{23.106991\du}}{\pgfpoint{32.016204\du}{23.106991\du}}
-\pgfpathlineto{\pgfpoint{28.255321\du}{23.106991\du}}
-\pgfpathcurveto{\pgfpoint{27.736051\du}{23.106991\du}}{\pgfpoint{27.315100\du}{22.652965\du}}{\pgfpoint{27.315100\du}{22.092895\du}}
-\pgfpathcurveto{\pgfpoint{27.315100\du}{21.532826\du}}{\pgfpoint{27.736051\du}{21.078800\du}}{\pgfpoint{28.255321\du}{21.078800\du}}
-\pgfusepath{fill}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{28.255321\du}{21.078800\du}}
-\pgfpathlineto{\pgfpoint{32.016204\du}{21.078800\du}}
-\pgfpathcurveto{\pgfpoint{32.535474\du}{21.078800\du}}{\pgfpoint{32.956425\du}{21.532826\du}}{\pgfpoint{32.956425\du}{22.092895\du}}
-\pgfpathcurveto{\pgfpoint{32.956425\du}{22.652965\du}}{\pgfpoint{32.535474\du}{23.106991\du}}{\pgfpoint{32.016204\du}{23.106991\du}}
-\pgfpathlineto{\pgfpoint{28.255321\du}{23.106991\du}}
-\pgfpathcurveto{\pgfpoint{27.736051\du}{23.106991\du}}{\pgfpoint{27.315100\du}{22.652965\du}}{\pgfpoint{27.315100\du}{22.092895\du}}
-\pgfpathcurveto{\pgfpoint{27.315100\du}{21.532826\du}}{\pgfpoint{27.736051\du}{21.078800\du}}{\pgfpoint{28.255321\du}{21.078800\du}}
-\pgfusepath{stroke}
-% setfont left to latex
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\node at (30.135762\du,22.198729\du){smoother};
-\pgfsetlinewidth{0.040000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetlinewidth{0.040000\du}
-\pgfsetbuttcap
-\pgfsetmiterjoin
-\pgfsetdash{}{0pt}
-\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
-\pgfsetfillcolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{2.939941\du}{39.995600\du}}
-\pgfpathlineto{\pgfpoint{6.700824\du}{39.995600\du}}
-\pgfpathcurveto{\pgfpoint{7.220094\du}{39.995600\du}}{\pgfpoint{7.641045\du}{40.449626\du}}{\pgfpoint{7.641045\du}{41.009695\du}}
-\pgfpathcurveto{\pgfpoint{7.641045\du}{41.569765\du}}{\pgfpoint{7.220094\du}{42.023791\du}}{\pgfpoint{6.700824\du}{42.023791\du}}
-\pgfpathlineto{\pgfpoint{2.939941\du}{42.023791\du}}
-\pgfpathcurveto{\pgfpoint{2.420671\du}{42.023791\du}}{\pgfpoint{1.999720\du}{41.569765\du}}{\pgfpoint{1.999720\du}{41.009695\du}}
-\pgfpathcurveto{\pgfpoint{1.999720\du}{40.449626\du}}{\pgfpoint{2.420671\du}{39.995600\du}}{\pgfpoint{2.939941\du}{39.995600\du}}
-\pgfusepath{fill}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\pgfpathmoveto{\pgfpoint{2.939941\du}{39.995600\du}}
-\pgfpathlineto{\pgfpoint{6.700824\du}{39.995600\du}}
-\pgfpathcurveto{\pgfpoint{7.220094\du}{39.995600\du}}{\pgfpoint{7.641045\du}{40.449626\du}}{\pgfpoint{7.641045\du}{41.009695\du}}
-\pgfpathcurveto{\pgfpoint{7.641045\du}{41.569765\du}}{\pgfpoint{7.220094\du}{42.023791\du}}{\pgfpoint{6.700824\du}{42.023791\du}}
-\pgfpathlineto{\pgfpoint{2.939941\du}{42.023791\du}}
-\pgfpathcurveto{\pgfpoint{2.420671\du}{42.023791\du}}{\pgfpoint{1.999720\du}{41.569765\du}}{\pgfpoint{1.999720\du}{41.009695\du}}
-\pgfpathcurveto{\pgfpoint{1.999720\du}{40.449626\du}}{\pgfpoint{2.420671\du}{39.995600\du}}{\pgfpoint{2.939941\du}{39.995600\du}}
-\pgfusepath{stroke}
-% setfont left to latex
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\node at (4.820382\du,41.115529\du){changeUnits};
+\node at (29.887676\du,5.905016\du){};
 \pgfsetlinewidth{0.040000\du}
 \pgfsetdash{}{0pt}
 \pgfsetdash{}{0pt}
@@ -858,7 +444,7 @@ applies to objects of classes \class{trackeRdataZones},
 \pgfsetarrowsend{to}
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\draw (12.371930\du,3.316490\du)--(12.371920\du,4.722504\du);
+\draw (12.376167\du,3.630929\du)--(12.376167\du,4.723586\du);
 }
 \pgfsetlinewidth{0.040000\du}
 \pgfsetdash{}{0pt}
@@ -871,7 +457,7 @@ applies to objects of classes \class{trackeRdataZones},
 \pgfsetarrowsend{to}
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\draw (19.974053\du,3.316490\du)--(19.974070\du,4.722504\du);
+\draw (18.255743\du,3.316490\du)--(18.255759\du,4.723612\du);
 }
 \pgfsetlinewidth{0.040000\du}
 \pgfsetdash{}{0pt}
@@ -884,7 +470,7 @@ applies to objects of classes \class{trackeRdataZones},
 \pgfsetarrowsend{to}
 \definecolor{dialinecolor}{rgb}{0.498039, 0.498039, 0.498039}
 \pgfsetstrokecolor{dialinecolor}
-\draw (27.288020\du,3.316038\du)--(27.287999\du,4.723859\du);
+\draw (29.887689\du,3.316038\du)--(29.887682\du,4.724629\du);
 }
 \pgfsetlinewidth{0.040000\du}
 \pgfsetdash{}{0pt}
@@ -897,7 +483,7 @@ applies to objects of classes \class{trackeRdataZones},
 \pgfsetarrowsend{to}
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\draw (13.442976\du,6.872249\du)--(15.298610\du,8.733569\du);
+\draw (14.418331\du,6.754427\du)--(18.895467\du,8.848656\du);
 }
 \pgfsetlinewidth{0.040000\du}
 \pgfsetdash{}{0pt}
@@ -910,7 +496,7 @@ applies to objects of classes \class{trackeRdataZones},
 \pgfsetarrowsend{to}
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\draw (19.081500\du,6.872249\du)--(17.535089\du,8.733569\du);
+\draw (19.033144\du,6.873199\du)--(20.379952\du,8.733946\du);
 }
 \pgfsetlinewidth{0.040000\du}
 \pgfsetdash{}{0pt}
@@ -923,7 +509,7 @@ applies to objects of classes \class{trackeRdataZones},
 \pgfsetarrowsend{to}
 \definecolor{dialinecolor}{rgb}{0.498039, 0.498039, 0.498039}
 \pgfsetstrokecolor{dialinecolor}
-\draw (25.109632\du,6.639203\du)--(18.896008\du,9.038966\du);
+\draw (27.874182\du,6.770162\du)--(23.641950\du,8.811096\du);
 }
 \pgfsetlinewidth{0.040000\du}
 \pgfsetdash{}{0pt}
@@ -937,7 +523,7 @@ applies to objects of classes \class{trackeRdataZones},
 \pgfsetarrowsend{to}
 {\pgfsetcornersarced{\pgfpoint{0.000000\du}{0.000000\du}}\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\draw (19.974067\du,0.879503\du)--(19.974080\du,0.306596\du)--(5.007550\du,0.306596\du)--(5.007550\du,8.768290\du);
+\draw (18.255772\du,1.030938\du)--(18.255772\du,0.598385\du)--(7.992520\du,0.598385\du)--(7.992520\du,10.497076\du);
 }}
 \pgfsetlinewidth{0.040000\du}
 \pgfsetdash{}{0pt}
@@ -951,7 +537,7 @@ applies to objects of classes \class{trackeRdataZones},
 \pgfsetarrowsend{to}
 {\pgfsetcornersarced{\pgfpoint{0.000000\du}{0.000000\du}}\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\draw (6.014842\du,11.104526\du)--(6.014842\du,18.375500\du)--(13.492100\du,18.375500\du);
+\draw (7.992520\du,12.790885\du)--(7.992520\du,19.147385\du)--(18.263096\du,19.147385\du);
 }}
 \pgfsetlinewidth{0.040000\du}
 \pgfsetdash{}{0pt}
@@ -964,7 +550,7 @@ applies to objects of classes \class{trackeRdataZones},
 \pgfsetarrowsend{to}
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\draw (16.518499\du,11.180806\du)--(16.518510\du,12.799222\du);
+\draw (21.265341\du,11.180818\du)--(21.265354\du,13.025817\du);
 }
 \pgfsetlinewidth{0.040000\du}
 \pgfsetdash{}{0pt}
@@ -977,150 +563,7 @@ applies to objects of classes \class{trackeRdataZones},
 \pgfsetarrowsend{to}
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\draw (16.518520\du,15.355236\du)--(16.518521\du,17.666299\du);
-}
-\pgfsetlinewidth{0.040000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-{
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetfillcolor{dialinecolor}
-% was here!!!
-\pgfsetarrowsend{to}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\draw (19.522018\du,17.688650\du)--(23.154202\du,15.924576\du);
-}
-\pgfsetlinewidth{0.040000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-{
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetfillcolor{dialinecolor}
-% was here!!!
-\pgfsetarrowsend{to}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\draw (15.212894\du,20.627987\du)--(12.370961\du,23.850785\du);
-}
-\pgfsetlinewidth{0.040000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-{
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetfillcolor{dialinecolor}
-% was here!!!
-\pgfsetarrowsend{to}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\draw (16.353189\du,20.628198\du)--(15.727198\du,26.234951\du);
-}
-\pgfsetlinewidth{0.040000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-{
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetfillcolor{dialinecolor}
-% was here!!!
-\pgfsetarrowsend{to}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\draw (17.382465\du,20.617777\du)--(19.232759\du,23.766890\du);
-}
-\pgfsetlinewidth{0.040000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-{
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetfillcolor{dialinecolor}
-% was here!!!
-\pgfsetarrowsend{to}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\draw (18.434346\du,20.628198\du)--(25.698433\du,26.242889\du);
-}
-\pgfsetlinewidth{0.040000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-{
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetfillcolor{dialinecolor}
-% was here!!!
-\pgfsetarrowsend{to}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\draw (11.459060\du,25.918999\du)--(11.459060\du,34.406692\du);
-}
-\pgfsetlinewidth{0.040000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-{
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetfillcolor{dialinecolor}
-% was here!!!
-\pgfsetarrowsend{to}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\draw (15.611050\du,28.316206\du)--(15.611050\du,30.143865\du);
-}
-\pgfsetlinewidth{0.040000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-{
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetfillcolor{dialinecolor}
-% was here!!!
-\pgfsetarrowsend{to}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\draw (19.844388\du,25.848185\du)--(19.844448\du,34.387639\du);
-}
-\pgfsetlinewidth{0.040000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-{
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetfillcolor{dialinecolor}
-% was here!!!
-\pgfsetarrowsend{to}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\draw (26.320050\du,28.307720\du)--(25.137814\du,30.017281\du);
-}
-\pgfsetlinewidth{0.040000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-{
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetfillcolor{dialinecolor}
-% was here!!!
-\pgfsetarrowsend{to}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\draw (23.939800\du,33.312000\du)--(23.948333\du,39.977428\du);
-}
-\pgfsetlinewidth{0.040000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-{
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetfillcolor{dialinecolor}
-% was here!!!
-\pgfsetarrowsend{to}
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\draw (24.793534\du,39.977327\du)--(26.862964\du,37.445816\du);
+\draw (21.265363\du,15.581732\du)--(21.265364\du,17.666377\du);
 }
 \pgfsetlinewidth{0.040000\du}
 \pgfsetdash{}{0pt}
@@ -1134,38 +577,55 @@ applies to objects of classes \class{trackeRdataZones},
 \pgfsetarrowsend{to}
 {\pgfsetcornersarced{\pgfpoint{0.000000\du}{0.000000\du}}\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\draw (13.535800\du,19.877500\du)--(4.820383\du,19.877500\du)--(4.820383\du,26.306543\du);
+\draw (9.881535\du,2.347835\du)--(9.013680\du,2.347835\du)--(9.013680\du,10.515309\du);
 }}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\fill (24.102548\du,1.084742\du)--(26.577179\du,2.347835\du)--(24.102548\du,3.610929\du)--(21.627916\du,2.347835\du)--cycle;
 \pgfsetlinewidth{0.040000\du}
 \pgfsetdash{}{0pt}
 \pgfsetdash{}{0pt}
 \pgfsetmiterjoin
-\pgfsetbuttcap
-{
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetfillcolor{dialinecolor}
-% was here!!!
-\pgfsetarrowsstart{to}
-\pgfsetarrowsend{to}
-{\pgfsetcornersarced{\pgfpoint{0.000000\du}{0.000000\du}}\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\draw (33.042500\du,22.389700\du)--(34.044900\du,22.389700\du)--(34.044900\du,31.623841\du)--(27.129326\du,31.623854\du);
-}}
-\pgfsetlinewidth{0.040000\du}
+\draw (24.102548\du,1.084742\du)--(26.577179\du,2.347835\du)--(24.102548\du,3.610929\du)--(21.627916\du,2.347835\du)--cycle;
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (24.102548\du,2.448669\du){JSON file};
+\pgfsetlinewidth{0.042000\du}
 \pgfsetdash{}{0pt}
 \pgfsetdash{}{0pt}
+\pgfsetbuttcap
 \pgfsetmiterjoin
+\pgfsetlinewidth{0.042000\du}
 \pgfsetbuttcap
-{
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetmiterjoin
+\pgfsetdash{}{0pt}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
 \pgfsetfillcolor{dialinecolor}
-% was here!!!
-\pgfsetarrowsstart{to}
-\pgfsetarrowsend{to}
-{\pgfsetcornersarced{\pgfpoint{0.000000\du}{0.000000\du}}\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfpathmoveto{\pgfpoint{22.459995\du}{4.744720\du}}
+\pgfpathlineto{\pgfpoint{25.770104\du}{4.744720\du}}
+\pgfpathcurveto{\pgfpoint{26.227135\du}{4.744720\du}}{\pgfpoint{26.597632\du}{5.216819\du}}{\pgfpoint{26.597632\du}{5.799183\du}}
+\pgfpathcurveto{\pgfpoint{26.597632\du}{6.381547\du}}{\pgfpoint{26.227135\du}{6.853646\du}}{\pgfpoint{25.770104\du}{6.853646\du}}
+\pgfpathlineto{\pgfpoint{22.459995\du}{6.853646\du}}
+\pgfpathcurveto{\pgfpoint{22.002964\du}{6.853646\du}}{\pgfpoint{21.632467\du}{6.381547\du}}{\pgfpoint{21.632467\du}{5.799183\du}}
+\pgfpathcurveto{\pgfpoint{21.632467\du}{5.216819\du}}{\pgfpoint{22.002964\du}{4.744720\du}}{\pgfpoint{22.459995\du}{4.744720\du}}
+\pgfusepath{fill}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\draw (13.516466\du,19.147385\du)--(1.195880\du,19.147388\du)--(1.195880\du,41.009699\du)--(2.001128\du,41.009698\du);
-}}
+\pgfpathmoveto{\pgfpoint{22.459995\du}{4.744720\du}}
+\pgfpathlineto{\pgfpoint{25.770104\du}{4.744720\du}}
+\pgfpathcurveto{\pgfpoint{26.227135\du}{4.744720\du}}{\pgfpoint{26.597632\du}{5.216819\du}}{\pgfpoint{26.597632\du}{5.799183\du}}
+\pgfpathcurveto{\pgfpoint{26.597632\du}{6.381547\du}}{\pgfpoint{26.227135\du}{6.853646\du}}{\pgfpoint{25.770104\du}{6.853646\du}}
+\pgfpathlineto{\pgfpoint{22.459995\du}{6.853646\du}}
+\pgfpathcurveto{\pgfpoint{22.002964\du}{6.853646\du}}{\pgfpoint{21.632467\du}{6.381547\du}}{\pgfpoint{21.632467\du}{5.799183\du}}
+\pgfpathcurveto{\pgfpoint{21.632467\du}{5.216819\du}}{\pgfpoint{22.002964\du}{4.744720\du}}{\pgfpoint{22.459995\du}{4.744720\du}}
+\pgfusepath{stroke}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (24.115050\du,5.905016\du){readJSON};
 \pgfsetlinewidth{0.040000\du}
 \pgfsetdash{}{0pt}
 \pgfsetdash{}{0pt}
@@ -1174,11 +634,23 @@ applies to objects of classes \class{trackeRdataZones},
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetfillcolor{dialinecolor}
 % was here!!!
-\pgfsetarrowsstart{to}
 \pgfsetarrowsend{to}
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\draw (19.522538\du,18.954093\du)--(24.525747\du,18.632166\du);
+\draw (24.109220\du,3.627032\du)--(24.115050\du,4.744720\du);
+}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (23.378965\du,6.873199\du)--(22.103689\du,8.733946\du);
 }
 \pgfsetlinewidth{0.040000\du}
 \pgfsetdash{}{0pt}
@@ -1192,89 +664,1067 @@ applies to objects of classes \class{trackeRdataZones},
 \pgfsetarrowsend{to}
 {\pgfsetcornersarced{\pgfpoint{0.000000\du}{0.000000\du}}\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\draw (10.076202\du,2.097914\du)--(7.020010\du,2.097913\du)--(7.020010\du,8.768290\du);
+\draw (24.102548\du,1.064742\du)--(24.102548\du,0.079907\du)--(6.971359\du,0.079907\du)--(6.971359\du,10.515309\du);
 }}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\fill (18.238111\du,1.084742\du)--(20.712743\du,2.347835\du)--(18.238111\du,3.610929\du)--(15.763480\du,2.347835\du)--cycle;
 \pgfsetlinewidth{0.040000\du}
 \pgfsetdash{}{0pt}
 \pgfsetdash{}{0pt}
 \pgfsetmiterjoin
-\pgfsetbuttcap
-{
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetfillcolor{dialinecolor}
-% was here!!!
-\pgfsetarrowsstart{to}
-{\pgfsetcornersarced{\pgfpoint{0.000000\du}{0.000000\du}}\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\draw (4.820383\du,28.289541\du)--(4.820383\du,32.640300\du)--(6.316770\du,32.640300\du);
-}}
+\draw (18.238111\du,1.084742\du)--(20.712743\du,2.347835\du)--(18.238111\du,3.610929\du)--(15.763480\du,2.347835\du)--cycle;
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (18.238111\du,2.448669\du){db3 file};
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\fill (12.376167\du,1.084742\du)--(14.850798\du,2.347835\du)--(12.376167\du,3.610929\du)--(9.901535\du,2.347835\du)--cycle;
 \pgfsetlinewidth{0.040000\du}
 \pgfsetdash{}{0pt}
 \pgfsetdash{}{0pt}
 \pgfsetmiterjoin
-\pgfsetbuttcap
-{
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetfillcolor{dialinecolor}
-% was here!!!
-\pgfsetarrowsstart{to}
-\pgfsetarrowsend{to}
-{\pgfsetcornersarced{\pgfpoint{0.000000\du}{0.000000\du}}\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetstrokecolor{dialinecolor}
-\draw (4.820382\du,39.975334\du)--(4.820382\du,33.758100\du)--(6.330400\du,33.758100\du);
-}}
-\pgfsetlinewidth{0.040000\du}
-\pgfsetdash{}{0pt}
-\pgfsetdash{}{0pt}
-\pgfsetbuttcap
-{
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetfillcolor{dialinecolor}
-% was here!!!
-\pgfsetarrowsstart{to}
-\pgfsetarrowsend{to}
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\draw (19.522642\du,19.797198\du)--(27.462016\du,21.514544\du);
-}
+\draw (12.376167\du,1.084742\du)--(14.850798\du,2.347835\du)--(12.376167\du,3.610929\du)--(9.901535\du,2.347835\du)--cycle;
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (12.376167\du,2.448669\du){tcx file};
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\fill (29.875265\du,1.084742\du)--(32.349897\du,2.347835\du)--(29.875265\du,3.610929\du)--(27.400634\du,2.347835\du)--cycle;
 \pgfsetlinewidth{0.040000\du}
 \pgfsetdash{}{0pt}
 \pgfsetdash{}{0pt}
 \pgfsetmiterjoin
-\pgfsetbuttcap
-{
-\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
-\pgfsetfillcolor{dialinecolor}
-% was here!!!
-\pgfsetarrowsstart{to}
-\pgfsetarrowsend{to}
-{\pgfsetcornersarced{\pgfpoint{0.000000\du}{0.000000\du}}\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\definecolor{dialinecolor}{rgb}{0.498039, 0.498039, 0.498039}
 \pgfsetstrokecolor{dialinecolor}
-\draw (33.004000\du,21.772800\du)--(34.623300\du,21.772800\du)--(34.623300\du,35.868799\du)--(31.401932\du,35.868799\du);
-}}
+\draw (29.875265\du,1.084742\du)--(32.349897\du,2.347835\du)--(29.875265\du,3.610929\du)--(27.400634\du,2.347835\du)--cycle;
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (29.875265\du,2.448669\du){};
+\end{tikzpicture}
+        
+  }
+  \caption{Package structure - Functionality to read tracking data.}
+  \label{fig:pkgstructure:read}
+\end{figure}
+%
+%
+\begin{figure}[t]
+  \centering
+  {\scriptsize %\tiny %\footnotesize
+  % \input{pkg_structure_revision_rest} %% NOTE: \setlength{\du}{10\unitlength} was changed manually.
+% Graphic for TeX using PGF
+% Title: /home/frick/svn/EISproject/pkg/trackeR/vignettes/pkg_structure_revision_rest.dia
+% Creator: Dia v0.97.3
+% CreationDate: Wed Oct 12 20:26:29 2016
+% For: frick
+% \usepackage{tikz}
+% The following commands are not supported in PSTricks at present
+% We define them conditionally, so when they are implemented,
+% this pgf file will use them.
+\ifx\du\undefined
+  \newlength{\du}
+\fi
+\setlength{\du}{10\unitlength}
+\begin{tikzpicture}
+\pgftransformxscale{1.000000}
+\pgftransformyscale{-1.000000}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
 \pgfsetlinewidth{0.100000\du}
 \pgfsetdash{}{0pt}
 \pgfsetdash{}{0pt}
 \pgfsetmiterjoin
 \definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
 \pgfsetstrokecolor{dialinecolor}
-\draw (6.400830\du,29.348900\du)--(6.400830\du,38.563603\du)--(32.232842\du,38.563603\du)--(32.232842\du,29.348900\du)--cycle;
+\draw (6.318502\du,25.785857\du)--(6.318502\du,38.563603\du)--(31.981615\du,38.563603\du)--(31.981615\du,25.785857\du)--cycle;
+\pgfsetlinewidth{0.100000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (21.061772\du,26.977961\du)--(21.061772\du,37.431794\du)--(30.793454\du,37.431794\du)--(30.793454\du,26.977961\du)--cycle;
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\fill (13.535800\du,13.560587\du)--(13.535800\du,16.481156\du)--(19.501243\du,16.481156\du)--(19.501243\du,13.560587\du)--cycle;
+\pgfsetlinewidth{0.042000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (13.535800\du,13.560587\du)--(13.535800\du,16.481156\du)--(19.501243\du,16.481156\du)--(19.501243\du,13.560587\du)--cycle;
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (16.518521\du,15.121705\du){trackeRdata};
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetlinewidth{0.040000\du}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetdash{}{0pt}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{9.592583\du}{21.454699\du}}
+\pgfpathlineto{\pgfpoint{13.353466\du}{21.454699\du}}
+\pgfpathcurveto{\pgfpoint{13.872736\du}{21.454699\du}}{\pgfpoint{14.293687\du}{21.908725\du}}{\pgfpoint{14.293687\du}{22.468795\du}}
+\pgfpathcurveto{\pgfpoint{14.293687\du}{23.028865\du}}{\pgfpoint{13.872736\du}{23.482890\du}}{\pgfpoint{13.353466\du}{23.482890\du}}
+\pgfpathlineto{\pgfpoint{9.592583\du}{23.482890\du}}
+\pgfpathcurveto{\pgfpoint{9.073313\du}{23.482890\du}}{\pgfpoint{8.652362\du}{23.028865\du}}{\pgfpoint{8.652362\du}{22.468795\du}}
+\pgfpathcurveto{\pgfpoint{8.652362\du}{21.908725\du}}{\pgfpoint{9.073313\du}{21.454699\du}}{\pgfpoint{9.592583\du}{21.454699\du}}
+\pgfusepath{fill}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{9.592583\du}{21.454699\du}}
+\pgfpathlineto{\pgfpoint{13.353466\du}{21.454699\du}}
+\pgfpathcurveto{\pgfpoint{13.872736\du}{21.454699\du}}{\pgfpoint{14.293687\du}{21.908725\du}}{\pgfpoint{14.293687\du}{22.468795\du}}
+\pgfpathcurveto{\pgfpoint{14.293687\du}{23.028865\du}}{\pgfpoint{13.872736\du}{23.482890\du}}{\pgfpoint{13.353466\du}{23.482890\du}}
+\pgfpathlineto{\pgfpoint{9.592583\du}{23.482890\du}}
+\pgfpathcurveto{\pgfpoint{9.073313\du}{23.482890\du}}{\pgfpoint{8.652362\du}{23.028865\du}}{\pgfpoint{8.652362\du}{22.468795\du}}
+\pgfpathcurveto{\pgfpoint{8.652362\du}{21.908725\du}}{\pgfpoint{9.073313\du}{21.454699\du}}{\pgfpoint{9.592583\du}{21.454699\du}}
+\pgfusepath{stroke}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (11.473025\du,22.574628\du){summary};
+\pgfsetlinewidth{0.042000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetlinewidth{0.042000\du}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetdash{}{0pt}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{24.923273\du}{17.967731\du}}
+\pgfpathlineto{\pgfpoint{30.694545\du}{17.967731\du}}
+\pgfpathcurveto{\pgfpoint{31.491392\du}{17.967731\du}}{\pgfpoint{32.137363\du}{18.420611\du}}{\pgfpoint{32.137363\du}{18.979267\du}}
+\pgfpathcurveto{\pgfpoint{32.137363\du}{19.537924\du}}{\pgfpoint{31.491392\du}{19.990804\du}}{\pgfpoint{30.694545\du}{19.990804\du}}
+\pgfpathlineto{\pgfpoint{24.923273\du}{19.990804\du}}
+\pgfpathcurveto{\pgfpoint{24.126426\du}{19.990804\du}}{\pgfpoint{23.480455\du}{19.537924\du}}{\pgfpoint{23.480455\du}{18.979267\du}}
+\pgfpathcurveto{\pgfpoint{23.480455\du}{18.420611\du}}{\pgfpoint{24.126426\du}{17.967731\du}}{\pgfpoint{24.923273\du}{17.967731\du}}
+\pgfusepath{fill}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{24.923273\du}{17.967731\du}}
+\pgfpathlineto{\pgfpoint{30.694545\du}{17.967731\du}}
+\pgfpathcurveto{\pgfpoint{31.491392\du}{17.967731\du}}{\pgfpoint{32.137363\du}{18.420611\du}}{\pgfpoint{32.137363\du}{18.979267\du}}
+\pgfpathcurveto{\pgfpoint{32.137363\du}{19.537924\du}}{\pgfpoint{31.491392\du}{19.990804\du}}{\pgfpoint{30.694545\du}{19.990804\du}}
+\pgfpathlineto{\pgfpoint{24.923273\du}{19.990804\du}}
+\pgfpathcurveto{\pgfpoint{24.126426\du}{19.990804\du}}{\pgfpoint{23.480455\du}{19.537924\du}}{\pgfpoint{23.480455\du}{18.979267\du}}
+\pgfpathcurveto{\pgfpoint{23.480455\du}{18.420611\du}}{\pgfpoint{24.126426\du}{17.967731\du}}{\pgfpoint{24.923273\du}{17.967731\du}}
+\pgfusepath{stroke}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (27.808909\du,19.085101\du){distributionProfile};
+\pgfsetlinewidth{0.042000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetlinewidth{0.042000\du}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetdash{}{0pt}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{15.217776\du}{18.992770\du}}
+\pgfpathlineto{\pgfpoint{18.882417\du}{18.992770\du}}
+\pgfpathcurveto{\pgfpoint{19.388398\du}{18.992770\du}}{\pgfpoint{19.798577\du}{19.449279\du}}{\pgfpoint{19.798577\du}{20.012412\du}}
+\pgfpathcurveto{\pgfpoint{19.798577\du}{20.575545\du}}{\pgfpoint{19.388398\du}{21.032054\du}}{\pgfpoint{18.882417\du}{21.032054\du}}
+\pgfpathlineto{\pgfpoint{15.217776\du}{21.032054\du}}
+\pgfpathcurveto{\pgfpoint{14.711794\du}{21.032054\du}}{\pgfpoint{14.301616\du}{20.575545\du}}{\pgfpoint{14.301616\du}{20.012412\du}}
+\pgfpathcurveto{\pgfpoint{14.301616\du}{19.449279\du}}{\pgfpoint{14.711794\du}{18.992770\du}}{\pgfpoint{15.217776\du}{18.992770\du}}
+\pgfusepath{fill}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{15.217776\du}{18.992770\du}}
+\pgfpathlineto{\pgfpoint{18.882417\du}{18.992770\du}}
+\pgfpathcurveto{\pgfpoint{19.388398\du}{18.992770\du}}{\pgfpoint{19.798577\du}{19.449279\du}}{\pgfpoint{19.798577\du}{20.012412\du}}
+\pgfpathcurveto{\pgfpoint{19.798577\du}{20.575545\du}}{\pgfpoint{19.388398\du}{21.032054\du}}{\pgfpoint{18.882417\du}{21.032054\du}}
+\pgfpathlineto{\pgfpoint{15.217776\du}{21.032054\du}}
+\pgfpathcurveto{\pgfpoint{14.711794\du}{21.032054\du}}{\pgfpoint{14.301616\du}{20.575545\du}}{\pgfpoint{14.301616\du}{20.012412\du}}
+\pgfpathcurveto{\pgfpoint{14.301616\du}{19.449279\du}}{\pgfpoint{14.711794\du}{18.992770\du}}{\pgfpoint{15.217776\du}{18.992770\du}}
+\pgfusepath{stroke}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (17.050096\du,20.118245\du){zones};
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\fill (7.268120\du,30.759088\du)--(7.268120\du,33.642589\du)--(15.650000\du,33.642589\du)--(15.650000\du,30.759088\du)--cycle;
+\pgfsetlinewidth{0.042000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (7.268120\du,30.759088\du)--(7.268120\du,33.642589\du)--(15.650000\du,33.642589\du)--(15.650000\du,30.759088\du)--cycle;
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (11.459060\du,32.301672\du){trackeRdataSummary};
+\pgfsetlinewidth{0.042000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetlinewidth{0.042000\du}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetdash{}{0pt}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{11.676687\du}{8.598449\du}}
+\pgfpathlineto{\pgfpoint{15.548599\du}{8.598449\du}}
+\pgfpathcurveto{\pgfpoint{16.083199\du}{8.598449\du}}{\pgfpoint{16.516577\du}{9.038624\du}}{\pgfpoint{16.516577\du}{9.581608\du}}
+\pgfpathcurveto{\pgfpoint{16.516577\du}{10.124591\du}}{\pgfpoint{16.083199\du}{10.564766\du}}{\pgfpoint{15.548599\du}{10.564766\du}}
+\pgfpathlineto{\pgfpoint{11.676687\du}{10.564766\du}}
+\pgfpathcurveto{\pgfpoint{11.142087\du}{10.564766\du}}{\pgfpoint{10.708709\du}{10.124591\du}}{\pgfpoint{10.708709\du}{9.581608\du}}
+\pgfpathcurveto{\pgfpoint{10.708709\du}{9.038624\du}}{\pgfpoint{11.142087\du}{8.598449\du}}{\pgfpoint{11.676687\du}{8.598449\du}}
+\pgfusepath{fill}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{11.676687\du}{8.598449\du}}
+\pgfpathlineto{\pgfpoint{15.548599\du}{8.598449\du}}
+\pgfpathcurveto{\pgfpoint{16.083199\du}{8.598449\du}}{\pgfpoint{16.516577\du}{9.038624\du}}{\pgfpoint{16.516577\du}{9.581608\du}}
+\pgfpathcurveto{\pgfpoint{16.516577\du}{10.124591\du}}{\pgfpoint{16.083199\du}{10.564766\du}}{\pgfpoint{15.548599\du}{10.564766\du}}
+\pgfpathlineto{\pgfpoint{11.676687\du}{10.564766\du}}
+\pgfpathcurveto{\pgfpoint{11.142087\du}{10.564766\du}}{\pgfpoint{10.708709\du}{10.124591\du}}{\pgfpoint{10.708709\du}{9.581608\du}}
+\pgfpathcurveto{\pgfpoint{10.708709\du}{9.038624\du}}{\pgfpoint{11.142087\du}{8.598449\du}}{\pgfpoint{11.676687\du}{8.598449\du}}
+\pgfusepath{stroke}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (13.612643\du,9.687441\du){plotRoute};
+\pgfsetlinewidth{0.042000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetlinewidth{0.042000\du}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetdash{}{0pt}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{19.682823\du}{8.480917\du}}
+\pgfpathlineto{\pgfpoint{23.273880\du}{8.480917\du}}
+\pgfpathcurveto{\pgfpoint{23.769702\du}{8.480917\du}}{\pgfpoint{24.171644\du}{8.963647\du}}{\pgfpoint{24.171644\du}{9.559125\du}}
+\pgfpathcurveto{\pgfpoint{24.171644\du}{10.154603\du}}{\pgfpoint{23.769702\du}{10.637333\du}}{\pgfpoint{23.273880\du}{10.637333\du}}
+\pgfpathlineto{\pgfpoint{19.682823\du}{10.637333\du}}
+\pgfpathcurveto{\pgfpoint{19.187002\du}{10.637333\du}}{\pgfpoint{18.785059\du}{10.154603\du}}{\pgfpoint{18.785059\du}{9.559125\du}}
+\pgfpathcurveto{\pgfpoint{18.785059\du}{8.963647\du}}{\pgfpoint{19.187002\du}{8.480917\du}}{\pgfpoint{19.682823\du}{8.480917\du}}
+\pgfusepath{fill}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{19.682823\du}{8.480917\du}}
+\pgfpathlineto{\pgfpoint{23.273880\du}{8.480917\du}}
+\pgfpathcurveto{\pgfpoint{23.769702\du}{8.480917\du}}{\pgfpoint{24.171644\du}{8.963647\du}}{\pgfpoint{24.171644\du}{9.559125\du}}
+\pgfpathcurveto{\pgfpoint{24.171644\du}{10.154603\du}}{\pgfpoint{23.769702\du}{10.637333\du}}{\pgfpoint{23.273880\du}{10.637333\du}}
+\pgfpathlineto{\pgfpoint{19.682823\du}{10.637333\du}}
+\pgfpathcurveto{\pgfpoint{19.187002\du}{10.637333\du}}{\pgfpoint{18.785059\du}{10.154603\du}}{\pgfpoint{18.785059\du}{9.559125\du}}
+\pgfpathcurveto{\pgfpoint{18.785059\du}{8.963647\du}}{\pgfpoint{19.187002\du}{8.480917\du}}{\pgfpoint{19.682823\du}{8.480917\du}}
+\pgfusepath{stroke}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (21.478352\du,9.664958\du){threshold};
+\pgfsetlinewidth{0.042000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetlinewidth{0.042000\du}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetdash{}{0pt}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{21.387720\du}{21.449153\du}}
+\pgfpathlineto{\pgfpoint{25.052360\du}{21.449153\du}}
+\pgfpathcurveto{\pgfpoint{25.558342\du}{21.449153\du}}{\pgfpoint{25.968521\du}{21.905662\du}}{\pgfpoint{25.968521\du}{22.468795\du}}
+\pgfpathcurveto{\pgfpoint{25.968521\du}{23.031928\du}}{\pgfpoint{25.558342\du}{23.488436\du}}{\pgfpoint{25.052360\du}{23.488436\du}}
+\pgfpathlineto{\pgfpoint{21.387720\du}{23.488436\du}}
+\pgfpathcurveto{\pgfpoint{20.881738\du}{23.488436\du}}{\pgfpoint{20.471560\du}{23.031928\du}}{\pgfpoint{20.471560\du}{22.468795\du}}
+\pgfpathcurveto{\pgfpoint{20.471560\du}{21.905662\du}}{\pgfpoint{20.881738\du}{21.449153\du}}{\pgfpoint{21.387720\du}{21.449153\du}}
+\pgfusepath{fill}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{21.387720\du}{21.449153\du}}
+\pgfpathlineto{\pgfpoint{25.052360\du}{21.449153\du}}
+\pgfpathcurveto{\pgfpoint{25.558342\du}{21.449153\du}}{\pgfpoint{25.968521\du}{21.905662\du}}{\pgfpoint{25.968521\du}{22.468795\du}}
+\pgfpathcurveto{\pgfpoint{25.968521\du}{23.031928\du}}{\pgfpoint{25.558342\du}{23.488436\du}}{\pgfpoint{25.052360\du}{23.488436\du}}
+\pgfpathlineto{\pgfpoint{21.387720\du}{23.488436\du}}
+\pgfpathcurveto{\pgfpoint{20.881738\du}{23.488436\du}}{\pgfpoint{20.471560\du}{23.031928\du}}{\pgfpoint{20.471560\du}{22.468795\du}}
+\pgfpathcurveto{\pgfpoint{20.471560\du}{21.905662\du}}{\pgfpoint{20.881738\du}{21.449153\du}}{\pgfpoint{21.387720\du}{21.449153\du}}
+\pgfusepath{stroke}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (23.220040\du,22.574628\du){Wprime};
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\fill (12.122100\du,26.953290\du)--(12.122100\du,29.875345\du)--(19.100000\du,29.875345\du)--(19.100000\du,26.953290\du)--cycle;
+\pgfsetlinewidth{0.042000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (12.122100\du,26.953290\du)--(12.122100\du,29.875345\du)--(19.100000\du,29.875345\du)--(19.100000\du,26.953290\du)--cycle;
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (15.611050\du,28.515151\du){trackeRdataZones};
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\fill (13.504991\du,34.407800\du)--(13.504991\du,37.329856\du)--(20.315107\du,37.329856\du)--(20.315107\du,34.407800\du)--cycle;
+\pgfsetlinewidth{0.042000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (13.504991\du,34.407800\du)--(13.504991\du,37.329856\du)--(20.315107\du,37.329856\du)--(20.315107\du,34.407800\du)--cycle;
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (16.910049\du,35.969661\du){trackeRWprime};
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\fill (21.952803\du,28.021094\du)--(21.952803\du,31.191813\du)--(28.118193\du,31.191813\du)--(28.118193\du,28.021094\du)--cycle;
+\pgfsetlinewidth{0.042000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (21.952803\du,28.021094\du)--(21.952803\du,31.191813\du)--(28.118193\du,31.191813\du)--(28.118193\du,28.021094\du)--cycle;
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (25.035498\du,29.707287\du){distrProfile};
+\pgfsetlinewidth{0.042000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetlinewidth{0.042000\du}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetdash{}{0pt}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{21.881104\du}{39.995566\du}}
+\pgfpathlineto{\pgfpoint{27.652377\du}{39.995566\du}}
+\pgfpathcurveto{\pgfpoint{28.449224\du}{39.995566\du}}{\pgfpoint{29.095195\du}{40.448446\du}}{\pgfpoint{29.095195\du}{41.007103\du}}
+\pgfpathcurveto{\pgfpoint{29.095195\du}{41.565759\du}}{\pgfpoint{28.449224\du}{42.018639\du}}{\pgfpoint{27.652377\du}{42.018639\du}}
+\pgfpathlineto{\pgfpoint{21.881104\du}{42.018639\du}}
+\pgfpathcurveto{\pgfpoint{21.084258\du}{42.018639\du}}{\pgfpoint{20.438286\du}{41.565759\du}}{\pgfpoint{20.438286\du}{41.007103\du}}
+\pgfpathcurveto{\pgfpoint{20.438286\du}{40.448446\du}}{\pgfpoint{21.084258\du}{39.995566\du}}{\pgfpoint{21.881104\du}{39.995566\du}}
+\pgfusepath{fill}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{21.881104\du}{39.995566\du}}
+\pgfpathlineto{\pgfpoint{27.652377\du}{39.995566\du}}
+\pgfpathcurveto{\pgfpoint{28.449224\du}{39.995566\du}}{\pgfpoint{29.095195\du}{40.448446\du}}{\pgfpoint{29.095195\du}{41.007103\du}}
+\pgfpathcurveto{\pgfpoint{29.095195\du}{41.565759\du}}{\pgfpoint{28.449224\du}{42.018639\du}}{\pgfpoint{27.652377\du}{42.018639\du}}
+\pgfpathlineto{\pgfpoint{21.881104\du}{42.018639\du}}
+\pgfpathcurveto{\pgfpoint{21.084258\du}{42.018639\du}}{\pgfpoint{20.438286\du}{41.565759\du}}{\pgfpoint{20.438286\du}{41.007103\du}}
+\pgfpathcurveto{\pgfpoint{20.438286\du}{40.448446\du}}{\pgfpoint{21.084258\du}{39.995566\du}}{\pgfpoint{21.881104\du}{39.995566\du}}
+\pgfusepath{stroke}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (24.766741\du,41.112936\du){concentrationProfile};
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\fill (23.684746\du,32.478994\du)--(23.684746\du,35.590591\du)--(30.143597\du,35.590591\du)--(30.143597\du,32.478994\du)--cycle;
+\pgfsetlinewidth{0.042000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (23.684746\du,32.478994\du)--(23.684746\du,35.590591\du)--(30.143597\du,35.590591\du)--(30.143597\du,32.478994\du)--cycle;
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (26.914172\du,34.135626\du){conProfile};
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetlinewidth{0.040000\du}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetdash{}{0pt}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{3.418128\du}{22.200087\du}}
+\pgfpathlineto{\pgfpoint{6.222639\du}{22.200087\du}}
+\pgfpathcurveto{\pgfpoint{6.609861\du}{22.200087\du}}{\pgfpoint{6.923766\du}{22.634980\du}}{\pgfpoint{6.923766\du}{23.171448\du}}
+\pgfpathcurveto{\pgfpoint{6.923766\du}{23.707916\du}}{\pgfpoint{6.609861\du}{24.142809\du}}{\pgfpoint{6.222639\du}{24.142809\du}}
+\pgfpathlineto{\pgfpoint{3.418128\du}{24.142809\du}}
+\pgfpathcurveto{\pgfpoint{3.030905\du}{24.142809\du}}{\pgfpoint{2.717000\du}{23.707916\du}}{\pgfpoint{2.717000\du}{23.171448\du}}
+\pgfpathcurveto{\pgfpoint{2.717000\du}{22.634980\du}}{\pgfpoint{3.030905\du}{22.200087\du}}{\pgfpoint{3.418128\du}{22.200087\du}}
+\pgfusepath{fill}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{3.418128\du}{22.200087\du}}
+\pgfpathlineto{\pgfpoint{6.222639\du}{22.200087\du}}
+\pgfpathcurveto{\pgfpoint{6.609861\du}{22.200087\du}}{\pgfpoint{6.923766\du}{22.634980\du}}{\pgfpoint{6.923766\du}{23.171448\du}}
+\pgfpathcurveto{\pgfpoint{6.923766\du}{23.707916\du}}{\pgfpoint{6.609861\du}{24.142809\du}}{\pgfpoint{6.222639\du}{24.142809\du}}
+\pgfpathlineto{\pgfpoint{3.418128\du}{24.142809\du}}
+\pgfpathcurveto{\pgfpoint{3.030905\du}{24.142809\du}}{\pgfpoint{2.717000\du}{23.707916\du}}{\pgfpoint{2.717000\du}{23.171448\du}}
+\pgfpathcurveto{\pgfpoint{2.717000\du}{22.634980\du}}{\pgfpoint{3.030905\du}{22.200087\du}}{\pgfpoint{3.418128\du}{22.200087\du}}
+\pgfusepath{stroke}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (4.820383\du,23.277281\du){plot};
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetlinewidth{0.040000\du}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetdash{}{0pt}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{25.371116\du}{12.889528\du}}
+\pgfpathlineto{\pgfpoint{29.131999\du}{12.889528\du}}
+\pgfpathcurveto{\pgfpoint{29.651269\du}{12.889528\du}}{\pgfpoint{30.072220\du}{13.343554\du}}{\pgfpoint{30.072220\du}{13.903624\du}}
+\pgfpathcurveto{\pgfpoint{30.072220\du}{14.463694\du}}{\pgfpoint{29.651269\du}{14.917719\du}}{\pgfpoint{29.131999\du}{14.917719\du}}
+\pgfpathlineto{\pgfpoint{25.371116\du}{14.917719\du}}
+\pgfpathcurveto{\pgfpoint{24.851846\du}{14.917719\du}}{\pgfpoint{24.430895\du}{14.463694\du}}{\pgfpoint{24.430895\du}{13.903624\du}}
+\pgfpathcurveto{\pgfpoint{24.430895\du}{13.343554\du}}{\pgfpoint{24.851846\du}{12.889528\du}}{\pgfpoint{25.371116\du}{12.889528\du}}
+\pgfusepath{fill}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{25.371116\du}{12.889528\du}}
+\pgfpathlineto{\pgfpoint{29.131999\du}{12.889528\du}}
+\pgfpathcurveto{\pgfpoint{29.651269\du}{12.889528\du}}{\pgfpoint{30.072220\du}{13.343554\du}}{\pgfpoint{30.072220\du}{13.903624\du}}
+\pgfpathcurveto{\pgfpoint{30.072220\du}{14.463694\du}}{\pgfpoint{29.651269\du}{14.917719\du}}{\pgfpoint{29.131999\du}{14.917719\du}}
+\pgfpathlineto{\pgfpoint{25.371116\du}{14.917719\du}}
+\pgfpathcurveto{\pgfpoint{24.851846\du}{14.917719\du}}{\pgfpoint{24.430895\du}{14.463694\du}}{\pgfpoint{24.430895\du}{13.903624\du}}
+\pgfpathcurveto{\pgfpoint{24.430895\du}{13.343554\du}}{\pgfpoint{24.851846\du}{12.889528\du}}{\pgfpoint{25.371116\du}{12.889528\du}}
+\pgfusepath{stroke}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (27.251558\du,14.009457\du){smoother};
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetlinewidth{0.040000\du}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetdash{}{0pt}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{2.939941\du}{39.993007\du}}
+\pgfpathlineto{\pgfpoint{6.700824\du}{39.993007\du}}
+\pgfpathcurveto{\pgfpoint{7.220094\du}{39.993007\du}}{\pgfpoint{7.641045\du}{40.447033\du}}{\pgfpoint{7.641045\du}{41.007103\du}}
+\pgfpathcurveto{\pgfpoint{7.641045\du}{41.567172\du}}{\pgfpoint{7.220094\du}{42.021198\du}}{\pgfpoint{6.700824\du}{42.021198\du}}
+\pgfpathlineto{\pgfpoint{2.939941\du}{42.021198\du}}
+\pgfpathcurveto{\pgfpoint{2.420671\du}{42.021198\du}}{\pgfpoint{1.999720\du}{41.567172\du}}{\pgfpoint{1.999720\du}{41.007103\du}}
+\pgfpathcurveto{\pgfpoint{1.999720\du}{40.447033\du}}{\pgfpoint{2.420671\du}{39.993007\du}}{\pgfpoint{2.939941\du}{39.993007\du}}
+\pgfusepath{fill}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{2.939941\du}{39.993007\du}}
+\pgfpathlineto{\pgfpoint{6.700824\du}{39.993007\du}}
+\pgfpathcurveto{\pgfpoint{7.220094\du}{39.993007\du}}{\pgfpoint{7.641045\du}{40.447033\du}}{\pgfpoint{7.641045\du}{41.007103\du}}
+\pgfpathcurveto{\pgfpoint{7.641045\du}{41.567172\du}}{\pgfpoint{7.220094\du}{42.021198\du}}{\pgfpoint{6.700824\du}{42.021198\du}}
+\pgfpathlineto{\pgfpoint{2.939941\du}{42.021198\du}}
+\pgfpathcurveto{\pgfpoint{2.420671\du}{42.021198\du}}{\pgfpoint{1.999720\du}{41.567172\du}}{\pgfpoint{1.999720\du}{41.007103\du}}
+\pgfpathcurveto{\pgfpoint{1.999720\du}{40.447033\du}}{\pgfpoint{2.420671\du}{39.993007\du}}{\pgfpoint{2.939941\du}{39.993007\du}}
+\pgfusepath{stroke}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (4.820382\du,41.112936\du){changeUnits};
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (15.728202\du,13.541540\du)--(14.149159\du,10.585866\du);
+}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (15.515212\du,16.501910\du)--(12.173309\du,21.435068\du);
+}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (16.672180\du,16.463739\du)--(16.939395\du,18.972914\du);
+}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (17.851135\du,16.501910\du)--(22.283774\du,21.428249\du);
+}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (19.520287\du,16.073287\du)--(24.873298\du,17.950046\du);
+}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (11.471541\du,23.502943\du)--(11.461147\du,30.746734\du);
+}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (17.049622\du,21.053204\du)--(17.046956\du,26.905031\du);
+}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (13.515156\du,16.150607\du)--(10.175175\du,17.406962\du);
+}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (27.540099\du,20.009295\du)--(25.454794\du,27.999792\du);
+}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (22.628185\du,31.242024\du)--(22.640559\du,39.923216\du);
+}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (26.209559\du,39.995566\du)--(26.209562\du,35.636631\du);
+}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{to}
+{\pgfsetcornersarced{\pgfpoint{0.000000\du}{0.000000\du}}\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (13.535800\du,15.751014\du)--(4.820383\du,15.751014\du)--(4.820383\du,22.180034\du);
+}}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsstart{to}
+\pgfsetarrowsend{to}
+{\pgfsetcornersarced{\pgfpoint{0.000000\du}{0.000000\du}}\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (30.071636\du,13.903624\du)--(32.673310\du,13.903624\du)--(32.673310\du,28.339402\du)--(30.830412\du,28.339402\du);
+}}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsstart{to}
+\pgfsetarrowsend{to}
+{\pgfsetcornersarced{\pgfpoint{0.000000\du}{0.000000\du}}\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (13.515695\du,15.020871\du)--(1.091019\du,15.020871\du)--(1.091019\du,41.007103\du)--(2.000597\du,41.007103\du);
+}}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsstart{to}
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (17.863222\du,13.540093\du)--(20.479968\du,10.658542\du);
+}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsstart{to}
+{\pgfsetcornersarced{\pgfpoint{0.000000\du}{0.000000\du}}\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (4.820383\du,24.163028\du)--(4.820383\du,28.513787\du)--(6.316770\du,28.513787\du);
+}}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsstart{to}
+\pgfsetarrowsend{to}
+{\pgfsetcornersarced{\pgfpoint{0.000000\du}{0.000000\du}}\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (4.820382\du,39.973111\du)--(4.820382\du,33.758100\du)--(6.330400\du,33.758100\du);
+}}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsstart{to}
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (19.522121\du,14.708214\du)--(24.451365\du,14.195108\du);
+}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsstart{to}
+{\pgfsetcornersarced{\pgfpoint{0.000000\du}{0.000000\du}}\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (16.910049\du,34.386839\du)--(16.910049\du,32.037824\du)--(19.785402\du,32.037824\du)--(19.785402\du,22.468795\du)--(20.472162\du,22.468795\du);
+}}
+\pgfsetlinewidth{0.042000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetlinewidth{0.042000\du}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetdash{}{0pt}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{4.922984\du}{11.041668\du}}
+\pgfpathlineto{\pgfpoint{8.794897\du}{11.041668\du}}
+\pgfpathcurveto{\pgfpoint{9.329496\du}{11.041668\du}}{\pgfpoint{9.762875\du}{11.481843\du}}{\pgfpoint{9.762875\du}{12.024827\du}}
+\pgfpathcurveto{\pgfpoint{9.762875\du}{12.567810\du}}{\pgfpoint{9.329496\du}{13.007985\du}}{\pgfpoint{8.794897\du}{13.007985\du}}
+\pgfpathlineto{\pgfpoint{4.922984\du}{13.007985\du}}
+\pgfpathcurveto{\pgfpoint{4.388384\du}{13.007985\du}}{\pgfpoint{3.955006\du}{12.567810\du}}{\pgfpoint{3.955006\du}{12.024827\du}}
+\pgfpathcurveto{\pgfpoint{3.955006\du}{11.481843\du}}{\pgfpoint{4.388384\du}{11.041668\du}}{\pgfpoint{4.922984\du}{11.041668\du}}
+\pgfusepath{fill}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{4.922984\du}{11.041668\du}}
+\pgfpathlineto{\pgfpoint{8.794897\du}{11.041668\du}}
+\pgfpathcurveto{\pgfpoint{9.329496\du}{11.041668\du}}{\pgfpoint{9.762875\du}{11.481843\du}}{\pgfpoint{9.762875\du}{12.024827\du}}
+\pgfpathcurveto{\pgfpoint{9.762875\du}{12.567810\du}}{\pgfpoint{9.329496\du}{13.007985\du}}{\pgfpoint{8.794897\du}{13.007985\du}}
+\pgfpathlineto{\pgfpoint{4.922984\du}{13.007985\du}}
+\pgfpathcurveto{\pgfpoint{4.388384\du}{13.007985\du}}{\pgfpoint{3.955006\du}{12.567810\du}}{\pgfpoint{3.955006\du}{12.024827\du}}
+\pgfpathcurveto{\pgfpoint{3.955006\du}{11.481843\du}}{\pgfpoint{4.388384\du}{11.041668\du}}{\pgfpoint{4.922984\du}{11.041668\du}}
+\pgfusepath{stroke}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (6.858940\du,12.130660\du){leafletRoute};
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (13.516410\du,14.089728\du)--(9.402363\du,12.813702\du);
+}
+\pgfsetlinewidth{0.042000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetlinewidth{0.042000\du}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetdash{}{0pt}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{10.964158\du}{40.023944\du}}
+\pgfpathlineto{\pgfpoint{14.836071\du}{40.023944\du}}
+\pgfpathcurveto{\pgfpoint{15.370670\du}{40.023944\du}}{\pgfpoint{15.804049\du}{40.464119\du}}{\pgfpoint{15.804049\du}{41.007103\du}}
+\pgfpathcurveto{\pgfpoint{15.804049\du}{41.550086\du}}{\pgfpoint{15.370670\du}{41.990261\du}}{\pgfpoint{14.836071\du}{41.990261\du}}
+\pgfpathlineto{\pgfpoint{10.964158\du}{41.990261\du}}
+\pgfpathcurveto{\pgfpoint{10.429558\du}{41.990261\du}}{\pgfpoint{9.996180\du}{41.550086\du}}{\pgfpoint{9.996180\du}{41.007103\du}}
+\pgfpathcurveto{\pgfpoint{9.996180\du}{40.464119\du}}{\pgfpoint{10.429558\du}{40.023944\du}}{\pgfpoint{10.964158\du}{40.023944\du}}
+\pgfusepath{fill}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{10.964158\du}{40.023944\du}}
+\pgfpathlineto{\pgfpoint{14.836071\du}{40.023944\du}}
+\pgfpathcurveto{\pgfpoint{15.370670\du}{40.023944\du}}{\pgfpoint{15.804049\du}{40.464119\du}}{\pgfpoint{15.804049\du}{41.007103\du}}
+\pgfpathcurveto{\pgfpoint{15.804049\du}{41.550086\du}}{\pgfpoint{15.370670\du}{41.990261\du}}{\pgfpoint{14.836071\du}{41.990261\du}}
+\pgfpathlineto{\pgfpoint{10.964158\du}{41.990261\du}}
+\pgfpathcurveto{\pgfpoint{10.429558\du}{41.990261\du}}{\pgfpoint{9.996180\du}{41.550086\du}}{\pgfpoint{9.996180\du}{41.007103\du}}
+\pgfpathcurveto{\pgfpoint{9.996180\du}{40.464119\du}}{\pgfpoint{10.429558\du}{40.023944\du}}{\pgfpoint{10.964158\du}{40.023944\du}}
+\pgfusepath{stroke}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (12.900114\du,41.112936\du){timeline};
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (11.460152\du,33.663358\du)--(11.464857\du,39.968075\du);
+}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetlinewidth{0.040000\du}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetdash{}{0pt}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{6.872482\du}{17.150462\du}}
+\pgfpathlineto{\pgfpoint{9.676993\du}{17.150462\du}}
+\pgfpathcurveto{\pgfpoint{10.064215\du}{17.150462\du}}{\pgfpoint{10.378121\du}{17.585355\du}}{\pgfpoint{10.378121\du}{18.121823\du}}
+\pgfpathcurveto{\pgfpoint{10.378121\du}{18.658292\du}}{\pgfpoint{10.064215\du}{19.093185\du}}{\pgfpoint{9.676993\du}{19.093185\du}}
+\pgfpathlineto{\pgfpoint{6.872482\du}{19.093185\du}}
+\pgfpathcurveto{\pgfpoint{6.485260\du}{19.093185\du}}{\pgfpoint{6.171354\du}{18.658292\du}}{\pgfpoint{6.171354\du}{18.121823\du}}
+\pgfpathcurveto{\pgfpoint{6.171354\du}{17.585355\du}}{\pgfpoint{6.485260\du}{17.150462\du}}{\pgfpoint{6.872482\du}{17.150462\du}}
+\pgfusepath{fill}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{6.872482\du}{17.150462\du}}
+\pgfpathlineto{\pgfpoint{9.676993\du}{17.150462\du}}
+\pgfpathcurveto{\pgfpoint{10.064215\du}{17.150462\du}}{\pgfpoint{10.378121\du}{17.585355\du}}{\pgfpoint{10.378121\du}{18.121823\du}}
+\pgfpathcurveto{\pgfpoint{10.378121\du}{18.658292\du}}{\pgfpoint{10.064215\du}{19.093185\du}}{\pgfpoint{9.676993\du}{19.093185\du}}
+\pgfpathlineto{\pgfpoint{6.872482\du}{19.093185\du}}
+\pgfpathcurveto{\pgfpoint{6.485260\du}{19.093185\du}}{\pgfpoint{6.171354\du}{18.658292\du}}{\pgfpoint{6.171354\du}{18.121823\du}}
+\pgfpathcurveto{\pgfpoint{6.171354\du}{17.585355\du}}{\pgfpoint{6.485260\du}{17.150462\du}}{\pgfpoint{6.872482\du}{17.150462\du}}
+\pgfusepath{stroke}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (8.274738\du,18.227657\du){nsessions};
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetlinewidth{0.040000\du}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetdash{}{0pt}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{34.892866\du}{33.346015\du}}
+\pgfpathlineto{\pgfpoint{37.697377\du}{33.346015\du}}
+\pgfpathcurveto{\pgfpoint{38.084599\du}{33.346015\du}}{\pgfpoint{38.398504\du}{33.780908\du}}{\pgfpoint{38.398504\du}{34.317376\du}}
+\pgfpathcurveto{\pgfpoint{38.398504\du}{34.853845\du}}{\pgfpoint{38.084599\du}{35.288738\du}}{\pgfpoint{37.697377\du}{35.288738\du}}
+\pgfpathlineto{\pgfpoint{34.892866\du}{35.288738\du}}
+\pgfpathcurveto{\pgfpoint{34.505643\du}{35.288738\du}}{\pgfpoint{34.191738\du}{34.853845\du}}{\pgfpoint{34.191738\du}{34.317376\du}}
+\pgfpathcurveto{\pgfpoint{34.191738\du}{33.780908\du}}{\pgfpoint{34.505643\du}{33.346015\du}}{\pgfpoint{34.892866\du}{33.346015\du}}
+\pgfusepath{fill}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{34.892866\du}{33.346015\du}}
+\pgfpathlineto{\pgfpoint{37.697377\du}{33.346015\du}}
+\pgfpathcurveto{\pgfpoint{38.084599\du}{33.346015\du}}{\pgfpoint{38.398504\du}{33.780908\du}}{\pgfpoint{38.398504\du}{34.317376\du}}
+\pgfpathcurveto{\pgfpoint{38.398504\du}{34.853845\du}}{\pgfpoint{38.084599\du}{35.288738\du}}{\pgfpoint{37.697377\du}{35.288738\du}}
+\pgfpathlineto{\pgfpoint{34.892866\du}{35.288738\du}}
+\pgfpathcurveto{\pgfpoint{34.505643\du}{35.288738\du}}{\pgfpoint{34.191738\du}{34.853845\du}}{\pgfpoint{34.191738\du}{34.317376\du}}
+\pgfpathcurveto{\pgfpoint{34.191738\du}{33.780908\du}}{\pgfpoint{34.505643\du}{33.346015\du}}{\pgfpoint{34.892866\du}{33.346015\du}}
+\pgfusepath{stroke}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (36.295121\du,34.423210\du){profile2fd};
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetlinewidth{0.040000\du}
+\pgfsetbuttcap
+\pgfsetmiterjoin
+\pgfsetdash{}{0pt}
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{34.892866\du}{29.886520\du}}
+\pgfpathlineto{\pgfpoint{37.697377\du}{29.886520\du}}
+\pgfpathcurveto{\pgfpoint{38.084599\du}{29.886520\du}}{\pgfpoint{38.398504\du}{30.321413\du}}{\pgfpoint{38.398504\du}{30.857881\du}}
+\pgfpathcurveto{\pgfpoint{38.398504\du}{31.394349\du}}{\pgfpoint{38.084599\du}{31.829242\du}}{\pgfpoint{37.697377\du}{31.829242\du}}
+\pgfpathlineto{\pgfpoint{34.892866\du}{31.829242\du}}
+\pgfpathcurveto{\pgfpoint{34.505643\du}{31.829242\du}}{\pgfpoint{34.191738\du}{31.394349\du}}{\pgfpoint{34.191738\du}{30.857881\du}}
+\pgfpathcurveto{\pgfpoint{34.191738\du}{30.321413\du}}{\pgfpoint{34.505643\du}{29.886520\du}}{\pgfpoint{34.892866\du}{29.886520\du}}
+\pgfusepath{fill}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\pgfpathmoveto{\pgfpoint{34.892866\du}{29.886520\du}}
+\pgfpathlineto{\pgfpoint{37.697377\du}{29.886520\du}}
+\pgfpathcurveto{\pgfpoint{38.084599\du}{29.886520\du}}{\pgfpoint{38.398504\du}{30.321413\du}}{\pgfpoint{38.398504\du}{30.857881\du}}
+\pgfpathcurveto{\pgfpoint{38.398504\du}{31.394349\du}}{\pgfpoint{38.084599\du}{31.829242\du}}{\pgfpoint{37.697377\du}{31.829242\du}}
+\pgfpathlineto{\pgfpoint{34.892866\du}{31.829242\du}}
+\pgfpathcurveto{\pgfpoint{34.505643\du}{31.829242\du}}{\pgfpoint{34.191738\du}{31.394349\du}}{\pgfpoint{34.191738\du}{30.857881\du}}
+\pgfpathcurveto{\pgfpoint{34.191738\du}{30.321413\du}}{\pgfpoint{34.505643\du}{29.886520\du}}{\pgfpoint{34.892866\du}{29.886520\du}}
+\pgfusepath{stroke}
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (36.295121\du,30.963714\du){funPCA};
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\fill (33.065696\du,37.682045\du)--(33.065696\du,40.793641\du)--(39.524547\du,40.793641\du)--(39.524547\du,37.682045\du)--cycle;
+\pgfsetlinewidth{0.042000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (33.065696\du,37.682045\du)--(33.065696\du,40.793641\du)--(39.524547\du,40.793641\du)--(39.524547\du,37.682045\du)--cycle;
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (36.295121\du,39.338676\du){fda::fd};
+\definecolor{dialinecolor}{rgb}{1.000000, 1.000000, 1.000000}
+\pgfsetfillcolor{dialinecolor}
+\fill (33.065696\du,24.568903\du)--(33.065696\du,27.680500\du)--(39.524547\du,27.680500\du)--(39.524547\du,24.568903\du)--cycle;
+\pgfsetlinewidth{0.042000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetmiterjoin
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (33.065696\du,24.568903\du)--(33.065696\du,27.680500\du)--(39.524547\du,27.680500\du)--(39.524547\du,24.568903\du)--cycle;
+% setfont left to latex
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\node at (36.295121\du,26.225535\du){trackeRfpca};
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (36.295121\du,35.308437\du)--(36.295121\du,37.661155\du);
+}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (36.295121\du,29.867565\du)--(36.295121\du,27.701465\du);
+}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (30.838871\du,30.851646\du)--(34.173098\du,30.855456\du);
+}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (30.788119\du,34.323956\du)--(34.171846\du,34.319913\du);
+}
+\pgfsetlinewidth{0.040000\du}
+\pgfsetdash{}{0pt}
+\pgfsetdash{}{0pt}
+\pgfsetbuttcap
+{
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetfillcolor{dialinecolor}
+% was here!!!
+\pgfsetarrowsend{to}
+\definecolor{dialinecolor}{rgb}{0.000000, 0.000000, 0.000000}
+\pgfsetstrokecolor{dialinecolor}
+\draw (8.273050\du,25.773979\du)--(8.274519\du,19.112905\du);
+}
 \end{tikzpicture}
-    
+        
   }
-  \caption{Package structure.}
-  \label{fig:pkgstructure}
+  \caption{Package structure - Functionality to analyse tracking data.}
+  \label{fig:pkgstructure:rest}
 \end{figure}
 %
 
-Data from various formats is imported and stored in the central data object of
-class \class{trackeRdata} from which summaries for descriptive purposes or
+Data from various formats is imported and stored in the central data object of \linebreak
+class~\class{trackeRdata} from which summaries for descriptive purposes or
 further analyses can be derived. Methods for visualisation and data handling are
 available for data objects and summary objects. 
-A list of all functionality is provided in Table~\ref{tab:pkg:functions}.
+A list of all functionality is provided in Tables~\ref{tab:pkg:functions:1} and~\ref{tab:pkg:functions:2}.
 
-%% \clearpage
-
+% \clearpage
 
 \begin{table}[p]
   \centering
@@ -1282,31 +1732,45 @@ A list of all functionality is provided in Table~\ref{tab:pkg:functions}.
     \hline
     Function & Class & Description \\
     \hline
+    \fct{readTCX} & TCX file & read TCX file \\
+    \fct{readDB3} & DB3 file (SQLite) & read DB3 file \\
+    \fct{readJSON} & Golden Cheetah's JSON file & read JSON file \\
+    \fct{readContainer} & TCX/DB3/JSON file & read a TCX/DB3/JSON file \\
+    \fct{readDirectory} & TCX/DB3/JSON files & read all TCX/DB3/JSON files in a
+    \linebreak directory \\
+    \fct{trackeRdata} & \class{data.frame} & construct a \class{trackeRdata}
+    object \\    
+    %
     \fct{c} & \class{trackeRdata} & combine sessions \\
     \code{[]} & \class{trackeRdata} & subset sessions \\
     % append
     %
     \fct{plot} & \class{trackeRdata} & plot session profiles \\
-    \fct{plotRoute} & \class{trackeRdata} & plot route taken during a session \\
+    \fct{plotRoute} & \class{trackeRdata} & plot route on a static map \\
+    \fct{leafletRoute} & \class{trackeRdata} & plot route on an interactive map \\
     \fct{threshold} & \class{trackeRdata} & apply lower and upper bounds on data range \\
     \fct{smoother} & \class{trackeRdata} & smooth data by applying a summary
     function such as mean or median to a window \\
     %
     \fct{getUnits} & \class{trackeRdata} & access units of measurement \\
     \fct{changeUnits} & \class{trackeRdata} & change units of measurement \\
+    \fct{nsessions} & \class{trackeRdata} & number of sessions \\
     \fct{fortify} & \class{trackeRdata} & convert object into a data frame for plotting \\
     %
     \fct{summary} & \class{trackeRdata} & summarise sessions \\
     \fct{print} & \class{trackeRdataSummary} & print sessions summaries \\
     \fct{getUnits} & \class{trackeRdataSummary} & access units of measurement \\
     \fct{changeUnits} & \class{trackeRdataSummary} & change units of measurement \\
+    \fct{nsessions} & \class{trackeRdataSummary} & number of sessions \\
     \fct{fortify} & \class{trackeRdataSummary} & convert object into a data
     frame for plotting \\
     \fct{plot} & \class{trackeRdataSummary} & plot session summaries \\
+    \fct{timeline} & \class{trackeRdataSummary} & plot timeline summary \\
     %
     \fct{zones} & \class{trackeRdata} & time spent in zones \\
     \fct{getUnits} & \class{trackeRdataZones} & access units of measurement \\
     \fct{changeUnits} & \class{trackeRdataZones} & change units of measurement \\
+    \fct{nsessions} & \class{trackeRdataZones} & number of sessions \\
     \fct{fortify} & \class{trackeRdataZones} & convert object into a data frame
     for plotting \\
     \fct{plot} & \class{trackeRdataZones} & plot zone summaries \\
@@ -1315,16 +1779,34 @@ A list of all functionality is provided in Table~\ref{tab:pkg:functions}.
     \emph{$W'$ expended} \\
     \fct{plot} & \class{trackeRWprime} & plot \emph{$W'$ balance} or \emph{$W'$
       expended} \\
+    \fct{nsessions} & \class{trackeRWprime} & number of sessions \\
     %
+    \hline
+  \end{tabular}
+  \caption{Functions available in the \pkg{trackeR} package (part 1).}
+  \label{tab:pkg:functions:1}
+\end{table}
+
+%\clearpage
+
+\begin{table}[t]
+  \centering
+  \begin{tabular}{l l p{6.5cm}}
+    \hline
+    Function & Class & Description \\
+    \hline
     \fct{distributionProfile} & \class{trackeRdata} & calculate distribution profiles \\
     \fct{c} & \class{distrProfile} & combine distribution profiles \\
     % append
     \fct{getUnits} & \class{distrProfile} & access units of measurement \\
     \fct{changeUnits} & \class{distrProfile} & change units of measurement \\
+    \fct{nsessions} & \class{distrProfile} & number of sessions \\
     \fct{smoother} & \class{distrProfile} & smooth distribution profiles \\
     \fct{fortify} & \class{distrProfile} & convert object into a data frame
     for plotting \\
     \fct{plot} & \class{distrProfile} & plot distribution profiles \\
+    \fct{profile2fd} & \class{distrProfile} & convert profiles to \class{fd} class \\
+    \fct{funPCA} & \class{distrProfile} & functional principal components analysis \\
     %
     \fct{concentrationProfile} & \class{distrProfile} & calculate concentration
     profiles \\
@@ -1332,15 +1814,19 @@ A list of all functionality is provided in Table~\ref{tab:pkg:functions}.
     % append
     \fct{getUnits} & \class{conProfile} & access units of measurement \\
     \fct{changeUnits} & \class{conProfile} & change units of measurement \\
+    \fct{nsessions} & \class{conProfile} & number of sessions \\
     \fct{smoother} & \class{conProfile} & smooth concentration profiles \\
     \fct{fortify} & \class{conProfile} & convert object into a data frame
     for plotting \\
     \fct{plot} & \class{conProfile} & plot concentration profiles \\
+    \fct{profile2fd} & \class{conProfile} & convert profiles to \class{fd} class \\
+    \fct{funPCA} & \class{conProfile} & functional principal components analysis \\
     \hline
   \end{tabular}
-  \caption{Functions available in \pkg{trackeR} package.}
-  \label{tab:pkg:functions}
+  \caption{Functions available in the \pkg{trackeR} package (part 2).}
+  \label{tab:pkg:functions:2}
 \end{table}
+
 
 %% \clearpage
 %% \pagebreak
@@ -1351,15 +1837,16 @@ A list of all functionality is provided in Table~\ref{tab:pkg:functions}.
 \pkg{trackeR} provides utilities for data in common
 formats from GPS-enabled tracking devices. The family of the supplied
 reading functions, \fct{read*}, currently includes functions for
-reading TCX (Training Centre XML) and DB3 (for SQLite, used, e.g., by devices
-from GPSports) files. These functions read the
+reading TCX (Training Centre XML), DB3 (for SQLite, used, e.g., by devices
+from GPSports) and Golden Cheetah's JSON files. These functions read the
 tracking data, and return a \code{data.frame} with a specific
 structure.
 
 The following code chunk illustrates the use of the \fct{readTCX}
-function using a TCX file that ships with the package, and shows the
+function using a TCX file that ships with the package and shows the
 name and type of variables that are present in the resulting data
 frame.
+%
 <<eval = TRUE>>=
 filepath <- system.file("extdata", "2013-06-08-090442.TCX", 
   package = "trackeR")
@@ -1380,21 +1867,22 @@ same structure as in the above example.
 %% units supported by \pkg{trackeR} or conversion functions for un-supported units
 %% should be provided, see Section~\ref{sec:units} for details.
 
+%\clearpage
+%% \pagebreak
 
 \section{trackeRdata class}\label{sec:trackeRdata}
 
 \subsection{Object structure}
-As is apparent in Figure~\ref{fig:pkgstructure}, the core object
-has class \class{trackeRdata}. The \class{trackeRdata} objects are
+The core object of \pkg{trackeR} has class \class{trackeRdata}. 
+The \class{trackeRdata} objects are
 session-based, unit-aware and operation-aware structures, which
-organise the data in a list of multivariate \code{zoo} objects
-\citep[see,][for a description of the \pkg{zoo}
-package]{trackeR:Zeileis+Grothendieck:2005}, with one element per
-session. The observations within each session are ordered according to
+organise the data in a list of multivariate \code{zoo} objects 
+\citep{trackeR:Zeileis+Grothendieck:2005} with one element per session.
+The observations within each session are ordered according to
 the time stamps as these are read from the GPS-enabled tracking
 devices. Each \class{trackeRdata} object has an attribute on the
 measurement units of the data it holds, and, if applicable, an
-attribute detailing the operations (e.g., smoothing) it has gone through.
+attribute detailing the operations, such as smoothing, it has gone through.
 
 \class{trackeRdata} objects result from the constructor function
 \fct{trackeRdata}, which takes as input the output of the \fct{read*}
@@ -1403,7 +1891,7 @@ sessions, the constructor function also performs some data processing,
 including basic sanity checks (for example, removing observations with negative
 or missing values for cumulative distance or speed), handling of
 measurement units, correction of distances using altitude data if
-required, and data imputation.
+required, and data imputation, discussed in Section~\ref{sec:imputation}).
 
 \subsection{Constructor function}
 The interface of the constructor function for class
@@ -1491,7 +1979,7 @@ measurements. The arguments \code{country} and \code{mask} control the
 extraction of altitudes.
 
 
-\subsection{Imputation process}
+\subsection{Imputation process}\label{sec:imputation}
 Occasionally, there is a large time difference between consecutive
 observations in the same session, sometimes of the order of several
 minutes. This can happen, for example, if the device is intentionally
@@ -2088,12 +2576,14 @@ plot(runs, session = 1:3)
 
 %\clearpage
 
-The route covered during the session can also be displayed on a map
+The route covered during a session can also be displayed on a static map
 via the \fct{plotRoute} method. The \fct{plotRoute} method uses the
 \pkg{ggmap} package \citep{trackeR:Kahle+Wickham:2013} and, hence, can
 work with the sources and maps supported by \pkg{ggmap}. For example,
 Figure~\ref{fig:routePlot} shows the route covered during session~4 in
-\code{runs} using a map downloaded from Open Street Map.
+\code{runs} using a map downloaded from Open Street Map. 
+Interactive maps can be produced with \fct{leafletPlot}, using the 
+\pkg{leaflet} package \citep{trackeR:pkg:leaflet}.
 %
 <<eval = FALSE, echo = TRUE>>=
 plotRoute(runs, session = 4, zoom = 13, source = "osm")
@@ -2115,10 +2605,12 @@ plotRoute(runs, session = 4, zoom = 13, source = "osm")
 
 \subsection{Scalar summaries}
 Each session can be summarised through common summary statistics using the
-\fct{summary} method. Such a session summary includes the total distance
-covered, the total duration, the time spent moving, work to rest ratio as well
-as averages of speed, pace, cadence, power, and heart rate, calculated based on
-total duration or the time spent moving. An athlete is considered to be moving
+\fct{summary} method. Such a session summary includes estimates of the total
+distance covered, the total duration, the time spent moving, and work to rest
+ratio. It also includes averages of speed, pace, cadence, power, and heart rate,
+calculated based on total duration or the time spent moving. 
+
+An athlete is considered to be moving
 if the speed is larger than some threshold $s^*$. This threshold can be set via
 the \code{movingThreshold} argument of the \fct{summary} method, and the package
 assumes that anything between not moving at all and walking with a speed below
@@ -2126,8 +2618,8 @@ that threshold is resting. The default value for \code{movingThreshold} has been
 set to 1~meter per second, which is just below the speed humans prefer to walk
 at on average \citep[1.4~meters per second; see][]{trackeR:Bohannon:1997}.
 
-The 'average speed moving' is calculated as total distance covered divided by
-time moving while 'average speed' is calculated as total distance divided by
+The ``average speed moving'' is calculated as total distance covered divided by
+time moving while ``average speed'' is calculated as total distance divided by
 total duration. The average pace~(moving) is calculated
 as the inverse of the average speed~(moving). The work to rest ratio
 is calculated as time moving divided by (total duration - time
@@ -2152,12 +2644,13 @@ is available, i.e., not missing, and 0 otherwise, $I(\cdot)$ denotes
 the indicator function, and $\Delta_i = t_i - t_{i-1}$ the time difference
 between observations at $t_i$ and $t_{i-1}$.
 
-The \fct{summary} method for \class{trackeRdata} objects returns an object of
-class \linebreak \class{trackeRdataSummary} for which several methods are
-available. With the \fct{print} method, one can set the number of digits printed
-for the scalar summary statistics. The following example shows the summaries for
-sessions~1--2 with the default number of digits of 2 and then the summary of
-session~1 with 3~digits for comparison.
+The \fct{summary} method for \class{trackeRdata} objects returns a data 
+frame which can be used for further analysis. The return object is classed as
+\class{trackeRdataSummary} for which several methods are available. With the 
+\fct{print} method, one can set the number of digits printed for the scalar 
+summary statistics. The following example shows the summaries for sessions~1--2 
+with the default number of digits of 2 and then the summary of session~1 with
+3~digits for comparison.
 %
 <<summarySessionsPrint>>=
 summary(runs, session = 1:2)
@@ -2506,7 +2999,7 @@ Distribution profiles can be calculated using the \fct{distributionProfile}
 function which returns an object of class \class{distrProfile}.
 Concentration profiles can be derived from distribution profiles using 
 \fct{concentrationProfile}, which returns an object of class
-\class{conProfile}. Table \ref{tab:pkg:functions} includes an overview of
+\class{conProfile}. Table \ref{tab:pkg:functions:2} includes an overview of
 constructor functions and available methods for distribution and concentration
 profiles. 
 
@@ -2657,7 +3150,7 @@ If we wish to report the speed summaries for session~1 in \texttt{runSummary} in
 feet per hour (not currently supported) instead of meters per second, we need to
 simply provide the appropriately named conversion function as illustrated
 below. Note that the conversion applies to all speed summaries, i.e., to
-'average speed' and 'average speed moving'.
+``average speed'' and ``average speed moving''.
 %
 <<summarySessionsUnits>>=
 m_per_s2ft_per_h <- function(x) x * 3937/1200 * 3600
@@ -2789,7 +3282,7 @@ The \fct{plot} methods for \class{distrProfile} and \class{conProfile} smooth
 the profiles prior to plotting by default.
 
 
-\clearpage
+%\clearpage
 
 \section{Case study}\label{sec:casestudy}
 
@@ -2806,23 +3299,6 @@ Figure~\ref{fig:summaryPlot}. The distance covered in those sessions ranges from
 \Sexpr{round(min(runsSummary$distance) / 1000, 2)} km to
 \Sexpr{round(max(runsSummary$distance) / 1000, 2)} km, and most sessions were
 spent moving almost the entire time. 
-%% For those session that differ, large differences
-%% in average speed total and average speed moving can be observed.
-
-%% \setkeys{Gin}{width=\textwidth}
-%% \begin{figure}[t]
-%%   \centering
-%% %
-%% <<AppSummary, echo = FALSE, fig = TRUE, width = 7, height = 7>>=
-%% library("trackeR")
-%% runsSummary <- summary(runs)
-%% plot(runsSummary, group = c("total", "moving"),
-%%     what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
-%% @
-%% %
-%%   \caption{Summaries.} %% FIXME: more details
-%%   \label{fig:app:summary}
-%% \end{figure}
 
 The code chunk below loads the data, applies thresholds, and calculates the
 smoothed distribution profiles for the \Sexpr{nsessions(runs)}~sessions. The 
@@ -2871,203 +3347,51 @@ plot(cpRuns, multiple = TRUE, smooth = FALSE) #+ theme(legend.position = "none")
   \caption{Smoothed speed concentration profiles for all \Sexpr{nsessions(runs)} sessions.}
   \label{fig:app:cpsmooth}
 \end{figure}
+
+\pagebreak
+
 The majority of the profiles for speed concentrate around 4~meters per
-second. However, the curves vary in their shape (unimodal or multimodal),
-height, and location (revealing concentrations at higher or lower speeds). In an
-attempt to characterise the differences between curves, we use a functional
-principal components analysis \citep[PCA,
-e.g.,][]{trackeR:Ramsay+Silverman:2005}. Here, we use the implementation
-provided in the \fct{pca.df} function of the \pkg{fda} \proglang{R}
-package \citep{trackeR:pkg:fda}. After preparing the concentration profiles in
-the required functional data format, a functional PCA with four principal
-components is fitted and the share of variance displayed.
-% 
+second. However, the curves differ in their shape (unimodal or multimodal),
+height, and location (revealing concentrations at higher or lower speeds). 
+Functional PCA \citep[e.g.,][]{trackeR:Ramsay+Silverman:2005} can be used to
+explain those differences ensuring that the profiles are treated directly as
+functions.
+\pkg{trackeR} contains a convenience function \fct{funPCA} which converts 
+concentration/distribution profiles to the required functional data format 
+and performs a functional PCA. \pkg{trackeR} can also be viewed as a stepping
+stone to further analysis of tracking data with other 
+\proglang{R}~packages. For example, it contains a conversion
+function, \fct{profile2fd}, that transforms concentration and
+distribution profiles to class \class{fd} so that users have direct access to
+the facilities of the \pkg{fda} package \citep{trackeR:pkg:fda} for functional
+data analysis.
+
+The following code chunk shows the conversion to the required functional data
+format and the fitting of a functional PCA in separate steps. The PCA has four
+components and the share of variance is displayed in the last step.
+%  %% Alternatively: sppca <- funPCA(cpRuns, what = "speed", nharm = 4)
 <<AppFunPrep>>=
 library("fda")
-gridSpeed <- seq(0, 12.5, length = 251)
-sp <- matrix(unlist(cpRuns$speed), ncol = 250, byrow = TRUE,
-  dimnames = list(names(cpRuns$speed), gridSpeed[-1]))
-spfd <- Data2fd(argvals = gridSpeed[-1], y = t(sp))
-sppca <- pca.fd(spfd, nharm = 4)
+cpFd <- profile2fd(cpRuns, what = "speed")
+sppca <- pca.fd(cpFd, nharm = 4)
 varprop <- round(sppca$varprop * 100); names(varprop) <- 1:4
 varprop
 @
 %
 
-%% \setkeys{Gin}{width=0.8\textwidth}
-%% \begin{figure}[t]
-%%   \centering
-%% %
-%% <<AppVarPlot, echo = FALSE, fig = TRUE, width = 6, height = 4>>=
-%% ## speed
-%% varprop <- sppca$varprop * 100
-%% names(varprop) <- 1:4
-%% #cumsum(varprop)
-%% barplot(varprop, xlab = "Principal component",
-%%         ylab = "Share of variance captured [%]", ylim = c(0,100))
-%% @
-%% %
-%%   \caption{Screeplot for a functional PCA on the speed concentration profiles.}
-%%   \label{fig:app:var}
-%% \end{figure}
-%% The share of variance captured by the principal components, also called
-%% harmonics, is depicted in Figure~\ref{fig:app:var}. 
 The first two harmonics capture \Sexpr{round(cumsum(varprop)[2])}\% of the
 variation between curves. Since further harmonics capture considerably less
 variation, only the first two are chosen for further inspection.
-
-<<mypcaplot, echo = FALSE>>=
-mypcaplot <- function (x, nx = 128, pointplot = TRUE, harm = 0, expand = 0, 
-    cycle = FALSE, xlab = "argvals", ...) 
-{
-    pcafd <- x
-    if (!(inherits(pcafd, "pca.fd"))) 
-        stop("Argument 'x' is not a pca.fd object.")
-    harmfd <- pcafd[[1]]
-    basisfd <- harmfd$basis
-    rangex <- basisfd$rangeval
-    if (length(nx) > 1) {
-        argvals <- nx
-        nx <- length(x)
-    }
-    else {
-        argvals <- seq(rangex[1], rangex[2], length = nx)
-    }
-    fdmat <- eval.fd(argvals, harmfd)
-    meanmat <- eval.fd(argvals, pcafd$meanfd)
-    dimfd <- dim(fdmat)
-    nharm <- dimfd[2]
-    plotsPerPg <- sum(par("mfrow"))
-    harm <- as.vector(harm)
-    if (harm[1] == 0) 
-        harm <- (1:nharm)
-    if (length(dimfd) == 2) {
-        for (jharm in 1:length(harm)) {
-            if (jharm == 2) {
-                op <- par(ask = TRUE)
-                on.exit(par(op))
-            }
-            iharm <- harm[jharm]
-            if (expand == 0) {
-                fac <- sqrt(pcafd$values[iharm])
-            }
-            else {
-                fac <- expand
-            }
-            vecharm <- fdmat[, iharm]
-            pcmat <- cbind(meanmat + fac * vecharm, meanmat - 
-                fac * vecharm)
-            if (pointplot) 
-                plottype <- "p"
-            else plottype <- "l"
-            percentvar <- round(100 * pcafd$varprop[iharm], 1)
-            plot(argvals, meanmat, type = "l", ylim = c(min(pcmat), 
-                max(pcmat)), ylab = paste("Harmonic", iharm), xlab = xlab,
-                main = paste("PCA Function", iharm, "(Percentage of Variability", 
-                  percentvar, ")"))
-            if (pointplot) {
-                points(argvals, pcmat[, 1], pch = "+")
-                points(argvals, pcmat[, 2], pch = "-")
-            }
-            else {
-                lines(argvals, pcmat[, 1], lty = 2)
-                lines(argvals, pcmat[, 2], lty = 3)
-            }
-        }
-    }
-    else {
-        if (cycle && dimfd[3] == 2) {
-            meanmat <- drop(meanmat)
-            for (jharm in 1:length(harm)) {
-                if (jharm == 2) {
-                  op <- par(ask = TRUE)
-                  on.exit(par(op))
-                }
-                iharm <- harm[jharm]
-                {
-                  if (expand == 0) 
-                    fac <- 2 * sqrt(pcafd$values[iharm])
-                  else fac <- expand
-                }
-                matharm <- fdmat[, iharm, ]
-                mat1 <- meanmat + fac * matharm
-                mat2 <- meanmat - fac * matharm
-                if (pointplot) 
-                  plottype <- "p"
-                else plottype <- "l"
-                percentvar <- round(100 * pcafd$varprop[iharm], 
-                  1)
-                plot(meanmat[, 1], meanmat[, 2], type = plottype, 
-                  xlim = c(min(c(mat1[, 1], mat2[, 1])), max(c(mat1[, 
-                    1], mat2[, 1]))), ylim = c(min(c(mat1[, 2], 
-                    mat2[, 2])), max(c(mat1[, 2], mat2[, 2]))), 
-                  main = paste("PCA Function", iharm, "(Percentage of Variability", 
-                    percentvar, ")"), ...)
-                if (pointplot) {
-                  points(mat1[, 1], mat1[, 2], pch = "+")
-                  points(mat2[, 1], mat2[, 2], pch = "-")
-                }
-                else {
-                  lines(mat1[, 1], mat1[, 2], lty = 2)
-                  lines(mat2[, 1], mat2[, 2], lty = 3)
-                }
-            }
-        }
-        else {
-            for (jharm in 1:length(harm)) {
-                if (jharm == 2) {
-                  op <- par(ask = TRUE)
-                  on.exit(par(op))
-                }
-                iharm <- harm[jharm]
-                fac <- {
-                  if (expand == 0) 
-                    sqrt(pcafd$values[iharm])
-                  else expand
-                }
-                meanmat <- drop(meanmat)
-                matharm <- fdmat[, iharm, ]
-                nvar <- dim(matharm)[2]
-                for (jvar in 1:nvar) {
-                  pcmat <- cbind(meanmat[, jvar] + fac * matharm[, 
-                    jvar], meanmat[, jvar] - fac * matharm[, 
-                    jvar])
-                  if (pointplot) 
-                    plottype <- "p"
-                  else plottype <- "l"
-                  percentvar <- round(100 * pcafd$varprop[iharm], 
-                    1)
-                  plot(argvals, meanmat[, jvar], type = plottype, xlab = xlab,
-                    ylab = paste("Harmonic", iharm), sub = paste("PCA Function", 
-                      iharm, "(Percentage of Variability", percentvar, 
-                      ")"), main = dimnames(fdmat)[[3]][jvar], 
-                    ...)
-                  if (pointplot) {
-                    points(argvals, pcmat[, 1], pch = "+")
-                    points(argvals, pcmat[, 2], pch = "-")
-                  }
-                  else {
-                    lines(argvals, pcmat[, 1], lty = 2)
-                    lines(argvals, pcmat[, 2], lty = 3)
-                  }
-                }
-            }
-        }
-    }
-    invisible(NULL)
-}
-@ 
 
 \setkeys{Gin}{width=0.8\textwidth}
 \begin{figure}[t]
   \centering
 %
-<<AppHarmonicsPlotSpeed, echo = FALSE, fig = TRUE, width = 7, height = 7>>=
-##source("mypcaplot.R")
+<<AppHarmonicsPlotSpeed, echo = FALSE, fig = TRUE, width = 5, height = 5>>=
+## refit fPCA so that trackeR's plot method is used
+sppca <- funPCA(cpRuns, what = "speed", nharm = 4)
 pp <- FALSE ## dotted = -, dashed = +
-par(mfrow = c(2,1), ask = FALSE)
-mypcaplot(sppca, harm = 1:2, pointplot = pp, xlab = "Speed [m/s]")
-par(mfrow = c(1,1), ask = TRUE)
+plot(sppca, harm = 1:2, pointplot = pp)
 @
 %
   \caption{Harmonics 1--2 for the speed concentration profiles. Mean
@@ -3079,21 +3403,21 @@ par(mfrow = c(1,1), ask = TRUE)
 Figure~\ref{fig:app:harmonics:speed} shows the mean function (solid line) and
 the variation captured in the two harmonics (between the dashed and dotted
 lines). %(between the $+$ and $-$ signs).
-The first harmonic (top panel) shows that the most important characteristic of
-the concentration profiles is the relative value of the profiles, which is
+The first harmonic (top panel) illustrates that the most important 
+characteristic of the concentration profiles is the relative value, which is
 closely related to the overall session duration. The left panel of
 Figure~\ref{fig:app:score:speed} shows the score on the first harmonic versus
-'duration moving' which is calculated as part of the scalar session
-summaries. The second harmonic (bottom panel of
-Figure~\ref{fig:app:harmonics:speed}) shows variation along the speed
+``duration moving'' which is calculated as part of the scalar session
+summaries. The second harmonic in the bottom panel of
+Figure~\ref{fig:app:harmonics:speed} shows variation along the speed
 thresholds in the centre of the curve. This variation can be explained well by
-the scalar measure 'average speed moving' as shown in the right panel of
+the scalar measure ``average speed moving'' as shown in the right panel of
 Figure~\ref{fig:app:score:speed}.
 
 The concentration profiles and a functional PCA thus indicate that the two
-scalar summaries 'duration moving' and 'average speed moving' provide a
-good summary of the speed information in the sessions and can be used, for example, in
-order to incorporate speed as covariance information in further regression
+scalar summaries ``duration moving'' and ``average speed moving'' provide a
+good summary of the speed information in the sessions and can be used, for
+example, in order to incorporate speed as explanatory information in regression
 analyses.
 
 \setkeys{Gin}{width=\textwidth}
@@ -3123,51 +3447,51 @@ ggplot(d) + geom_point(aes(x = avgSpeedMoving, y = speed_pc2)) + theme_bw() + la
 @
 %
   \end{subfigure}
-  \caption{PC1 score vs.\ 'duration moving' (left) and PC2 score vs.\ 'average
-    speed moving'~(right).}
+  \caption{PC1 score vs.\ ``duration moving'' (left) and PC2 score vs.\ ``average
+    speed moving''~(right).}
   \label{fig:app:score:speed}
 \end{figure}
 
 
 
 
-\section{Concluding remarks} \label{sec:outro}
+% \section{Concluding remarks} \label{sec:outro}
 
-The \pkg{trackeR} package provides classes and methods for importing and
-handling the irregularly sampled spatio-temporal data that arise from
-GPS-enabled tracking devices in sports. Currently it supports TCX and db3
-formats, but the package structure allows the easy inclusion of other
-formats. After careful processing, the data are stored in session-based,
-unit-aware, and operation-aware objects of class \class{trackeRdata}. Associated
-methods handle conversion between units of measurement, calculation of relevant
-summaries and the visualisation of tracking data. Time in zones, work capacity,
-and distribution and concentration profiles can also be readily calculated and
-used for further statistical analyses. An example of such analysis is presented
-in Section~\ref{sec:casestudy}, where functional principal components analysis
-is used to characterise the apparent variability between speed concentration
-profiles. 
+% The \pkg{trackeR} package provides classes and methods for importing and
+% handling the irregularly sampled spatio-temporal data that arise from
+% GPS-enabled tracking devices in sports. Currently it supports TCX and db3
+% formats, but the package structure allows the easy inclusion of other
+% formats. After careful processing, the data are stored in session-based,
+% unit-aware, and operation-aware objects of class \class{trackeRdata}. Associated
+% methods handle conversion between units of measurement, calculation of relevant
+% summaries and the visualisation of tracking data. Time in zones, work capacity,
+% and distribution and concentration profiles can also be readily calculated and
+% used for further statistical analyses. An example of such analysis is presented
+% in Section~\ref{sec:casestudy}, where functional principal components analysis
+% is used to characterise the apparent variability between speed concentration
+% profiles. 
 
-Infrastructure for irregularly sampled spatio-temporal data in general is also
-provided in the \pkg{trajectories} package \citep{trackeR:pkg:trajectories},
-which is developed around the \class{STIDF} class of the \pkg{spacetime} package
-\citep{trackeR:Pebesma:2012}. In order to provide users with access to an as
-wide range of data-analytic methods as is possible, we aim to provide a sensible
-coercion function from \class{trackeRdata} to \class{STIDF}. One of the
-challenges we are facing is that the \class{STIDF} class does not 
-accommodate missing values in positional or temporal information, which is
-commonly the case in data from GPS-enabled tracking devices (e.g., sequences of
-missing values in the positional data because the GPS signal is temporarily
-lost). Other packages that offer tools for spatio-temporal data include
-\pkg{adehabtitatLT} \citep{trackeR:Calenge:2006}, \pkg{trip}
-\citep{trackeR:pkg:trip} and \pkg{move} \citep{trackeR:pkg:move}. The main focus
-of those packages is on animal tracking (e.g., estimation of habitat choices)
-and they are not directly suitable for tracking the various aspects of athlete activity. 
+% Infrastructure for irregularly sampled spatio-temporal data in general is also
+% provided in the \pkg{trajectories} package \citep{trackeR:pkg:trajectories},
+% which is developed around the \class{STIDF} class of the \pkg{spacetime} package
+% \citep{trackeR:Pebesma:2012}. In order to provide users with access to an as
+% wide range of data-analytic methods as is possible, we aim to provide a sensible
+% coercion function from \class{trackeRdata} to \class{STIDF}. One of the
+% challenges we are facing is that the \class{STIDF} class does not 
+% accommodate missing values in positional or temporal information, which is
+% commonly the case in data from GPS-enabled tracking devices (e.g., sequences of
+% missing values in the positional data because the GPS signal is temporarily
+% lost). Other packages that offer tools for spatio-temporal data include
+% \pkg{adehabtitatLT} \citep{trackeR:Calenge:2006}, \pkg{trip}
+% \citep{trackeR:pkg:trip} and \pkg{move} \citep{trackeR:pkg:move}. The main focus
+% of those packages is on animal tracking (e.g., estimation of habitat choices)
+% and they are not directly suitable for tracking the various aspects of athlete activity. 
 
-Areas for further development include the extension of the reading capabilities
-to more file formats and the implementation of more analytic tools, such as
-record power profiles \citep{trackeR:Pinot+Grappe:2011}. The case study in
-Section~\ref{sec:casestudy} draws some links to functional data analysis which
-is another area of further exploration for analytic tools for the package. 
+% Areas for further development include the extension of the reading capabilities
+% to more file formats and the implementation of more analytic tools, such as
+% record power profiles \citep{trackeR:Pinot+Grappe:2011}. The case study in
+% Section~\ref{sec:casestudy} draws some links to functional data analysis which
+% is another area of further exploration for analytic tools for the package. 
 
 
 
@@ -3181,7 +3505,8 @@ We are thankful to Victoria Downie, Andy Hudson, Louis Passfield, Ben
 Rosenblatt, and Achim Zeileis for helpful feedback and discussions as well as
 providing the data that are used for the illustrations and examples in the package. 
 
-%\pagebreak
+\pagebreak
+\clearpage
 
 \bibliography{trackeR}
 
