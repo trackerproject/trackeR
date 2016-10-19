@@ -93,7 +93,7 @@ plotRoute(runs, session = 4, zoom = 13, source = "osm")
 or on an interactive map.
 
 ```{r, leafletRoute, fig.width = 7, fig.height = 5}
-leafletRoute(runs, session = 8:15)
+leafletRoute(runs, session = 8:13)
 ```
 
 
