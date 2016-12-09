@@ -68,7 +68,7 @@
 %\VignettePackage{trackeR}
 
 <<preliminaries, echo=FALSE, results=hide>>=
-options(width = 70, prompt = "R> ", continue = "+  ")
+options(width = 70, prompt = "R> ", continue = "+  ", useFancyQuotes = FALSE)
 library("trackeR")
 library("ggplot2")
 data("runs", package = "trackeR")
@@ -210,7 +210,7 @@ an object indicates that the method outputs objects of the respective
 class. A bi-directional arrow between a method and an object indicates
 that the method's input and output are of the same class, such as the
 method \fct{threshold} and objects of class
-\class{trackeRdata}). Arrows to or from groups of boxes apply to
+\class{trackeRdata}. Arrows to or from groups of boxes apply to
 each box in the group. For example, the method \fct{changeUnits}
 applies to objects of classes \class{trackeRdataZones},
 \class{trackeRdataSummary}, \class{trackeRWprime},
@@ -1718,7 +1718,7 @@ applies to objects of classes \class{trackeRdataZones},
 \end{figure}
 %
 
-Data from various formats is imported and stored in the central data object of \linebreak
+Data in various formats are imported and stored in the central data object of \linebreak
 class~\class{trackeRdata} from which summaries for descriptive purposes or
 further analyses can be derived. Methods for visualisation and data handling are
 available for data objects and summary objects. 
@@ -1791,7 +1791,7 @@ A list of all functionality is provided in Tables~\ref{tab:pkg:functions:1} and~
 
 \begin{table}[t]
   \centering
-  \begin{tabular}{l l p{6.5cm}}
+  \begin{tabular}{l l p{7cm}}
     \hline
     Function & Class & Description \\
     \hline
@@ -1870,7 +1870,7 @@ same structure as in the above example.
 %\clearpage
 %% \pagebreak
 
-\section{trackeRdata class}\label{sec:trackeRdata}
+\section[trackeRdata class]{\class{trackeRdata} class}\label{sec:trackeRdata}
 
 \subsection{Object structure}
 The core object of \pkg{trackeR} has class \class{trackeRdata}. 
@@ -1891,7 +1891,7 @@ sessions, the constructor function also performs some data processing,
 including basic sanity checks (for example, removing observations with negative
 or missing values for cumulative distance or speed), handling of
 measurement units, correction of distances using altitude data if
-required, and data imputation, discussed in Section~\ref{sec:imputation}).
+required, and data imputation, discussed in Section~\ref{sec:imputation}.
 
 \subsection{Constructor function}
 The interface of the constructor function for class
@@ -1972,12 +1972,13 @@ $t_{i-1}$ and time point $t_{i}$ to
 where $d_{i}$ and $a_i$ are the corrected cumulative distance and the
 altitude at time $t_i$, respectively.
 
-If no altitude measurements are available, then these are extracted
-from the \emph{SRTM 90m Digital Elevation Data} via the \pkg{raster}
+If no altitude measurements are available, these are extracted
+from \emph{SRTM 90m Digital Elevation Data} via the \pkg{raster}
 package \citep{trackeR:Hijmans:2015} using the latitude and longitude
 measurements. The arguments \code{country} and \code{mask} control the
 extraction of altitudes.
 
+%\pagebreak %%% when JSS header is included
 
 \subsection{Imputation process}\label{sec:imputation}
 Occasionally, there is a large time difference between consecutive
@@ -2729,7 +2730,7 @@ plot(runZones)
 \end{figure}
 
 
-%% \pagebreak
+%%\pagebreak %%% when JSS header is included
 
 \subsection{Quantifying work capacity}\label{subsec:workcapacity}
 The critical power model \citep{trackeR:Monod+Scherrer:1965} describes the
@@ -2999,7 +3000,7 @@ Distribution profiles can be calculated using the \fct{distributionProfile}
 function which returns an object of class \class{distrProfile}.
 Concentration profiles can be derived from distribution profiles using 
 \fct{concentrationProfile}, which returns an object of class
-\class{conProfile}. Table \ref{tab:pkg:functions:2} includes an overview of
+\class{conProfile}. Table~\ref{tab:pkg:functions:2} includes an overview of
 constructor functions and available methods for distribution and concentration
 profiles. 
 
@@ -3103,7 +3104,7 @@ runTr2 <- changeUnits(run, variable = "speed", unit = "mi_per_h")
 getUnits(runTr2)
 @
 %
-Table \ref{tab:units} shows the variables and the corresponding
+Table~\ref{tab:units} shows the variables and the corresponding
 units that are currently supported in \pkg{trackeR}.
 
 \begin{table}[t]
@@ -3139,14 +3140,14 @@ units that are currently supported in \pkg{trackeR}.
   \label{tab:units}
 \end{table}
 
-If objects with different units are \fct{c}ombined in one object, then
+If objects with different units are \fct{c}ombined in one object, 
 the units of the first session are applied to all other sessions.
 Furthermore, the \fct{changeUnits} method uses name matching to figure
 out which conversion needs to be done. This allows the user to easily
-add support for converting from \texttt{unitOld} to \texttt{unitNew} by
-authoring a function named \texttt{unitOld2unitNew}. 
+add support for converting from \code{unitOld} to \code{unitNew} by
+authoring a function named \code{unitOld2unitNew}. 
 
-If we wish to report the speed summaries for session~1 in \texttt{runSummary} in
+If we wish to report the speed summaries for session~1 in \code{runSummary} in
 feet per hour (not currently supported) instead of meters per second, we need to
 simply provide the appropriately named conversion function as illustrated
 below. Note that the conversion applies to all speed summaries, i.e., to
