@@ -1,3 +1,9 @@
+Changes in Version 0.0.5
+
+  o The color palette for plots of trackeRdataZones objects is now also based
+    on black/blue.
+
+
 Changes in Version 0.0.4
 
   o The sanity checks performed when creating a trackeRdata object now

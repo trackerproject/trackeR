@@ -110,7 +110,8 @@ plot.trackeRdataZones <- function(x, percent = TRUE, ...){
     dat <- do.call("rbind", x)
     dat$zoneF <- factor(paste0("[", paste(dat$lower, dat$upper, sep = "-"), ")"),
                         levels = unique(paste0("[", paste(dat$lower, dat$upper, sep = "-"), ")")))
-    dat$session <- factor(dat$session)
+    ##dat$session <- factor(dat$session)
+    dat$Session <- dat$session ## rename for legend title
     dat$timeN <- as.numeric(dat$time)
 
     ## basic plot
@@ -118,21 +119,22 @@ plot.trackeRdataZones <- function(x, percent = TRUE, ...){
 
     ## y: time or percent
     if (percent) {
-        p <- p + ggplot2::geom_bar(ggplot2::aes_(x = quote(zoneF), y = quote(percent), fill = quote(session)),
+        p <- p + ggplot2::geom_bar(ggplot2::aes_(x = quote(zoneF), y = quote(percent),
+                                                 fill = quote(Session), group = quote(Session)),
                                    stat = "identity", position = ggplot2::position_dodge()) +
-            ggplot2::ylab("Percent") +
-            ggplot2::guides(fill = ggplot2::guide_legend(title = "Session"))
+            ggplot2::ylab("Percent") ## +
+            ## ggplot2::guides(fill = ggplot2::guide_legend(title = "Session"))
     } else {
         p <- p + ggplot2::geom_bar(ggplot2::aes_(x = quote(zoneF), y = quote(timeN),
-                                                 fill = quote(session)),
+                                                 fill = quote(Session), group = quote(Session)),
                                    stat = "identity", position = ggplot2::position_dodge()) +
-            ggplot2::ylab(paste0("Time [", units(dat$time), "]")) +
-            ggplot2::guides(fill = ggplot2::guide_legend(title = "Session"))
+            ggplot2::ylab(paste0("Time [", units(dat$time), "]")) ## +
+            ## ggplot2::guides(fill = ggplot2::guide_legend(title = "Session"))
     }
 
     ## set colors
-    hclpal <- colorspace::rainbow_hcl(n = nlevels(dat$session), c = 60)
-    p <- p + ggplot2::scale_fill_manual(values = hclpal)
+    ## hclpal <- colorspace::rainbow_hcl(n = nlevels(dat$session), c = 60)
+    ## p <- p + ggplot2::scale_fill_manual(values = hclpal)
 
     ## facets
     units <- getUnits(x)
