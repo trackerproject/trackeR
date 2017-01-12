@@ -3,6 +3,9 @@ Changes in Version 0.0.5
   o The color palette for plots of trackeRdataZones objects is now also based
     on black/blue.
 
+  o The vignette Tour de trackeR and the examples for plotRoute() now use
+    maps from Stamen rather than OpenStreetMap.
+
 
 Changes in Version 0.0.4
 

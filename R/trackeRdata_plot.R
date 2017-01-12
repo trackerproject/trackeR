@@ -243,11 +243,11 @@ fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
 #' data("runs", package = "trackeR")
 #' plotRoute(runs, session = 4, zoom = 13)
 #' plotRoute(runs, session = 4, zoom = 13, maptype = "hybrid")
-#' plotRoute(runs, session = 4, zoom = 13, source = "osm")
+#' plotRoute(runs, session = 4, zoom = 13, source = "stamen")
 #' ## multiple sessions
-#' plotRoute(runs, session = c(1:5, 8:11), source = "osm")
+#' plotRoute(runs, session = c(1:5, 8:11), source = "google")
 #' ## different zoom level per panel
-#' plotRoute(runs, session = 6:7, source = "osm", zoom = c(13, 14))
+#' plotRoute(runs, session = 6:7, source = "google", zoom = c(13, 14))
 #' }
 #' @export
 plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRUE, mfrow = NULL, ...){
