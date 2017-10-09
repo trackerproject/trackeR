@@ -39,7 +39,9 @@ data("runs", package = "trackeR")
 plot(runs, session = 1:3)
 
 ## plot route taken during session 4
-plotRoute(runs, session = 4, zoom = 13, source = "osm")
+#pdf(file = "plotRouteGoogle.pdf")
+plotRoute(runs, session = 4, zoom = 13)
+#dev.off()
 
 
 ####################################

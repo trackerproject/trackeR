@@ -2582,24 +2582,24 @@ via the \fct{plotRoute} method. The \fct{plotRoute} method uses the
 \pkg{ggmap} package \citep{trackeR:Kahle+Wickham:2013} and, hence, can
 work with the sources and maps supported by \pkg{ggmap}. For example,
 Figure~\ref{fig:routePlot} shows the route covered during session~4 in
-\code{runs} using a map downloaded from Open Street Map. 
+\code{runs} using a map downloaded from Google. 
 Interactive maps can be produced with \fct{leafletPlot}, using the 
 \pkg{leaflet} package \citep{trackeR:pkg:leaflet}.
 %
 <<eval = FALSE, echo = TRUE>>=
-plotRoute(runs, session = 4, zoom = 13, source = "osm")
+plotRoute(runs, session = 4, zoom = 13)
 @
 %
 \setkeys{Gin}{width=0.8\textwidth}
 \begin{figure}[t]
   \centering
 % %
-% <<routePlot, eval = TRUE, echo = FALSE, fig = TRUE, width = 6, height = 6>>=
-% plotRoute(runs, session = 4, zoom = 13, source = "osm")
+% <<routePlot, eval = FALSE, echo = TRUE, fig = TRUE, width = 6, height = 6>>=
+% plotRoute(runs, session = 4, zoom = 13)
 % @
-% %
-  \includegraphics{plotRoute}
-  \caption{Route covered during session~4 on a map from Open Street Map.}
+%
+  \includegraphics[page=2]{plotRouteGoogle}
+  \caption{Route covered during session~4 on a map from Google.}
   \label{fig:routePlot}
 \end{figure}
 
