@@ -20,4 +20,3 @@
 Generic function for appending training distribution or
 concentration profiles to existing files.
 }
-

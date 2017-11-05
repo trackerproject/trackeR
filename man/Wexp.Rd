@@ -15,8 +15,8 @@ power model by Monod and Scherrer (1965).}
 \item{cp}{Critical power/speed, i.e., the power/speed which can be maintained for
 longer period of time.}
 
-\item{version}{How should W' be replenished? Options include \code{"2015"}
-and \code{"2012"} for the versions presented in Skiba et al. (2015) and
+\item{version}{How should W' be replenished? Options include \code{'2015'}
+and \code{'2012'} for the versions presented in Skiba et al. (2015) and
 Skiba et al. (2012), respectively. See Details.}
 
 \item{meanRecoveryPower}{Should the mean of all power outputs below critical
@@ -35,8 +35,7 @@ Skiba et al. (2015) use (P_i - CP) / W'_0.
 Skiba et al. (2012) and Skiba et al. (2015) employ a constant recovery power (calculated as the mean over all power outputs below critical power). This rational can be applied by setting the argument \code{meanRecoveryPower} to \code{TRUE}. Note that this employes information from the all observations with a power output below critical power, not just those prior to the current time point.
 }
 \references{
-Monod H, Scherrer J (1965). "The Work Capacity of a Synergic Muscular Group." Ergonomics, 8(3), 329--338.
-Skiba PF, Chidnok W, Vanhatalo A, Jones AM (2012). "Modeling the Expenditure and Reconstitution of Work Capacity above Critical Power." Medicine & Science in Sports & Exercise, 44(8), 1526--1532.
-Skiba PF, Fulford J, Clarke DC, Vanhatalo A, Jones AM (2015). "Intramuscular Determinants of the Abilility to Recover Work Capacity above Critical Power." European Journal of Applied Physiology, 115(4), 703--713.
+Monod H, Scherrer J (1965). 'The Work Capacity of a Synergic Muscular Group.' Ergonomics, 8(3), 329--338.
+Skiba PF, Chidnok W, Vanhatalo A, Jones AM (2012). 'Modeling the Expenditure and Reconstitution of Work Capacity above Critical Power.' Medicine & Science in Sports & Exercise, 44(8), 1526--1532.
+Skiba PF, Fulford J, Clarke DC, Vanhatalo A, Jones AM (2015). 'Intramuscular Determinants of the Abilility to Recover Work Capacity above Critical Power.' European Journal of Applied Physiology, 115(4), 703--713.
 }
-

@@ -15,4 +15,3 @@ sanityChecks(dat, silent)
 Heart rate measurements of 0 are set to NA, assuming the athlete is alive.
 Observations with missing or duplicated time stamps are removed.
 }
-

@@ -10,7 +10,7 @@
 \item{object}{An object of class \code{trackeRdataSummary}.}
 
 \item{variable}{A vector of variables to be changed. Note, these are expected to be
-concepts like "speed" rather than variable names like "avgSpeed" or "avgSpeedMoving".}
+concepts like 'speed' rather than variable names like 'avgSpeed' or 'avgSpeedMoving'.}
 
 \item{unit}{A vector with the units, corresponding to variable.}
 
@@ -19,4 +19,3 @@ concepts like "speed" rather than variable names like "avgSpeed" or "avgSpeedMov
 \description{
 Change the units of the variables in an \code{trackeRdataSummary} object.
 }
-

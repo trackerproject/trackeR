@@ -18,4 +18,3 @@
 \description{
 Change the units of the variables in an \code{trackeRdata} object.
 }
-

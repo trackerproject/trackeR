@@ -26,7 +26,11 @@ Imports:
     leaflet,
     gridExtra,
     gtable,
-    colorspace
+    colorspace,
+    shiny,
+    shinydashboard,
+    plotly,
+    mgcv
 Suggests:
     testthat,
     knitr,
@@ -35,4 +39,4 @@ VignetteBuilder: knitr
 License: GPL-2 | GPL-3
 URL: https://github.com/hfrick/trackeR
 BugReports: https://github.com/hfrick/trackeR/issues
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

@@ -19,7 +19,7 @@ zones(object, session = NULL, what = c("speed", "heart.rate"),
 
 \item{parallel}{Logical. Should computation be carried out in parallel?}
 
-\item{cores}{Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options("corese")} (on Windows) or \code{options("mc.cores")} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.}
+\item{cores}{Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options('corese')} (on Windows) or \code{options('mc.cores')} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.}
 
 \item{...}{Currently not used.}
 }
@@ -30,15 +30,14 @@ An object of class \code{trackeRdataZones}.
 Time spent in training zones.
 }
 \examples{
-data("run", package = "trackeR")
-runZones <- zones(run, what = "speed", breaks = list(speed = c(0, 2:6, 12.5)))
+data('run', package = 'trackeR')
+runZones <- zones(run, what = 'speed', breaks = list(speed = c(0, 2:6, 12.5)))
 ## if breaks is a named list, argument 'what' can be left unspecified
 runZones <- zones(run, breaks = list(speed = c(0, 2:6, 12.5)))
 ## if only a single variable is to be evaluated, 'breaks' can also be a vector
-runZones <- zones(run, what = "speed", breaks = c(0, 2:6, 12.5))
+runZones <- zones(run, what = 'speed', breaks = c(0, 2:6, 12.5))
 plot(runZones)
 }
 \seealso{
 \code{\link{plot.trackeRdataZones}}
 }
-

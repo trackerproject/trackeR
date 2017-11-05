@@ -14,4 +14,3 @@ getUnits(object, ...)
 \description{
 Generic function for retrieving the units of measurement.
 }
-

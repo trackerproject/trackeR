@@ -14,4 +14,3 @@
 \description{
 Get the units of the variables in an \code{trackeRWprime} object.
 }
-

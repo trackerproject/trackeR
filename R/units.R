@@ -3,7 +3,7 @@
 #' @param object An object of class \code{\link{trackeRdata}}.
 #' @param ... Currently not used.
 #' @export
-getUnits.trackeRdata <- function(object,...){
+getUnits.trackeRdata <- function(object, ...) {
     attr(object, "units")
 }
 
@@ -12,7 +12,7 @@ getUnits.trackeRdata <- function(object,...){
 #' @param object An object of class \code{trackeRdataSummary}.
 #' @param ... Currently not used.
 #' @export
-getUnits.trackeRdataSummary <- function(object,...){
+getUnits.trackeRdataSummary <- function(object, ...) {
     attr(object, "units")
 }
 
@@ -21,7 +21,7 @@ getUnits.trackeRdataSummary <- function(object,...){
 #' @param object An object of class \code{distrProfile}.
 #' @param ... Currently not used.
 #' @export
-getUnits.distrProfile <- function(object,...){
+getUnits.distrProfile <- function(object, ...) {
     attr(object, "units")
 }
 
@@ -30,7 +30,7 @@ getUnits.distrProfile <- function(object,...){
 #' @param object An object of class \code{conProfile}.
 #' @param ... Currently not used.
 #' @export
-getUnits.conProfile <- function(object,...){
+getUnits.conProfile <- function(object, ...) {
     attr(object, "units")
 }
 
@@ -39,20 +39,20 @@ getUnits.conProfile <- function(object,...){
 #' @param object An object of class \code{trackeRWprime}.
 #' @param ... Currently not used.
 #' @export
-getUnits.trackeRWprime <- function(object,...){
+getUnits.trackeRWprime <- function(object, ...) {
     attr(object, "unit")
 }
 
 ## not to be exported
-getUnits.trackeRthresholds <- function(object, ...){
+getUnits.trackeRthresholds <- function(object, ...) {
     object[, c("variable", "unit")]
 }
 
-getUnits.trackeRdataZones <- function(object, ...){
+getUnits.trackeRdataZones <- function(object, ...) {
     attr(object, "units")
 }
 
-getUnits.trackeRfpca <- function(object, ...){
+getUnits.trackeRfpca <- function(object, ...) {
     attr(object, "units")
 }
 
@@ -63,32 +63,32 @@ getUnits.trackeRfpca <- function(object, ...){
 #' @param unit A vector with the units, corresponding to variable.
 #' @param ... Currently not used.
 #' @export
-changeUnits.trackeRdata <- function(object, variable, unit, ...){
+changeUnits.trackeRdata <- function(object, variable, unit, ...) {
     ## get current units and thresholds
     current <- getUnits(object)
     operations <- getOperations(object)
     th <- operations$threshold
-
+    
     ## change units
-    for (i in variable){
+    for (i in variable) {
         currentUnit <- current$unit[current$variable == i]
         newUnit <- unit[which(variable == i)]
         if (currentUnit != newUnit) {
             conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
             ## change data
-            for (session in seq_along(object)){
-                object[[session]][,i] <- conversion(object[[session]][,i])
+            for (session in seq_along(object)) {
+                object[[session]][, i] <- conversion(object[[session]][, i])
             }
-
+            
             ## change units attribute
             current$unit[current$variable == i] <- newUnit
-
+            
             ## change units of thresholds
             th$lower[th$variable == i] <- conversion(th$lower[th$variable == i])
             th$upper[th$variable == i] <- conversion(th$upper[th$variable == i])
         }
     }
-
+    
     ## update attributes and return
     attr(object, "units") <- current
     operations$threshold <- th
@@ -100,40 +100,42 @@ changeUnits.trackeRdata <- function(object, variable, unit, ...){
 #'
 #' @param object An object of class \code{trackeRdataSummary}.
 #' @param variable A vector of variables to be changed. Note, these are expected to be
-#'     concepts like "speed" rather than variable names like "avgSpeed" or "avgSpeedMoving".
+#'     concepts like 'speed' rather than variable names like 'avgSpeed' or 'avgSpeedMoving'.
 #' @param unit A vector with the units, corresponding to variable.
 #' @param ... Currently not used.
 #' @export
-changeUnits.trackeRdataSummary <- function(object, variable, unit, ...){
-    ## NOTE: variable is expected to contain concepts like "speed" rather than variable names like "avgSpeed" or "avgSpeedMoving".
+changeUnits.trackeRdataSummary <- function(object, variable, unit, ...) {
+    ## NOTE: variable is expected to contain concepts like 'speed' rather than variable
+    ## names like 'avgSpeed' or 'avgSpeedMoving'.
     concept <- variable
     current <- getUnits(object)
     mvt <- attr(object, "movingThreshold")
     object <- as.data.frame(object)
-    for (i in concept){
+    for (i in concept) {
         variables <- names(object)[grep(pattern = i, names(object), ignore.case = TRUE)]
-        currentUnit <- current$unit[current$variable == i] ## $concept
+        currentUnit <- current$unit[current$variable == i]  ## $concept
         newUnit <- unit[which(concept == i)]
         if (currentUnit != newUnit) {
             conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
             ## convert summary statistics
-            for (v in variables){
-                object[,v] <- conversion(object[,v])
+            for (v in variables) {
+                object[, v] <- conversion(object[, v])
             }
             ## convert moving threshold
-            if (i == "speed") mvt <- conversion(mvt)
-            ## update units 
+            if (i == "speed") 
+                mvt <- conversion(mvt)
+            ## update units
             current$unit[current$variable == i] <- newUnit
         }
         
     }
-
+    
     ## update units attribute and return
     attr(object, "units") <- current
     attr(object, "movingThreshold") <- mvt
     class(object) <- c("trackeRdataSummary", class(object))
     return(object)
-}    
+}
 
 #' Change the units of the variables in an \code{distrProfile} object.
 #'
@@ -142,11 +144,11 @@ changeUnits.trackeRdataSummary <- function(object, variable, unit, ...){
 #' @param unit A vector with the units, corresponding to variable.
 #' @param ... Currently not used.
 #' @export
-changeUnits.distrProfile <- function(object, variable, unit, ...){
+changeUnits.distrProfile <- function(object, variable, unit, ...) {
     current <- getUnits(object)
     
     ## change units
-    for (i in variable){
+    for (i in variable) {
         currentUnit <- current$unit[current$variable == i]
         newUnit <- unit[which(variable == i)]
         if (currentUnit != newUnit) {
@@ -158,7 +160,7 @@ changeUnits.distrProfile <- function(object, variable, unit, ...){
             current$unit[current$variable == i] <- newUnit
         }
     }
-
+    
     ## update attributes and return
     attr(object, "units") <- current
     return(object)
@@ -171,11 +173,11 @@ changeUnits.distrProfile <- function(object, variable, unit, ...){
 #' @param unit A vector with the units, corresponding to variable.
 #' @param ... Currently not used.
 #' @export
-changeUnits.conProfile <- function(object, variable, unit, ...){
+changeUnits.conProfile <- function(object, variable, unit, ...) {
     current <- getUnits(object)
     
     ## change units
-    for (i in variable){
+    for (i in variable) {
         currentUnit <- current$unit[current$variable == i]
         newUnit <- unit[which(variable == i)]
         if (currentUnit != newUnit) {
@@ -187,7 +189,7 @@ changeUnits.conProfile <- function(object, variable, unit, ...){
             current$unit[current$variable == i] <- newUnit
         }
     }
-
+    
     ## update attributes and return
     attr(object, "units") <- current
     return(object)
@@ -200,45 +202,48 @@ changeUnits.conProfile <- function(object, variable, unit, ...){
 #' @param unit A vector with the units, corresponding to variable.
 #' @param ... Currently not used.
 #' @export
-changeUnits.trackeRWprime <- function(object, variable, unit, ...){
+changeUnits.trackeRWprime <- function(object, variable, unit, ...) {
     ## get current unit
     current <- getUnits(object)
-
-    if (missing(variable)) variable <- ifelse(attr(object, "cycling"), "power", "speed")
+    
+    if (missing(variable)) 
+        variable <- ifelse(attr(object, "cycling"), "power", "speed")
     if (missing(unit) & !missing(variable)) {
         unit <- variable
         variable <- ifelse(attr(object, "cycling"), "power", "speed")
     }
-    if (attr(object, "cycling")){
-        if(variable != "power") stop("Can only change measurement units for power.")
+    if (attr(object, "cycling")) {
+        if (variable != "power") 
+            stop("Can only change measurement units for power.")
     } else {
-        if(variable != "speed") stop("Can only change measurement units for speed.")
+        if (variable != "speed") 
+            stop("Can only change measurement units for speed.")
     }
     
     ## change units
-    for (i in variable){
+    for (i in variable) {
         currentUnit <- current$unit[current$variable == i]
         newUnit <- unit[which(variable == i)]
         if (currentUnit != newUnit) {
             conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
             ## change data
-            for (session in seq_along(object)){
-                object[[session]][,"movement"] <- conversion(object[[session]][,"movement"])
+            for (session in seq_along(object)) {
+                object[[session]][, "movement"] <- conversion(object[[session]][, "movement"])
             }
             ## change units attribute
             current$unit[current$variable == i] <- newUnit
         }
     }
-
+    
     ## update attributes and return
     attr(object, "units") <- current
     return(object)
 }
 
 ## not to be exported
-changeUnits.trackeRthresholds <- function(object, variable, unit, ...){
-
-    for (v in variable){
+changeUnits.trackeRthresholds <- function(object, variable, unit, ...) {
+    
+    for (v in variable) {
         i <- which(object$variable == v)
         currentUnit <- object$unit[i]
         newUnit <- unit[which(variable == v)]
@@ -246,19 +251,19 @@ changeUnits.trackeRthresholds <- function(object, variable, unit, ...){
             conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
             object$lower[i] <- conversion(object$lower[i])
             object$upper[i] <- conversion(object$upper[i])
-            object$unit[i] <- newUnit            
+            object$unit[i] <- newUnit
         }
     }
     return(object)
 }
 
 
-changeUnits.trackeRdataZones <- function(object, variable, unit, ...){
-
+changeUnits.trackeRdataZones <- function(object, variable, unit, ...) {
+    
     current <- getUnits(object)
     
     ## change units
-    for (i in variable){
+    for (i in variable) {
         currentUnit <- current$unit[current$variable == i]
         newUnit <- unit[which(variable == i)]
         if (currentUnit != newUnit) {
@@ -270,10 +275,10 @@ changeUnits.trackeRdataZones <- function(object, variable, unit, ...){
             current$unit[current$variable == i] <- newUnit
         }
     }
-
+    
     ## update attributes and return
     attr(object, "units") <- current
-    return(object)    
+    return(object)
 }
 
 
@@ -286,7 +291,7 @@ changeUnits.trackeRdataZones <- function(object, variable, unit, ...){
 #' @param object An object of class \code{\link{trackeRdata}}.
 #' @param ... Currently not used.
 #' @export
-getOperations.trackeRdata <- function(object,...){
+getOperations.trackeRdata <- function(object, ...) {
     attr(object, "operations")
 }
 
@@ -295,7 +300,7 @@ getOperations.trackeRdata <- function(object,...){
 #' @param object An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.
 #' @param ... Currently not used.
 #' @export
-getOperations.distrProfile <- function(object,...){
+getOperations.distrProfile <- function(object, ...) {
     attr(object, "operations")
 }
 
@@ -304,7 +309,7 @@ getOperations.distrProfile <- function(object,...){
 #' @param object An object of class \code{conProfile} as returned by \code{\link{concentrationProfile}}.
 #' @param ... Currently not used.
 #' @export
-getOperations.conProfile <- function(object,...){
+getOperations.conProfile <- function(object, ...) {
     attr(object, "operations")
 }
 
@@ -317,19 +322,21 @@ getOperations.conProfile <- function(object,...){
 #'
 #' @param cycling Logical. Is the data from a cycling session rather than a running session?
 #' @param ... Currently not used.
-generateBaseUnits <- function(cycling = FALSE, ...){
+generateBaseUnits <- function(cycling = FALSE, ...) {
     ## Get the variable names
     varnames <- generateVariableNames()$humanNames
     ## Remove time and add duration
     varnames <- varnames[-match("time", varnames)]
-    varnames <- c(varnames, c("pace","duration"))
-
+    varnames <- c(varnames, c("pace", "duration"))
+    
     if (cycling) {
-        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "rev_per_min", "W", "min_per_km", "s")
+        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "rev_per_min", "W", 
+            "min_per_km", "s")
     } else {
-        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "W", "min_per_km", "s")
+        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "W", 
+            "min_per_km", "s")
     }
-
+    
     return(data.frame(variable = varnames, unit = units, stringsAsFactors = FALSE))
 }
 
@@ -342,98 +349,98 @@ generateBaseUnits <- function(cycling = FALSE, ...){
 #' @param variable Variable to be converted.
 #' @name conversions
 #' @export
-m2km <- function(variable){
-    variable / 1000
+m2km <- function(variable) {
+    variable/1000
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-km2m <- function(variable){
+km2m <- function(variable) {
     variable * 1000
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-m2ft <- function(variable){
+m2ft <- function(variable) {
     variable * 3937/1200
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-ft2m <- function(variable){
+ft2m <- function(variable) {
     variable * 1200/3937
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-m2mi <- function(variable){
-    variable / 1609.344 
+m2mi <- function(variable) {
+    variable/1609.344
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-mi2m <- function(variable){
+mi2m <- function(variable) {
     variable * 1.609344 * 1000
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-km2ft <- function(variable){
-    variable / 1.609344 * 5280
+km2ft <- function(variable) {
+    variable/1.609344 * 5280
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-ft2km <- function(variable){
-    variable * 1.609344 / 5280
+ft2km <- function(variable) {
+    variable * 1.609344/5280
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-km2mi <- function(variable){
-    variable / 1.609344
+km2mi <- function(variable) {
+    variable/1.609344
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-mi2km <- function(variable){
+mi2km <- function(variable) {
     variable * 1.609344
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-ft2mi <- function(variable){
-    variable / 5280
+ft2mi <- function(variable) {
+    variable/5280
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-mi2ft <- function(variable){
+mi2ft <- function(variable) {
     variable * 5280
 }
 
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-m2m <- function(variable){
+m2m <- function(variable) {
     variable
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-km2km <- function(variable){
+km2km <- function(variable) {
     variable
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-ft2ft <- function(variable){
+ft2ft <- function(variable) {
     variable
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-mi2mi <- function(variable){
+mi2mi <- function(variable) {
     variable
 }
 
@@ -442,18 +449,18 @@ mi2mi <- function(variable){
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-s2min <- function(variable){
+s2min <- function(variable) {
     if (class(variable) == "difftime") {
         units(variable) <- "mins"
     } else {
-        variable <- variable / 60
+        variable <- variable/60
     }
     return(variable)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-min2s <- function(variable){
+min2s <- function(variable) {
     if (class(variable) == "difftime") {
         units(variable) <- "secs"
     } else {
@@ -464,65 +471,65 @@ min2s <- function(variable){
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-s2h <- function(variable){
+s2h <- function(variable) {
     if (class(variable) == "difftime") {
         units(variable) <- "hours"
     } else {
-        variable <- variable / 60 / 60
+        variable <- variable/60/60
     }
     return(variable)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-h2s <- function(variable){
+h2s <- function(variable) {
     if (class(variable) == "difftime") {
         units(variable) <- "secs"
     } else {
         variable <- variable * 60 * 60
     }
-    return(variable)    
+    return(variable)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-min2h <- function(variable){
+min2h <- function(variable) {
     if (class(variable) == "difftime") {
         units(variable) <- "hours"
     } else {
-        variable <- variable / 60
+        variable <- variable/60
     }
-    return(variable)    
+    return(variable)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-h2min <- function(variable){
+h2min <- function(variable) {
     if (class(variable) == "difftime") {
         units(variable) <- "mins"
     } else {
         variable <- variable * 60
     }
-    return(variable)    
+    return(variable)
 }
 
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-s2s <- min2min <- h2h <- function(variable){
+s2s <- min2min <- h2h <- function(variable) {
     variable
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-min2min <- function(variable){
+min2min <- function(variable) {
     variable
 }
 
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-h2h <- function(variable){
+h2h <- function(variable) {
     variable
 }
 
@@ -534,73 +541,73 @@ h2h <- function(variable){
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-m_per_s2km_per_h <- function(variable){
-    variable / 1000 * 60 * 60
+m_per_s2km_per_h <- function(variable) {
+    variable/1000 * 60 * 60
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-km_per_h2m_per_s <- function(variable){
-    variable * 1000 / 60 / 60
+km_per_h2m_per_s <- function(variable) {
+    variable * 1000/60/60
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-m_per_s2ft_per_min <- function(variable){
-    variable  * 3937/1200 * 60
+m_per_s2ft_per_min <- function(variable) {
+    variable * 3937/1200 * 60
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-ft_per_min2m_per_s <- function(variable){
-    variable  / (3937/1200) / 60
+ft_per_min2m_per_s <- function(variable) {
+    variable/(3937/1200)/60
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-m_per_s2ft_per_s <- function(variable){
+m_per_s2ft_per_s <- function(variable) {
     variable * 3937/1200
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-ft_per_s2m_per_s <- function(variable){
-    variable / (3937/1200)
+ft_per_s2m_per_s <- function(variable) {
+    variable/(3937/1200)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-m_per_s2mi_per_h <- function(variable){
-    variable  / 1609.344 * 60 * 60
+m_per_s2mi_per_h <- function(variable) {
+    variable/1609.344 * 60 * 60
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-mi_per_h2m_per_s <- function(variable){
-    variable * 1609.344 / 60 / 60
+mi_per_h2m_per_s <- function(variable) {
+    variable * 1609.344/60/60
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-m_per_s2km_per_min <- function(variable){
-    m_per_s2km_per_h(variable) / 60
+m_per_s2km_per_min <- function(variable) {
+    m_per_s2km_per_h(variable)/60
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-km_per_min2m_per_s <- function(variable){
+km_per_min2m_per_s <- function(variable) {
     km_per_h2m_per_s(variable * 60)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-m_per_s2mi_per_min <- function(variable){
-    m_per_s2mi_per_h(variable) / 60
+m_per_s2mi_per_min <- function(variable) {
+    m_per_s2mi_per_h(variable)/60
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-mi_per_min2m_per_s <- function(variable){
+mi_per_min2m_per_s <- function(variable) {
     mi_per_h2m_per_s(variable * 60)
 }
 
@@ -608,61 +615,61 @@ mi_per_min2m_per_s <- function(variable){
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-km_per_h2ft_per_min <- function(variable){
-    km2ft(variable / 60)
+km_per_h2ft_per_min <- function(variable) {
+    km2ft(variable/60)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-ft_per_min2km_per_h <- function(variable){
+ft_per_min2km_per_h <- function(variable) {
     ft2km(variable * 60)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-km_per_h2ft_per_s <- function(variable){
-    km2ft(variable / 60 / 60)
+km_per_h2ft_per_s <- function(variable) {
+    km2ft(variable/60/60)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-ft_per_s2km_per_h <- function(variable){
+ft_per_s2km_per_h <- function(variable) {
     ft2km(variable * 60 * 60)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-km_per_h2mi_per_h <- function(variable){
+km_per_h2mi_per_h <- function(variable) {
     km2mi(variable)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-mi_per_h2km_per_h <- function(variable){
+mi_per_h2km_per_h <- function(variable) {
     mi2km(variable)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-km_per_h2km_per_min <- function(variable){
-    variable / 60
+km_per_h2km_per_min <- function(variable) {
+    variable/60
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-km_per_min2km_per_h <- function(variable){
+km_per_min2km_per_h <- function(variable) {
     variable * 60
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-km_per_h2mi_per_min <- function(variable){
-    km_per_h2mi_per_h(variable) / 60
+km_per_h2mi_per_min <- function(variable) {
+    km_per_h2mi_per_h(variable)/60
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-mi_per_min2km_per_h <- function(variable){
+mi_per_min2km_per_h <- function(variable) {
     mi_per_h2km_per_h(variable * 60)
 }
 
@@ -671,49 +678,49 @@ mi_per_min2km_per_h <- function(variable){
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-ft_per_min2ft_per_s <- function(variable){
-    variable / 60
+ft_per_min2ft_per_s <- function(variable) {
+    variable/60
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-ft_per_s2ft_per_min <- function(variable){
+ft_per_s2ft_per_min <- function(variable) {
     variable * 60
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-ft_per_min2mi_per_h <- function(variable){
+ft_per_min2mi_per_h <- function(variable) {
     ft2mi(variable * 60)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-mi_per_h2ft_per_min <- function(variable){
-    mi2ft(variable / 60)
+mi_per_h2ft_per_min <- function(variable) {
+    mi2ft(variable/60)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-ft_per_min2km_per_min <- function(variable){
-   ft2km(variable)
+ft_per_min2km_per_min <- function(variable) {
+    ft2km(variable)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-km_per_min2ft_per_min <- function(variable){
-   km2ft(variable)
+km_per_min2ft_per_min <- function(variable) {
+    km2ft(variable)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-ft_per_min2mi_per_min <- function(variable){
+ft_per_min2mi_per_min <- function(variable) {
     ft2mi(variable)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-mi_per_min2ft_per_min <- function(variable){
+mi_per_min2ft_per_min <- function(variable) {
     mi2ft(variable)
 }
 
@@ -721,63 +728,63 @@ mi_per_min2ft_per_min <- function(variable){
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-ft_per_s2mi_per_h <- function(variable){
+ft_per_s2mi_per_h <- function(variable) {
     ft2mi(variable * 60 * 60)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-mi_per_h2ft_per_s <- function(variable){
-    mi2ft(variable / 60 / 60)
+mi_per_h2ft_per_s <- function(variable) {
+    mi2ft(variable/60/60)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-ft_per_s2km_per_min <- function(variable){
-   ft2km(variable * 60)
+ft_per_s2km_per_min <- function(variable) {
+    ft2km(variable * 60)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-km_per_min2ft_per_s <- function(variable){
-   km2ft(variable / 60)
+km_per_min2ft_per_s <- function(variable) {
+    km2ft(variable/60)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-ft_per_s2mi_per_min <- function(variable){
+ft_per_s2mi_per_min <- function(variable) {
     ft2mi(variable * 60)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-mi_per_min2ft_per_s <- function(variable){
-    mi2ft(variable / 60)
+mi_per_min2ft_per_s <- function(variable) {
+    mi2ft(variable/60)
 }
 
 
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-mi_per_h2km_per_min <- function(variable){
-   mi2km(variable / 60)
+mi_per_h2km_per_min <- function(variable) {
+    mi2km(variable/60)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-km_per_min2mi_per_h <- function(variable){
-   km2mi(variable * 60)
+km_per_min2mi_per_h <- function(variable) {
+    km2mi(variable * 60)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-mi_per_h2mi_per_min <- function(variable){
-   variable / 60
+mi_per_h2mi_per_min <- function(variable) {
+    variable/60
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-mi_per_min2mi_per_h <- function(variable){
+mi_per_min2mi_per_h <- function(variable) {
     variable * 60
 }
 
@@ -785,13 +792,13 @@ mi_per_min2mi_per_h <- function(variable){
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-km_per_min2mi_per_min <- function(variable){
+km_per_min2mi_per_min <- function(variable) {
     km2mi(variable)
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-mi_per_min2km_per_min <- function(variable){
+mi_per_min2km_per_min <- function(variable) {
     mi2km(variable)
 }
 
@@ -801,43 +808,43 @@ mi_per_min2km_per_min <- function(variable){
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-m_per_s2m_per_s <- function(variable){
+m_per_s2m_per_s <- function(variable) {
     variable
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-km_per_h2km_per_h <- function(variable){
+km_per_h2km_per_h <- function(variable) {
     variable
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-ft_per_min2ft_per_min <- function(variable){
+ft_per_min2ft_per_min <- function(variable) {
     variable
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-ft_per_s2ft_per_s <- function(variable){
+ft_per_s2ft_per_s <- function(variable) {
     variable
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-mi_per_h2mi_per_h <- function(variable){
+mi_per_h2mi_per_h <- function(variable) {
     variable
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-km_per_min2km_per_min <- function(variable){
+km_per_min2km_per_min <- function(variable) {
     variable
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-mi_per_min2mi_per_min <- function(variable){
+mi_per_min2mi_per_min <- function(variable) {
     variable
 }
 
@@ -849,55 +856,55 @@ mi_per_min2mi_per_min <- function(variable){
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-s_per_m2min_per_km <- function(variable){
-    variable * 1000 / 60
+s_per_m2min_per_km <- function(variable) {
+    variable * 1000/60
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-min_per_km2s_per_m <- function(variable){
-    variable / 1000 * 60
+min_per_km2s_per_m <- function(variable) {
+    variable/1000 * 60
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-s_per_m2min_per_mi <- function(variable){
-    variable / 60 * 1609.344 
+s_per_m2min_per_mi <- function(variable) {
+    variable/60 * 1609.344
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-min_per_mi2s_per_m <- function(variable){
-    variable * 60 / 1609.344 
+min_per_mi2s_per_m <- function(variable) {
+    variable * 60/1609.344
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-min_per_km2min_per_mi <- function(variable){
+min_per_km2min_per_mi <- function(variable) {
     variable * 1.609344
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-min_per_mi2min_per_km <- function(variable){
-    variable / 1.609344
+min_per_mi2min_per_km <- function(variable) {
+    variable/1.609344
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-s_per_m2s_per_m <- function(variable){
+s_per_m2s_per_m <- function(variable) {
     variable
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-min_per_km2min_per_km <- function(variable){
+min_per_km2min_per_km <- function(variable) {
     variable
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-min_per_mi2min_per_mi <- function(variable){
+min_per_mi2min_per_mi <- function(variable) {
     variable
 }
 
@@ -906,26 +913,26 @@ min_per_mi2min_per_mi <- function(variable){
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-W2kW <- function(variable){
-    variable / 1000
+W2kW <- function(variable) {
+    variable/1000
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-kW2W <- function(variable){
+kW2W <- function(variable) {
     variable * 1000
 }
 
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-W2W <- function(variable){
+W2W <- function(variable) {
     variable
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-kW2kW <- function(variable){
+kW2kW <- function(variable) {
     variable
 }
 
@@ -934,15 +941,14 @@ kW2kW <- function(variable){
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-steps_per_min2steps_per_min <- function(variable){
-    variable 
+steps_per_min2steps_per_min <- function(variable) {
+    variable
 }
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-rev_per_min2rev_per_min <- function(variable){
-    variable 
+rev_per_min2rev_per_min <- function(variable) {
+    variable
 }
 ## steps_per_min2rev_per_min <- rev_per_min2steps_per_min <- function(variable){
-##     variable 
-## }
+## variable }

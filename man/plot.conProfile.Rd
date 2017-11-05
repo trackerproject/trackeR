@@ -11,7 +11,7 @@
 \item{x}{An object of class \code{conProfile} as returned by \code{\link{concentrationProfile}}.}
 
 \item{session}{A vector of the sessions to be plotted, defaults to all sessions.
-Either a character vector with the session names, e.g., c("Session3", "Session4")
+Either a character vector with the session names, e.g., c('Session3', 'Session4')
 or a numeric vector with the relative position of the session(s).}
 
 \item{what}{Which variables should be plotted?}
@@ -26,11 +26,10 @@ or a numeric vector with the relative position of the session(s).}
 Plot concentration profiles.
 }
 \examples{
-data("runs", package = "trackeR")
+data('runs', package = 'trackeR')
 dProfile <- distributionProfile(runs, session = 1:3,
-    what = "speed", grid = seq(0, 12.5, by = 0.05))
+    what = 'speed', grid = seq(0, 12.5, by = 0.05))
 cProfile <- concentrationProfile(dProfile)
 plot(cProfile, smooth = FALSE)
 plot(cProfile)
 }
-

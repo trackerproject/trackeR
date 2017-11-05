@@ -12,4 +12,3 @@ c2d(cp)
 \description{
 Transform concentration profile to distribution profile.
 }
-

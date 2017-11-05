@@ -17,8 +17,7 @@
 Plot training zones.
 }
 \examples{
-data("run", package = "trackeR")
-runZones <- zones(run, what = "speed", breaks = c(0, 2:6, 12.5))
+data('run', package = 'trackeR')
+runZones <- zones(run, what = 'speed', breaks = c(0, 2:6, 12.5))
 plot(runZones, percent = FALSE)
 }
-

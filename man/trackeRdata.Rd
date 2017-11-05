@@ -72,20 +72,19 @@ The \code{units} argument takes a data frame with two variables named \code{vari
 \examples{
 \dontrun{
 ## read raw data
-filepath <- system.file("extdata", "2013-06-08-090442.TCX", package = "trackeR")
-run <- readTCX(file = filepath, timezone = "GMT")
+filepath <- system.file('extdata', '2013-06-08-090442.TCX', package = 'trackeR')
+run <- readTCX(file = filepath, timezone = 'GMT')
 
 ## turn into trackeRdata object
-run <- trackeRdata(run, units = data.frame(variable = c("latitude", "longitude",
-    "altitude", "distance", "heart.rate", "speed", "cadence", "power"),
-    unit = c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "W"),
+run <- trackeRdata(run, units = data.frame(variable = c('latitude', 'longitude',
+    'altitude', 'distance', 'heart.rate', 'speed', 'cadence', 'power'),
+    unit = c('degree', 'degree', 'm', 'm', 'bpm', 'm_per_s', 'steps_per_min', 'W'),
     stringsAsFactors = FALSE))
 
 ## alternatively
-run <- readContainer(filepath, type = "tcx", timezone = "GMT")
+run <- readContainer(filepath, type = 'tcx', timezone = 'GMT')
 }
 }
 \seealso{
 \code{\link{readContainer}} for reading .tcx and .db3 files directly into \code{trackeRdata} objects.
 }
-

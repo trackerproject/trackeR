@@ -16,4 +16,3 @@ append(object, file, ...)
 \description{
 Generic function for appending data to existing files.
 }
-

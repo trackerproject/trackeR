@@ -32,4 +32,3 @@ Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
 \seealso{
 \code{\link{smootherControl.distrProfile}}
 }
-

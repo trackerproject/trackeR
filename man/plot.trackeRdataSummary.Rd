@@ -25,13 +25,12 @@
 Plot an object of class trackeRdataSummary.
 }
 \examples{
-data("runs", package = "trackeR")
+data('runs', package = 'trackeR')
 runSummary <- summary(runs)
 plot(runSummary)
-plot(runSummary, date = FALSE, group = "total",
-    what = c("distance", "duration", "avgSpeed"))
+plot(runSummary, date = FALSE, group = 'total',
+    what = c('distance', 'duration', 'avgSpeed'))
 }
 \seealso{
 \code{\link{summary.trackeRdata}}
 }
-

@@ -2,8 +2,9 @@
 % Please edit documentation in R/funcPCA.R, R/trackeR.R
 \name{funPCA}
 \alias{funPCA}
-\alias{funPCA.conProfile}
 \alias{funPCA.distrProfile}
+\alias{funPCA.conProfile}
+\alias{funPCA}
 \title{Functional principal components analysis of distribution or concentration profiles.}
 \usage{
 \method{funPCA}{distrProfile}(object, what, nharm = 4, ...)
@@ -33,9 +34,9 @@ Generic function for functional principal components analysis.
 The \code{...} argument is passed on to \code{\link[fda]{pca.fd}}.
 }
 \examples{
-data("runs", package = "trackeR")
-dp <- distributionProfile(runs, what = "speed")
-dp.pca <- funPCA(dp, what = "speed", nharm = 4)
+data('runs', package = 'trackeR')
+dp <- distributionProfile(runs, what = 'speed')
+dp.pca <- funPCA(dp, what = 'speed', nharm = 4)
 ## 1st harmonic  captures vast majority of the variation
 plot(dp.pca, harm = 1)
 ## time spent above speed = 0 is the characteristic distinguishing the profiles
@@ -45,4 +46,3 @@ plot(sumRuns$durationMoving, dp.pca$scores[,1])
 \references{
 Ramsay JO, Silverman BW (2005). Functional Data Analysis. Springer-Verlag New York.
 }
-

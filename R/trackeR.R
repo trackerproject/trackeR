@@ -25,9 +25,10 @@
 #' @import zoo
 #' @importFrom ggplot2 fortify
 NULL
-#> NULL
+# > NULL
 
-## register S3 methods (need a name which doesn't conflict with e.g. the smooth function from the stats package)
+## register S3 methods (need a name which doesn't conflict with e.g. the smooth function
+## from the stats package)
 
 #' Generic function for smoothing.
 #'
@@ -91,15 +92,15 @@ nsessions <- function(object, ...) UseMethod("nsessions")
 #'
 #' @examples
 #' \dontrun{
-#' data("runs", package = "trackeR")
+#' data('runs', package = 'trackeR')
 #' ## timeline plot applied on the trackeRdata object directly and with
 #' ## inferred limits for the time axis
 #' timeline(runs)
 #'
 #' ## the same timeline plot applied on the trackeRdataSummary object
-## ## with the time axis spanning between "00:01" and "23:59"
+## ## with the time axis spanning between '00:01' and '23:59'
 #' runSummary <- summary(runs)
-#' timeline(runSummary, lims = c("00:01", "23:59"))
+#' timeline(runSummary, lims = c('00:01', '23:59'))
 #' }
 timeline <- function(object, lims, ...) UseMethod("timeline")
 

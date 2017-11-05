@@ -18,4 +18,3 @@ changeUnits(object, variable, unit, ...)
 \description{
 Generic function for changing the units of measurement.
 }
-

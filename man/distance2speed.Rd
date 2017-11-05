@@ -19,4 +19,3 @@ Speed in meters per second.
 \description{
 Convert distance to speed.
 }
-

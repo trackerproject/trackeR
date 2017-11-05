@@ -12,4 +12,3 @@ run
 Training session.
 }
 \keyword{datasets}
-

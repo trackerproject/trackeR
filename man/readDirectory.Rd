@@ -81,4 +81,3 @@ Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_pe
 \seealso{
 \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}, \code{\link{readJSON}}
 }
-

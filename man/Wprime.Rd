@@ -13,7 +13,7 @@ Wprime(object, session = NULL, quantity = c("expended", "balance"), w0, cp,
 
 \item{session}{A numeric vector of the sessions to be used, defaults to all sessions.}
 
-\item{quantity}{Should W' \code{"expended"} or W' \code{"balance"} be returned?}
+\item{quantity}{Should W' \code{'expended'} or W' \code{'balance'} be returned?}
 
 \item{w0}{Inital capacity of W', as calculated based on the critical
 power model by Monod and Scherrer (1965).}
@@ -21,8 +21,8 @@ power model by Monod and Scherrer (1965).}
 \item{cp}{Critical power/speed, i.e., the power/speed which can be maintained for
 longer period of time.}
 
-\item{version}{How should W' be replenished? Options include \code{"2015"}
-and \code{"2012"} for the versions presented in Skiba et al. (2015) and
+\item{version}{How should W' be replenished? Options include \code{'2015'}
+and \code{'2012'} for the versions presented in Skiba et al. (2015) and
 Skiba et al. (2012), respectively. See Details.}
 
 \item{meanRecoveryPower}{Should the mean of all power outputs below critical
@@ -30,7 +30,7 @@ power be used as recovery power? See Details.}
 
 \item{parallel}{Logical. Should computation be carried out in parallel?}
 
-\item{cores}{Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options("corese")} (on Windows) or \code{options("mc.cores")} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.}
+\item{cores}{Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options('corese')} (on Windows) or \code{options('mc.cores')} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.}
 
 \item{...}{Currently not used.}
 }
@@ -60,13 +60,12 @@ over all power outputs below critical power). This rational can be applied by se
 with a power output below critical power, not just those prior to the current time point.
 }
 \examples{
-data("runs", package = "trackeR")
-wexp <- Wprime(runs, session = c(11,13), cp = 4, version = "2012")
+data('runs', package = 'trackeR')
+wexp <- Wprime(runs, session = c(11,13), cp = 4, version = '2012')
 plot(wexp)
 }
 \references{
-Monod H, Scherrer J (1965). "The Work Capacity of a Synergic Muscular Group." Ergonomics, 8(3), 329--338.
-Skiba PF, Chidnok W, Vanhatalo A, Jones AM (2012). "Modeling the Expenditure and Reconstitution of Work Capacity above Critical Power." Medicine & Science in Sports & Exercise, 44(8), 1526--1532.
-Skiba PF, Fulford J, Clarke DC, Vanhatalo A, Jones AM (2015). "Intramuscular Determinants of the Abilility to Recover Work Capacity above Critical Power." European Journal of Applied Physiology, 115(4), 703--713.
+Monod H, Scherrer J (1965). 'The Work Capacity of a Synergic Muscular Group.' Ergonomics, 8(3), 329--338.
+Skiba PF, Chidnok W, Vanhatalo A, Jones AM (2012). 'Modeling the Expenditure and Reconstitution of Work Capacity above Critical Power.' Medicine & Science in Sports & Exercise, 44(8), 1526--1532.
+Skiba PF, Fulford J, Clarke DC, Vanhatalo A, Jones AM (2015). 'Intramuscular Determinants of the Abilility to Recover Work Capacity above Critical Power.' European Journal of Applied Physiology, 115(4), 703--713.
 }
-

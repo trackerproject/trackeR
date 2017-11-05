@@ -14,4 +14,3 @@
 \description{
 Get the operation settings of an \code{trackeRdata} object.
 }
-

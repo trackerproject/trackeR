@@ -16,7 +16,7 @@ get aggregated via function \code{fun}.}
 
 \item{parallel}{Logical. Should computation be carried out in parallel?}
 
-\item{cores}{Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options("corese")} (on Windows) or \code{options("mc.cores")} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.}
+\item{cores}{Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options('corese')} (on Windows) or \code{options('mc.cores')} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.}
 
 \item{what}{Vector of the names of the variables which should be smoothed.}
 
@@ -32,4 +32,3 @@ a control argument for \code{\link{smoother.trackeRdata}}.
 \seealso{
 \code{\link{smoother.trackeRdata}}
 }
-

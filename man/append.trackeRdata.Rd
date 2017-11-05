@@ -16,4 +16,3 @@
 \description{
 Append training sessions to existing file.
 }
-

@@ -20,11 +20,11 @@ An object of class \code{\link[fda]{fd}}.
 Transform distribution and concentration profiles to functional data objects of class fd.
 }
 \examples{
-library("fda")
-data("runs", package = "trackeR")
-dp <- distributionProfile(runs, what = "speed")
-dpFun <- profile2fd(dp, what = "speed",
-    fdnames = list("speed", "sessions", "time above threshold"))
+library('fda')
+data('runs', package = 'trackeR')
+dp <- distributionProfile(runs, what = 'speed')
+dpFun <- profile2fd(dp, what = 'speed',
+    fdnames = list('speed', 'sessions', 'time above threshold'))
 dp.pca <- pca.fd(dpFun, nharm = 4)
 ## 1st harmonic  captures vast majority of the variation
 dp.pca$varprop
@@ -33,4 +33,3 @@ plot(dp.pca, harm = 1)
 sumRuns <- summary(runs)
 plot(sumRuns$durationMoving, dp.pca$scores[,1])
 }
-

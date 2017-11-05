@@ -40,4 +40,3 @@ Experimental state.
 \seealso{
 \code{\link{trackeRdata}}
 }
-

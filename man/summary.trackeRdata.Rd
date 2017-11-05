@@ -23,23 +23,22 @@ An object of class \code{trackeRdataSummary}.
 Summary of training sessions.
 }
 \examples{
-data("runs", package = "trackeR")
+data('runs', package = 'trackeR')
 runSummary <- summary(runs, session = 1:2)
 ## print summary
 runSummary
 print(runSummary, digits = 3)
 ## change units
-changeUnits(runSummary, variable = "speed", unit = "km_per_h")
+changeUnits(runSummary, variable = 'speed', unit = 'km_per_h')
 ## plot summary
 runSummaryFull <- summary(runs)
 plot(runSummaryFull)
-plot(runSummaryFull, group = c("total", "moving"),
-    what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
+plot(runSummaryFull, group = c('total', 'moving'),
+    what = c('avgSpeed', 'distance', 'duration', 'avgHeartRate'))
 }
 \references{
-Bohannon RW (1997). "Comfortable and Maximum Walking Speed of Adults Aged 20--79 Years: Reference Values and Determinants." Age and Ageing, 26(1), 15--19. doi: 10.1093/ageing/26.1.15.
+Bohannon RW (1997). 'Comfortable and Maximum Walking Speed of Adults Aged 20--79 Years: Reference Values and Determinants.' Age and Ageing, 26(1), 15--19. doi: 10.1093/ageing/26.1.15.
 }
 \seealso{
 \code{\link{plot.trackeRdataSummary}}
 }
-

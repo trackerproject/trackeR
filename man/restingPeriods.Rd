@@ -16,9 +16,8 @@ considered to belong to different training sessions.}
 \value{
 A list containing a dataframe with start, end, and duration
 for each session and the resting time between sessions, named
-"sessions" and "restingTime", respectively.
+'sessions' and 'restingTime', respectively.
 }
 \description{
 Extract resting period characteristics.
 }
-

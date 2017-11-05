@@ -24,9 +24,9 @@ distribution profiles (see \code{\link{distributionProfile}} and
 that was developed by Ioannis Kosmidis for the requirements of the
 analyses in Kosmidis & Passfield (2015).
 }
+
 \references{
 Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
     Endurance Runners to Training and Physiological Effects via Multi-Resolution
     Elastic Net. \emph{ArXiv e-print} arXiv:1506.01388.
 }
-
