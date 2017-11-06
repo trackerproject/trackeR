@@ -23,7 +23,7 @@ metrics <- c('Distance' = 'distance',
              'Work to rest ratio' = 'wrRatio'
 )
 
-ui <- dashboardPage( skin = 'black',
+ui <- dashboardPage(skin = 'black',
   dashboardHeader(title = 'TrackerR'),
   dashboardSidebar(
     disable = TRUE
@@ -33,10 +33,9 @@ ui <- dashboardPage( skin = 'black',
     #htmlTemplate('component.html'),
     fluidRow(
       box(
-        solidHeader = TRUE,
         status = 'info',
         width = 6,
-        height = "350px",
+        height = "450px",
         title = tagList(shiny::icon("gear"), "Selector"),
         selectInput('sportSelected', 'Select sport:', multiple = FALSE,
                     c('Cycling' = 'cycling',
@@ -49,6 +48,7 @@ ui <- dashboardPage( skin = 'black',
         # ),
         directoryInput('directory', label = 'Select a directory:', value = '~/tracker-interface/'),
         actionButton('uploadButton', 'Upload'),
+        actionButton('changeUnits', 'Change units'),
         # HTML("
         #      <label>Select date range</label>
         #      <div id='reportrange' class='pull-right' style='background: #fff; cursor: pointer; padding: 5px 10px;                                    #       border: 1px solid #ccc; width: 100%; margin-bottom: 10px'>
@@ -70,7 +70,8 @@ ui <- dashboardPage( skin = 'black',
         ),
         # fileInput(
         #   'file', 'Choose file', multiple = TRUE),
-        fluidRow(column(2,actionButton('plotButton', 'Plot')), column(2,actionButton('resetButton', 'Reset')))
+        fillRow(actionButton('plotButton', 'Plot'), 
+                 actionButton('resetButton', 'Reset'), width = '20%')
         # tags$script('
         #          document.getElementById("plotButton").onclick = function(){
         #          var date = document.getElementById("dateRange").innerHTML;
@@ -81,8 +82,8 @@ ui <- dashboardPage( skin = 'black',
       box(
         status = 'info',
         width = 6,
-        height = "350px",
-        title = tagList(shiny::icon("address-card-o"), "Summary of selected workouts"),
+        height = "450px",
+        title = tagList(shiny::icon("reorder"), "Summary of selected workouts"),
         #verbatimTextOutput("result"),
         #verbatimTextOutput("hover"),
         tableOutput('summary'),
