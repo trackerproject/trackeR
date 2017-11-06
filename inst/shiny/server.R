@@ -18,6 +18,71 @@ server <- function(input, output, session) {
   #       updateDirectoryInput(session, 'directory', value = path)
   #     }
   #   })
+  observeEvent(input$changeUnits, {
+    get_selected_units <- function(feature){
+      getUnits(data$dataSet)$unit[getUnits(data$dataSet)$variable %in% feature]
+    }
+    showModal(modalDialog(
+      title = "Change units",
+      radioButtons('altitudeUnits', 'Altitude:',
+                   c('[m]' = 'm',
+                     '[km]' = 'km',
+                     '[mi]' = 'mi',
+                     '[ft]' = 'ft'), inline = TRUE,
+                   selected = get_selected_units('altitude')),
+      radioButtons('distanceUnits', 'Distance:',
+                   c('[m]' = 'm',
+                     '[km]' = 'km',
+                     '[mi]' = 'mi',
+                     '[ft]' = 'ft'), inline = TRUE,
+                   selected = get_selected_units('distance')),
+      radioButtons('speedUnits', 'Speed:',
+                   c('[m/s]' = 'm_per_s',
+                     '[km/h]' = 'km_per_h',
+                     '[ft/min]' = 'ft_per_min',
+                     '[ft/s]' = 'ft_per_s',
+                     '[mi/h]' = 'mi_per_h'), inline = TRUE, 
+                   selected = get_selected_units('speed')),
+      radioButtons('cadenceUnits', 'Cadence:',
+                   c('[steps/min]' = 'steps_per_min',
+                     '[revolutions/min]' = 'rev_per_min'), inline = TRUE,
+                   selected = get_selected_units('cadence')),
+      radioButtons('powerUnits', 'Power:',
+                   c('[W]' = 'W',
+                     '[kW]' = 'kW'), inline = TRUE,
+                   selected = get_selected_units('power')),
+      radioButtons('paceUnits', 'Pace:',
+                   c('[min/km]' = 'min_per_km',
+                     '[min/mi]' = 'min_per_mi',
+                     '[s/min]' = 's_per_m'), inline = TRUE,
+                   selected = get_selected_units('pace')),
+      footer = tagList(
+        modalButton("Cancel"),
+        actionButton("updateUnits", "Apply")
+      )
+    ))
+  })
+  
+  observeEvent(input$updateUnits, {
+    allUnits <- reactive({
+      unused_variables <- c('latitude', 'longitude', 'heart.rate', 'duration')
+      getUnits(data$dataSet)$variable[!(getUnits(data$dataSet)$variable %in% unused_variables)]
+      })
+
+    change_units <- function(data){
+      units <- c()
+      for (i in allUnits()){
+        units <- c(units, input[[paste0(i, 'Units')]])
+      }
+      data_updated <- changeUnits(data, variable = allUnits(), unit = units)
+
+      return(data_updated)
+    }
+
+    data$dataSet <- change_units(data$dataSet)
+    data$summary <- change_units(data$summary)
+    removeModal()
+  })
   
   observeEvent(input$uploadButton, {
     data$sport <- if (input$sportSelected == 'cycling') TRUE else FALSE
@@ -30,13 +95,16 @@ server <- function(input, output, session) {
     data$dataSet <- runs
     data$summary <- summary(data$dataSet, session = 1:length(data$dataSet),
                             movingThreshold = 1)
+    
   })
   
-  observeEvent(input$plotButton, {
+  observeEvent({input$updateUnits
+                input$plotButton
+    }, {
     removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
+    
     data$metrics <- input$metricsSelected
     data$button <- input$plotButton
-    
     insertUI(
       selector = ".content",
       where = "beforeEnd",
@@ -46,7 +114,7 @@ server <- function(input, output, session) {
           width = 12,
           height = "500px",
           title = tagList(shiny::icon("map"), 'Map'),
-          leafletOutput('map', width = "auto", height = "430px"),
+          withSpinner(leafletOutput('map', width = "auto", height = "430px"), size = 2),
           absolutePanel(top = 70, right = 60,
                         sliderInput("average_speed", "Average speed", floor(min(data$summary$avgSpeed)), 
                                     ceiling(max(data$summary$avgSpeed)),
@@ -113,7 +181,7 @@ server <- function(input, output, session) {
     })
     
     output$averageDuration <- renderValueBox({
-      print(nrow(data$dataSelected))
+
       text_output <- reactive({
         if (length(data$sessionsSelected) >= 1) {
          
@@ -175,6 +243,14 @@ server <- function(input, output, session) {
         }
         
       })
+      validate(
+        need(sessionData(), 'Session data missing'),
+        need(data$dataSet, 'dataset missing'),
+        need(data$summary, 'summary missing')
+      )
+      # req(sessionData())
+      # req(data$dataSet)
+      # req(data$summary)
       shiny_plot_map(data$dataSet,  sessionData(), data$summary)
     })
     
@@ -182,7 +258,6 @@ server <- function(input, output, session) {
       plotData <-  reactive({generateGraphs(x = data$summary, what = i)})
       feature <- reactive({lab_sum(feature = i, data = data$summary)})
       units <- reactive({lab_sum(feature = i, data = data$summary, whole_text = FALSE)})
-      print(head(plotData()))
       output[[paste0(i)]] <- renderPlotly({
         plot_workouts(dat = plotData(), x = ~xaxis, y = ~value, feature = feature(), name = i, units = units())
       })

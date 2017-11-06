@@ -3,6 +3,7 @@
 #' @import plotly
 #' @import leaflet
 #' @import mgcv
+#' @import shinycssloaders
 
 startApp <- function() {
   
