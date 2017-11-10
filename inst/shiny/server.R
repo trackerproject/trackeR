@@ -243,7 +243,7 @@ server <- function(input, output, session) {
         }
         
       })
-      validate(
+      shiny::validate(
         need(sessionData(), 'Session data missing'),
         need(data$dataSet, 'dataset missing'),
         need(data$summary, 'summary missing')
