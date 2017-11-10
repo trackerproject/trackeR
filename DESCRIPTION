@@ -13,7 +13,12 @@ Description: The aim of this package is to provide infrastructure for handling r
 Depends:
     R (>= 2.10.0),
     zoo,
-    ggplot2
+    ggplot2,
+    shiny,
+    shinydashboard,
+    plotly,
+    mgcv,
+    shinycssloaders
 Imports:
     parallel,
     XML,
@@ -26,11 +31,7 @@ Imports:
     leaflet,
     gridExtra,
     gtable,
-    colorspace,
-    shiny,
-    shinydashboard,
-    plotly,
-    mgcv
+    colorspace
 Suggests:
     testthat,
     knitr,

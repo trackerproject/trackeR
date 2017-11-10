@@ -1,4 +1,9 @@
-
+#' @import shinydashboard
+#' @import shiny
+#' @import plotly
+#' @import leaflet
+#' @import mgcv
+#' @import shinycssloaders
 
 generateGraphs <- function(x, group = c("total"), what, date = TRUE) {
   #x <- x()
