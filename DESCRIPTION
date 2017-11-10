@@ -18,7 +18,8 @@ Depends:
     shinydashboard,
     plotly,
     mgcv,
-    shinycssloaders
+    shinycssloaders,
+    leaflet
 Imports:
     parallel,
     XML,
@@ -28,7 +29,6 @@ Imports:
     scam,
     fda,
     ggmap,
-    leaflet,
     gridExtra,
     gtable,
     colorspace
