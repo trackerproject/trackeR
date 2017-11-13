@@ -4,6 +4,7 @@
 #' @import leaflet
 #' @import mgcv
 #' @import shinycssloaders
+#' @import shinyFiles
 
 generateGraphs <- function(x, group = c("total"), what, date = TRUE) {
   #x <- x()

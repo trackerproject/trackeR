@@ -19,7 +19,8 @@ Depends:
     plotly,
     mgcv,
     shinycssloaders,
-    leaflet
+    leaflet,
+    shinyFiles
 Imports:
     parallel,
     XML,

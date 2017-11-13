@@ -29,14 +29,18 @@ ui <- dashboardPage(skin = 'black',
     disable = TRUE
   ),
   dashboardBody(
+    tags$head(tags$style(".warningMessage{
+                                 font-size: 30px;
+                         }")),
     # javascript code to send data to shiny server
     #htmlTemplate('component.html'),
     fluidRow(
       box(
         status = 'info',
         width = 6,
-        height = "450px",
+        height = "350px",
         title = tagList(shiny::icon("gear"), "Selector"),
+        shinyDirButton("directory", "Chose a directory", "Upload"),
         selectInput('sportSelected', 'Select sport:', multiple = FALSE,
                     c('Cycling' = 'cycling',
                       'Running' = 'running')
@@ -46,10 +50,13 @@ ui <- dashboardPage(skin = 'black',
         #               'db3' = "db3",
         #               'JSON' = "json")
         # ),
-        directoryInput('directory', label = 'Select a directory:', value = '~/tracker-interface/'),
+        # fillRow(shinyDirButton("directory", "Chose a directory", "Upload"), width = '20%'),
+
+        #directoryInput('directory', label = 'Select a directory:', value = '~/'),
         actionButton('uploadButton', 'Upload'),
-        actionButton('changeUnits', 'Change units'),
-        # HTML("
+        verbatimTextOutput('directory_table'),
+        
+        # HTML(
         #      <label>Select date range</label>
         #      <div id='reportrange' class='pull-right' style='background: #fff; cursor: pointer; padding: 5px 10px;                                    #       border: 1px solid #ccc; width: 100%; margin-bottom: 10px'>
         #      <i class='glyphicon glyphicon-calendar fa fa-calendar'></i>&nbsp;
@@ -70,8 +77,9 @@ ui <- dashboardPage(skin = 'black',
         ),
         # fileInput(
         #   'file', 'Choose file', multiple = TRUE),
-        fillRow(actionButton('plotButton', 'Plot'), 
-                 actionButton('resetButton', 'Reset'), width = '20%')
+        actionButton('plotButton', 'Plot'),
+        actionButton('changeUnits', 'Change units'),
+        actionButton('resetButton', 'Reset')
         # tags$script('
         #          document.getElementById("plotButton").onclick = function(){
         #          var date = document.getElementById("dateRange").innerHTML;
@@ -82,7 +90,7 @@ ui <- dashboardPage(skin = 'black',
       box(
         status = 'info',
         width = 6,
-        height = "450px",
+        height = "350px",
         title = tagList(shiny::icon("reorder"), "Summary of selected workouts"),
         #verbatimTextOutput("result"),
         #verbatimTextOutput("hover"),

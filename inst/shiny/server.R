@@ -3,6 +3,17 @@ server <- function(input, output, session) {
   #storing all data
   data <- reactiveValues()
   data$dataSelected <- NULL
+
+  # directory
+  shinyDirChoose(input, 'directory', roots = c(home = '~'), filetypes = c('', "tcx", "db3", "json"))
+  directory <- reactive(input$directory)
+  output$directory <- renderPrint(directory())
+  
+  # path
+  path <- reactive({
+    home <- normalizePath("~")
+    file.path(home, paste(unlist(directory()$path[-1]), collapse = .Platform$file.sep))
+  })
   # observeEvent(
   #   ignoreNULL = TRUE,
   #   eventExpr = {
@@ -12,13 +23,21 @@ server <- function(input, output, session) {
   #     if (input$directory > 0) {
   #       # condition prevents handler execution on initial app launch
   #       
-  #       # launch the directory selection dialog with initial path
+  #       # launch the directory selection dialog with initial path read from the widget
   #       path = choose.dir(default = readDirectoryInput(session, 'directory'))
+  #       
   #       # update the widget value
   #       updateDirectoryInput(session, 'directory', value = path)
   #     }
-  #   })
+  #   }
+  # )
+  
   observeEvent(input$changeUnits, {
+    if (is.null(data$dataSet)) showModal(modalDialog(title = 'Important message', 
+                                                     div(tags$b("Please upload data", class='warningMessage')), 
+                                                     easyClose = TRUE,
+                                                     size = 'm'))
+    req(data$dataSet)
     get_selected_units <- function(feature){
       getUnits(data$dataSet)$unit[getUnits(data$dataSet)$variable %in% feature]
     }
@@ -64,6 +83,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$updateUnits, {
+    
     allUnits <- reactive({
       unused_variables <- c('latitude', 'longitude', 'heart.rate', 'duration')
       getUnits(data$dataSet)$variable[!(getUnits(data$dataSet)$variable %in% unused_variables)]
@@ -85,14 +105,20 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$uploadButton, {
+
+
+    
     data$sport <- if (input$sportSelected == 'cycling') TRUE else FALSE
-    #data$filePath <- readDirectoryInput(session, 'directory')
-    data$fileType <- input$selectFileType
-    #data$dataSet <- readDirectory(data$filePath, timezone = "GMT", 
-    #                               cycling = data$sport)
+    #data$fileType <- input$selectFileType
+
+    data$dataSet <- callModule(readDirectory_shiny, "datafile", directory= path(),
+                               timezone = "GMT", cycling = data$sport)
+      # readDirectory(path(), timezone = "GMT", 
+      #                              cycling = data$sport)
     #using 'runs' dataset for testing
+
     data("runs", package = "trackeR")
-    data$dataSet <- runs
+    # data$dataSet <- runs
     data$summary <- summary(data$dataSet, session = 1:length(data$dataSet),
                             movingThreshold = 1)
     
@@ -101,6 +127,17 @@ server <- function(input, output, session) {
   observeEvent({input$updateUnits
                 input$plotButton
     }, {
+    
+    if (is.null(data$dataSet)) showModal(modalDialog(title = 'Important message', 
+                                                       div(tags$b("Please upload data", class='warningMessage')), 
+                                                       easyClose = TRUE,
+                                                       size = 'm'))
+
+    # shiny::validate(
+    #   need(data$dataSet, showModal(modalDialog(title = 'Not working')))
+    # )
+    shiny::req(data$dataSet)
+    
     removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
     
     data$metrics <- input$metricsSelected
@@ -295,6 +332,7 @@ server <- function(input, output, session) {
 
   observeEvent(input$plotSelectedWorkouts, {
     #print(data$dataSelected)
+    req(data$sessionsSelected)
     output$cond <-reactive({
       FALSE
     })
