@@ -32,7 +32,7 @@ ui <- dashboardPage(skin = 'black',
     tags$head(tags$style(".warningMessage{
                                  font-size: 30px;
                          }")),
-    # javascript code to send data to shiny server
+    # javascript code to send darewta to shiny server
     #htmlTemplate('component.html'),
     fluidRow(
       box(
