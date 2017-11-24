@@ -20,7 +20,8 @@ Depends:
     mgcv,
     shinycssloaders,
     leaflet,
-    shinyFiles
+    shinyFiles,
+    DT
 Imports:
     parallel,
     XML,

@@ -5,6 +5,7 @@
 #' @import mgcv
 #' @import shinycssloaders
 #' @import shinyFiles
+#' @import DT
 
 generateGraphs <- function(x, group = c("total"), what, date = TRUE) {
   #x <- x()

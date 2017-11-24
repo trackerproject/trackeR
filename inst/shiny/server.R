@@ -7,7 +7,7 @@ server <- function(input, output, session) {
   # directory
   shinyDirChoose(input, 'directory', roots = c(home = '~'), filetypes = c('', "tcx", "db3", "json"))
   directory <- reactive(input$directory)
-  output$directory <- renderPrint(directory())
+  # output$directory <- renderPrint(directory())
   
   # path
   path <- reactive({
@@ -33,10 +33,7 @@ server <- function(input, output, session) {
   # )
   
   observeEvent(input$changeUnits, {
-    if (is.null(data$dataSet)) showModal(modalDialog(title = 'Important message', 
-                                                     div(tags$b("Please upload data", class='warningMessage')), 
-                                                     easyClose = TRUE,
-                                                     size = 'm'))
+
     req(data$dataSet)
     get_selected_units <- function(feature){
       getUnits(data$dataSet)$unit[getUnits(data$dataSet)$variable %in% feature]
@@ -105,14 +102,47 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$uploadButton, {
+    # show message if no file or folder selected
+    if((is.null(input$processed_data_path$datapath)) && (path() == paste0(normalizePath("~"), '/'))){
+      showModal(modalDialog(title = 'Important message', 
+                            div(tags$b("Please upload either processed or raw data", 
+                                       class='warningMessage')), 
+                            easyClose = TRUE,
+                            size = 'm'))
+    }
+    shiny::req((is.null(input$processed_data_path$datapath) != TRUE) || (path() != paste0(normalizePath("~"), '/')))
+    
+    data$sport <- if (input$sportSelected == 'cycling') TRUE else FALSE
+    
+    if(path() == paste0(normalizePath("~"), '/')){
+      data$dataSet <- readRDS(input$processed_data_path$datapath)
+    } else if (is.null(input$processed_data_path$datapath) == TRUE) {
+      data$dataSet <- callModule(readDirectory_shiny, "datafile", directory= path(),
+                                 timezone = "GMT", cycling = data$sport)
+    } else {
+      raw_data <- reactive({callModule(readDirectory_shiny, "datafile", directory= path(),
+                             timezone = "GMT", cycling = data$sport)})
+      processed_data <- reactive({readRDS(input$processed_data_path$datapath)})
+      req(raw_data())
+      req(processed_data())
+      data$dataSet <- c(processed_data(), raw_data())
+    }
+
+    output$download_data <- downloadHandler(
+      
+      filename = function() {
+        paste0("data-", Sys.Date(), ".RData")
+      },
+      content = function(file) {
+        saveRDS(data$dataSet, file)
+        # save(data_download(), file)
+      }
+    )
+    print(length(data$dataSet))
+    #data$fileType <- input$selectFileType
 
 
     
-    data$sport <- if (input$sportSelected == 'cycling') TRUE else FALSE
-    #data$fileType <- input$selectFileType
-
-    data$dataSet <- callModule(readDirectory_shiny, "datafile", directory= path(),
-                               timezone = "GMT", cycling = data$sport)
       # readDirectory(path(), timezone = "GMT", 
       #                              cycling = data$sport)
     #using 'runs' dataset for testing
@@ -129,7 +159,7 @@ server <- function(input, output, session) {
     }, {
     
     if (is.null(data$dataSet)) showModal(modalDialog(title = 'Important message', 
-                                                       div(tags$b("Please upload data", class='warningMessage')), 
+                                                       div(tags$b("Please click upload data", class='warningMessage')), 
                                                        easyClose = TRUE,
                                                        size = 'm'))
 
@@ -164,7 +194,10 @@ server <- function(input, output, session) {
                         sliderInput("average_distance", "Distance", floor(min(data$summary$distance)/1000)*1000, 
                                     ceiling(max(data$summary$distance)/1000)*1000,
                                     value = c(floor(min(data$summary$distance)/1000)*1000, ceiling(max(data$summary$distance)/1000)*1000), 
-                                    step = 1000, width = '200px')
+                                    step = 1000, width = '200px'),
+                        actionButton('plotSelectedWorkouts', 'Plot selected workouts', 
+                                     style="color: #fff; background-color: #428bca; border-color:#428bca")
+                        
                         ))))))
     
     insertUI(
@@ -299,28 +332,37 @@ server <- function(input, output, session) {
         plot_workouts(dat = plotData(), x = ~xaxis, y = ~value, feature = feature(), name = i, units = units())
       })
     })
-    
-    output$summary <- renderTable({
+
+    output$summary <- DT::renderDataTable({
       data$hover <- event_data("plotly_selected")
       data$dataSelected <- data$summary[data$summary$session %in% data$hover$key[!is.na(data$hover$key )]]
       data$sessionsSelected <- data$dataSelected$session
       dataSelected <- data.frame('Session' = data$dataSelected$session,
                                  'sessionStart' = format(data$dataSelected$sessionStart,
                                                          format = "%Y-%m-%d  %H:%M:%S"),
-                                 'sessionEnd' = format(data$dataSelected$sessionEnd, 
+                                 'sessionEnd' = format(data$dataSelected$sessionEnd,
                                                        format = "%Y-%m-%d %H:%M:%S"))
-      if (nrow(dataSelected) == 0) 'No workouts selected' else dataSelected}, hover = TRUE, align = 'l',  width = '100%'
-    )
+      req(is.data.frame(dataSelected))
+      DT::datatable(dataSelected, rownames = FALSE, selection = 'none', 
+                    options = list(dom='t', scrollY = "90px", language = list(
+                      zeroRecords = "No workouts selected")              
+                    ))})
+    # 
     
-    output$selectedWorkout <- renderUI({
-      actionButton('plotSelectedWorkouts', 'Plot selected workouts')
-    })
+    # output$selectedWorkout <- renderUI({
+    #   actionButton('plotSelectedWorkouts', 'Plot selected workouts')
+    # })
     
     output$cond <- reactive({
       TRUE
     })
     
     outputOptions(output, "cond", suspendWhenHidden = FALSE)
+    
+    # data$hover <- event_data("plotly_selected")
+    # print(data$hover)
+    # data$dataSelected <- data$summary[data$summary$session %in% data$hover$key[!is.na(data$hover$key )]]
+    # data$sessionsSelected <- data$dataSelected$session
   })
   
   
@@ -354,6 +396,7 @@ server <- function(input, output, session) {
       plot_selectedWorkouts(data$dataSet, as.vector(data$sessionsSelected), 'heart.rate')
     })
   })
-  
+
+
   
 }
