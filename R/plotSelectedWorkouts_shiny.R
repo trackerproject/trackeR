@@ -1,4 +1,4 @@
-plot_selectedWorkouts <- function(x, session, what){
+plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
   #plot(data, session = session, what = what)
   threshold = TRUE
   smooth = FALSE
@@ -87,19 +87,29 @@ plot_selectedWorkouts <- function(x, session, what){
   plot_stored = vector("list", N)
   
   
-  
+
   for(i in unique(df$id)){
     smoothed_model <- gam(Value ~ s(numericDate, bs = 'cs'), data = df[(df$id==i),])
     smoothed_data <- predict(smoothed_model, newdata=df[(df$id==i),])
     a <- plot_ly(df[(df$id==i),], x = ~Index, y = ~Value, hoverinfo='none', alpha = 0.1, color = I('black')) %>%
-       add_lines(showlegend = FALSE) %>%
-       add_lines(x = ~Index, y = smoothed_data,
+       add_lines(showlegend = FALSE) %>% 
+       add_lines(x = ~Index, y = smoothed_data, hoverinfo='text', text = ~paste(round(Value, 2), var_units),
                               color = I('deepskyblue3'),
                               showlegend = FALSE, alpha = 1)
-  
+
+    
     plot_stored[[i]] <- a
   }
-
-  return(subplot(plot_stored, nrows = 1, shareY = TRUE, margin = 0.002))
+  
+  y <- list(
+    title = var_name_units,
+    fixedrange = TRUE
+  )
+  x <- list(
+    title = 'Time',
+    fixedrange = TRUE
+  )
+  return(subplot(plot_stored, nrows = 1, shareY = TRUE, margin = 0.002) %>% config(displayModeBar = F) %>%
+           layout(showlegend = FALSE, yaxis = y, xaxis = x, hovermode = 'closest'))
 
 }

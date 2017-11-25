@@ -90,15 +90,21 @@ plot_map <- function(data, session){
 }
 
 
-lab_sum <- function(feature, data, whole_text = TRUE){
+lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE){
   feature <- as.character(feature)
   units <- getUnits(data)
-  concept <- switch(feature, 'avgPace' = "pace", 'avgSpeed' = "speed",
-                    'distance' = "distance", 'duration' = "duration",
-                    'avgPower' = "power", 'avgCadence' = "cadence", 'avgHeartRate' = "heart.rate")
+  if(transform_feature == TRUE){
+    concept <- switch(feature, 'avgPace' = "pace", 'avgSpeed' = "speed",
+                      'distance' = "distance", 'duration' = "duration",
+                      'avgPower' = "power", 'avgCadence' = "cadence", 'avgHeartRate' = "heart.rate"
+                      )
+  } else {
+    concept <- feature
+  }
   thisunit <- units$unit[units$variable == concept]
   prettyUnit <- prettifyUnits(thisunit)
   if (whole_text == TRUE){
+    if(transform_feature == TRUE){
     ret <- switch(feature,
                   "distance" = paste0("Distance \n [", prettyUnit,"]"),
                   "duration" = paste0("Duration \n [", prettyUnit,"]"),
@@ -108,10 +114,19 @@ lab_sum <- function(feature, data, whole_text = TRUE){
                   "avgPower" = paste0("Average Power \n [", prettyUnit,"]"),
                   "avgHeartRate" = paste0("Average Heart Rate \n [", prettyUnit,"]"),
                   "wrRatio" = "work-to-rest \n ratio"
-    )
+                  )
+    } else {
+      ret <- switch(feature,
+                    "pace" = paste0("Pace \n [", prettyUnit,"]"),
+                    "cadence" = paste0("Cadence \n [", prettyUnit,"]"),
+                    "heart.rate" = paste0("Heart Rate \n [", prettyUnit,"]"),
+                    "altitude" = paste0("Altitude \n [", prettyUnit,"]")
+                    )
+    }
     
     ret
   } else {
+    if(transform_feature == TRUE){
     ret <- switch(feature,
                   "distance" = paste0("[", prettyUnit,"]"),
                   "duration" = paste0("[", prettyUnit,"]"),
@@ -121,8 +136,15 @@ lab_sum <- function(feature, data, whole_text = TRUE){
                   "avgPower" = paste0("[", prettyUnit,"]"),
                   "avgHeartRate" = paste0("[", prettyUnit,"]"),
                   "wrRatio" = "work-to-rest ratio"
-    )
-    
+                  )
+    } else {
+      ret <- switch(feature,
+                    "pace" = paste0("[", prettyUnit,"]"),
+                    "cadence" = paste0("[", prettyUnit,"]"),
+                    "heart.rate" = paste0("[", prettyUnit,"]"),
+                    "altitude" = paste0("[", prettyUnit,"]")
+                    )
+    }
     ret
   }
 

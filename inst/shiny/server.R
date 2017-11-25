@@ -1,4 +1,3 @@
-
 server <- function(input, output, session) {
   #storing all data
   data <- reactiveValues()
@@ -138,7 +137,6 @@ server <- function(input, output, session) {
         # save(data_download(), file)
       }
     )
-    print(length(data$dataSet))
     #data$fileType <- input$selectFileType
 
 
@@ -379,6 +377,7 @@ server <- function(input, output, session) {
       FALSE
     })
     
+    for(i in c("pace", "heart.rate", 'altitude')){
     insertUI(
       selector = ".content",
       where = "beforeEnd",
@@ -386,14 +385,23 @@ server <- function(input, output, session) {
         box(
           status = 'primary',
           width = 12,
-          height = "500px",
-          title = tagList(shiny::icon("gear"), 'Individual Workouts'),
+          height = "350px",
+          title = tagList(shiny::icon("gear"), switch(i, "pace" = paste0("Pace"),
+                                                      "heart.rate" = paste0("Heart Rate"),
+                                                      "altitude" = paste0("Altitude")
+                                                      )),
           div(style = 'overflow-x: scroll', 
-              plotlyOutput('plotIndividualWorkouts', width = if(length(as.vector(data$sessionsSelected)) > 2) 
-                paste0(toString(750*length(as.vector(data$sessionsSelected))),'px') else 'auto', height = "400px")))))))
+              plotlyOutput(paste0('plot', i), width = if(length(as.vector(data$sessionsSelected)) > 2) 
+                paste0(toString(750*length(as.vector(data$sessionsSelected))),'px') else 'auto', height = "250px")))))))
+    }
     
-    output$plotIndividualWorkouts <- renderPlotly({
-      plot_selectedWorkouts(data$dataSet, as.vector(data$sessionsSelected), 'heart.rate')
+    lapply(c("pace", "heart.rate", 'altitude'), function(i) {
+      var_name_units <- reactive({lab_sum(feature = i, data = data$summary, transform_feature = FALSE)})
+      var_units <- reactive({lab_sum(feature = i, data = data$summary, whole_text = FALSE, transform_feature = FALSE)})
+      output[[paste0('plot', i)]] <- renderPlotly({
+        plot_selectedWorkouts(x = data$dataSet, session = as.vector(data$sessionsSelected),
+                              what = i, var_units = var_units(), var_name_units = var_name_units())
+      })
     })
   })
 
