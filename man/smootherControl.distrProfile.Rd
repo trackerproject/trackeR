@@ -23,4 +23,3 @@ smootherControl.distrProfile(what = c("speed", "heart.rate"), k = 30,
 Auxiliary function for \code{\link{smoother.distrProfile}}. Typically used to construct
 a control argument for \code{\link{smoother.distrProfile}}.
 }
-

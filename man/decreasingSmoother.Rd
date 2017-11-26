@@ -23,4 +23,3 @@ prediction is done over the range of \code{x} with \code{len} equidistant points
 \description{
 This smoother ensures a positive response (Poisson) that is a monotone decreasing function of x.
 }
-

@@ -29,4 +29,3 @@ runSummary <- summary(runs)
 timeline(runSummary, lims = c("00:01", "23:59"))
 }
 }
-

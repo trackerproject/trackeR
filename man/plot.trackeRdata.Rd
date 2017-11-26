@@ -49,4 +49,3 @@ plot(runs, session = 4, what = "speed", threshold = TRUE,
     smooth = TRUE, width = 15, parallel = FALSE)
 }
 }
-

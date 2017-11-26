@@ -14,4 +14,3 @@ scaled(object, ...)
 \description{
 Generic function for scaling.
 }
-

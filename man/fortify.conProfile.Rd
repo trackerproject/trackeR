@@ -19,4 +19,3 @@ instead of the default wide format?}
 \description{
 Fortify a conProfile object for plotting with ggplot2.
 }
-

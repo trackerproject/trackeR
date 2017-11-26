@@ -85,4 +85,3 @@ run <- readContainer(filepath, type = "tcx", timezone = "GMT")
 \seealso{
 \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}, \code{\link{readJSON}}
 }
-

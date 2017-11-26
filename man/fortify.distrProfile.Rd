@@ -19,4 +19,3 @@ instead of the default wide format?}
 \description{
 Fortify a distrProfile object for plotting with ggplot2.
 }
-

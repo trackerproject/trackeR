@@ -19,4 +19,3 @@
 \description{
 Scale the distribution profile relative to its maximum value
 }
-

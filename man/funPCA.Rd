@@ -2,8 +2,9 @@
 % Please edit documentation in R/funcPCA.R, R/trackeR.R
 \name{funPCA}
 \alias{funPCA}
-\alias{funPCA.conProfile}
 \alias{funPCA.distrProfile}
+\alias{funPCA.conProfile}
+\alias{funPCA}
 \title{Functional principal components analysis of distribution or concentration profiles.}
 \usage{
 \method{funPCA}{distrProfile}(object, what, nharm = 4, ...)
@@ -45,4 +46,3 @@ plot(sumRuns$durationMoving, dp.pca$scores[,1])
 \references{
 Ramsay JO, Silverman BW (2005). Functional Data Analysis. Springer-Verlag New York.
 }
-

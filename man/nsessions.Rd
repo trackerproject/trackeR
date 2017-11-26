@@ -14,4 +14,3 @@ nsessions(object, ...)
 \description{
 Generic function for calculating number of sessions.
 }
-

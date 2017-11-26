@@ -46,4 +46,3 @@ plotRoute(runs, session = 6:7, source = "google", zoom = c(13, 14))
 \seealso{
 \code{\link[ggmap]{get_map}}, \code{\link[ggmap]{ggmap}}
 }
-

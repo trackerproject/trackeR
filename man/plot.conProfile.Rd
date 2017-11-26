@@ -33,4 +33,3 @@ cProfile <- concentrationProfile(dProfile)
 plot(cProfile, smooth = FALSE)
 plot(cProfile)
 }
-

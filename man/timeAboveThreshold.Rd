@@ -16,4 +16,3 @@ timeAboveThreshold(object, threshold = -1, ge = TRUE)
 \description{
 Time spent above a certain threshold
 }
-

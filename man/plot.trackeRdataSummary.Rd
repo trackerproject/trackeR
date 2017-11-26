@@ -34,4 +34,3 @@ plot(runSummary, date = FALSE, group = "total",
 \seealso{
 \code{\link{summary.trackeRdata}}
 }
-

@@ -21,4 +21,3 @@ for each session and the resting time between sessions, named
 \description{
 Extract resting period characteristics.
 }
-

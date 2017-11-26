@@ -14,4 +14,3 @@ generateBaseUnits(cycling = FALSE, ...)
 \description{
 Generate base units.
 }
-

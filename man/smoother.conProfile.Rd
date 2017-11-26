@@ -25,4 +25,3 @@ profiles are then transformed to concentration profiles.
 \seealso{
 \code{\link{smootherControl.distrProfile}}
 }
-

@@ -14,4 +14,3 @@ getOperations(object, ...)
 \description{
 Generic function for retrieving the operation settings.
 }
-

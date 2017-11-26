@@ -21,4 +21,3 @@ Distance in meters.
 \description{
 Convert speed to distance.
 }
-

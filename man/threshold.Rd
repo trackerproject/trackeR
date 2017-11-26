@@ -30,4 +30,3 @@ plot(runs, session = 4, what = "speed", threshold = FALSE)
 runsT <- threshold(runs, variable = "speed", lower = 0, upper = 12.5)
 plot(runsT, session = 4, what = "speed", threshold = FALSE)
 }
-

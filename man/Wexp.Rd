@@ -39,4 +39,3 @@ Monod H, Scherrer J (1965). "The Work Capacity of a Synergic Muscular Group." Er
 Skiba PF, Chidnok W, Vanhatalo A, Jones AM (2012). "Modeling the Expenditure and Reconstitution of Work Capacity above Critical Power." Medicine & Science in Sports & Exercise, 44(8), 1526--1532.
 Skiba PF, Fulford J, Clarke DC, Vanhatalo A, Jones AM (2015). "Intramuscular Determinants of the Abilility to Recover Work Capacity above Critical Power." European Journal of Applied Physiology, 115(4), 703--713.
 }
-

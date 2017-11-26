@@ -33,4 +33,3 @@ plot(dp.pca, harm = 1)
 sumRuns <- summary(runs)
 plot(sumRuns$durationMoving, dp.pca$scores[,1])
 }
-

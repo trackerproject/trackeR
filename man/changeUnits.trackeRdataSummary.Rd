@@ -19,4 +19,3 @@ concepts like "speed" rather than variable names like "avgSpeed" or "avgSpeedMov
 \description{
 Change the units of the variables in an \code{trackeRdataSummary} object.
 }
-

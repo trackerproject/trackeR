@@ -27,4 +27,3 @@ data("runs", package = "trackeR")
 leafletRoute(runs, session = 23:24)
 }
 }
-

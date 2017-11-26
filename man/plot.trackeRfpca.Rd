@@ -37,4 +37,3 @@ Ramsay JO, Silverman BW (2005). Functional Data Analysis. Springer-Verlag New Yo
 \seealso{
 \code{\link[fda]{plot.pca.fd}}
 }
-

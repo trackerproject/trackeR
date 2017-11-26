@@ -37,4 +37,3 @@ plot(runS, smooth = FALSE)
 \seealso{
 \code{\link{smootherControl.trackeRdata}}
 }
-

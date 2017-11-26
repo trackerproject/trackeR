@@ -13,4 +13,3 @@ Generate variables names for internal use in readX functions. the
 variables vecotrs need to correspond one by on interms of variable
 type
 }
-

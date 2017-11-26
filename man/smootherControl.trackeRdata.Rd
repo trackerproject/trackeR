@@ -32,4 +32,3 @@ a control argument for \code{\link{smoother.trackeRdata}}.
 \seealso{
 \code{\link{smoother.trackeRdata}}
 }
-

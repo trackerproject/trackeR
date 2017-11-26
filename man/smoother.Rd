@@ -14,4 +14,3 @@ smoother(object, ...)
 \description{
 Generic function for smoothing.
 }
-

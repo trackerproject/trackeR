@@ -42,4 +42,3 @@ Bohannon RW (1997). "Comfortable and Maximum Walking Speed of Adults Aged 20--79
 \seealso{
 \code{\link{plot.trackeRdataSummary}}
 }
-

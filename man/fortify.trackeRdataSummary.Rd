@@ -19,4 +19,3 @@ instead of the default wide format?}
 \description{
 Fortify a trackeRdataSummary object for plotting with ggplot2.
 }
-
