@@ -377,7 +377,7 @@ server <- function(input, output, session) {
       FALSE
     })
     
-    for(i in c("pace", "heart.rate", 'altitude')){
+    for(i in c("pace", "heart.rate", 'altitude', 'zones_speed')){
     insertUI(
       selector = ".content",
       where = "beforeEnd",
@@ -388,23 +388,28 @@ server <- function(input, output, session) {
           height = "350px",
           title = tagList(shiny::icon("gear"), switch(i, "pace" = paste0("Pace"),
                                                       "heart.rate" = paste0("Heart Rate"),
-                                                      "altitude" = paste0("Altitude")
+                                                      "altitude" = paste0("Altitude"),
+                                                      "zones_speed" = 'Zones speed'
                                                       )),
           div(style = 'overflow-x: scroll', 
-              plotlyOutput(paste0('plot', i), width = if(length(as.vector(data$sessionsSelected)) > 2) 
+              plotlyOutput(paste0('plot_', i), width = if(length(as.vector(data$sessionsSelected)) > 2) 
                 paste0(toString(750*length(as.vector(data$sessionsSelected))),'px') else 'auto', height = "250px")))))))
     }
     
     lapply(c("pace", "heart.rate", 'altitude'), function(i) {
       var_name_units <- reactive({lab_sum(feature = i, data = data$summary, transform_feature = FALSE)})
       var_units <- reactive({lab_sum(feature = i, data = data$summary, whole_text = FALSE, transform_feature = FALSE)})
-      output[[paste0('plot', i)]] <- renderPlotly({
+      output[[paste0('plot_', i)]] <- renderPlotly({
         plot_selectedWorkouts(x = data$dataSet, session = as.vector(data$sessionsSelected),
                               what = i, var_units = var_units(), var_name_units = var_name_units())
       })
     })
+    
+    output$plot_zones_speed <-renderPlotly({
+      plot_zones(x = data$dataSet, session = as.vector(data$sessionsSelected))
+    })
+    
+    
   })
 
-
-  
 }

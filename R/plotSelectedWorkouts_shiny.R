@@ -96,7 +96,6 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
        add_lines(x = ~Index, y = smoothed_data, hoverinfo='text', text = ~paste(round(Value, 2), var_units),
                               color = I('deepskyblue3'),
                               showlegend = FALSE, alpha = 1)
-
     
     plot_stored[[i]] <- a
   }
