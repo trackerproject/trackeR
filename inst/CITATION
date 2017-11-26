@@ -1,0 +1,18 @@
+bibentry(bibtype = "Article",
+  title        = "{trackeR}: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in {R}",
+  author       = c(person(given = "Hannah",
+                          family = "Frick",
+                          email = "h.frick@ucl.ac.uk"),
+                   person(given = "Ioannis",
+                          family = "Kosmidis",
+                          email = "i.kosmidis@ucl.ac.uk")),
+  journal      = "Journal of Statistical Software",
+  year         = "2017",
+  volume       = "82",
+  number       = "7",
+  pages        = "1--29",
+  doi          = "10.18637/jss.v082.i07",
+
+  header       = "To cite trackeR in publications use:"
+)
+

@@ -38,6 +38,7 @@
 #'     NA or 0 power for running or cycling session, respectively, and NA for all other
 #'     variables. Distances are (re-)calculated based on speeds after imputation.
 #' @seealso \code{\link{readContainer}} for reading .tcx and .db3 files directly into \code{trackeRdata} objects.
+#' @references Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal of Statistical Software}, \bold{82}(7), 1--29. doi:10.18637/jss.v082.i07
 #' @examples
 #' \dontrun{
 #' ## read raw data

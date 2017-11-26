@@ -32,7 +32,11 @@
 \Keywords{sports, tracking, work capacity, running, cycling, distribution profiles}
 \Plainkeywords{sports, tracking, work capacity, running, cycling, distribution profiles}
 
-\Abstract{The use of GPS-enabled tracking devices and heart rate
+\Abstract{This introduction to the \proglang{R} package \pkg{trackeR} is a (slightly)
+  modified version of \cite{trackeR:Frick+Kosmidis:2017}, published in the
+  \emph{Journal of Statistical Software}.  
+  
+  The use of GPS-enabled tracking devices and heart rate
   monitors is becoming increasingly common in sports and fitness
   activities. The \pkg{trackeR} package aims to fill the gap
   between the routine collection of data from such devices and their

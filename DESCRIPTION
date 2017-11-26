@@ -1,9 +1,15 @@
 Package: trackeR
-Version: 0.0.5.900
+Version: 1.0.0
 Date: 2017-01-11
 Title: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices
-Authors@R: c(person(given = "Hannah", family = "Frick", role = c("aut", "cre"), email = "h.frick@ucl.ac.uk"),
-             person(given = "Ioannis", family = "Kosmidis", role = "aut", email = "i.kosmidis@ucl.ac.uk"))
+Authors@R: c(person(given = "Hannah", family = "Frick",
+	   	    role = c("aut", "cre"),
+		    email = "h.frick@ucl.ac.uk",
+		    comment = c(ORCID = "0000-0002-6049-5258")),
+             person(given = "Ioannis", family = "Kosmidis",
+	     	    role = "aut",
+		    email = "i.kosmidis@ucl.ac.uk",
+		    comment = c(ORCID = "0000-0003-1556-0302")))
 Description: The aim of this package is to provide infrastructure for handling running and cycling
     data from GPS-enabled tracking devices. After extraction and appropriate
     manipulation of the training or competition attributes, the data are placed
@@ -25,8 +31,7 @@ Imports:
     ggmap,
     leaflet,
     gridExtra,
-    gtable,
-    colorspace
+    gtable
 Suggests:
     testthat,
     knitr,
@@ -35,4 +40,4 @@ VignetteBuilder: knitr
 License: GPL-2 | GPL-3
 URL: https://github.com/hfrick/trackeR
 BugReports: https://github.com/hfrick/trackeR/issues
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
