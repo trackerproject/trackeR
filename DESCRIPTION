@@ -4,7 +4,7 @@ Date: 2017-01-11
 Title: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices
 Authors@R: c(person(given = "Hannah", family = "Frick",
 	   	    role = c("aut", "cre"),
-		    email = "h.frick@ucl.ac.uk",
+		    email = "hannah.frick@gmail.com",
 		    comment = c(ORCID = "0000-0002-6049-5258")),
              person(given = "Ioannis", family = "Kosmidis",
 	     	    role = "aut",
