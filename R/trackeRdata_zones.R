@@ -20,6 +20,34 @@
 #' @export
 zones <- function(object, session = NULL, what = c("speed", "heart.rate"), breaks = list(speed = 0:10, 
     heart.rate = c(0, seq(75, 225, by = 50), 250)), parallel = FALSE, cores = NULL, ...) {
+        
+    ##############################################################################
+    # New code for automatic break selection
+    df <- fortify(object)
+    
+    find_step_size <- function (maximum, minimum = 0) {
+        value_range <- as.character(ceiling(maximum - minimum))
+        range_size <- nchar(value_range)
+        round_table <- list('1' = 5, '2' = 5, '3' = 10, '4' = 100,
+        '5' = 10000, '6' = 100000)
+        maximum <- round_any(maximum, round_table[[range_size]], f = ceiling)
+        step_size <- (maximum - minimum) / 10
+        break_points <- seq(minimum, maximum, by = step_size)
+        return(break_points)
+    }
+    
+    #breaks <- list()
+    if('power' %in% what & all(is.na(df$power))) {
+        warning('No data for power')
+        what <- what[!(what %in% 'power')]
+    }
+    
+    for(feature in what) {
+        maximum <- ceiling(quantile(df[feature], 0.99, na.rm = TRUE))
+        minimum <- if (feature == 'heart.rate') 70 else 0
+        breaks[[feature]] <- find_step_size(maximum, minimum)
+    }
+    ##############################################################################
     ## select sessions
     if (is.null(session)) 
         session <- seq_along(object)

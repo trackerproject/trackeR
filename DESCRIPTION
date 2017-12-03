@@ -21,7 +21,8 @@ Depends:
     shinycssloaders,
     leaflet,
     shinyFiles,
-    DT
+    DT,
+    plyr
 Imports:
     parallel,
     XML,

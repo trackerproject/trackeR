@@ -1,15 +1,24 @@
-plot_zones <- function(x, session, what = c("speed"), breaks = c(0, 2:6, 12.5)){
-  
-  runZones <- zones(x[session], what = what, breaks = breaks)
-  x <- runZones
+#' Plot training zones
+#'
+#' @param x An object of class \code{trackeRdata} as returned by \code{\link{readDirectory_shiny}}.
+#' @param session A vector of selected sessions.
+#' @param what A vector of variable names to be plotted.
+
+
+plot_zones <- function(run_data, session, what = c("heart.rate")){
+  x <- zones(run_data[session], what = what)
+  # x <- runZones
   
   dat <- do.call("rbind", x)
   dat$zoneF <- factor(paste0("[", paste(dat$lower, dat$upper, sep = "-"), ")"),
-                      levels = unique(paste0("[",paste(dat$lower, dat$upper, sep = "-"), ")")),
+                      levels = unique(paste0("[",paste(dat$lower, dat$upper, 
+                                                       sep = "-"), ")")),
                       ordered = TRUE)
   ## dat$session <- factor(dat$session)
-  dat$Session <- factor(paste('Session', dat$session))  ## rename for legend title
+  # dat$session <- sprintf("%02d", dat$session)
   
+  # dat$Session <- factor(paste('Session', dat$session), ordered = TRUE)  ## rename for legend title
+  dat$Session <- paste("Session", sprintf(paste0("%0", nchar(max(dat$session)), "d"), dat$session))
   dat$timeN <- as.numeric(dat$time)
   ## facets
   units <- getUnits(x)
@@ -20,15 +29,27 @@ plot_zones <- function(x, session, what = c("speed"), breaks = c(0, 2:6, 12.5)){
   }
   pal <-  colorFactor(c('deepskyblue', 'dodgerblue4'), dat$Session)
   
-  y <- list(
-    title = 'Percent of time per workout (%)'
-  )
-  x <- list(
-    title = paste0('Zones (', lab_data('speed'), ')')
-    # tickangle = 180
-  )
-  
-  return(plot_ly(dat, x = ~zoneF, y = ~percent, color = ~Session, colors = pal(dat$Session)) %>%
-    add_bars()  %>%
-    layout(yaxis = y, xaxis = x, hovermode = 'closest')) 
+  individual_plots <- list()
+  legend_status <- TRUE
+  for (feature in what){
+    
+    y <- list(
+      title = '% of time'
+    )
+    x <- list(
+      title = paste0('Zones (', lab_data(feature), ')')
+      # tickangle = 180
+    )
+    p <- plot_ly(subset(dat, variable == feature), x = ~zoneF, y = ~percent, 
+                 color = ~Session, colors = pal(dat$Session), legendgroup = ~Session) %>%
+          add_bars() %>%
+          layout(xaxis = x, yaxis = y, hovermode = 'closest')
+    individual_plots[[feature]] <- style(p, showlegend = legend_status)
+    legend_status <- FALSE
+  }
+ 
+  plots <- do.call(subplot, c(individual_plots, nrows = length(what), 
+                              margin = 0.05, shareY = FALSE, titleX = TRUE, titleY = TRUE))
+
+  return(plots) 
 }

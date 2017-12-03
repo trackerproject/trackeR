@@ -6,6 +6,7 @@
 #' @import shinycssloaders
 #' @import shinyFiles
 #' @import DT
+#' @import plyr
 
 generateGraphs <- function(x, group = c("total"), what, date = TRUE) {
   #x <- x()
