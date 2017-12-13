@@ -82,7 +82,7 @@ plot_workouts <- function(dat, xaxis, yaxis, feature, name, units) {
       title = 'Date'
     )
     
-    layout(p, dragmode = "select", showlegend = FALSE, yaxis = y, xaxis = x)
+    layout(p, dragmode = "select", showlegend = FALSE, yaxis = y, xaxis = x, margin = list(l=80, b=50, pad=0))
 }
 
 plot_map <- function(data, session){
