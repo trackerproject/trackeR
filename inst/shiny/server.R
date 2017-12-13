@@ -146,8 +146,9 @@ server <- function(input, output, session) {
       # readDirectory(path(), timezone = "GMT", 
       #                              cycling = data$sport)
     #using 'runs' dataset for testing
-
     data("runs", package = "trackeR")
+
+    data$dataSet <- runs
     # data$dataSet <- runs
     data$summary <- summary(data$dataSet, session = 1:length(data$dataSet),
                             movingThreshold = 1)
@@ -414,7 +415,7 @@ server <- function(input, output, session) {
       FALSE
     })
     
-    for(i in c("pace", "heart.rate", 'altitude')){
+    for(i in c("pace", "heart.rate", "altitude", "work_capacity")){
     insertUI(
       selector = ".content",
       where = "beforeEnd",
@@ -427,13 +428,14 @@ server <- function(input, output, session) {
           title = tagList(shiny::icon("gear"), 
                           switch(i, "pace" = paste0("Pace"),
                                 "heart.rate" = paste0("Heart Rate"),
-                                "altitude" = paste0("Altitude"))),
+                                "altitude" = paste0("Altitude"),
+                                "work_capacity" = paste0("Work Capacity"))),
           div(style = 'overflow-x: scroll', 
               plotlyOutput(paste0('plot_', i), width = if(length(as.vector(data$sessionsSelected)) > 2) 
                 paste0(toString(750*length(as.vector(data$sessionsSelected))), 'px') else 'auto', height = "250px")))))))
     }
     
-    lapply(c("pace", "heart.rate", 'altitude'), function(i) {
+    lapply(c("pace", "heart.rate", "altitude"), function(i) {
       var_name_units <- reactive({lab_sum(feature = i, 
                                           data = data$summary, 
                                           transform_feature = FALSE)})
@@ -447,8 +449,12 @@ server <- function(input, output, session) {
                               var_name_units = var_name_units())
       })
     })
-    
 
+    output[[paste0('plot_', 'work_capacity')]] <- renderPlotly({
+      plot_work_capacity(run_data = data$dataSet, session = as.vector(data$sessionsSelected))
+    })
+    
+# Time in Zones
     insertUI(
       selector = ".content",
       where = "beforeEnd",
@@ -469,20 +475,52 @@ server <- function(input, output, session) {
                                 ),
                                 uiOutput('time_in_zones'))))))
     
+# Reactive plot height based on number of sessions selected
     plot_height <- reactive({
       paste0(250 * length(input$zones_for_plot), 'px')
     })
     
-
+# Render UI for plot 
     output$time_in_zones <- renderUI({
       plotlyOutput('time_in_zone_plots', width = 'auto', height = plot_height())
     })
-      
+
+# Render actual plot
     output$time_in_zone_plots <- renderPlotly({
       plot_zones(run_data = data$dataSet, session = as.vector(data$sessionsSelected), what = input$zones_for_plot)
     })
-    
-    
-  })
 
+# Other metrics - Work capacity, Distribution profile, Concentration profile
+    insertUI(
+      selector = ".content",
+      where = "beforeEnd",
+      ui = conditionalPanel(condition = "output.cond == false", 
+                            div(class='plots',  id = 'profiles', fluidRow(
+                              box(
+                                status = 'primary',
+                                width = 12,
+                                title = tagList(shiny::icon("gear"), 'Profiles'),
+                                selectizeInput('profile_metrics_for_plot', 'Select profile metrics to plot:', multiple = TRUE,
+                                               c('Work capacity' = 'work_capacity',
+                                                 'Distribution profile' = 'distribution_profile',
+                                                 'Concentration profile' = 'concentration_profile'
+                                               ), selected = 'work_capacity'
+                                ),
+                                uiOutput('profiles'))))))
+
+# Reactive plot height based on number of sessions selected
+    profile_plot_height <- reactive({
+      paste0(250 * length(input$profile_metrics_plot), 'px')
+    })
+    
+# Render UI for plot 
+    output$profiles <- renderUI({
+      plotlyOutput('profiles_plots', width = 'auto', height = profile_plot_height())
+    })
+
+# Render actual plot
+    output$profiles_plots <- renderPlotly({
+       plot_profiles(run_data = data$dataSet, session = as.vector(data$sessionsSelected), what = input$profile_metrics_for_plot)
+    })  
+  })
 }

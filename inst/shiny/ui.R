@@ -39,9 +39,12 @@ ui <- dashboardPage(skin = 'black',
     sidebarMenu(
       menuItem('Dashboard', tabName = 'dashboard', icon = icon('dashboard')),
       hr(),
-      fileInput('processed_data_path', 'Load processed data (optional)'),
-      tags$div(class = 'form-group shiny-input-container', tags$label('Add raw data (optional)'),
+      fileInput('processed_data_path', 'Load processed data'),
+      tags$div(class = 'form-group shiny-input-container', tags$label('Add raw data'),
               tags$div(class = 'input-group', shinyDirButton("directory", "Select Folder", "Upload"))),
+      div(div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('uploadButton', 'Upload', icon("upload"), 
+                  style="color: #fff; background-color: #337ab7; border-color: #2e6da4")),
+      hr(),
       selectInput('sportSelected', 'Select sport:', multiple = FALSE,
                   c('Cycling' = 'cycling',
                     'Running' = 'running')
@@ -59,13 +62,10 @@ ui <- dashboardPage(skin = 'black',
       ),
       div(div(style="display: inline-block;vertical-align:top; width: 120px;", actionButton('changeUnits', 'Change units')),
           div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('resetButton', 'Reset'))),
-      hr(),
       
       # tags$div(class = "add_raw_files", tags$title('Add raw files'), 
       #          tags$div(class = 'load_data', 
       #                   shinyDirButton("directory", "Add raw data", "Upload")))
-      div(div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('uploadButton', 'Upload', icon("upload"), 
-                  style="color: #fff; background-color: #337ab7; border-color: #2e6da4")),
       
       div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('plotButton', 'Plot', icon('area-chart'),
                    style="color: #fff; background-color: #3CB371; border-color: #3CB371"))),

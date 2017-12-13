@@ -84,6 +84,7 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
   df$id <- as.integer(factor(df$SessionID))
   df$numericDate <- as.numeric(df$Index)
   N = nlevels(factor(df$id))
+
   plot_stored = vector("list", N)
   
   
@@ -110,5 +111,6 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
   )
   return(subplot(plot_stored, nrows = 1, shareY = TRUE, margin = 0.002) %>% config(displayModeBar = F) %>%
            layout(showlegend = FALSE, yaxis = y, xaxis = x, hovermode = 'closest'))
+  
 
 }

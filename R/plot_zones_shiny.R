@@ -1,6 +1,6 @@
 #' Plot training zones
 #'
-#' @param x An object of class \code{trackeRdata} as returned by \code{\link{readDirectory_shiny}}.
+#' @param run_data An object of class \code{trackeRdata} as returned by \code{\link{readDirectory_shiny}}.
 #' @param session A vector of selected sessions.
 #' @param what A vector of variable names to be plotted.
 
