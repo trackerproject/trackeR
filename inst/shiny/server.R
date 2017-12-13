@@ -1,3 +1,4 @@
+
 server <- function(input, output, session) {
   #storing all data
   data <- reactiveValues()
@@ -9,7 +10,6 @@ server <- function(input, output, session) {
   directory <- reactive(input$directory)
   # output$directory <- renderPrint(directory())
   
-  # path
   path <- reactive({
     home <- normalizePath("~")
     file.path(home, paste(unlist(directory()$path[-1]), 
@@ -24,7 +24,7 @@ server <- function(input, output, session) {
   #     if (input$directory > 0) {
   #       # condition prevents handler execution on initial app launch
   #       
-  #       # launch the directory selection dialog with initial path read from the widget
+  #       # launch the directory selection dialog with initial path read from cthe widget
   #       path = choose.dir(default = readDirectoryInput(session, 'directory'))
   #       
   #       # update the widget value
@@ -157,7 +157,14 @@ server <- function(input, output, session) {
   observeEvent({input$updateUnits
                 input$plotButton
     }, {
+
+    shiny::req(data$dataSet)
+
+    output$timeline_plot <- renderPlot({
+      timeline(data$summary)
+    })
     
+
     if (is.null(data$dataSet)) showModal(modalDialog(title = 'Important message', 
                                                        div(tags$b("Please click upload data", 
                                                                   class='warningMessage')), 
@@ -167,7 +174,7 @@ server <- function(input, output, session) {
     # shiny::validate(
     #   need(data$dataSet, showModal(modalDialog(title = 'Not working')))
     # )
-    shiny::req(data$dataSet)
+    
     
     removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
     
@@ -371,7 +378,7 @@ server <- function(input, output, session) {
                                           format = "%Y-%m-%d %H:%M:%S"))
       req(is.data.frame(dataSelected))
       DT::datatable(dataSelected, rownames = FALSE, selection = 'none', 
-                    options = list(dom='t', scrollY = "90px", 
+                    options = list(dom='t', scrollY = "300px", 
                                    language = 
                                      list(zeroRecords = "No workouts selected")              
                     ))})

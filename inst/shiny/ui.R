@@ -132,14 +132,23 @@ ui <- dashboardPage(skin = 'black',
       box(
         status = 'primary',
         width = 6,
-        height = "200px",
+        height = "420px",
         title = tagList(shiny::icon("reorder"), "Summary of selected workouts"),
         #verbatimTextOutput("result"),
         #verbatimTextOutput("hover"),
         div(style = 'overflow-y: scroll', DT::dataTableOutput('summary'))
-      )))
+      ),
+      box(
+        status = 'primary',
+        width = 6,
+        height = '420px',
+        title = tagList(shiny::icon('calendar', lib='glyphicon'), 'Workout Timeline'),
+        plotOutput('timeline_plot', width = "100%", height = "350px")
+        )
+      ))
     
   )
   )
   )
+
 
