@@ -7,6 +7,7 @@
 #' @import shinyFiles
 #' @import DT
 #' @import plyr
+#' @import shinyjs
 
 generateGraphs <- function(x, group = c("total"), what, date = TRUE) {
   #x <- x()
@@ -68,11 +69,11 @@ plot_workouts <- function(dat, xaxis, yaxis, feature, name, units) {
     p <- plot_ly(dat, x = xaxis, y = yaxis, hoverinfo = 'text',
                  text = ~paste('Date:', format(sessionStart, format = "%Y-%m-%d"),
                                '\n', name, ':', round(value, 2), units)) %>%
-      add_markers(key = dat$session, color = I('deepskyblue3')) %>% 
+      add_markers(key = dat$session, color = I('deepskyblue3')) %>%
       add_lines(color = I('deepskyblue2'))
     if (length(d[['key']])>0){
       m <- dat[dat$session %in% d[['key']], ]
-      p <- add_markers(p, data = m, color = I('darkorange3')) %>% 
+      p <- add_markers(p, data = m, color = I('darkorange3')) %>%
         add_lines(data = m, color = I('darkorange2'))
     }
     y <- list(
@@ -81,7 +82,7 @@ plot_workouts <- function(dat, xaxis, yaxis, feature, name, units) {
     x <- list(
       title = 'Date'
     )
-    
+
     layout(p, dragmode = "select", showlegend = FALSE, yaxis = y, xaxis = x, margin = list(l=80, b=50, pad=0))
 }
 
@@ -124,7 +125,7 @@ lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE){
                     "altitude" = paste0("Altitude \n [", prettyUnit,"]")
                     )
     }
-    
+
     ret
   } else {
     if(transform_feature == TRUE){
@@ -162,7 +163,7 @@ create_icon <- function(feature){
                 "avgHeartRate" = 'heartbeat',
                 "wrRatio" = 'fire'
   )
- 
+
  icon
 }
 

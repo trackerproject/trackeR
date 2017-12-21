@@ -13,19 +13,17 @@
 # source('map.R')
 # source('plotSelectedWorkouts.R')
 
-metrics <- c('Distance' = 'distance',
-             'Duration' = 'duration',
-             'Average speed' = 'avgSpeed',
-             'Average pace' = 'avgPace',
-             'Average cadence' = 'avgCadence',
-             'Average power' = 'avgPower',
-             'Average heart rate' = 'avgHeartRate',
-             'Work to rest ratio' = 'wrRatio'
-)
 
 ui <- dashboardPage(skin = 'black',
   dashboardHeader(title = 'TrackerR'),
   dashboardSidebar(
+                   useShinyjs(),
+     tags$head(tags$script("
+                            function hideElement(i) {
+                                var x = document.getElementById(i);
+                                x.style.display = 'none';
+                            }
+                           ")),
     tags$head(tags$style(".warningMessage {
                           font-size: 20px;
                          }
@@ -42,7 +40,7 @@ ui <- dashboardPage(skin = 'black',
       fileInput('processed_data_path', 'Load processed data'),
       tags$div(class = 'form-group shiny-input-container', tags$label('Add raw data'),
               tags$div(class = 'input-group', shinyDirButton("directory", "Select Folder", "Upload"))),
-      div(div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('uploadButton', 'Upload', icon("upload"), 
+      div(div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('uploadButton', 'Upload', icon("upload"),
                   style="color: #fff; background-color: #337ab7; border-color: #2e6da4")),
       hr(),
       selectInput('sportSelected', 'Select sport:', multiple = FALSE,
@@ -62,23 +60,23 @@ ui <- dashboardPage(skin = 'black',
       ),
       div(div(style="display: inline-block;vertical-align:top; width: 120px;", actionButton('changeUnits', 'Change units')),
           div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('resetButton', 'Reset'))),
-      
-      # tags$div(class = "add_raw_files", tags$title('Add raw files'), 
-      #          tags$div(class = 'load_data', 
+
+      # tags$div(class = "add_raw_files", tags$title('Add raw files'),
+      #          tags$div(class = 'load_data',
       #                   shinyDirButton("directory", "Add raw data", "Upload")))
-      
+
       div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('plotButton', 'Plot', icon('area-chart'),
                    style="color: #fff; background-color: #3CB371; border-color: #3CB371"))),
       hr(),
       tags$div(class = 'form-group shiny-input-container', tags$label('Download data'),
                tags$div(class = 'input-group', downloadButton('download_data', 'Download procesed data')))
-      
+
     )
 
   ),
   dashboardBody(
     tabItems(
-     
+
     # # javascript code to send darewta to shiny server
     # #htmlTemplate('component.html'),
     #   box(
@@ -86,18 +84,18 @@ ui <- dashboardPage(skin = 'black',
     #     width = 6,
     #     height = "250px",
     #     title = tagList(shiny::icon("gear"), "Selector"),
-    # 
+    #
     #     # selectInput('selectFileType', 'Select type of GPS container file', multiple = FALSE,
     #     #             c('TCX' = "tcx",
     #     #               'db3' = "db3",
     #     #               'JSON' = "json")
     #     # ),
     #     # fillRow(shinyDirButton("directory", "Chose a directory", "Upload"), width = '20%'),
-    # 
+    #
     #     #directoryInput('directory', label = 'Select a directory:', value = '~/'),
-    #     
+    #
     #     verbatimTextOutput('directory_table')
-    #     
+    #
     #     # HTML(
     #     #      <label>Select date range</label>
     #     #      <div id='reportrange' class='pull-right' style='background: #fff; cursor: pointer; padding: 5px 10px;                                    #       border: 1px solid #ccc; width: 100%; margin-bottom: 10px'>
@@ -105,11 +103,11 @@ ui <- dashboardPage(skin = 'black',
     #     #      <span id='dateRange' type='text'></span> <b class='caret'></b>
     #     #      </div>
     #     #      "),
-    #     
-    # 
+    #
+    #
     #     # fileInput(
     #     #   'file', 'Choose file', multiple = TRUE),
-    # 
+    #
     #     # tags$script('
     #     #          document.getElementById("plotButton").onclick = function(){
     #     #          var date = document.getElementById("dateRange").innerHTML;
@@ -126,7 +124,7 @@ ui <- dashboardPage(skin = 'black',
     #   tableOutput('summary'),
     #   uiOutput("selectedWorkout")
     # )
-       
+
     tabItem(tabName = 'dashboard',
       fluidRow(
       box(
@@ -146,7 +144,7 @@ ui <- dashboardPage(skin = 'black',
         plotOutput('timeline_plot', width = "100%", height = "350px")
         )
       ))
-    
+
   )
   )
   )

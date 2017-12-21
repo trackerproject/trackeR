@@ -1,5 +1,21 @@
 
 server <- function(input, output, session) {
+
+  # Metrics for cycling
+  metrics <- c('Distance' = 'distance',
+               'Duration' = 'duration',
+               'Average speed' = 'avgSpeed',
+               'Average pace' = 'avgPace',
+               'Average cadence' = 'avgCadence',
+               'Average heart rate' = 'avgHeartRate'
+  )
+
+  observeEvent(input$sportSelected, { if(input$sportSelected == 'running') {
+    updateSelectizeInput(session, 'metricsSelected', choices = metrics, server = TRUE)
+  }
+  })
+  # Disable selection of Power if sport is running
+
   #storing all data
   data <- reactiveValues()
   data$dataSelected <- NULL
@@ -115,6 +131,7 @@ server <- function(input, output, session) {
 
     data$sport <- if (input$sportSelected == 'cycling') TRUE else FALSE
 
+
     if(path() == paste0(normalizePath("~"), '/')){
       data$dataSet <- readRDS(input$processed_data_path$datapath)
     } else if (is.null(input$processed_data_path$datapath) == TRUE) {
@@ -146,9 +163,9 @@ server <- function(input, output, session) {
       # readDirectory(path(), timezone = "GMT",
       #                              cycling = data$sport)
     #using 'runs' dataset for testing
-    data("runs", package = "trackeR")
+    # data("runs", package = "trackeR")
 
-    data$dataSet <- runs
+    # data$dataSet <- runs
     # data$dataSet <- runs
     data$summary <- summary(data$dataSet, session = 1:length(data$dataSet),
                             movingThreshold = 1)
@@ -199,10 +216,10 @@ server <- function(input, output, session) {
                                               ceiling(max(data$summary$avgSpeed))),
                                     step = 1, width = '200px'),
                         sliderInput("average_heart_rate", "Average heart rate",
-                                    floor(min(data$summary$avgHeartRate)/10)*10,
-                                    ceiling(max(data$summary$avgHeartRate)/10)*10,
-                                    value = c(floor(min(data$summary$avgHeartRate)/10)*10,
-                                              ceiling(max(data$summary$avgHeartRate)/10)*10),
+                                    floor(min(data$summary$avgHeartRate, na.rm=TRUE)/10)*10,
+                                    ceiling(max(data$summary$avgHeartRate, na.rm=TRUE)/10)*10,
+                                    value = c(floor(min(data$summary$avgHeartRate, na.rm=TRUE)/10)*10,
+                                              ceiling(max(data$summary$avgHeartRate, na.rm=TRUE)/10)*10),
                                     step = 10, width = '200px'),
                         sliderInput("average_distance", "Distance",
                                     floor(min(data$summary$distance)/1000)*1000,
@@ -242,7 +259,7 @@ server <- function(input, output, session) {
         selector = ".content",
         where = "beforeEnd",
         ui = conditionalPanel(condition = "output.cond == true",
-                              div(class='plots', fluidRow(
+                              div(class='plots', id = paste0("box", i), fluidRow(
           box(
             status = 'primary',
             width = 12,
@@ -257,11 +274,11 @@ server <- function(input, output, session) {
     output$averageDistance <- renderValueBox({
       text_output <- reactive({
         if (length(data$sessionsSelected) >= 1) {
-            paste0(round(mean(data$dataSelected$distance), 0), ' ',
+            paste0(round(mean(data$dataSelected$distance, na.rm=TRUE), 0), ' ',
                    lab_sum('distance', data$summary, FALSE))
           # print('ble')
         } else {
-           paste0(round(mean(data$summary$distance), 0), ' ',
+           paste0(round(mean(data$summary$distance, na.rm=TRUE), 0), ' ',
                   lab_sum('distance', data$summary, FALSE))
           # print('bla')
         }
@@ -277,11 +294,11 @@ server <- function(input, output, session) {
       text_output <- reactive({
         if (length(data$sessionsSelected) >= 1) {
 
-          paste0(round(mean(data$dataSelected$duration), 0), ' ',
+          paste0(round(mean(data$dataSelected$duration, na.rm=TRUE), 0), ' ',
                  lab_sum('duration', data$summary, FALSE))
 
         } else {
-          paste0(round(mean(data$summary$duration), 0), ' ',
+          paste0(round(mean(data$summary$duration, na.rm=TRUE), 0), ' ',
                  lab_sum('duration', data$summary, FALSE))
           # print('bla')
         }
@@ -294,11 +311,11 @@ server <- function(input, output, session) {
     output$averageHeartRate <- renderValueBox({
       text_output <- reactive({
         if (length(data$sessionsSelected) >= 1) {
-          paste0(round(mean(data$dataSelected$avgHeartRate), 0), ' ',
+          paste0(round(mean(data$dataSelected$avgHeartRate, na.rm=TRUE), 0), ' ',
                  lab_sum('avgHeartRate', data$summary, FALSE))
           # print('ble')
         } else {
-          paste0(round(mean(data$summary$avgHeartRate), 0), ' ',
+          paste0(round(mean(data$summary$avgHeartRate, na.rm=TRUE), 0), ' ',
                  lab_sum('avgHeartRate', data$summary, FALSE))
           # print('bla')
         }
@@ -310,11 +327,11 @@ server <- function(input, output, session) {
     output$averagePace <- renderValueBox({
       text_output <- reactive({
         if (length(data$sessionsSelected) >= 1) {
-          paste0(round(mean(data$dataSelected$avgPace), 2), ' ',
+          paste0(round(mean(data$dataSelected$avgPace, na.rm=TRUE), 2), ' ',
                  lab_sum('avgPace', data$summary, FALSE))
           # print('ble')
         } else {
-          paste0(round(mean(data$summary$avgPace), 2), ' ',
+          paste0(round(mean(data$summary$avgPace, na.rm=TRUE), 2), ' ',
                  lab_sum('avgPace', data$summary, FALSE))
           # print('bla')
         }
@@ -325,6 +342,7 @@ server <- function(input, output, session) {
 
     output$map <- renderLeaflet({
       sessionData <- reactive({
+
         if (length(as.vector(data$sessionsSelected)) == 0){
           data$summary$session[which(data$summary$avgSpeed >= input$average_speed[1]
                                      & data$summary$avgSpeed <= input$average_speed[2]
@@ -360,10 +378,15 @@ server <- function(input, output, session) {
       feature <- reactive({lab_sum(feature = i, data = data$summary)})
       units <- reactive({lab_sum(feature = i, data = data$summary,
                                  whole_text = FALSE)})
-      output[[paste0(i)]] <- renderPlotly({
-        plot_workouts(dat = plotData(), x = ~xaxis, y = ~value,
-                      feature = feature(), name = i, units = units())
-      })
+
+        output[[paste0(i)]] <- renderPlotly({
+          shiny::validate(need(!all(is.na(plotData())), 'No data'))
+          plot_workouts(dat = plotData(), x = ~xaxis, y = ~value,
+                        feature = feature(), name = i, units = units())
+
+        })
+
+
     })
 
     output$summary <- DT::renderDataTable({
@@ -404,6 +427,8 @@ server <- function(input, output, session) {
 
   observeEvent(input$resetButton, {
     removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
+
+
     output$summary <- renderTable({'No workouts selected'})
   })
 
