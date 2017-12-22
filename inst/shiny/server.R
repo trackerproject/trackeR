@@ -210,22 +210,22 @@ server <- function(input, output, session) {
           withSpinner(leafletOutput('map', width = "auto", height = "430px"), size = 2),
           absolutePanel(top = 70, right = 60,
                         sliderInput("average_speed", "Average speed",
-                                    floor(min(data$summary$avgSpeed)),
-                                    ceiling(max(data$summary$avgSpeed)),
-                                    value = c(floor(min(data$summary$avgSpeed)),
-                                              ceiling(max(data$summary$avgSpeed))),
+                                    floor(min(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE)),
+                                    ceiling(max(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE)),
+                                    value = c(floor(min(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE)),
+                                              ceiling(max(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE))),
                                     step = 1, width = '200px'),
                         sliderInput("average_heart_rate", "Average heart rate",
-                                    floor(min(data$summary$avgHeartRate, na.rm=TRUE)/10)*10,
-                                    ceiling(max(data$summary$avgHeartRate, na.rm=TRUE)/10)*10,
-                                    value = c(floor(min(data$summary$avgHeartRate, na.rm=TRUE)/10)*10,
-                                              ceiling(max(data$summary$avgHeartRate, na.rm=TRUE)/10)*10),
+                                    floor(min(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10,
+                                    ceiling(max(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10,
+                                    value = c(floor(min(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10,
+                                              ceiling(max(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10),
                                     step = 10, width = '200px'),
                         sliderInput("average_distance", "Distance",
-                                    floor(min(data$summary$distance)/1000)*1000,
-                                    ceiling(max(data$summary$distance)/1000)*1000,
-                                    value = c(floor(min(data$summary$distance)/1000)*1000,
-                                              ceiling(max(data$summary$distance)/1000)*1000),
+                                    floor(min(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000,
+                                    ceiling(max(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000,
+                                    value = c(floor(min(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000,
+                                              ceiling(max(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000),
                                     step = 1000, width = '200px'),
                         actionButton('plotSelectedWorkouts', 'Plot selected workouts',
                                      style="color: #fff; background-color: #428bca;
@@ -294,11 +294,11 @@ server <- function(input, output, session) {
       text_output <- reactive({
         if (length(data$sessionsSelected) >= 1) {
 
-          paste0(round(mean(data$dataSelected$duration, na.rm=TRUE), 0), ' ',
+          paste0(round(mean(data$dataSelected$duration[is.finite(data$dataSelected$duration)], na.rm=TRUE), 0), ' ',
                  lab_sum('duration', data$summary, FALSE))
 
         } else {
-          paste0(round(mean(data$summary$duration, na.rm=TRUE), 0), ' ',
+          paste0(round(mean(data$summary$duration[is.finite(data$summary$duration)], na.rm=TRUE), 0), ' ',
                  lab_sum('duration', data$summary, FALSE))
           # print('bla')
         }
@@ -311,11 +311,11 @@ server <- function(input, output, session) {
     output$averageHeartRate <- renderValueBox({
       text_output <- reactive({
         if (length(data$sessionsSelected) >= 1) {
-          paste0(round(mean(data$dataSelected$avgHeartRate, na.rm=TRUE), 0), ' ',
+          paste0(round(mean(data$dataSelected$avgHeartRate[is.finite(data$dataSelected$avgHeartRate)], na.rm=TRUE), 0), ' ',
                  lab_sum('avgHeartRate', data$summary, FALSE))
           # print('ble')
         } else {
-          paste0(round(mean(data$summary$avgHeartRate, na.rm=TRUE), 0), ' ',
+          paste0(round(mean(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE), 0), ' ',
                  lab_sum('avgHeartRate', data$summary, FALSE))
           # print('bla')
         }
@@ -327,11 +327,11 @@ server <- function(input, output, session) {
     output$averagePace <- renderValueBox({
       text_output <- reactive({
         if (length(data$sessionsSelected) >= 1) {
-          paste0(round(mean(data$dataSelected$avgPace, na.rm=TRUE), 2), ' ',
+          paste0(round(mean(data$dataSelected$avgPace[is.finite(data$dataSelected$avgPace)], na.rm=TRUE), 2), ' ',
                  lab_sum('avgPace', data$summary, FALSE))
           # print('ble')
         } else {
-          paste0(round(mean(data$summary$avgPace, na.rm=TRUE), 2), ' ',
+          paste0(round(mean(data$summary$avgPace[is.finite(data$summary$avgPace)], na.rm=TRUE), 2), ' ',
                  lab_sum('avgPace', data$summary, FALSE))
           # print('bla')
         }
@@ -566,6 +566,21 @@ server <- function(input, output, session) {
                                 ),
                                 uiOutput('profiles'))))))
 
+
+    metrics_test_data <- observeEvent(input$profile_metrics_for_plot, {
+      metrics <- c('Heart Rate' = 'heart.rate',
+                 'Altitude' = 'altitude',
+                 'Speed' = 'speed',
+                 'Cadence' = 'cadence',
+                 'Power' = 'power',
+                 'Pace' = 'pace'
+                  )
+      available_data <- sapply(metrics, function(x) {
+                        class(try(zones(data$dataSet, what = x), silent=TRUE))[1] != "try-error"
+                        })
+      updateSelectizeInput(session, 'profile_metrics_for_plot', choices = metrics[available_data], server = TRUE, selected='speed')
+
+    }, once=TRUE)
 # Reactive plot height based on number of sessions selected
     profile_plot_height <- reactive({
       paste0(250 * length(input$profile_metrics_for_plot), 'px')
