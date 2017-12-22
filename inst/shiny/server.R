@@ -380,13 +380,17 @@ server <- function(input, output, session) {
                                  whole_text = FALSE)})
 
         output[[paste0(i)]] <- renderPlotly({
+          if (all(is.na(plotData())) == TRUE) removeUI(selector = paste0("#box", i))
+          if (all(is.na(plotData())) == FALSE) {
+            if (all(plotData()$value == 0) == TRUE) {
+              removeUI(selector = paste0("#box", i))
+            }
+          }
           shiny::validate(need(!all(is.na(plotData())), 'No data'))
+
           plot_workouts(dat = plotData(), x = ~xaxis, y = ~value,
                         feature = feature(), name = i, units = units())
-
         })
-
-
     })
 
     output$summary <- DT::renderDataTable({
@@ -445,7 +449,7 @@ server <- function(input, output, session) {
       selector = ".content",
       where = "beforeEnd",
       ui = conditionalPanel(condition = "output.cond == false",
-                            div(class='plots', fluidRow(
+                            div(class='plots', id=i, fluidRow(
         box(
           status = 'primary',
           width = 12,
@@ -468,6 +472,7 @@ server <- function(input, output, session) {
                                      whole_text = FALSE,
                                      transform_feature = FALSE)})
       output[[paste0('plot_', i)]] <- renderPlotly({
+
         plot_selectedWorkouts(x = data$dataSet,
                               session = as.vector(data$sessionsSelected),
                               what = i, var_units = var_units(),
@@ -476,6 +481,10 @@ server <- function(input, output, session) {
     })
 
     output[[paste0('plot_', 'work_capacity')]] <- renderPlotly({
+      if (all(is.na(data$summary$avgCadence)) == TRUE | all(is.na(data$summary$avgPower)) == TRUE) {
+        removeUI(selector = paste0("#", 'work_capacity'))
+      }
+      shiny::validate(need(!all(is.na(data$summary$avgCadence)) & !all(is.na(data$summary$avgPower)), 'No data'))
       plot_work_capacity(run_data = data$dataSet, session = as.vector(data$sessionsSelected))
     })
 
@@ -496,9 +505,27 @@ server <- function(input, output, session) {
                                                  'Cadence' = 'cadence',
                                                  'Power' = 'power',
                                                  'Pace' = 'pace'
-                                               ), selected = 'heart.rate'
+                                               ), selected = 'speed'
                                 ),
                                 uiOutput('time_in_zones'))))))
+
+
+      metrics_test_data <- observeEvent(input$zones_for_plot, {
+      metrics <- c('Heart Rate' = 'heart.rate',
+           'Altitude' = 'altitude',
+           'Speed' = 'speed',
+           'Cadence' = 'cadence',
+           'Power' = 'power',
+           'Pace' = 'pace'
+         )
+        available_data <- sapply(metrics, function(x) {
+                          class(try(zones(data$dataSet, what = x), silent=TRUE))[1] != "try-error"
+                          })
+        updateSelectizeInput(session, 'zones_for_plot', choices = metrics[available_data], server = TRUE, selected='speed')
+      }, once=TRUE)
+
+
+
 
 # Reactive plot height based on number of sessions selected
     plot_height <- reactive({
@@ -512,6 +539,9 @@ server <- function(input, output, session) {
 
 # Render actual plot
     output$time_in_zone_plots <- renderPlotly({
+
+
+
       plot_zones(run_data = data$dataSet, session = as.vector(data$sessionsSelected), what = input$zones_for_plot)
     })
 

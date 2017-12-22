@@ -1,7 +1,7 @@
 
 plot_work_capacity <- function(run_data, session, quantity = "expended", cp = 4, version = "2012",
 								dates = TRUE, scaled = TRUE){
-	x <- Wprime(object =run_data, session = session, quantity = quantity, 
+	x <- Wprime(object =run_data, session = session, quantity = quantity,
 	     		cp = cp, version = version)
 
 	# Automatically plot all sessions
@@ -16,7 +16,7 @@ plot_work_capacity <- function(run_data, session, quantity = "expended", cp = 4,
 	cp <- attr(x, "cp")
 	cycling <- attr(x, "cycling")
 	Wunit <- if (cycling) "[J]" else "[m]"
-	mylabels <- c(paste0(ifelse(cycling, "Power", "Speed"), " [", prettifyUnits(attr(x, 
+	mylabels <- c(paste0(ifelse(cycling, "Power", "Speed"), " [", prettifyUnits(attr(x,
 	                                                                                 "unit")$unit), "]"), paste("W'", quantity, "[scaled]"))
 
 	## select sessions
@@ -27,9 +27,9 @@ plot_work_capacity <- function(run_data, session, quantity = "expended", cp = 4,
 	if (scaled) {
 	  sdMov <- stats::sd(unlist(lapply(x, function(z) z$movement)), na.rm = TRUE)
 	  mMov <- mean(unlist(lapply(x, function(z) z$movement)), na.rm = TRUE)
-	  
+
 	  x <- lapply(x, function(z) {
-	    w <- (coredata(z$wprime) - mean(coredata(z$wprime), na.rm = TRUE))/stats::sd(coredata(z$wprime), 
+	    w <- (coredata(z$wprime) - mean(coredata(z$wprime), na.rm = TRUE))/stats::sd(coredata(z$wprime),
 	                                                                                 na.rm = TRUE)
 	    w <- w * sdMov  #sd(coredata(z$movement), na.rm = TRUE)
 	    z$wprime <- w + mMov
@@ -55,7 +55,7 @@ plot_work_capacity <- function(run_data, session, quantity = "expended", cp = 4,
 
 	## check that there is data to plot
 	for (l in levels(df$Series)) {
-	  if (all(is.na(subset(df, Series == l, select = "Value")))) 
+	  if (all(is.na(subset(df, Series == l, select = "Value"))))
 	    df <- df[!(df$Series == l), ]
 	}
 
@@ -71,17 +71,20 @@ plot_work_capacity <- function(run_data, session, quantity = "expended", cp = 4,
   for(i in unique(df$id)){
     # smoothed_model <- gam(Value ~ s(numericDate, bs = 'cs'), data = df[(df$id==i),])
     # smoothed_data <- predict(smoothed_model, newdata=df[(df$id==i),])
-    
-    a <- plot_ly(subset(df, (id == i) & (Series == 'movement')), x = ~Index, y = ~Value, hoverinfo='none', 
-                 color = I('gray'),legendgroup = ~Series, 
+    print(i)
+    print(subset(df, (id == i) & (Series == 'movement')))
+    a <- plot_ly(subset(df, (id == i) & (Series == 'movement')), x = ~Index, y = ~Value, hoverinfo='none',
+                 color = I('gray'),legendgroup = ~Series,
                  name = mylabels[1], showlegend = show_legend) %>% add_lines(alpha=0.4) %>%
       add_lines(data=subset(df, (id == i) & (Series == 'wprime')), x = ~Index, y = ~Value, hoverinfo='none',
                 color = I('#337ab7'), legendgroup = ~Series, name = mylabels[2], showlegend = show_legend)
-    
+
     plot_stored[[i]] <- a
     show_legend = F
   }
-  
+
+  plot_stored <- plot_stored[!sapply(plot_stored, is.null)]
+
   y <- list(
     title = '',
     fixedrange = TRUE
@@ -90,6 +93,7 @@ plot_work_capacity <- function(run_data, session, quantity = "expended", cp = 4,
     title = 'Time',
     fixedrange = TRUE
   )
+
   return(subplot(plot_stored, nrows = 1, shareY = TRUE, margin = 0.002) %>% config(displayModeBar = F) %>%
            layout(yaxis = y, xaxis = x, hovermode = 'closest', legend = list(y = 1, orientation = 'h')))
 

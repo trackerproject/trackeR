@@ -7,15 +7,15 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
   #x <- runs
   #session <- c(1:27)
   #what <-  c("pace", "heart.rate", 'altitude')
-  
+
   Series <- NULL
-  
+
   ## code inspired by autoplot.zoo
   if (is.null(session)) session <- seq_along(x)
   units <- getUnits(x)
-  
+
   x <- x[session]
-  
+
   ## threshold
   if (threshold){
     dots <- list()
@@ -33,7 +33,7 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
     ## apply thresholds
     x <- threshold(x, th)
   }
-  
+
   ## for plotting pace, always apply a threshold
   ## upper threshold is based on preferred walking speed of 1.4 m/s,
   ## see https://en.wikipedia.org/wiki/Preferred_walking_speed
@@ -42,7 +42,7 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
     thPace <- conversionPace(1 / 1.4)
     x <- threshold(x, variable = "pace", lower = 0, upper = thPace)
   }
-  
+
   ## smooth
   if (smooth) {
     xo <- x
@@ -56,10 +56,10 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
   } else {
     x <- x
   }
-  
+
   ## get data
   df <- if (smooth) fortify(xo, melt = TRUE) else fortify(x, melt = TRUE)
-  
+
   ## prepare session id for panel header
   if (dates) {
     df$SessionID <- format(session[df$SessionID])
@@ -70,15 +70,15 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
   }
   df <- subset(df, Series %in% what)
   df$Series <- factor(df$Series)
-  
+
   ## check that there is data to plot
   for(l in levels(df$Series)){
     if (all(is.na(subset(df, Series == l, select = "Value"))))
       df <- df[!(df$Series == l), ]
   }
-  
+
   #df$Index1 <- as.Date(df$Index, format = "%Y-%m-%d  %H:%M:%S")
-  
+
   #format(dataSelected$sessionStart, format = "%Y-%m-%d  %H:%M:%S")
   df$Series <- as.character(df$Series)
   df$id <- as.integer(factor(df$SessionID))
@@ -86,21 +86,27 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
   N = nlevels(factor(df$id))
 
   plot_stored = vector("list", N)
-  
-  
 
+
+
+  plot_stored = vector("list", N)
+  j <- 1
   for(i in unique(df$id)){
-    smoothed_model <- gam(Value ~ s(numericDate, bs = 'cs'), data = df[(df$id==i),])
-    smoothed_data <- predict(smoothed_model, newdata=df[(df$id==i),])
-    a <- plot_ly(df[(df$id==i),], x = ~Index, y = ~Value, hoverinfo='none', alpha = 0.1, color = I('black')) %>%
-       add_lines(showlegend = FALSE) %>% 
-       add_lines(x = ~Index, y = smoothed_data, hoverinfo='text', text = ~paste(round(Value, 2), var_units),
-                              color = I('deepskyblue3'),
-                              showlegend = FALSE, alpha = 1)
-    
-    plot_stored[[i]] <- a
+    smoothed_model <- try(gam(Value ~ s(numericDate, bs = 'cs'), data = df[(df$id==i),]), silent=TRUE)
+    if (class(smoothed_model)[1] != "try-error") {
+      smoothed_data <- predict(smoothed_model, newdata=df[(df$id==i),])
+
+      a <- plot_ly(df[(df$id==i),], x = ~Index, y = ~Value, hoverinfo='none', alpha = 0.1, color = I('black')) %>%
+        add_lines(showlegend = FALSE) %>%
+        add_lines(x = ~Index, y = smoothed_data, hoverinfo='text', text = ~paste(round(Value, 2), var_units),
+                  color = I('deepskyblue3'),
+                  showlegend = FALSE, alpha = 1)
+
+      plot_stored[[j]] <- a
+      j <- j + 1
+    }
   }
-  
+  plot_stored <- plot_stored[!sapply(plot_stored, is.null)]
   y <- list(
     title = var_name_units,
     fixedrange = TRUE
@@ -109,8 +115,10 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
     title = 'Time',
     fixedrange = TRUE
   )
+
+
   return(subplot(plot_stored, nrows = 1, shareY = TRUE, margin = 0.002) %>% config(displayModeBar = F) %>%
            layout(showlegend = FALSE, yaxis = y, xaxis = x, hovermode = 'closest'))
-  
+
 
 }
