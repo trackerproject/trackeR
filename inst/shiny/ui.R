@@ -17,7 +17,6 @@
 ui <- dashboardPage(skin = 'black',
   dashboardHeader(title = 'TrackerR'),
   dashboardSidebar(
-                   useShinyjs(),
      tags$head(tags$script("
                             function hideElement(i) {
                                 var x = document.getElementById(i);

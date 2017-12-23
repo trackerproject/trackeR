@@ -214,19 +214,19 @@ server <- function(input, output, session) {
                                     ceiling(max(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE)),
                                     value = c(floor(min(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE)),
                                               ceiling(max(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE))),
-                                    step = 1, width = '200px'),
+                                    step = 0.1, width = '200px'),
                         sliderInput("average_heart_rate", "Average heart rate",
                                     floor(min(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10,
                                     ceiling(max(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10,
                                     value = c(floor(min(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10,
                                               ceiling(max(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10),
-                                    step = 10, width = '200px'),
+                                    step = 1, width = '200px'),
                         sliderInput("average_distance", "Distance",
                                     floor(min(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000,
                                     ceiling(max(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000,
                                     value = c(floor(min(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000,
                                               ceiling(max(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000),
-                                    step = 1000, width = '200px'),
+                                    step = 1, width = '200px'),
                         actionButton('plotSelectedWorkouts', 'Plot selected workouts',
                                      style="color: #fff; background-color: #428bca;
                                      border-color:#428bca")
@@ -374,7 +374,7 @@ server <- function(input, output, session) {
     })
 
     lapply(data$metrics, function(i) {
-      plotData <-  reactive({generateGraphs(x = data$summary, what = i)})
+      plotData <-  reactive({generate_graph_data(x = data$summary, what = i)})
       feature <- reactive({lab_sum(feature = i, data = data$summary)})
       units <- reactive({lab_sum(feature = i, data = data$summary,
                                  whole_text = FALSE)})
@@ -388,8 +388,7 @@ server <- function(input, output, session) {
           }
           shiny::validate(need(!all(is.na(plotData())), 'No data'))
 
-          plot_workouts(dat = plotData(), x = ~xaxis, y = ~value,
-                        feature = feature(), name = i, units = units())
+          plot_workouts(dat = plotData(), feature = feature(), name = i, units = units())
         })
     })
 
@@ -432,16 +431,21 @@ server <- function(input, output, session) {
   observeEvent(input$resetButton, {
     removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
 
-
-    output$summary <- renderTable({'No workouts selected'})
+    data$sessionsSelected <- NULL
+    # output$summary <- renderTable({'No workouts selected'})
   })
 
 
   observeEvent(input$plotSelectedWorkouts, {
+
     #print(data$dataSelected)
     req(data$sessionsSelected)
+
     output$cond <-reactive({
       FALSE
+    })
+    output$timeline_plot <- renderPlot({
+      timeline(data$summary[data$sessionsSelected])
     })
 
     for(i in c("pace", "heart.rate", "altitude", "work_capacity")){
@@ -499,11 +503,8 @@ server <- function(input, output, session) {
                                 width = 12,
                                 title = tagList(shiny::icon("gear"), 'Time in Zones'),
                                 selectizeInput('zones_for_plot', 'Select zone metrics to plot:', multiple = TRUE,
-                                               c('Heart Rate' = 'heart.rate',
-                                                 'Altitude' = 'altitude',
+                                               c('Altitude' = 'altitude',
                                                  'Speed' = 'speed',
-                                                 'Cadence' = 'cadence',
-                                                 'Power' = 'power',
                                                  'Pace' = 'pace'
                                                ), selected = 'speed'
                                 ),
@@ -524,9 +525,6 @@ server <- function(input, output, session) {
         updateSelectizeInput(session, 'zones_for_plot', choices = metrics[available_data], server = TRUE, selected='speed')
       }, once=TRUE)
 
-
-
-
 # Reactive plot height based on number of sessions selected
     plot_height <- reactive({
       paste0(250 * length(input$zones_for_plot), 'px')
@@ -539,9 +537,6 @@ server <- function(input, output, session) {
 
 # Render actual plot
     output$time_in_zone_plots <- renderPlotly({
-
-
-
       plot_zones(run_data = data$dataSet, session = as.vector(data$sessionsSelected), what = input$zones_for_plot)
     })
 
@@ -556,11 +551,8 @@ server <- function(input, output, session) {
                                 width = 12,
                                 title = tagList(shiny::icon("gear"), 'Profiles'),
                                 selectizeInput('profile_metrics_for_plot', 'Concentration profiles:', multiple = TRUE,
-                                               c('Heart Rate' = 'heart.rate',
-                                                 'Altitude' = 'altitude',
+                                               c('Altitude' = 'altitude',
                                                  'Speed' = 'speed',
-                                                 'Cadence' = 'cadence',
-                                                 'Power' = 'power',
                                                  'Pace' = 'pace'
                                                ), selected = 'speed'
                                 ),
@@ -581,19 +573,19 @@ server <- function(input, output, session) {
       updateSelectizeInput(session, 'profile_metrics_for_plot', choices = metrics[available_data], server = TRUE, selected='speed')
 
     }, once=TRUE)
-# Reactive plot height based on number of sessions selected
-    profile_plot_height <- reactive({
-      paste0(250 * length(input$profile_metrics_for_plot), 'px')
-    })
+  # Reactive plot height based on number of sessions selected
+      profile_plot_height <- reactive({
+        paste0(250 * length(input$profile_metrics_for_plot), 'px')
+      })
 
-# Render UI for plot
-    output$profiles <- renderUI({
-      plotlyOutput('profiles_plots', width = 'auto', height = profile_plot_height())
-    })
+  # Render UI for plot
+      output$profiles <- renderUI({
+        plotlyOutput('profiles_plots', width = 'auto', height = profile_plot_height())
+      })
 
-# Render actual plot
-    output$profiles_plots <- renderPlotly({
-       plot_profiles(run_data = data$dataSet, session = as.vector(data$sessionsSelected), what = input$profile_metrics_for_plot)
-    })
+  # Render actual plot
+      output$profiles_plots <- renderPlotly({
+         plot_profiles(run_data = data$dataSet, session = as.vector(data$sessionsSelected), what = input$profile_metrics_for_plot)
+      })
   })
 }

@@ -1,16 +1,12 @@
-#' @import shinydashboard
-#' @import shiny
-#' @import plotly
-#' @import leaflet
-#' @import mgcv
-#' @import shinycssloaders
-#' @import shinyFiles
-#' @import DT
-#' @import plyr
-#' @import shinyjs
+#' Generate a formatted data frame for \code{plot_workouts()} for a given variable.
+#'
+#' @param x An object of class \code{trackeRdataSummary}.
+#' @param what A character of a variable name to be plotted (e.g. "avgHeartRate").
 
-generateGraphs <- function(x, group = c("total"), what, date = TRUE) {
+generate_graph_data <- function(x, what) {
   #x <- x()
+  date <- TRUE
+  group <- c("total")
   variable <- type <- NULL
   nsessions <- length(unique(x$session))
   ndates <- length(unique(x$sessionStart))
@@ -52,8 +48,14 @@ generateGraphs <- function(x, group = c("total"), what, date = TRUE) {
   return(dat)
 }
 
+#' A time-series plotly graph for a given variable (e.g. "avgHeartRate").
+#'
+#' @param dat A dataframe generated using \code{generate_graph_data()}.
+#' @param feature A character for y-axis title generated using \code{lab_sum()}.
+#' @param name A character for the feature to be plotted (e.g. "avgHeartRate").
+#' @param units A character of the unit of measurement for the given variable (e.g. "[bmp]") generated using \code{lab_sum()}.
 
-plot_workouts <- function(dat, xaxis, yaxis, feature, name, units) {
+plot_workouts <- function(dat, feature, name, units) {
     d <- event_data("plotly_selected")
     name <- switch(name,
                   "distance" = "Distance",
@@ -66,7 +68,7 @@ plot_workouts <- function(dat, xaxis, yaxis, feature, name, units) {
                   "wrRatio" = "work-to-rest ratio"
     )
     #print(d)
-    p <- plot_ly(dat, x = xaxis, y = yaxis, hoverinfo = 'text',
+    p <- plot_ly(dat, x = ~xaxis, y = ~value, hoverinfo = 'text',
                  text = ~paste('Date:', format(sessionStart, format = "%Y-%m-%d"),
                                '\n', name, ':', round(value, 2), units)) %>%
       add_markers(key = dat$session, color = I('deepskyblue3')) %>%
@@ -86,11 +88,18 @@ plot_workouts <- function(dat, xaxis, yaxis, feature, name, units) {
     layout(p, dragmode = "select", showlegend = FALSE, yaxis = y, xaxis = x, margin = list(l=80, b=50, pad=0))
 }
 
-plot_map <- function(data, session){
-  #session <- if (length(session) =! 0) session else 1:length(data$dataSet)
-  leafletRoute(data, session)
-}
+# plot_map <- function(data, session){
+#   #session <- if (length(session) =! 0) session else 1:length(data$dataSet)
+#   leafletRoute(data, session)
+# }
 
+
+#' Generate a character of formatted units, either only the unit (e.g "[bpm]") or whole text (e.g. "Heart Rate \n [bpm]").
+#'
+#' @param feature A character representing the feature whose units we want to generate.
+#' @param data An object of class \code{trackeRdataSummary} or \code{trackeRdata}.
+#' @param whole_text Generate only unit (e.g "[bpm]") or whole text (e.g. "Heart Rate \n [bpm]").
+#' @param transform_feature If TRUE, epected format of \code{feature} is such as "avgCadence", "avgPower". If FALSE, expected format is "pace", "cadence", "heart.rate" or "altitude".
 
 lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE){
   feature <- as.character(feature)
@@ -151,6 +160,11 @@ lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE){
   }
 
 }
+
+
+#' Generate an icon for a given feature.
+#'
+#' @param feature A character representing the feature whose units we want to generate.
 
 create_icon <- function(feature){
  icon <- switch(feature,

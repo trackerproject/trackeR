@@ -1,3 +1,12 @@
+#' Plot the profile for each selected session for a given variable (heart rate, altitude, pace).
+#'
+#' @param x An object of class \code{trackeRdata}.
+#' @param session A vector of selected sessions.
+#' @param what A character of the variable to be plotted (e.g. "heart.rate").
+#' @param var_units A character of the unit of measurement for the given variable (e.g. "[bmp]") generated using \code{lab_sum()}.
+#' @param var_name_units A character of the named unit of measurement for the given variable (e.g. "Heart Rate \n [bpm]") generated using \code{lab_sum()}.
+
+
 plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
   #plot(data, session = session, what = what)
   threshold = TRUE
@@ -92,15 +101,30 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
   plot_stored = vector("list", N)
   j <- 1
   for(i in unique(df$id)){
+
     smoothed_model <- try(gam(Value ~ s(numericDate, bs = 'cs'), data = df[(df$id==i),]), silent=TRUE)
     if (class(smoothed_model)[1] != "try-error") {
+      # annotations
+      annotations_list <- list(
+        text = paste('Session:', i),
+        # font = f,
+        xref = "paper",
+        yref = "paper",
+        yanchor = "bottom",
+        xanchor = "center",
+        align = "center",
+        x = 0.5,
+        y = 1,
+        showarrow = FALSE
+      )
       smoothed_data <- predict(smoothed_model, newdata=df[(df$id==i),])
 
       a <- plot_ly(df[(df$id==i),], x = ~Index, y = ~Value, hoverinfo='none', alpha = 0.1, color = I('black')) %>%
         add_lines(showlegend = FALSE) %>%
         add_lines(x = ~Index, y = smoothed_data, hoverinfo='text', text = ~paste(round(Value, 2), var_units),
                   color = I('deepskyblue3'),
-                  showlegend = FALSE, alpha = 1)
+                  showlegend = FALSE, alpha = 1) %>% layout(annotations = annotations_list)
+                   # %>% layout(xaxis = list(title = 'asd'))
 
       plot_stored[[j]] <- a
       j <- j + 1
@@ -117,8 +141,7 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
   )
 
 
-  return(subplot(plot_stored, nrows = 1, shareY = TRUE, margin = 0.002) %>% config(displayModeBar = F) %>%
-           layout(showlegend = FALSE, yaxis = y, xaxis = x, hovermode = 'closest'))
+  return(subplot(plot_stored, nrows = 1, shareY = TRUE, margin = 0.002)  %>% config(displayModeBar = F) %>% layout(showlegend = FALSE, yaxis = y, xaxis = x, hovermode = 'closest'))
 
 
 }

@@ -2,17 +2,17 @@
 % Please edit documentation in R/profiles_plot_shiny.R
 \name{plot_profiles}
 \alias{plot_profiles}
-\title{Plot profiles}
+\title{Plot concentration profiles for given variables.}
 \usage{
 plot_profiles(run_data, session, what = c("speed"))
 }
 \arguments{
-\item{run_data}{An object of class \code{trackeRdata} as returned by \code{\link{readDirectory_shiny}}.}
+\item{run_data}{An object of class \code{trackeRdata}..}
 
 \item{session}{A vector of selected sessions.}
 
 \item{what}{A vector of variable names to be plotted.}
 }
 \description{
-Plot profiles
+Plot concentration profiles for given variables.
 }

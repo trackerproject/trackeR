@@ -1,3 +1,7 @@
+#' Same function as \code{trackeR::readDirectory()}. Customized for shiny interface with a loading bar in the UI using \code{shinycssloaders} package.
+#'
+#' @param ... same arguments as \code{trackeR::readDirectory()}.
+
 readDirectory_shiny <- function(input, output, session, directory,
                           aggregate = TRUE, ## aggregate data from all files or keep data from different files in different sessions?
                           table = "gps_data",
@@ -14,9 +18,9 @@ readDirectory_shiny <- function(input, output, session, directory,
                           silent = FALSE,
                           parallel = FALSE, cores = getOption("mc.cores", 2L),
                           verbose = TRUE) {
-  
 
-  
+
+
   data <- reactive({
   tcxfiles <- list.files(directory, pattern = "tcx", ignore.case = TRUE, full.names = TRUE,
                          no.. = TRUE)
@@ -40,7 +44,7 @@ readDirectory_shiny <- function(input, output, session, directory,
       for (j in seq.int(ltcx)) {
         # Increment the progress bar, and update the detail text.
         incProgress(1/n, detail = paste("Reading file", j))
-        
+
         if (verbose) cat("Reading file", tcxfiles[j], paste0("(file ", j, " out of ", ltcx, ")"), "...\n")
         tcxData[[j]] <- try(readTCX(tcxfiles[j],
                                     timezone = timezone,
@@ -95,7 +99,7 @@ readDirectory_shiny <- function(input, output, session, directory,
   else {
     tcxData <- NULL
   }
-  
+
   ## Read db3 files
   if (ldb3) {
     db3Data <- list()
@@ -148,12 +152,12 @@ readDirectory_shiny <- function(input, output, session, directory,
       }
       if (verbose) cat("Cleaning up...")
       db3Data <- do.call("c", db3Data[!sapply(db3Data, inherits, what = "try-error")])
-      if (verbose) cat("Done\n")  
+      if (verbose) cat("Done\n")
     }
   } else {
     db3Data <- NULL
   }
-  
+
   ## Read json files
   if (ljson) {
     jsonData <- list()
@@ -205,21 +209,21 @@ readDirectory_shiny <- function(input, output, session, directory,
       }
       if (verbose) cat("Cleaning up...")
       jsonData <- do.call("c", jsonData[!sapply(jsonData, inherits, what = "try-error")])
-      if (verbose) cat("Done\n")  
+      if (verbose) cat("Done\n")
     }
   } else {
     jsonData <- NULL
   }
-  
+
   ## combine and return
   allData <- list(tcxData, db3Data, jsonData)
   allData <- allData[!sapply(allData, is.null)]
   ret <- do.call("c", allData)
   ret
-  
+
 
   })
-  
-  
+
+
   return(data())
 }

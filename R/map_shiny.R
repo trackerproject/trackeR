@@ -1,10 +1,13 @@
-
+#' Plot all selected workouts on an interactive leaflet map.
+#'
+#' @param x An object of class \code{trackeRdata}.
+#' @param session A vector of selected sessions.
+#' @param data_summary An object of class \code{trackeRdataSummary}.
 
 shiny_plot_map <- function(x, session, data_summary){
   data <- x
   sessions <- session
   session <- session[sapply(data[sessions], function(x){ !all(is.na(x$latitude))})]
-  print(session)
   threshold = TRUE
 
   if (is.null(session)) session <- seq_along(x)

@@ -1,6 +1,15 @@
+#' Plot the work capacity W' (w prime).
+#'
+#' @param run_data An object of class \code{trackeRdata}.
+#' @param session A vector of selected sessions.
 
-plot_work_capacity <- function(run_data, session, quantity = "expended", cp = 4, version = "2012",
-								dates = TRUE, scaled = TRUE){
+plot_work_capacity <- function(run_data, session){
+  quantity = "expended"
+  cp = 4
+  version = "2012"
+  dates = TRUE
+  scaled = TRUE
+
 	x <- Wprime(object =run_data, session = session, quantity = quantity,
 	     		cp = cp, version = version)
 
