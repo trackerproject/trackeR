@@ -54,7 +54,7 @@
 #' run <- readContainer(filepath, type = 'tcx', timezone = 'GMT')
 #' }
 #' @export
-trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2, correctDistances = FALSE, 
+trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2, correctDistances = FALSE,
     country = NULL, mask = TRUE, fromDistances = TRUE, lgap = 30, lskip = 5, m = 11, silent = FALSE) {
     ## prep units
     if (is.null(units)) {
@@ -71,57 +71,57 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2
             units$unit[units$variable == "cadence"] <- "steps_per_min"
         }
     }
-    
+
     ## ensure units are characters, not factors, if provided by the user
     for (i in seq_len(ncol(units))) {
-        if (is.factor(units[, i])) 
+        if (is.factor(units[, i]))
             units[, i] <- as.character(units[, i])
     }
-    
+
     ## basic edits on time stamps
     dat <- sanityChecks(dat = dat, silent = silent)
-    
+
     ## separate sessions and cast to zoo objects
     trackerdat <- getSessions(dat, sessionThreshold = sessionThreshold)
-    
+
     ## remove sessions which only contain NA
     empty <- sapply(trackerdat, function(x) all(is.na(x)))
     trackerdat <- trackerdat[!empty]
-    
+
     ## correct GPS distances for elevation
-    if (correctDistances) 
+    if (correctDistances)
         trackerdat <- lapply(trackerdat, distanceCorrection, country = country, mask = mask)
-    
+
     ## impute speeds in each session
-    trackerdat <- lapply(trackerdat, imputeSpeeds, fromDistances = fromDistances, lgap = lgap, 
+    trackerdat <- lapply(trackerdat, imputeSpeeds, fromDistances = fromDistances, lgap = lgap,
         lskip = lskip, m = m, cycling = cycling, units = units)
-    
+
     ## add pace (if unspecified: in min per 1 km if speed unit refers to km or m, and in min
     ## per 1 mile if speed unit refers to ft or mi)
     if (!("pace" %in% units$variable)) {
         unitSpeed <- strsplit(units$unit[units$variable == "speed"], split = "_per_")[[1]]
         distUnit4pace <- switch(unitSpeed[1], km = "km", m = "km", ft = "mi", mi = "mi")
-        conversion <- match.fun(paste(units$unit[units$variable == "speed"], paste(distUnit4pace, 
+        conversion <- match.fun(paste(units$unit[units$variable == "speed"], paste(distUnit4pace,
             "min", sep = "_per_"), sep = "2"))
         units <- rbind(units, c("pace", paste0("min_per_", distUnit4pace)))
-        
+
     } else {
         paceInv <- strsplit(units$unit[units$variable == "pace"], split = "_per_")[[1]][2:1]
         paceInv <- paste(paceInv, collapse = "_per_")
         conversion <- match.fun(paste(units$unit[units$variable == "speed"], paceInv, sep = "2"))
     }
-    
+
     trackerdat <- lapply(trackerdat, function(x) {
         x$pace <- 1/conversion(x$speed)
         x$pace[is.infinite(x$pace)] <- NA
         return(x)
     })
-    
-    
+
+
     ## Set attributes
     attr(trackerdat, "operations") <- list(smooth = NULL, threshold = NULL)
     attr(trackerdat, "units") <- units
-    
+
     ## class and return
     class(trackerdat) <- c("trackeRdata", class(trackerdat))
     return(trackerdat)
@@ -139,17 +139,17 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2
 #' 'sessions' and 'restingTime', respectively.
 #' @export
 restingPeriods <- function(times, sessionThreshold) {
-    if (length(times) == 0) 
+    if (length(times) == 0)
         return(NULL)
     t1 <- times[-length(times)]
     t2 <- times[-1]
     hoursBetweenObservations <- difftime(t2, t1, units = "hours")
-    ## 
+    ##
     sessionEnd <- c(which(hoursBetweenObservations > sessionThreshold), length(times))
     sessionStart <- c(1, sessionEnd[-length(sessionEnd)] + 1)
     start <- times[sessionStart]
     ending <- times[sessionEnd]
-    sessions <- data.frame(sessionStart = start, sessionEnd = ending, trainingDuration = difftime(ending, 
+    sessions <- data.frame(sessionStart = start, sessionEnd = ending, trainingDuration = difftime(ending,
         start, units = "hours"))
     resting <- difftime(start[-1], ending[-length(ending)], units = "hours")
     list(sessions = sessions, restingTime = resting)
@@ -162,42 +162,42 @@ inPeriod <- function(dates, start, end) {
 }
 
 #' Sanity checks for tracking data.
-#' 
+#'
 #' Heart rate measurements of 0 are set to NA, assuming the athlete is alive.
 #' Observations with missing or duplicated time stamps are removed.
-#' 
+#'
 #' @param dat Data set to be clean up.
 #' @param silent Logical. Should warnings be generated if any of the sanity checks on the data are triggered?
 sanityChecks <- function(dat, silent) {
     ## replace heart rate 0 with NA
     hr0 <- dat$heart.rate == 0
     if (any(hr0, na.rm = TRUE)) {
-        if (!silent) 
+        if (!silent)
             warning("Heart rate measurements of 0 are set to NA.")
         dat$heart.rate[hr0] <- NA
     }
-    
+
     ## handle NAs
     natime <- is.na(dat$time)
-    if (all(natime)) 
+    if (all(natime))
         stop("The are no useable timestamps.")
     if (any(natime)) {
-        if (!silent) 
+        if (!silent)
             warning("Observations with missing time stamps are removed.")
         dat <- dat[!natime, ]
     }
-    
+
     ## remove duplicates
     duptime <- duplicated(dat$time)
     if (any(duptime)) {
-        if (!silent) 
+        if (!silent)
             warning("Observations with duplicated time stamps are removed.")
         dat <- dat[!duptime, ]
     }
-    
+
     ## order according to time
     dat <- dat[order(dat$time), ]
-    
+
     rownames(dat) <- NULL
     return(dat)
 }
@@ -212,7 +212,7 @@ getSessions <- function(dat, sessionThreshold = 2) {
         dat$sessionID[inPeriod(dat$time, start = session[[1]], end = session[[2]])] <- i
     }
     rownames(dat) <- NULL
-    
+
     ## make multivariate zoo object for each session
     sessions <- unique(dat$sessionID)
     trackerdat <- vector("list", length = max(sessions))
@@ -223,7 +223,7 @@ getSessions <- function(dat, sessionThreshold = 2) {
     }
     ## remove empty sessions
     trackerdat <- trackerdat[!sapply(trackerdat, is.null)]
-    
+
     return(trackerdat)
 }
 
@@ -231,36 +231,36 @@ getSessions <- function(dat, sessionThreshold = 2) {
 #' @export
 c.trackeRdata <- function(..., recursive = FALSE) {
     ## FIXME: recursive argument
-    
+
     input <- list(...)
     ninput <- length(input)
-    if (ninput < 2) 
+    if (ninput < 2)
         return(input[[1]])
-    
+
     nsessionsInput <- sapply(input, length)
     units1 <- getUnits(input[[1]])
     operations <- getOperations(input[[1]])
-    
+
     ## check/change operations attributes: smooth
-    
+
     ## if all smoother settings are NULL, skip whole aggregation process
     if (!all(sapply(input, function(x) is.null(getOperations(x)$smooth)))) {
-        
+
         ## if the settings for the first session are NULL, create a new reference setup
         if (is.null(getOperations(input[[1]])$smooth)) {
-            operations$smooth <- list(fun = NA, width = NA, parallel = FALSE, cores = NULL, 
+            operations$smooth <- list(fun = NA, width = NA, parallel = FALSE, cores = NULL,
                 what = NA, nsessions = NULL)
         }
-        
-        
+
+
         funs <- sapply(input, function(x) getOperations(x)$smooth$fun)
         funs <- funs[!sapply(funs, is.null)]
         funs <- funs[!sapply(funs, is.na)]
-        if (any(!sapply(funs, function(x) isTRUE(all.equal(funs[[1]], x))))) 
+        if (any(!sapply(funs, function(x) isTRUE(all.equal(funs[[1]], x)))))
             stop("Smoothing function must be the same for all sessions.")
-        if (is.na(operations$smooth$fun)) 
+        if (is.na(operations$smooth$fun))
             operations$smooth$fun <- funs[[1]]
-        
+
         widths <- lapply(input, function(x) unique(getOperations(x)$smooth$width))
         whats <- lapply(input, function(x) unique(getOperations(x)$smooth$what))
         changeWidth <- any(!sapply(widths, function(x) isTRUE(all.equal(widths[[1]], x))))
@@ -276,7 +276,7 @@ c.trackeRdata <- function(..., recursive = FALSE) {
             nsessions <- lapply(input, function(x) getOperations(x)$smooth$nsessions)
             nsessions[sapply(nsessions, is.null)] <- nsessionsInput[sapply(nsessions, is.null)]
             nsessions <- do.call("c", nsessions)
-            
+
             operations$smooth$width <- widths
             operations$smooth$what <- whats
             operations$smooth$nsessions <- nsessions
@@ -286,7 +286,7 @@ c.trackeRdata <- function(..., recursive = FALSE) {
             operations$smooth$nsessions <- sum(do.call("c", nsessions))
         }
     }
-    
+
     ## check/change operations attributes: threshold apply thresholds of first session to
     ## all sessions if necessary
     th <- operations$threshold
@@ -303,7 +303,7 @@ c.trackeRdata <- function(..., recursive = FALSE) {
             input[[i]] <- threshold(input[[i]], th)
         }
     }
-    
+
     ## check/change units attribute
     units <- lapply(input, getUnits)
     changeU <- !all(sapply(units, function(x) isTRUE(all.equal(units[[1]], x))))
@@ -314,7 +314,7 @@ c.trackeRdata <- function(..., recursive = FALSE) {
             input[[i]] <- changeUnits(input[[i]], variable = units1$variable, unit = units1$unit)
         }
     }
-    
+
     ## combine sessions
     ret <- vector("list", sum(nsessionsInput))
     starti <- c(1, cumsum(nsessionsInput)[-length(nsessionsInput)] + 1)
@@ -322,33 +322,33 @@ c.trackeRdata <- function(..., recursive = FALSE) {
     for (i in seq_len(ninput)) {
         ret[starti[i]:endi[i]] <- input[[i]]
     }
-    
+
     ## class and other attributes
     class(ret) <- c("trackeRdata", "list")
     attr(ret, "units") <- units1
     ## operations$smooth
     attr(ret, "operations") <- operations
-    
+
     return(ret)
-    
+
 }
 
 #' @export
 "[.trackeRdata" <- function(x, i, j, drop = TRUE, ...) {
-    
+
     units <- getUnits(x)
     operations <- getOperations(x)
-    
+
     ## ret <- x[i]
     ret <- NextMethod()
-    
+
     if (!is.null(operations$smooth)) {
         smooth <- operations$smooth
         ## select right smoothing parameters for the i session(s)
-        
+
         ## elements j from smooting settings
         j <- rep(seq_along(smooth$nsessions), times = smooth$nsessions)[i]
-        
+
         if (length(j) < 2) {
             k <- j
             nsessions <- length(j)
@@ -373,18 +373,18 @@ c.trackeRdata <- function(..., recursive = FALSE) {
             k <- j[breakpoints]
             nsessions <- counter[c(which(breakpoints)[-1] - 1, length(j))]
         }
-        
+
         smooth$width <- smooth$width[k]
         smooth$what <- smooth$what[k]
         smooth$nsessions <- nsessions
         operations$smooth <- smooth
     }
-    
+
     ## class and attributes
     class(ret) <- c("trackeRdata", "list")
     attr(ret, "units") <- units
     attr(ret, "operations") <- operations
-    
+
     return(ret)
 }
 
@@ -419,59 +419,59 @@ nsessions.trackeRdata <- function(object, ...) {
 #' @inheritParams imputeSpeeds
 #' @seealso \code{\link{trackeRdata}}
 #' @export
-GC2trackeRdata <- function(gc, cycling = TRUE, correctDistances = FALSE, country = NULL, 
+GC2trackeRdata <- function(gc, cycling = TRUE, correctDistances = FALSE, country = NULL,
     mask = TRUE, fromDistances = FALSE, lgap = 30, lskip = 5, m = 11, silent = FALSE) {
-    
-    units <- data.frame(variable = c("latitude", "longitude", "altitude", "distance", "heart.rate", 
-        "speed", "cadence", "power", "pace"), unit = c("degree", "degree", "m", "km", "bpm", 
+
+    units <- data.frame(variable = c("latitude", "longitude", "altitude", "distance", "heart.rate",
+        "speed", "cadence", "power", "pace"), unit = c("degree", "degree", "m", "km", "bpm",
         "km_per_h", "rev_per_min", "W", "min_per_km"), stringsAsFactors = FALSE)
-    
+
     ## clear out sessions without any data
     gc <- gc[sapply(gc, function(x) nrow(x) > 0)]
-    
+
     ## get variables, cast to zoo
     trackerdat <- lapply(gc, function(x) {
         ## select variables
-        x <- x[, c("time", "latitude", "longitude", "altitude", "distance", "heart.rate", 
+        x <- x[, c("time", "latitude", "longitude", "altitude", "distance", "heart.rate",
             "speed", "cadence", "power")]
-        
+
         ## basic edits
         x <- sanityChecks(dat = x, silent = silent)
         ## README: add arg sort = T/F to sanityChecks() so we don't need to sort the
         ## observations again if we can be sure that GC already does this
-        
+
         ## cast to multivariate zoo
         wtime <- which(names(x) == "time")
         x <- zoo(x[, -wtime], order.by = x[, "time"])
     })
-    
+
     ## remove sessions which only contain NA
     empty <- sapply(trackerdat, function(x) is.null(x) | all(is.na(x)))
     trackerdat <- trackerdat[!empty]
-    
+
     ## correct GPS distances for elevation
-    if (correctDistances) 
+    if (correctDistances)
         trackerdat <- lapply(trackerdat, distanceCorrection, country = country, mask = mask)
-    
+
     ## impute speeds in each session
-    trackerdat <- lapply(trackerdat, imputeSpeeds, fromDistances = fromDistances, lgap = lgap, 
+    trackerdat <- lapply(trackerdat, imputeSpeeds, fromDistances = fromDistances, lgap = lgap,
         lskip = lskip, m = m, cycling = cycling, units = units)
-    
+
     ## add pace
     trackerdat <- lapply(trackerdat, function(x) {
         x$pace <- 1/km_per_h2km_per_min(x$speed)
         x$pace[is.infinite(x$pace)] <- NA
         return(x)
     })
-    
+
     ## Set attributes
     attr(trackerdat, "operations") <- list(smooth = NULL, threshold = NULL)
     attr(trackerdat, "units") <- units
-    
+
     ## class and return
     class(trackerdat) <- c("trackeRdata", class(trackerdat))
     return(trackerdat)
-    
+
 }
 
 
@@ -479,14 +479,38 @@ GC2trackeRdata <- function(gc, cycling = TRUE, correctDistances = FALSE, country
 ## as.data.frame(x, row.names = NULL, optional = FALSE, ...)
 #' @export
 as.data.frame.trackeRdata <- function(x, ...) {
-    
+
     ret <- vector(length = length(x), "list")
-    
+
     for (i in seq_along(x)) {
         ret[[i]] <- cbind(session = i, time = index(x[[i]]), as.data.frame(x[[i]]))
     }
-    
+
     ret <- do.call(rbind, ret)
-    
+
     return(ret)
+}
+
+## print method for \code{\link{trackeRdata}} objects
+#'
+#' @param x An object of class \code{\link{trackeRdata}}.
+#' @param ... Not used, for compatibility with generic summary method only.
+#' @param digits Number of digits to be printed.
+#'
+#' @details
+#'
+#' The print method returns training coverage, number of sessions and
+#' total training duration from the data in the
+#' \code{\link{trackeRdata}} object
+#'
+#' @export
+print.trackeRdata <- function(x, ..., digits = 2) {
+    x <- summary(x)
+    units <- getUnits(x)
+
+    cat("Coverage:",
+        "from", format(min(x$sessionStart), format = "%Y-%m-%d %H:%M:%S"),
+        "to", format(max(x$sessionEnd), format = "%Y-%m-%d %H:%M:%S"), "\n")
+    cat("Number of sessions:", nrow(x), "\n")
+    cat("Training duration:", round(as.numeric(sum(x$duration)), digits), units(x$duration[1]), "\n")
 }
