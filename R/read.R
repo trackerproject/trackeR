@@ -36,7 +36,7 @@ generateVariableNames <- function() {
                       "velocity",
                       "cadence",
                       "watts")
-    
+
     ## Resource for Golden Cheetah JSON: reverse engineering
     jsonNames <- c("SECS",
                    "LAT",
@@ -81,7 +81,7 @@ generateVariableNames <- function() {
 #' run <- readTCX(file = filepath, timezone = "GMT")
 #'
 #' ## turn into trackeRdata object
-#' run <- trackeRdata(run, units = data.frame(variable = c("latitude", "longitude", 
+#' run <- trackeRdata(run, units = data.frame(variable = c("latitude", "longitude",
 #'     "altitude", "distance", "heart.rate", "speed", "cadence", "power"),
 #'     unit = c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "W"),
 #'     stringsAsFactors = FALSE))
@@ -149,8 +149,9 @@ readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "
     }
 
     ## Test for useable data in container file
-    if (!nrow(mydf)) {
-        stop("no useable data in input")
+    if (is.null(mydf)) {
+        warning(paste("no useable data in", file))
+        return(NULL)
     }
 
     mydf <- within(as.data.frame(mydf), {
@@ -198,7 +199,7 @@ readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "
     ## newdat$time <- as.POSIXct(newdat$time, format = "%Y-%m-%dT%H:%M:%OSZ",
     ##                           tz = timezone)
 
-    
+
     ## coerce the numeric variables into the correct class
     numVars <- which(names(newdat) != "time")
     for (i in numVars){
@@ -238,7 +239,7 @@ readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "
 #' @inheritParams readX
 #' @export
 #' @rdname readX
-readDB3 <- function(file, timezone = "", table = "gps_data", 
+readDB3 <- function(file, timezone = "", table = "gps_data",
                     speedunit = "km_per_h", distanceunit = "km"){
 
     db <- RSQLite::dbConnect(RSQLite::SQLite(), file)
@@ -298,7 +299,7 @@ readDB3 <- function(file, timezone = "", table = "gps_data",
 readJSON <- function(file, timezone = "", speedunit = "km_per_h", distanceunit = "km"){
     ## get all data
     jslist <- jsonlite::fromJSON(file)$RIDE
-    
+
     ## starting time
     stime <- strsplit(jslist$STARTTIME, " ")[[1]]
     if (timezone == "") timezone <- stime[3]
@@ -330,7 +331,7 @@ readJSON <- function(file, timezone = "", speedunit = "km_per_h", distanceunit =
         }
     }
 
-    ## convert speed from speedunit to m/s 
+    ## convert speed from speedunit to m/s
     if (speedunit != "m_per_s"){
         speedConversion <- match.fun(paste(speedunit, "m_per_s", sep = "2"))
         newdat$speed <- speedConversion(newdat$speed)
@@ -415,7 +416,7 @@ readContainer <- function(file, type = c("tcx", "db3", "json"),
                                "db3" = "km",
                                "json" = "km")
     }
-    
+
     ## read gps data
     dat <- switch(type,
                   "tcx" = readTCX(file = file, timezone = timezone, speedunit = speedunit,
@@ -425,7 +426,7 @@ readContainer <- function(file, type = c("tcx", "db3", "json"),
                   "json" = readJSON(file = file, timezone = timezone, speedunit = speedunit,
                       distanceunit = distanceunit)
                   )
-    ## units of measurement 
+    ## units of measurement
     units <- generateBaseUnits(cycling) ## readX returns default units
     #units <- units[-which(units$variable == "duration"), ]
 
@@ -506,7 +507,7 @@ readDirectory <- function(directory,
     if ((ltcx == 0) & (ldb3 == 0) & (ljson == 0)) {
         stop("The supplied directory contains no files with the supported formats.")
     }
-    
+
     ## Read tcx files
     if (ltcx) {
         tcxData <- list()
@@ -565,7 +566,7 @@ readDirectory <- function(directory,
     else {
         tcxData <- NULL
     }
-    
+
     ## Read db3 files
     if (ldb3) {
         db3Data <- list()
@@ -616,7 +617,7 @@ readDirectory <- function(directory,
             }
             if (verbose) cat("Cleaning up...")
             db3Data <- do.call("c", db3Data[!sapply(db3Data, inherits, what = "try-error")])
-            if (verbose) cat("Done\n")  
+            if (verbose) cat("Done\n")
         }
     } else {
         db3Data <- NULL
@@ -671,12 +672,12 @@ readDirectory <- function(directory,
             }
             if (verbose) cat("Cleaning up...")
             jsonData <- do.call("c", jsonData[!sapply(jsonData, inherits, what = "try-error")])
-            if (verbose) cat("Done\n")  
+            if (verbose) cat("Done\n")
         }
     } else {
         jsonData <- NULL
     }
-    
+
     ## combine and return
     allData <- list(tcxData, db3Data, jsonData)
     allData <- allData[!sapply(allData, is.null)]
@@ -691,7 +692,7 @@ removeColon <- function(x){
 }
 
 convertTCXTimes2POSIXct <- function(x, timezone = ""){
-    
+
     ## get first non-NA element to determine the format
     formatSample <- x[which.min(is.na(x))]
 
@@ -702,35 +703,35 @@ convertTCXTimes2POSIXct <- function(x, timezone = ""){
         ## just 2 characters for the seconds, nothing else
         frm <- paste0(frm, "%S")
     } else {
-        
+
         rest <- substr(formatSample, start = 20, stop = nchar(formatSample))
 
         if (substr(rest, 1, 1) %in% c(".", ",")) {
             rest <- substr(rest, start = 2, stop = nchar(rest))
-            
+
             ## determine the number of digits for the seconds
             splitted <- strsplit(rest, split = "")[[1]]
             ndigits <- which.min(splitted %in% c("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")) - 1
-            
+
             ## remove any digits beyond 6
             if (ndigits > 6){
                 x <- paste0(substr(x, 1, 26), substr(x, 20 + ndigits + 1, nchar(formatSample)))
             }
-            
+
             ## update format
             frm <- paste0(frm, "%OS")#, min(ndigits, 6))
-            
+
             ## get remainder beyond seconds for timezone specification
             rest <- substr(rest, ndigits + 1, nchar(rest))
-            
+
         } else {
             ## add seconds to format
             frm <- paste0(frm, "%S")
             ndigits <- 0
         }
-        
+
         ## work with remainder to check for timezone specification
-        
+
         if (rest != ""){
             if (substr(rest, 1, 1)  == "Z"){
                 if (!(timezone %in% c("GMT", "UCT")) & timezone != "")
@@ -747,6 +748,6 @@ convertTCXTimes2POSIXct <- function(x, timezone = ""){
             }
         }
     }
-    
+
     as.POSIXct(x, format = frm, tz = timezone)
 }
