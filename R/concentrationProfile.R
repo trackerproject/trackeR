@@ -349,3 +349,24 @@ nsessions.conProfile <- function(object, ...) {
     if (is.null(ncol(object[[1]])))
         1 else ncol(object[[1]])
 }
+
+
+#' @export
+ridges.trackeRdata <- function(object, session = NULL, what = "speed",
+                               grid = list(speed = seq(0, 12.5, by = 0.05)),
+                               parallel = FALSE, cores = NULL) {
+
+    ## Add check for single argument
+    dates <- summary(object, session = session)$sessionStart
+
+    dp <- distributionProfile(object = object, session = session, what = what, grid = grid, parallel = parallel, cores = cores)
+    cp <- concentrationProfile(dp)
+    dat <- fortify.distrProfile(cp, melt = TRUE)
+    dat$Series <- as.numeric(dat$Series)
+
+    ggplot(dat) +
+        geom_ridgeline(aes(x = Index, y = Series, height = Value, group = Series, scale = 2/max(Value)),
+                       alpha = 0.5) +
+        theme_ridges()
+}
+
