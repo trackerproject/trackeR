@@ -507,10 +507,15 @@ as.data.frame.trackeRdata <- function(x, ...) {
 print.trackeRdata <- function(x, ..., digits = 2) {
     x <- summary(x)
     units <- getUnits(x)
-
-    cat("Coverage:",
+    cat("A trackeRdata object\n\n")
+    cat("Training coverage:",
         "from", format(min(x$sessionStart), format = "%Y-%m-%d %H:%M:%S"),
         "to", format(max(x$sessionEnd), format = "%Y-%m-%d %H:%M:%S"), "\n")
     cat("Number of sessions:", nrow(x), "\n")
-    cat("Training duration:", round(as.numeric(sum(x$duration)), digits), units(x$duration[1]), "\n")
+    cat("Training duration:", round(as.numeric(sum(x$duration)), digits), units(x$duration[1]), "\n\n")
+
+    cat("Units\n")
+    o <- getUnits(x)
+    colnames(o) <- NULL
+    print(o, row.names = FALSE, right = FALSE)
 }
