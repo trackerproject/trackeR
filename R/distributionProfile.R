@@ -147,7 +147,7 @@ scaled.distrProfile <- function(object, session  = NULL, what = c("speed", "hear
     ## select sessions
     availSessions <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
     if (is.null(session)) session <- 1:availSessions
-    for(i in seq_along(object)) object[[i]] <- object[[i]][,session]
+    for(i in seq_along(object)) object[[i]] <- object[[i]][,session, drop = FALSE]
     #availSessions <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
 
     ret <- list()
