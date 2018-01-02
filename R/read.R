@@ -49,6 +49,7 @@ generateVariableNames <- function() {
                    "WATTS")
 
     list(humanNames = humanNames,
+         gpxNames = tcxNames,
          tcxNames = tcxNames,
          db3Names = db3Names,
          jsonNames = jsonNames)
