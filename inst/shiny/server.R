@@ -101,11 +101,15 @@ server <- function(input, output, session) {
         if(path() == paste0(normalizePath("~"), '/')){
             data$dataSet <- readRDS(input$processed_data_path$datapath)
         } else if (is.null(input$processed_data_path$datapath) == TRUE) {
-            data$dataSet <- callModule(readDirectory_shiny, "datafile", directory= path(),
-                                       timezone = "GMT", cycling = data$sport)
+
+            data$dataSet <- callModule(module = readDirectory,
+                                       id = "datafile", directory = path(),
+                                       timezone = "GMT", cycling = data$sport, make_reactive = TRUE)
         } else {
-            raw_data <- reactive({callModule(readDirectory_shiny, "datafile", directory= path(),
-                                             timezone = "GMT", cycling = data$sport)})
+            raw_data <- reactive({
+                callModule(module = readDirectory, id = "datafile", directory = path(),
+                           timezone = "GMT", cycling = data$sport, make_reactive = TRUE)
+            })
             processed_data <- reactive({readRDS(input$processed_data_path$datapath)})
             req(raw_data())
             req(processed_data())
