@@ -306,6 +306,7 @@ c.trackeRdata <- function(..., recursive = FALSE) {
 
     ## check/change units attribute
     units <- lapply(input, getUnits)
+
     changeU <- !all(sapply(units, function(x) isTRUE(all.equal(units[[1]], x))))
     if (changeU) {
         warning("The sessions have different units. The units of the first session are applied to all sessions.")

@@ -56,23 +56,29 @@ generateVariableNames <- function() {
 }
 
 
-#' Read a training file in TCX, db3 or Golden Cheetah's JSON format.
+#' Read a training file in tcx, gpx, db3 or Golden Cheetah's JSON format.
 #'
 #' @param file The path to the file.
-#' @param timezone The timezone of the observations as passed on to \code{\link[base]{as.POSIXct}}.
-#'     Ignored for JSON files.
-#' @param speedunit Character string indicating the measurement unit of the
-#'     speeds in the container file to be converted into meters per second. See Details.
-#' @param distanceunit Character string indicating the measurement unit of the
-#'     distance in the container file to be converted into meters. See Details.
-#' @param parallel Logical. Should computation be carried out in parallel? (Not supported on Windows.)
+#' @param timezone The timezone of the observations as passed on to
+#'     \code{\link[base]{as.POSIXct}}.  Ignored for JSON files.
+#' @param speedunit Character string indicating the measurement unit
+#'     of the speeds in the container file to be converted into meters
+#'     per second. See Details.
+#' @param distanceunit Character string indicating the measurement
+#'     unit of the distance in the container file to be converted into
+#'     meters. See Details.
+#' @param parallel Logical. Should computation be carried out in
+#'     parallel? (Not supported on Windows.)
 #' @param cores Number of cores for parallel computing.
 #' @param ... Currently not used.
-#' @details Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_per_s},
-#'     \code{mi_per_h}, \code{ft_per_min} and \code{ft_per_s}. The default is \code{m_per_s} for TCX files
-#'     and \code{km_per_h} for db3 and Golden Cheetah's json files.
-#'     Available options for \code{distanceunit} currently are \code{km}, \code{m}, \code{mi} and
-#'     \code{ft}. The default is \code{m} for TCX files and \code{km} for db3 and Golden Cheetah's json files.
+#' @details Available options for \code{speedunit} currently are
+#'     \code{km_per_h}, \code{m_per_s}, \code{mi_per_h},
+#'     \code{ft_per_min} and \code{ft_per_s}. The default is
+#'     \code{m_per_s} for TCX files and \code{km_per_h} for db3 and
+#'     Golden Cheetah's json files.  Available options for
+#'     \code{distanceunit} currently are \code{km}, \code{m},
+#'     \code{mi} and \code{ft}. The default is \code{m} for TCX and
+#'     \code{km} for gpx, db3 and Golden Cheetah's json files.
 #' @export
 #' @name readX
 #' @examples
@@ -234,6 +240,141 @@ readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "
     return(newdat)
 }
 
+#' @inheritParams readX
+#' @export
+#' @rdname readX
+readGPX <- function(file, timezone = "", speedunit = "km_per_h", distanceunit = "km",
+                    parallel = FALSE, cores = getOption("mc.cores", 2L),...){
+
+    ## resources:
+    ## https://strava.github.io/api/v3/uploads/
+    ## https://support.strava.com/hc/en-us/articles/216918437-Exporting-your-Data-and-Bulk-Export
+    ## http://www.topografix.com/gpx.asp
+
+    ## read XML file
+    doc <- XML::xmlParse(file)
+    nodes <- XML::getNodeSet(doc, "//ns:trkpt", "ns")
+
+    ## parallelisation
+    papply <- if (parallel) function(...) parallel::mclapply(..., mc.cores = cores) else lapply
+
+    mydf <- do.call("rbind", papply(nodes, function(node) {
+        ## Avoid memory leaks
+        nodeDoc <- XML::xmlDoc(node)
+        extnode <- XML::getNodeSet(nodeDoc, "//s:extensions", "s")
+        if (length(extnode)) {
+            extnode <- extnode[[1]]
+            extnodeDoc <- XML::xmlDoc(extnode)
+            temperature <- XML::xpathApply(extnodeDoc, "//gpxtpx:atemp", fun = XML::xmlValue)
+            cadence <- XML::xpathApply(extnodeDoc, "//gpxtpx:cad", fun = XML::xmlValue)
+            hr <- XML::xpathApply(extnodeDoc, "//gpxtpx:hr", fun = XML::xmlValue)
+            speed <- altitude <- watts <- list()
+        }
+        else {
+            speed <- altitude <- temperature <- cadence <- hr <- watts <- list()
+        }
+        longitude <- XML::xmlGetAttr(node, "lon")
+        latitude <- XML::xmlGetAttr(node, "lat")
+        time <- XML::xpathApply(nodeDoc, "//o:time", namespaces = "o", XML::xmlValue)
+        elevation <- XML::xpathApply(nodeDoc, "//o:ele", namespaces = "o", XML::xmlValue)
+        nullout <- function(z) if (length(z)) z[[1]] else NA
+        c(time = time[[1]],
+          longitude = nullout(longitude),
+          latitude = nullout(latitude),
+          altitude = nullout(altitude),
+          elevation = nullout(elevation),
+          hr = nullout(hr),
+          speed = nullout(speed),
+          cadence = nullout(cadence),
+          watts = nullout(watts))
+    }))
+
+    fac2num <- function(z) {
+        as.numeric(levels(z))[z]
+    }
+
+    ## Test for useable data in container file
+    if (is.null(mydf)) {
+        warning(paste("no useable data in", file))
+        return(NULL)
+    }
+
+    distance <- cumsum(c(0, sp::spDists(mydf[, c("longitude", "latitude")], longlat = TRUE, segments = TRUE)))
+
+    mydf <- within(as.data.frame(mydf), {
+        longitude = fac2num(longitude)
+        latitude = fac2num(latitude)
+        altitude = fac2num(altitude)
+        hr = fac2num(hr)
+        elevation = fac2num(elevation)
+        speed = fac2num(speed)
+        cadence = fac2num(cadence)
+        watts = fac2num(watts)
+    })
+
+    mydf$distance <- distance
+
+    ## perpare names
+    allnames <- generateVariableNames()
+    namesOfInterest <- allnames$gpxNames
+    namesToBeUsed <- allnames$humanNames
+
+    ## extract the interesting variables
+    inds <- match(namesOfInterest, names(mydf), nomatch = 0)
+    newdat <- mydf[inds]
+    names(newdat) <- namesToBeUsed[inds!=0]
+
+    ## START hack: this is a hack for instances where only the time was
+    ## recorded because if the node had only Time recordings then the
+    ## record goes to the Time variable of mydf instead of the
+    ## value.Time
+    if ("time" %in% names(newdat)) {
+        newdat$time <- as.character(newdat$time)
+        newdat$time[is.na(newdat$time)] <- as.character(mydf$Time[is.na(newdat$time)])
+    }
+    ## END hack
+
+    ## coerce time into POSIXct
+    newdat$time <- gsub("[\t\n]", "", newdat$time)
+    newdat$time <- convertTCXTimes2POSIXct(newdat$time, timezone = timezone)
+    ## newdat$time <- as.POSIXct(newdat$time, format = "%Y-%m-%dT%H:%M:%OSZ",
+    ##                           tz = timezone)
+
+
+    ## coerce the numeric variables into the correct class
+    numVars <- which(names(newdat) != "time")
+    for (i in numVars){
+        newdat[,i] <- as.numeric(as.character(newdat[, i]))
+    }
+
+    ## add missing variables as NA
+    missingVars <- namesToBeUsed[match(namesToBeUsed, names(newdat), nomatch = 0) == 0]
+    if (nrow(newdat) > 0) {
+        for (nn in missingVars) {
+            newdat[[nn]] <- NA
+        }
+    }
+
+    ## convert speed from speedunit to m/s
+    if (speedunit != "m_per_s"){
+        speedConversion <- match.fun(paste(speedunit, "m_per_s", sep = "2"))
+        newdat$speed <- speedConversion(newdat$speed)
+    }
+
+    ## convert distance from distanceunit to m
+    if (distanceunit != "m"){
+        distanceConversion <- match.fun(paste(distanceunit, "m", sep = "2"))
+        newdat$distance <- distanceConversion(newdat$distance)
+    }
+
+
+    ## use variable order for trackeRdata
+    if (any(names(newdat) != allnames$humanNames))
+        newdat <- newdat[, allnames$humanNames]
+
+    return(newdat)
+
+}
 
 
 #' @param table Character string indicating the name of the table with the GPS data in the db3 container file.
@@ -390,7 +531,7 @@ readJSON <- function(file, timezone = "", speedunit = "km_per_h", distanceunit =
 #' filepath <- system.file("extdata", "2013-06-08-090442.TCX", package = "trackeR")
 #' run <- readContainer(filepath, type = "tcx", timezone = "GMT")
 #' }
-readContainer <- function(file, type = c("tcx", "db3", "json"),
+readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
                           table = "gps_data", timezone = "", sessionThreshold = 2,
                           correctDistances = FALSE,
                           country = NULL, mask = TRUE,
@@ -401,19 +542,21 @@ readContainer <- function(file, type = c("tcx", "db3", "json"),
                           silent = FALSE,
                           parallel = FALSE, cores = getOption("mc.cores", 2L)){
     ## prepare args
-    type <- match.arg(tolower(type), choices = c("tcx", "db3", "json"))
+    type <- match.arg(tolower(type), choices = c("tcx", "gpx", "db3", "json"))
     if (is.null(fromDistances)){
         fromDistances <- if (type == "db3") FALSE else TRUE
     }
     if (is.null(speedunit)){
         speedunit <- switch(type,
                             "tcx" = "m_per_s",
+                            "gpx" = "km_per_h",
                             "db3" = "km_per_h",
                             "json" = "km_per_h")
     }
     if (is.null(distanceunit)) {
         distanceunit <- switch(type,
                                "tcx" = "m",
+                               "gpx" = "km",
                                "db3" = "km",
                                "json" = "km")
     }
@@ -421,7 +564,9 @@ readContainer <- function(file, type = c("tcx", "db3", "json"),
     ## read gps data
     dat <- switch(type,
                   "tcx" = readTCX(file = file, timezone = timezone, speedunit = speedunit,
-                      distanceunit = distanceunit, parallel = parallel, cores = cores),
+                                  distanceunit = distanceunit, parallel = parallel, cores = cores),
+                  "gpx" = readGPX(file = file, timezone = timezone, speedunit = speedunit,
+                                  distanceunit = distanceunit, parallel = parallel, cores = cores),
                   "db3" = readDB3(file = file, table = table, timezone = timezone,
                                   speedunit = speedunit, distanceunit = distanceunit),
                   "json" = readJSON(file = file, timezone = timezone, speedunit = speedunit,
@@ -430,6 +575,7 @@ readContainer <- function(file, type = c("tcx", "db3", "json"),
     ## units of measurement
     units <- generateBaseUnits(cycling) ## readX returns default units
     #units <- units[-which(units$variable == "duration"), ]
+
 
     ## make trackeRdata object (with all necessary data handling)
     trackerdat <- trackeRdata(dat, units = units, cycling = cycling,
@@ -488,8 +634,8 @@ readDirectory <- function(directory,
                           country = NULL,
                           mask = TRUE,
                           fromDistances = NULL,
-                          speedunit = list(tcx = "m_per_s", db3 = "km_per_h", json = "km_per_h"),
-                          distanceunit = list(tcx = "m", db3 = "km", json = "km"),
+                          speedunit = list(tcx = "m_per_s", gpx = "km_per_h", db3 = "km_per_h", json = "km_per_h"),
+                          distanceunit = list(tcx = "m", gpx = "km", db3 = "km", json = "km"),
                           cycling = FALSE,
                           lgap = 30, lskip = 5, m = 11,
                           silent = FALSE,
@@ -498,14 +644,17 @@ readDirectory <- function(directory,
 
     tcxfiles <- list.files(directory, pattern = "tcx", ignore.case = TRUE, full.names = TRUE,
                            no.. = TRUE)
+    gpxfiles <- list.files(directory, pattern = "gpx", ignore.case = TRUE, full.names = TRUE,
+                           no.. = TRUE)
     db3files <- list.files(directory, pattern = "db3", ignore.case = TRUE, full.names = TRUE,
                            no.. = TRUE)
     jsonfiles <- list.files(directory, pattern = "json", ignore.case = TRUE, full.names = TRUE,
                            no.. = TRUE)
     ltcx <- length(tcxfiles)
+    lgpx <- length(gpxfiles)
     ldb3 <- length(db3files)
     ljson <- length(jsonfiles)
-    if ((ltcx == 0) & (ldb3 == 0) & (ljson == 0)) {
+    if ((ltcx == 0) & (ldb3 == 0) & (ljson == 0) & (lgpx == 0)) {
         stop("The supplied directory contains no files with the supported formats.")
     }
 
@@ -566,6 +715,66 @@ readDirectory <- function(directory,
     }
     else {
         tcxData <- NULL
+    }
+
+    ## Read gpx files
+    if (lgpx) {
+        gpxData <- list()
+        if (aggregate){
+            for (j in seq.int(lgpx)) {
+                if (verbose) cat("Reading file", gpxfiles[j], paste0("(file ", j, " out of ", lgpx, ")"), "...\n")
+                gpxData[[j]] <- try(readGPX(gpxfiles[j],
+                                            timezone = timezone,
+                                            speedunit = speedunit$gpx,
+                                            distanceunit = distanceunit$gpx,
+                                            parallel = parallel,
+                                            cores = cores))
+            }
+            if (verbose) cat("Cleaning up...")
+            gpxData <- do.call("rbind", gpxData[!sapply(gpxData, inherits, what = "try-error")])
+            fromDistancesGPX <- if(is.null(fromDistances)) TRUE else fromDistances
+
+            gpxData <- trackeRdata(gpxData,
+                                   sessionThreshold = sessionThreshold,
+                                   correctDistances = correctDistances,
+                                   country = country,
+                                   mask = mask,
+                                   fromDistances = fromDistancesGPX,
+                                   cycling = cycling,
+                                   lgap = lgap,
+                                   lskip = lskip,
+                                   m = m,
+                                   silent = silent)
+            if (verbose) cat("Done\n")
+        } else {
+            for (j in seq.int(lgpx)) {
+                if (verbose) cat("Reading file", gpxfiles[j], paste0("(file ", j, " out of ", lgpx, ")"), "...\n")
+                gpxData[[j]] <- try(readContainer(gpxfiles[j],
+                                                  type = "gpx",
+                                                  table = table,
+                                                  timezone = timezone,
+                                                  sessionThreshold = sessionThreshold,
+                                                  correctDistances = correctDistances,
+                                                  country = country,
+                                                  mask = mask,
+                                                  fromDistances = fromDistances,
+                                                  speedunit = speedunit$gpx,
+                                                  distanceunit = distanceunit$gpx,
+                                                  cycling = cycling,
+                                                  lgap = lgap,
+                                                  lskip = lskip,
+                                                  m = m,
+                                                  silent = silent,
+                                                  parallel = parallel,
+                                                  cores = cores))
+            }
+            if (verbose) cat("Cleaning up...")
+            gpxData <- do.call("c", gpxData[!sapply(gpxData, inherits, what = "try-error")])
+            if (verbose) cat("Done\n")
+        }
+    }
+    else {
+        gpxData <- NULL
     }
 
     ## Read db3 files
@@ -680,7 +889,7 @@ readDirectory <- function(directory,
     }
 
     ## combine and return
-    allData <- list(tcxData, db3Data, jsonData)
+    allData <- list(tcxData, gpxData, db3Data, jsonData)
     allData <- allData[!sapply(allData, is.null)]
     ret <- do.call("c", allData)
     return(ret)

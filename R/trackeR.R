@@ -24,6 +24,7 @@
 #' @name trackeR
 #' @import zoo
 #' @importFrom ggplot2 fortify
+#' @importFrom sp spDists
 NULL
 # > NULL
 
