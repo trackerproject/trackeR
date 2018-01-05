@@ -16,7 +16,7 @@
 
 ui <- dashboardPage(
     skin = 'black',
-    dashboardHeader(title = 'trackerR dashboard'),
+    dashboardHeader(title = span(tagList(icon("dashboard"), "trackeR dashboard"))),
     dashboardSidebar(
         tags$head(tags$script("
                             function hideElement(i) {
