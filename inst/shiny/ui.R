@@ -16,7 +16,7 @@
 
 ui <- dashboardPage(
     skin = 'black',
-    dashboardHeader(title = 'TrackerR'),
+    dashboardHeader(title = 'trackerR dashboard'),
     dashboardSidebar(
         tags$head(tags$script("
                             function hideElement(i) {
@@ -35,18 +35,18 @@ ui <- dashboardPage(
                           }
                          ")),
         sidebarMenu(
-            menuItem('Dashboard', tabName = 'dashboard', icon = icon('dashboard')),
-            hr(),
+            ## menuItem('trackeR dashboard', tabName = 'dashboard', icon = icon('dashboard')),
+            ## hr(),
             fileInput('processed_data_path', 'Load processed data'),
             tags$div(class = 'form-group shiny-input-container', tags$label('Add raw data'),
-                     tags$div(class = 'input-group', shinyDirButton("directory", "Select Folder", "Upload"))),
-            div(div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('uploadButton', 'Upload', icon("upload"), style="color: #fff; background-color: #337ab7; border-color: #2e6da4")),
+                     tags$div(class = 'input-group', shinyDirButton("directory", "Open directory...", "Upload"))),
+            div(div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('uploadButton', 'Upload', icon("upload"), style="color: #fff; background-color: #6FB1E7; border-color: #006CA1", width = "80px")),
                 hr(),
-                selectInput('sportSelected', 'Select sport:', multiple = FALSE,
-                            c('Cycling' = 'cycling',
-                              'Running' = 'running')
+                selectInput('sportSelected', 'Select sport', multiple = FALSE,
+                            c('Running' = 'running',
+                              'Cycling' = 'cycling')
                             ),
-                selectizeInput('metricsSelected', 'Select metrics:', multiple = TRUE,
+                selectizeInput('metricsSelected', 'Select metrics', multiple = TRUE,
                                c('Distance' = 'distance',
                                  'Duration' = 'duration',
                                  'Average speed' = 'avgSpeed',
@@ -57,9 +57,9 @@ ui <- dashboardPage(
                                  'Work to rest ratio' = 'wrRatio'
                                  )
                                ),
-                div(div(style="display: inline-block;vertical-align:top; width: 120px;", actionButton('changeUnits', 'Change units')),
-                    div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('resetButton', 'Reset'))),
-                div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('plotButton', 'Plot', icon('area-chart'), style="color: #fff; background-color: #3CB371; border-color: #3CB371"))),
+                div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('plotButton', 'Plot', icon('area-chart'), style="color: #fff; background-color: #4FBF85; border-color: #00793C", width = "80px")),
+                div(style="display: inline-block;vertical-align:top; width: 120px;", actionButton('changeUnits', 'Units', icon('balance-scale'), width = "80px"))),
+                div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('resetButton', 'Reset', icon('eraser'), style="color: #fff; background-color: #ED90A4; border-color: #A2485E", width = "80px")),
             hr(),
             tags$div(class = 'form-group shiny-input-container', tags$label('Download data'),
                      tags$div(class = 'input-group', downloadButton('download_data', 'Download procesed data')))

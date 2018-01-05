@@ -146,37 +146,34 @@ server <- function(input, output, session) {
         insertUI(
             selector = ".content",
             where = "beforeEnd",
-            ui = conditionalPanel(condition = "output.cond == true", div(class='plots', fluidRow(
-                                                                                            box(
-                                                                                                status = 'primary',
-                                                                                                width = 12,
-                                                                                                height = "500px",
-                                                                                                title = tagList(shiny::icon("map"), 'Map'),
-                                                                                                withSpinner(leafletOutput('map', width = "auto", height = "430px"), size = 2),
-                                                                                                absolutePanel(top = 70, right = 60,
-                                                                                                              sliderInput("average_speed", "Average speed",
-                                                                                                                          floor(min(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE)),
-                                                                                                                          ceiling(max(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE)),
-                                                                                                                          value = c(floor(min(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE)),
-                                                                                                                                    ceiling(max(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE))),
-                                                                                                                          step = 0.1, width = '200px'),
-                                                                                                              sliderInput("average_heart_rate", "Average heart rate",
-                                                                                                                          floor(min(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10,
-                                                                                                                          ceiling(max(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10,
-                                                                                                                          value = c(floor(min(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10,
-                                                                                                                                    ceiling(max(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10),
-                                                                                                                          step = 1, width = '200px'),
-                                                                                                              sliderInput("average_distance", "Distance",
-                                                                                                                          floor(min(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000,
-                                                                                                                          ceiling(max(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000,
-                                                                                                                          value = c(floor(min(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000,
-                                                                                                                                    ceiling(max(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000),
-                                                                                                                          step = 1, width = '200px'),
-                                                                                                              actionButton('plotSelectedWorkouts', 'Plot selected workouts',
-                                                                                                                           style="color: #fff; background-color: #428bca;
-                                     border-color:#428bca")
-
-                                     ))))))
+            ui = conditionalPanel(condition = "output.cond == true", div(class='plots', fluidRow(box(
+                                                                                            status = 'primary',
+                                                                                            width = 12,
+                                                                                            height = "500px",
+                                                                                            title = tagList(shiny::icon("map"), 'Map'),
+                                                                                            withSpinner(leafletOutput('map', width = "auto", height = "430px"), size = 2),
+                                                                                            absolutePanel(top = 70, right = 60,
+                                                                                                          sliderInput("average_speed", "Average speed",
+                                                                                                                      floor(min(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE)),
+                                                                                                                      ceiling(max(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE)),
+                                                                                                                      value = c(floor(min(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE)),
+                                                                                                                                ceiling(max(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE))),
+                                                                                                                      step = 0.1, width = '200px'),
+                                                                                                          sliderInput("average_heart_rate", "Average heart rate",
+                                                                                                                      floor(min(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10,
+                                                                                                                      ceiling(max(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10,
+                                                                                                                      value = c(floor(min(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10,
+                                                                                                                                ceiling(max(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10),
+                                                                                                                      step = 1, width = '200px'),
+                                                                                                          sliderInput("average_distance", "Distance",
+                                                                                                                      floor(min(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000,
+                                                                                                                      ceiling(max(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000,
+                                                                                                                      value = c(floor(min(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000,
+                                                                                                                                ceiling(max(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000),
+                                                                                                                      step = 1, width = '200px'),
+                                                                                                          actionButton('plotSelectedWorkouts', 'Plot selected workouts',
+                                                                                                                       style="color: #fff; background-color: #428bca; border-color:#428bca")
+                                                                                                          ))))))
 
         insertUI(
             selector = ".content",
