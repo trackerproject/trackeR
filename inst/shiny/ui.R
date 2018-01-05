@@ -35,7 +35,7 @@ ui <- dashboardPage(
                           }
                          ")),
         sidebarMenu(
-            ## menuItem('trackeR dashboard', tabName = 'dashboard', icon = icon('dashboard')),
+            ## menuItem('', tabName = 'dashboard', icon = icon('dashboard')),
             ## hr(),
             fileInput('processed_data_path', 'Load processed data'),
             tags$div(class = 'form-group shiny-input-container', tags$label('Add raw data'),
@@ -66,8 +66,8 @@ ui <- dashboardPage(
         )
     ),
     dashboardBody(
-        tabItems(
-            tabItem(tabName = 'dashboard',
+        ## tabItems(
+        ##     tabItem(tabName = 'dashboard',
                     fluidRow(
                         box(
                             status = 'primary',
@@ -84,8 +84,8 @@ ui <- dashboardPage(
                             plotOutput('timeline_plot', width = "100%", height = "350px")
                         )
                     ))
-        )
-    )
+    ##     )
+    ## )
 )
 
 

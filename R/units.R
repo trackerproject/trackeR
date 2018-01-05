@@ -68,7 +68,7 @@ changeUnits.trackeRdata <- function(object, variable, unit, ...) {
     current <- getUnits(object)
     operations <- getOperations(object)
     th <- operations$threshold
-    
+
     ## change units
     for (i in variable) {
         currentUnit <- current$unit[current$variable == i]
@@ -79,16 +79,16 @@ changeUnits.trackeRdata <- function(object, variable, unit, ...) {
             for (session in seq_along(object)) {
                 object[[session]][, i] <- conversion(object[[session]][, i])
             }
-            
+
             ## change units attribute
             current$unit[current$variable == i] <- newUnit
-            
+
             ## change units of thresholds
             th$lower[th$variable == i] <- conversion(th$lower[th$variable == i])
             th$upper[th$variable == i] <- conversion(th$upper[th$variable == i])
         }
     }
-    
+
     ## update attributes and return
     attr(object, "units") <- current
     operations$threshold <- th
@@ -122,14 +122,14 @@ changeUnits.trackeRdataSummary <- function(object, variable, unit, ...) {
                 object[, v] <- conversion(object[, v])
             }
             ## convert moving threshold
-            if (i == "speed") 
+            if (i == "speed")
                 mvt <- conversion(mvt)
             ## update units
             current$unit[current$variable == i] <- newUnit
         }
-        
+
     }
-    
+
     ## update units attribute and return
     attr(object, "units") <- current
     attr(object, "movingThreshold") <- mvt
@@ -140,13 +140,13 @@ changeUnits.trackeRdataSummary <- function(object, variable, unit, ...) {
 #' Change the units of the variables in an \code{distrProfile} object.
 #'
 #' @param object An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.
-#' @param variable A vector of variables to be changed. 
+#' @param variable A vector of variables to be changed.
 #' @param unit A vector with the units, corresponding to variable.
 #' @param ... Currently not used.
 #' @export
 changeUnits.distrProfile <- function(object, variable, unit, ...) {
     current <- getUnits(object)
-    
+
     ## change units
     for (i in variable) {
         currentUnit <- current$unit[current$variable == i]
@@ -160,7 +160,7 @@ changeUnits.distrProfile <- function(object, variable, unit, ...) {
             current$unit[current$variable == i] <- newUnit
         }
     }
-    
+
     ## update attributes and return
     attr(object, "units") <- current
     return(object)
@@ -169,13 +169,13 @@ changeUnits.distrProfile <- function(object, variable, unit, ...) {
 #' Change the units of the variables in an \code{conProfile} object.
 #'
 #' @param object An object of class \code{conProfile} as returned by \code{\link{concentrationProfile}}.
-#' @param variable A vector of variables to be changed. 
+#' @param variable A vector of variables to be changed.
 #' @param unit A vector with the units, corresponding to variable.
 #' @param ... Currently not used.
 #' @export
 changeUnits.conProfile <- function(object, variable, unit, ...) {
     current <- getUnits(object)
-    
+
     ## change units
     for (i in variable) {
         currentUnit <- current$unit[current$variable == i]
@@ -189,7 +189,7 @@ changeUnits.conProfile <- function(object, variable, unit, ...) {
             current$unit[current$variable == i] <- newUnit
         }
     }
-    
+
     ## update attributes and return
     attr(object, "units") <- current
     return(object)
@@ -205,21 +205,21 @@ changeUnits.conProfile <- function(object, variable, unit, ...) {
 changeUnits.trackeRWprime <- function(object, variable, unit, ...) {
     ## get current unit
     current <- getUnits(object)
-    
-    if (missing(variable)) 
+
+    if (missing(variable))
         variable <- ifelse(attr(object, "cycling"), "power", "speed")
     if (missing(unit) & !missing(variable)) {
         unit <- variable
         variable <- ifelse(attr(object, "cycling"), "power", "speed")
     }
     if (attr(object, "cycling")) {
-        if (variable != "power") 
+        if (variable != "power")
             stop("Can only change measurement units for power.")
     } else {
-        if (variable != "speed") 
+        if (variable != "speed")
             stop("Can only change measurement units for speed.")
     }
-    
+
     ## change units
     for (i in variable) {
         currentUnit <- current$unit[current$variable == i]
@@ -234,7 +234,7 @@ changeUnits.trackeRWprime <- function(object, variable, unit, ...) {
             current$unit[current$variable == i] <- newUnit
         }
     }
-    
+
     ## update attributes and return
     attr(object, "units") <- current
     return(object)
@@ -242,7 +242,7 @@ changeUnits.trackeRWprime <- function(object, variable, unit, ...) {
 
 ## not to be exported
 changeUnits.trackeRthresholds <- function(object, variable, unit, ...) {
-    
+
     for (v in variable) {
         i <- which(object$variable == v)
         currentUnit <- object$unit[i]
@@ -259,9 +259,9 @@ changeUnits.trackeRthresholds <- function(object, variable, unit, ...) {
 
 
 changeUnits.trackeRdataZones <- function(object, variable, unit, ...) {
-    
+
     current <- getUnits(object)
-    
+
     ## change units
     for (i in variable) {
         currentUnit <- current$unit[current$variable == i]
@@ -275,7 +275,7 @@ changeUnits.trackeRdataZones <- function(object, variable, unit, ...) {
             current$unit[current$variable == i] <- newUnit
         }
     }
-    
+
     ## update attributes and return
     attr(object, "units") <- current
     return(object)
@@ -328,15 +328,15 @@ generateBaseUnits <- function(cycling = FALSE, ...) {
     ## Remove time and add duration
     varnames <- varnames[-match("time", varnames)]
     varnames <- c(varnames, c("pace", "duration"))
-    
+
     if (cycling) {
-        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "rev_per_min", "W", 
+        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "rev_per_min", "W",
             "min_per_km", "s")
     } else {
-        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "W", 
+        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "W",
             "min_per_km", "s")
     }
-    
+
     return(data.frame(variable = varnames, unit = units, stringsAsFactors = FALSE))
 }
 
@@ -950,5 +950,17 @@ steps_per_min2steps_per_min <- function(variable) {
 rev_per_min2rev_per_min <- function(variable) {
     variable
 }
-## steps_per_min2rev_per_min <- rev_per_min2steps_per_min <- function(variable){
-## variable }
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+steps_per_min2rev_per_min <- function(variable) {
+    ## step defined as half a revolution
+    variable/2
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+rev_per_min2steps_per_min <- function(variable) {
+    ## step defined as half a revolution
+    variable * 2
+}
