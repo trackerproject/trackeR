@@ -625,12 +625,7 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
 #' @seealso \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}, \code{\link{readJSON}}
 #'
 #' @export
-readDirectory <- function(## only relevant for shiny interfaces
-                          input,
-                          output,
-                          session,
-                          ##
-                          directory,
+readDirectory <- function(directory,
                           aggregate = TRUE, ## aggregate data from all files or keep data from different files in different sessions?
                           table = "gps_data",
                           timezone = "",
@@ -650,70 +645,89 @@ readDirectory <- function(## only relevant for shiny interfaces
 
     read_expression <- quote({
 
-        tcxfiles <- list.files(directory, pattern = "tcx", ignore.case = TRUE, full.names = TRUE,
+        tcxFiles <- list.files(directory, pattern = "tcx", ignore.case = TRUE, full.names = TRUE,
                                no.. = TRUE)
-        gpxfiles <- list.files(directory, pattern = "gpx", ignore.case = TRUE, full.names = TRUE,
+        gpxFiles <- list.files(directory, pattern = "gpx", ignore.case = TRUE, full.names = TRUE,
                                no.. = TRUE)
-        db3files <- list.files(directory, pattern = "db3", ignore.case = TRUE, full.names = TRUE,
+        db3Files <- list.files(directory, pattern = "db3", ignore.case = TRUE, full.names = TRUE,
                                no.. = TRUE)
-        jsonfiles <- list.files(directory, pattern = "json", ignore.case = TRUE, full.names = TRUE,
+        jsonFiles <- list.files(directory, pattern = "json", ignore.case = TRUE, full.names = TRUE,
                                 no.. = TRUE)
-        ltcx <- length(tcxfiles)
-        lgpx <- length(gpxfiles)
-        ldb3 <- length(db3files)
-        ljson <- length(jsonfiles)
+        ltcx <- length(tcxFiles)
+        lgpx <- length(gpxFiles)
+        ldb3 <- length(db3Files)
+        ljson <- length(jsonFiles)
         if ((ltcx == 0) & (ldb3 == 0) & (ljson == 0) & (lgpx == 0)) {
             stop("The supplied directory contains no files with the supported formats.")
         }
         lall <- ltcx + lgpx + ldb3 + ljson
-        allfiles <- c(tcxfiles, gpxfiles, db3files, jsonfiles)
+        allFiles <- c(tcxFiles, gpxFiles, db3Files, jsonFiles)
+        fileType <- c(rep("tcx", ltcx), rep("gpx", lgpx), rep("db3", ldb3), rep("json", ljson))
 
-        ## Read tcx files
-        if (ltcx) {
-            tcxData <- list()
-            if (aggregate){
-                ## aggregate = TRUE is the only option relevant to reactive
-                in_expression <- quote({
-                    for (j in seq.int(ltcx)) {
-                        if (make_reactive) {
-                            incProgress(1/lall, detail = paste("Reading file", j, "out of", lall, "('tcx')"))
-                        }
-                        if (verbose) cat("Reading file", allfiles[j], paste0("(file ", j, " out of ", lall, ")"), "...\n")
-                        tcxData[[j]] <- try(readTCX(allfiles[j],
-                                                    timezone = timezone,
-                                                    speedunit = speedunit$tcx,
-                                                    distanceunit = distanceunit$tcx,
-                                                    parallel = parallel,
-                                                    cores = cores))
+        allData <- list()
+
+        ## add handle for when lengths are 0
+        if (aggregate) {
+            in_expression <- quote({
+                for (j in seq.int(lall)) {
+                    currentType <- fileType[j]
+                    if (make_reactive) {
+                        incProgress(1/lall, detail = paste("Reading file", j, "out of", lall,
+                                                           paste0("(", currentType, ")")))
                     }
-                })
-                if (make_reactive) {
-                    withProgress(expr = in_expression, message = 'Loading data', value = 0, quoted = TRUE)
+                    if (verbose) {
+                        cat("Reading file", allFiles[j], paste0("(file ", j, " out of ", lall, ")"), "...\n")
+                    }
+                    allData[[j]] <- try(do.call(what = paste0("read", toupper(currentType)),
+                                                args = list(file = allFiles[j],
+                                                            timezone = timezone,
+                                                            speedunit = speedunit[[currentType]],
+                                                            distanceunit = distanceunit[[currentType]],
+                                                            parallel = parallel,
+                                                            cores = cores)))
                 }
-                else {
-                    eval(in_expression)
-                }
+            })
+            if (make_reactive) {
+                withProgress(expr = in_expression, message = 'Loading data', value = 0, quoted = TRUE)
+            }
+            else {
+                eval(in_expression)
+            }
+            if (verbose) {
+                cat("Cleaning up...")
+            }
+            allData <- do.call("rbind", allData[!sapply(allData, inherits, what = "try-error")])
+            fromDistances <- if (is.null(fromDistances)) TRUE else fromDistances
+            allData <- trackeRdata(allData,
+                                   sessionThreshold = sessionThreshold,
+                                   correctDistances = correctDistances,
+                                   country = country,
+                                   mask = mask,
+                                   fromDistances = fromDistances,
+                                   cycling = cycling,
+                                   lgap = lgap,
+                                   lskip = lskip,
+                                   m = m,
+                                   silent = silent)
 
-                if (verbose) cat("Cleaning up...")
-                tcxData <- do.call("rbind", tcxData[!sapply(tcxData, inherits, what = "try-error")])
-                fromDistancesTCX <- if(is.null(fromDistances)) TRUE else fromDistances
-                tcxData <- trackeRdata(tcxData,
-                                       sessionThreshold = sessionThreshold,
-                                       correctDistances = correctDistances,
-                                       country = country,
-                                       mask = mask,
-                                       fromDistances = fromDistancesTCX,
-                                       cycling = cycling,
-                                       lgap = lgap,
-                                       lskip = lskip,
-                                       m = m,
-                                       silent = silent)
-                if (verbose) cat("Done\n")
-            } else {
-                for (j in seq.int(ltcx)) {
-                    if (verbose) cat("Reading file", allfiles[j], paste0("(file ", j, " out of ", ltcx, ")"), "...\n")
-                    tcxData[[j]] <- try(readContainer(allfiles[j],
-                                                      type = "tcx",
+            if (verbose) {
+                cat("Done\n")
+            }
+        }
+        else {
+            in_expression <- quote({
+                for (j in seq.int(lall)) {
+                    currentType <- fileType[j]
+                    if (make_reactive) {
+                        incProgress(1/lall, detail = paste("Reading file", j, "out of", lall,
+                                                           paste0("(", currentType, ")")))
+                    }
+                    if (verbose) {
+                        cat("Reading file", allFiles[j], paste0("(file ", j, " out of ", lall, ")"), "...\n")
+                    }
+
+                    allData[[j]] <- try(readContainer(file = allFiles[j],
+                                                      type = currentType,
                                                       table = table,
                                                       timezone = timezone,
                                                       sessionThreshold = sessionThreshold,
@@ -721,8 +735,8 @@ readDirectory <- function(## only relevant for shiny interfaces
                                                       country = country,
                                                       mask = mask,
                                                       fromDistances = fromDistances,
-                                                      speedunit = speedunit$tcx,
-                                                      distanceunit = distanceunit$tcx,
+                                                      speedunit = speedunit[[currentType]],
+                                                      distanceunit = distanceunit[[currentType]],
                                                       cycling = cycling,
                                                       lgap = lgap,
                                                       lskip = lskip,
@@ -731,226 +745,26 @@ readDirectory <- function(## only relevant for shiny interfaces
                                                       parallel = parallel,
                                                       cores = cores))
                 }
-                if (verbose) cat("Cleaning up...")
-                tcxData <- do.call("c", tcxData[!sapply(tcxData, inherits, what = "try-error")])
-                if (verbose) cat("Done\n")
+            })
+            if (make_reactive) {
+                withProgress(expr = in_expression, message = 'Loading data', value = 0, quoted = TRUE)
             }
-        }
-        else {
-            tcxData <- NULL
-        }
-
-        ## Read gpx files
-        if (lgpx) {
-            gpxData <- list()
-            if (aggregate){
-                ## aggregate = TRUE is the only option relevant to reactive
-                in_expression <- quote({
-
-                    for (j in j + seq.int(lgpx)) {
-                        incProgress((ltcx + 1)/lall, detail = paste("Reading file", j, "out of", lall, "('gpx')"))
-                        if (verbose) cat("Reading file", allfiles[j], paste0("(file ", j, " out of ", lall, ")"), "...\n")
-                        gpxData[[j]] <- try(readGPX(allfiles[j],
-                                                    timezone = timezone,
-                                                    speedunit = speedunit$gpx,
-                                                    distanceunit = distanceunit$gpx,
-                                                    parallel = parallel,
-                                                    cores = cores))
-                    }
-                })
-                if (make_reactive) {
-                    withProgress(expr = in_expression, message = 'Loading data', value = 0, quoted = TRUE)
-                }
-                else {
-                    eval(in_expression)
-                }
-
-
-                if (verbose) cat("Cleaning up...")
-                gpxData <- do.call("rbind", gpxData[!sapply(gpxData, inherits, what = "try-error")])
-                fromDistancesGPX <- if(is.null(fromDistances)) TRUE else fromDistances
-
-                gpxData <- trackeRdata(gpxData,
-                                       sessionThreshold = sessionThreshold,
-                                       correctDistances = correctDistances,
-                                       country = country,
-                                       mask = mask,
-                                       fromDistances = fromDistancesGPX,
-                                       cycling = cycling,
-                                       lgap = lgap,
-                                       lskip = lskip,
-                                       m = m,
-                                       silent = silent)
-                if (verbose) cat("Done\n")
-            } else {
-                for (j in seq.int(lgpx)) {
-                    if (verbose) cat("Reading file", allfiles[j], paste0("(file ", j, " out of ", lgpx, ")"), "...\n")
-                    gpxData[[j]] <- try(readContainer(allfiles[j],
-                                                      type = "gpx",
-                                                      table = table,
-                                                      timezone = timezone,
-                                                      sessionThreshold = sessionThreshold,
-                                                      correctDistances = correctDistances,
-                                                      country = country,
-                                                      mask = mask,
-                                                      fromDistances = fromDistances,
-                                                      speedunit = speedunit$gpx,
-                                                      distanceunit = distanceunit$gpx,
-                                                      cycling = cycling,
-                                                      lgap = lgap,
-                                                      lskip = lskip,
-                                                      m = m,
-                                                      silent = silent,
-                                                      parallel = parallel,
-                                                      cores = cores))
-                }
-                if (verbose) cat("Cleaning up...")
-                gpxData <- do.call("c", gpxData[!sapply(gpxData, inherits, what = "try-error")])
-                if (verbose) cat("Done\n")
+            else {
+                eval(in_expression)
             }
-        }
-        else {
-            gpxData <- NULL
-        }
-
-        ## Read db3 files
-        if (ldb3) {
-            db3Data <- list()
-            if (aggregate){
-                ## aggregate = TRUE is the only option relevant to reactive
-                in_expression <- quote({
-
-                    for (j in j + seq.int(ldb3)) {
-                        incProgress((ltcx + lgpx + 1)/lall, detail = paste("Reading file", j, "out of", lall, "('db3')"))
-                        if (verbose) cat("Reading file", allfiles[j], paste0("(file ", j, " out of ", lall, ")"), "...\n")
-                        db3Data[[j]] <- try(readDB3(allfiles[j],
-                                                    table = table,
-                                                    timezone = timezone,
-                                                    speedunit = speedunit$db3,
-                                                    distanceunit = distanceunit$db3))
-                    }
-                })
-                if (make_reactive) {
-                    withProgress(expr = in_expression, message = 'Loading data', value = 0, quoted = TRUE)
-                }
-                else {
-                    eval(in_expression)
-                }
-                if (verbose) cat("Cleaning up...")
-                db3Data <- do.call("rbind", db3Data[!sapply(db3Data, inherits, what = "try-error")])
-                fromDistancesDB3 <- if(is.null(fromDistances)) FALSE else fromDistances
-                db3Data <- trackeRdata(db3Data,
-                                       sessionThreshold = sessionThreshold,
-                                       correctDistances = correctDistances,
-                                       country = country,
-                                       mask = mask,
-                                       fromDistances = fromDistancesDB3,
-                                       cycling = cycling,
-                                       lgap = lgap,
-                                       lskip = lskip,
-                                       m = m,
-                                       silent = silent)
-                if (verbose) cat("Done\n")
-            } else {
-                for (j in seq.int(ldb3)) {
-                    if (verbose) cat("Reading file", allfiles[j], paste0("(file ", j, " out of ", ldb3, ")"), "...\n")
-                    db3Data[[j]] <- try(readContainer(allfiles[j],
-                                                      type = "db3",
-                                                      table = table,
-                                                      timezone = timezone,
-                                                      sessionThreshold = sessionThreshold,
-                                                      correctDistances = correctDistances,
-                                                      country = country,
-                                                      mask = mask,
-                                                      fromDistances = fromDistances,
-                                                      speedunit = speedunit$db3,
-                                                      distanceunit = distanceunit$db3,
-                                                      cycling = cycling,
-                                                      lgap = lgap,
-                                                      lskip = lskip,
-                                                      m = m,
-                                                      silent = silent,
-                                                      cores = cores))
-                }
-                if (verbose) cat("Cleaning up...")
-                db3Data <- do.call("c", db3Data[!sapply(db3Data, inherits, what = "try-error")])
-                if (verbose) cat("Done\n")
+            if (verbose) {
+                cat("Cleaning up...")
             }
-        } else {
-            db3Data <- NULL
-        }
-
-        ## Read json files
-        if (ljson) {
-            jsonData <- list()
-            if (aggregate){
-                in_expression <- quote({
-                    for (j in j + seq.int(ljson)) {
-                        incProgress((ltcx + lgpx + ldb3 + 1)/lall, detail = paste("Reading file", j, "out of", lall, "('json')"))
-                        if (verbose) cat("Reading file", allfiles[j], paste0("(file ", j, " out of ", lall, ")"), "...\n")
-                        jsonData[[j]] <- try(readJSON(allfiles[j],
-                                                      timezone = timezone,
-                                                      speedunit = speedunit$json,
-                                                      distanceunit = distanceunit$json))
-                    }
-                })
-                if (make_reactive) {
-                    withProgress(expr = in_expression, message = 'Loading data', value = 0, quoted = TRUE)
-                }
-                else {
-                    eval(in_expression)
-                }
-
-                if (verbose) cat("Cleaning up...")
-                jsonData <- do.call("rbind", jsonData[!sapply(jsonData, inherits, what = "try-error")])
-                fromDistancesJSON <- if(is.null(fromDistances)) FALSE else fromDistances
-                jsonData <- trackeRdata(jsonData,
-                                        sessionThreshold = sessionThreshold,
-                                        correctDistances = correctDistances,
-                                        country = country,
-                                        mask = mask,
-                                        fromDistances = fromDistancesJSON,
-                                        cycling = cycling,
-                                        lgap = lgap,
-                                        lskip = lskip,
-                                        m = m,
-                                        silent = silent)
-                if (verbose) cat("Done\n")
-            } else {
-                for (j in seq.int(ljson)) {
-                    if (verbose) cat("Reading file", allfiles[j], paste0("(file ", j, " out of ", ljson, ")"), "...\n")
-                    jsonData[[j]] <- try(readContainer(allfiles[j],
-                                                       type = "json",
-                                                       table = table,
-                                                       timezone = timezone,
-                                                       sessionThreshold = sessionThreshold,
-                                                       correctDistances = correctDistances,
-                                                       country = country,
-                                                       mask = mask,
-                                                       fromDistances = fromDistances,
-                                                       speedunit = speedunit$json,
-                                                       distanceunit = distanceunit$json,
-                                                       cycling = cycling,
-                                                       lgap = lgap,
-                                                       lskip = lskip,
-                                                       m = m,
-                                                       silent = silent,
-                                                       cores = cores))
-                }
-                if (verbose) cat("Cleaning up...")
-                jsonData <- do.call("c", jsonData[!sapply(jsonData, inherits, what = "try-error")])
-                if (verbose) cat("Done\n")
+            allData <- do.call("c", allData[!sapply(allData, inherits, what = "try-error")])
+            if (verbose) {
+                cat("Done\n")
             }
-        } else {
-            jsonData <- NULL
         }
 
         ## combine and return
-        allData <- list(tcxData, gpxData, db3Data, jsonData)
         allData <- allData[!sapply(allData, is.null)]
-        ret <- do.call("c", allData)
-        ret
-
+        ## ret <- do.call("c", allData)
+        allData
     })
 
     if (make_reactive) {
@@ -962,6 +776,14 @@ readDirectory <- function(## only relevant for shiny interfaces
     }
 
 }
+
+readDirectory_reactive <- function(input,
+                                   output,
+                                   session,
+                                   ...) {
+    readDirectory(..., make_reactive = TRUE)
+}
+
 
 
 ## helper functions
