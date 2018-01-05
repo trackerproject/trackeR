@@ -666,7 +666,6 @@ readDirectory <- function(directory,
 
         allData <- list()
 
-        ## add handle for when lengths are 0
         if (aggregate) {
             in_expression <- quote({
                 for (j in seq.int(lall)) {
@@ -709,7 +708,6 @@ readDirectory <- function(directory,
                                    lskip = lskip,
                                    m = m,
                                    silent = silent)
-
             if (verbose) {
                 cat("Done\n")
             }
@@ -725,7 +723,6 @@ readDirectory <- function(directory,
                     if (verbose) {
                         cat("Reading file", allFiles[j], paste0("(file ", j, " out of ", lall, ")"), "...\n")
                     }
-
                     allData[[j]] <- try(readContainer(file = allFiles[j],
                                                       type = currentType,
                                                       table = table,
@@ -761,9 +758,8 @@ readDirectory <- function(directory,
             }
         }
 
-        ## combine and return
+        ## clean and return
         allData <- allData[!sapply(allData, is.null)]
-        ## ret <- do.call("c", allData)
         allData
     })
 
