@@ -18,7 +18,7 @@ server <- function(input, output, session) {
     data$dataSelected <- NULL
     ## directory
     shinyDirChoose(input, 'directory', roots = c(home = '~'),
-                   filetypes = c('', "tcx", "db3", "json"))
+                   filetypes = c('gpx', "tcx", "db3", "json"))
     directory <- reactive(input$directory)
     path <- reactive({
         home <- normalizePath("~")
@@ -273,24 +273,25 @@ server <- function(input, output, session) {
             valueBox(text_output(), "Average Pace",
                      icon = icon(create_icon('avgPace')), color = "light-blue")
         })
+
+        between <- function(x, lower, upper) {
+            if (any(is.na(c(x, lower, upper)))) {
+                return(rep(TRUE, length(x)))
+            }
+            else {
+                return((x >= lower) & (x <= upper))
+            }
+        }
+
         output$map <- renderLeaflet({
             sessionData <- reactive({
-                if (length(as.vector(data$sessionsSelected)) == 0){
-                    data$summary$session[which(data$summary$avgSpeed >= input$average_speed[1]
-                                               & data$summary$avgSpeed <= input$average_speed[2]
-                                               & data$summary$avgHeartRate >= input$average_heart_rate[1]
-                                               & data$summary$avgHeartRate <= input$average_heart_rate[2]
-                                               & data$summary$distance >= input$average_distance[1]
-                                               & data$summary$distance <= input$average_distance[2])]
-                } else {
-                    data$summary$session[which(data$summary$avgSpeed >= input$average_speed[1]
-                                               & data$summary$avgSpeed <= input$average_speed[2]
-                                               & data$summary$avgHeartRate >= input$average_heart_rate[1]
-                                               & data$summary$avgHeartRate <= input$average_heart_rate[2]
-                                               & data$summary$distance >= input$average_distance[1]
-                                               & data$summary$distance <= input$average_distance[2]
-                                               & (data$summary$session %in% as.vector(data$sessionsSelected)))]
+                choices <- between(data$summary$avgSpeed, input$average_speed[1], input$average_speed[2]) &
+                    between(data$summary$avgHeartRate, input$average_heart_rate[1], input$average_heart_rate[2]) &
+                    between(data$summary$distance, input$average_distance[1], input$average_distance[2])
+                if (length(as.vector(data$sessionsSelected))){
+                    choices <- choices & (data$summary$session %in% as.vector(data$sessionsSelected))
                 }
+                data$summary$session[choices]
             })
             shiny::validate(
                        need(sessionData(), 'Session data missing'),

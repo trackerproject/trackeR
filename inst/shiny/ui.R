@@ -40,7 +40,7 @@ ui <- dashboardPage(
             fileInput('processed_data_path', 'Load processed data'),
             tags$div(class = 'form-group shiny-input-container', tags$label('Add raw data'),
                      tags$div(class = 'input-group', shinyDirButton("directory", "Open directory...", "Upload"))),
-            div(div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('uploadButton', 'Upload', icon("upload"), style="color: #fff; background-color: #6FB1E7; border-color: #006CA1", width = "80px")),
+            div(div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('uploadButton', 'Upload', icon("upload"), style="color: #fff; background-color: #6FB1E7; border-color: #5093E3", width = "80px")),
                 hr(),
                 selectInput('sportSelected', 'Select sport', multiple = FALSE,
                             c('Running' = 'running',
@@ -57,9 +57,11 @@ ui <- dashboardPage(
                                  'Work to rest ratio' = 'wrRatio'
                                  )
                                ),
-                div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('plotButton', 'Plot', icon('area-chart'), style="color: #fff; background-color: #4FBF85; border-color: #00793C", width = "80px")),
+                ## In color: qualitative, set 2 form choose_palette(gui = "shiny")
+                ## Out color: qualitative, even darker form choose_palette(gui = "shiny")
+                div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('plotButton', 'Plot', icon('area-chart'), style="color: #fff; background-color: #4FBF85; border-color: #00AB66", width = "80px")),
                 div(style="display: inline-block;vertical-align:top; width: 120px;", actionButton('changeUnits', 'Units', icon('balance-scale'), width = "80px"))),
-                div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('resetButton', 'Reset', icon('eraser'), style="color: #fff; background-color: #ED90A4; border-color: #A2485E", width = "80px")),
+                div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('resetButton', 'Reset', icon('eraser'), style="color: #fff; background-color: #ED90A4; border-color: #E16A86", width = "80px")),
             hr(),
             tags$div(class = 'form-group shiny-input-container', tags$label('Download data'),
                      tags$div(class = 'input-group', downloadButton('download_data', 'Download procesed data')))
