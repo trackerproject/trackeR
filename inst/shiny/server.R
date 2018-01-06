@@ -104,11 +104,11 @@ server <- function(input, output, session) {
 
             data$dataSet <- callModule(module = readDirectory_reactive,
                                        id = "datafile", directory = path(),
-                                       timezone = "GMT", cycling = data$sport)
+                                       timezone = "GMT", cycling = data$sport, correctDistances = TRUE)
         } else {
             raw_data <- reactive({
                 callModule(module = readDirectory_reactive, id = "datafile", directory = path(),
-                           timezone = "GMT", cycling = data$sport)
+                           timezone = "GMT", cycling = data$sport, correctDistances = TRUE)
             })
             processed_data <- reactive({readRDS(input$processed_data_path$datapath)})
             req(raw_data())
@@ -125,7 +125,6 @@ server <- function(input, output, session) {
         )
         data$summary <- summary(data$dataSet, session = 1:length(data$dataSet),
                                 movingThreshold = 1)
-
     })
     observeEvent({input$updateUnits
         input$plotButton
@@ -140,7 +139,6 @@ server <- function(input, output, session) {
                                                          easyClose = TRUE,
                                                          size = 'm'))
         removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
-
         data$metrics <- input$metricsSelected
         data$button <- input$plotButton
         insertUI(
@@ -174,7 +172,6 @@ server <- function(input, output, session) {
                                                                                                           actionButton('plotSelectedWorkouts', 'Plot selected workouts',
                                                                                                                        style="color: #fff; background-color: #428bca; border-color:#428bca")
                                                                                                           ))))))
-
         insertUI(
             selector = ".content",
             where = "beforeEnd",

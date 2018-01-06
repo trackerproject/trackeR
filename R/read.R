@@ -671,7 +671,7 @@ readDirectory <- function(directory,
                 for (j in seq.int(lall)) {
                     currentType <- fileType[j]
                     if (make_reactive) {
-                        incProgress(1/lall, detail = paste("Reading file", j, "out of", lall,
+                        incProgress(1/lall, detail = paste(j, "out of", lall,
                                                            paste0("(", currentType, ")")))
                     }
                     if (verbose) {
@@ -717,7 +717,7 @@ readDirectory <- function(directory,
                 for (j in seq.int(lall)) {
                     currentType <- fileType[j]
                     if (make_reactive) {
-                        incProgress(1/lall, detail = paste("Reading file", j, "out of", lall,
+                        incProgress(1/lall, detail = paste(j, "out of", lall,
                                                            paste0("(", currentType, ")")))
                     }
                     if (verbose) {
