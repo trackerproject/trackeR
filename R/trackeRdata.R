@@ -236,7 +236,7 @@ c.trackeRdata <- function(..., recursive = FALSE) {
     ninput <- length(input)
     if (ninput < 2)
         return(input[[1]])
-
+    input <- input[!unlist(lapply(input, is.null))]
     nsessionsInput <- sapply(input, length)
     units1 <- getUnits(input[[1]])
     operations <- getOperations(input[[1]])
