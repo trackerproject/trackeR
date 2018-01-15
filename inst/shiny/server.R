@@ -29,6 +29,15 @@ server <- function(input, output, session) {
     ## Processed data
     shinyFileChoose(input, 'processed_data_path', roots = c(home = '~'),
                     filetypes = c('rds', 'rdata'))
+    processed_data_file <- reactive(input$processed_data_path)
+    processed_data_path <- reactive({
+        home <- normalizePath("~")
+        file.path(home, paste(unlist(processed_data_file()$files)[-1],
+                              collapse = .Platform$file.sep))
+    })
+
+    ## Home
+    home <- paste0(normalizePath("~"), '/')
 
     ## HERE: move to shinyFileChoose menus
 
@@ -96,44 +105,41 @@ server <- function(input, output, session) {
     })
 
     observeEvent(input$uploadButton, {
-        ## show message if no file or folder selected
-        if((is.null(input$processed_data_path$datapath)) && (raw_data_path() == paste0(normalizePath("~"), '/'))){
-            showModal(modalDialog(title = 'Important message',
-                                  div(tags$b("Please upload either processed or raw data",
-                                             class='warningMessage')),
-                                  easyClose = TRUE,
-                                  size = 'm'))
+        data$sport <- input$sportSelected == 'cycling'
+        if ((raw_data_path() == home) & (processed_data_path() == home)) {
+                showModal(modalDialog(title = 'trackeR dashboard message',
+                                      div(tags$b("Please select a processed data image or a directory with raw datafiles",
+                                                 class='warningMessage')),
+                                      easyClose = TRUE,
+                                      size = 's'))
         }
-        shiny::req((is.null(input$processed_data_path$datapath) != TRUE) || (raw_data_path() != paste0(normalizePath("~"), '/')))
-        data$sport <- if (input$sportSelected == 'cycling') TRUE else FALSE
-        if(raw_data_path() == paste0(normalizePath("~"), '/')){
-            data$dataSet <- readRDS(input$processed_data_path$datapath)
-        } else if (is.null(input$processed_data_path$datapath) == TRUE) {
-
-            data$dataSet <- callModule(module = readDirectory_reactive,
-                                       id = "datafile", directory = raw_data_path(),
-                                       timezone = "GMT", cycling = data$sport, correctDistances = TRUE)
-        } else {
-            raw_data <- reactive({
-                callModule(module = readDirectory_reactive, id = "datafile", directory = raw_data_path(),
-                           timezone = "GMT", cycling = data$sport, correctDistances = TRUE)
-            })
-            processed_data <- reactive({readRDS(input$processed_data_path$datapath)})
-            req(raw_data())
-            req(processed_data())
-            data$dataSet <- c(processed_data(), raw_data())
+        else {
+            processed_data <- raw_data <- NULL
+            if (processed_data_path() != home) {
+                processed_data <- readRDS(processed_data_path())
+            }
+            if (raw_data_path() != home) {
+                raw_data <- callModule(module = readDirectory_reactive,
+                                       id = "datafile",
+                                       directory = raw_data_path(),
+                                       timezone = "GMT", cycling = data$sport,
+                                       correctDistances = TRUE)
+            }
+            data$dataSet <- c.trackeRdata(processed_data, raw_data)
+            data$summary <- summary(data$dataSet, session = 1:length(data$dataSet),
+                                    movingThreshold = 1)
+            output$download_data <- downloadHandler(
+                filename = function() {
+                paste0("data-", Sys.Date(), ".RData")
+            },
+            content = function(file) {
+                saveRDS(data$dataSet, file)
+            }
+            )
         }
-        output$download_data <- downloadHandler(
-            filename = function() {
-            paste0("data-", Sys.Date(), ".RData")
-        },
-        content = function(file) {
-            saveRDS(data$dataSet, file)
-        }
-        )
-        data$summary <- summary(data$dataSet, session = 1:length(data$dataSet),
-                                movingThreshold = 1)
     })
+
+
     observeEvent({input$updateUnits
         input$plotButton
     }, {

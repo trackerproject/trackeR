@@ -233,10 +233,10 @@ c.trackeRdata <- function(..., recursive = FALSE) {
     ## FIXME: recursive argument
 
     input <- list(...)
+    input <- input[!unlist(lapply(input, is.null))]
     ninput <- length(input)
     if (ninput < 2)
         return(input[[1]])
-    input <- input[!unlist(lapply(input, is.null))]
     nsessionsInput <- sapply(input, length)
     units1 <- getUnits(input[[1]])
     operations <- getOperations(input[[1]])
