@@ -17,14 +17,21 @@ server <- function(input, output, session) {
     data <- reactiveValues()
     data$dataSelected <- NULL
     ## directory
-    shinyDirChoose(input, 'directory', roots = c(home = '~'),
+    shinyDirChoose(input, 'raw_data_directory', roots = c(home = '~'),
                    filetypes = c('gpx', "tcx", "db3", "json"))
-    directory <- reactive(input$directory)
-    path <- reactive({
+    raw_data_directory <- reactive(input$raw_data_directory)
+    raw_data_path <- reactive({
         home <- normalizePath("~")
-        file.path(home, paste(unlist(directory()$path[-1]),
+        file.path(home, paste(unlist(raw_data_directory()$path[-1]),
                               collapse = .Platform$file.sep))
     })
+
+    ## Processed data
+    shinyFileChoose(input, 'processed_data_path', roots = c(home = '~'),
+                    filetypes = c('rds', 'rdata'))
+
+    ## HERE: move to shinyFileChoose menus
+
     observeEvent(input$changeUnits, {
         req(data$dataSet)
         get_selected_units <- function(feature){
@@ -87,27 +94,28 @@ server <- function(input, output, session) {
         data$summary <- change_units(data$summary)
         removeModal()
     })
+
     observeEvent(input$uploadButton, {
         ## show message if no file or folder selected
-        if((is.null(input$processed_data_path$datapath)) && (path() == paste0(normalizePath("~"), '/'))){
+        if((is.null(input$processed_data_path$datapath)) && (raw_data_path() == paste0(normalizePath("~"), '/'))){
             showModal(modalDialog(title = 'Important message',
                                   div(tags$b("Please upload either processed or raw data",
                                              class='warningMessage')),
                                   easyClose = TRUE,
                                   size = 'm'))
         }
-        shiny::req((is.null(input$processed_data_path$datapath) != TRUE) || (path() != paste0(normalizePath("~"), '/')))
+        shiny::req((is.null(input$processed_data_path$datapath) != TRUE) || (raw_data_path() != paste0(normalizePath("~"), '/')))
         data$sport <- if (input$sportSelected == 'cycling') TRUE else FALSE
-        if(path() == paste0(normalizePath("~"), '/')){
+        if(raw_data_path() == paste0(normalizePath("~"), '/')){
             data$dataSet <- readRDS(input$processed_data_path$datapath)
         } else if (is.null(input$processed_data_path$datapath) == TRUE) {
 
             data$dataSet <- callModule(module = readDirectory_reactive,
-                                       id = "datafile", directory = path(),
+                                       id = "datafile", directory = raw_data_path(),
                                        timezone = "GMT", cycling = data$sport, correctDistances = TRUE)
         } else {
             raw_data <- reactive({
-                callModule(module = readDirectory_reactive, id = "datafile", directory = path(),
+                callModule(module = readDirectory_reactive, id = "datafile", directory = raw_data_path(),
                            timezone = "GMT", cycling = data$sport, correctDistances = TRUE)
             })
             processed_data <- reactive({readRDS(input$processed_data_path$datapath)})

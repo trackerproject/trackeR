@@ -13,7 +13,6 @@
 ## source('map.R')
 ## source('plotSelectedWorkouts.R')
 
-
 ui <- dashboardPage(
     skin = 'black',
     dashboardHeader(title = span(tagList(icon("dashboard"), "trackeR dashboard"))),
@@ -37,15 +36,18 @@ ui <- dashboardPage(
         sidebarMenu(
             ## menuItem('', tabName = 'dashboard', icon = icon('dashboard')),
             ## hr(),
-            fileInput('processed_data_path', 'Load processed data'),
-            tags$div(class = 'form-group shiny-input-container', tags$label('Add raw data'),
-                     tags$div(class = 'input-group', shinyDirButton("directory", "Open directory...", "Upload"))),
-            div(div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('uploadButton', 'Upload', icon("upload"), style="color: #fff; background-color: #6FB1E7; border-color: #5093E3", width = "80px")),
-                hr(),
-                selectInput('sportSelected', 'Select sport', multiple = FALSE,
+            ## fileInput('processed_data_path', 'Load processed data'),
+            div(class = 'form-group shiny-input-container',
+                tags$label('Load processed data'),
+                div(class = 'input-group', shinyFilesButton("processed_data_path", "Select file...", "Upload", multiple = FALSE))),
+            div(class = 'form-group shiny-input-container',
+                tags$label('Add raw data'),
+                div(class = 'input-group', shinyDirButton("raw_data_directory", "Select directory...", "Upload"))),
+            actionButton('uploadButton', 'Upload', icon("upload"), style="color: #fff; background-color: #6FB1E7; border-color: #5093E3"),
+            hr(),
+            div(selectInput('sportSelected', 'Select sport', multiple = FALSE,
                             c('Running' = 'running',
-                              'Cycling' = 'cycling')
-                            ),
+                              'Cycling' = 'cycling')),
                 selectizeInput('metricsSelected', 'Select metrics', multiple = TRUE,
                                c('Distance' = 'distance',
                                  'Duration' = 'duration',
@@ -55,8 +57,7 @@ ui <- dashboardPage(
                                  'Average power' = 'avgPower',
                                  'Average heart rate' = 'avgHeartRate',
                                  'Work to rest ratio' = 'wrRatio'
-                                 )
-                               ),
+                                 )),
                 ## In color: qualitative, set 2 form choose_palette(gui = "shiny")
                 ## Out color: qualitative, even darker form choose_palette(gui = "shiny")
                 div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('plotButton', 'Plot', icon('area-chart'), style="color: #fff; background-color: #4FBF85; border-color: #00AB66", width = "80px")),
