@@ -314,7 +314,7 @@ server <- function(input, output, session) {
                                       data$selected_sessions <- data$summary$session
                                   }
                                   else {
-                                      data$selected_sessions <- data$hover$key
+                                      data$selected_sessions <- as.numeric(data$hover$key)
                                   }
                                   dataSelected <- data.frame('Session' = data$summary[data$selected_sessions][["session"]],
                                                              'sessionStart' =
@@ -374,9 +374,10 @@ server <- function(input, output, session) {
             var_units <- reactive({lab_sum(feature = i, data = data$summary,
                                            whole_text = FALSE,
                                            transform_feature = FALSE)})
+
             output[[paste0('plot_', i)]] <- renderPlotly({
                 plot_selectedWorkouts(x = data$trackeRdata_object,
-                                      session = as.vector(data$selected_sessions),
+                                      session = data$selected_sessions,
                                       what = i, var_units = var_units(),
                                       var_name_units = var_name_units())
             })
