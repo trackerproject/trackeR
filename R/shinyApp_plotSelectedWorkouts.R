@@ -66,6 +66,7 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
     x <- x
   }
 
+
   ## get data
   df <- if (smooth) fortify(xo, melt = TRUE) else fortify(x, melt = TRUE)
 
@@ -120,12 +121,10 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
       smoothed_data <- predict(smoothed_model, newdata=df[(df$id==i),])
 
       a <- plot_ly(df[(df$id==i),], x = ~Index, y = ~Value, hoverinfo='none', alpha = 0.1, color = I('black')) %>%
-        add_lines(showlegend = FALSE) %>%
-        add_lines(x = ~Index, y = smoothed_data, hoverinfo='text', text = ~paste(round(Value, 2), var_units),
-                  color = I('deepskyblue3'),
-                  showlegend = FALSE, alpha = 1) %>% layout(annotations = annotations_list)
-                   # %>% layout(xaxis = list(title = 'asd'))
-
+          add_lines(showlegend = FALSE) %>%
+          add_lines(x = ~Index, y = smoothed_data, hoverinfo='text', text = ~paste(round(Value, 2), var_units),
+                    color = I('deepskyblue3'),
+                    showlegend = FALSE, alpha = 1) %>% layout(annotations = annotations_list)
       plot_stored[[j]] <- a
       j <- j + 1
     }
