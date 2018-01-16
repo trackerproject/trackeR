@@ -16,6 +16,8 @@ server <- function(input, output, session) {
     ## storing all data
     data <- reactiveValues()
     data$dataSelected <- NULL
+
+
     ## directory
     shinyDirChoose(input, 'raw_data_directory', roots = c(home = '~'),
                    filetypes = c('gpx', "tcx", "db3", "json"))
@@ -39,12 +41,11 @@ server <- function(input, output, session) {
     ## Home
     home <- paste0(normalizePath("~"), '/')
 
-    ## HERE: move to shinyFileChoose menus
-
+    ## Units
     observeEvent(input$changeUnits, {
-        req(data$dataSet)
+        req(data$trackeRdata_object)
         get_selected_units <- function(feature){
-            getUnits(data$dataSet)$unit[getUnits(data$dataSet)$variable %in% feature]
+            getUnits(data$trackeRdata_object)$unit[getUnits(data$trackeRdata_object)$variable %in% feature]
         }
         showModal(modalDialog(
             title = "Change units",
@@ -86,10 +87,11 @@ server <- function(input, output, session) {
             )
         ))
     })
+
     observeEvent(input$updateUnits, {
         allUnits <- reactive({
             unused_variables <- c('latitude', 'longitude', 'heart.rate', 'duration')
-            getUnits(data$dataSet)$variable[!(getUnits(data$dataSet)$variable %in% unused_variables)]
+            getUnits(data$trackeRdata_object)$variable[!(getUnits(data$trackeRdata_object)$variable %in% unused_variables)]
         })
         change_units <- function(data){
             units <- c()
@@ -99,11 +101,13 @@ server <- function(input, output, session) {
             data_updated <- changeUnits(data, variable = allUnits(), unit = units)
             return(data_updated)
         }
-        data$dataSet <- change_units(data$dataSet)
+        data$trackeRdata_object <- change_units(data$trackeRdata_object)
         data$summary <- change_units(data$summary)
         removeModal()
     })
 
+
+    ## Upload
     observeEvent(input$uploadButton, {
         data$sport <- input$sportSelected == 'cycling'
         if ((raw_data_path() == home) & (processed_data_path() == home)) {
@@ -125,33 +129,36 @@ server <- function(input, output, session) {
                                        timezone = "GMT", cycling = data$sport,
                                        correctDistances = TRUE)
             }
-            data$dataSet <- c.trackeRdata(processed_data, raw_data)
-            data$summary <- summary(data$dataSet, session = 1:length(data$dataSet),
-                                    movingThreshold = 1)
+            data$trackeRdata_object <- c.trackeRdata(processed_data, raw_data)
+            data$summary <- summary(data$trackeRdata_object)
             output$download_data <- downloadHandler(
                 filename = function() {
                 paste0("data-", Sys.Date(), ".RData")
             },
             content = function(file) {
-                saveRDS(data$dataSet, file)
+                saveRDS(data$trackeRdata_object, file)
             }
             )
         }
+
+        data$nsessions <- nsessions(data$summary)
+        data$dataSelected <- data$summary
+
     })
 
-
-    observeEvent({input$updateUnits
+    observeEvent({
+        input$updateUnits
         input$plotButton
     }, {
-        shiny::req(data$dataSet)
+        shiny::req(data$trackeRdata_object)
         output$timeline_plot <- renderPlot({
             timeline(data$summary)
         })
-        if (is.null(data$dataSet)) showModal(modalDialog(title = 'Important message',
+        if (is.null(data$trackeRdata_object)) showModal(modalDialog(title = 'Important message',
                                                          div(tags$b("Please click upload data",
                                                                     class='warningMessage')),
                                                          easyClose = TRUE,
-                                                         size = 'm'))
+                                                         size = 's'))
         removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
         data$metrics <- input$metricsSelected
         data$button <- input$plotButton
@@ -166,7 +173,7 @@ server <- function(input, output, session) {
                                                                                             withSpinner(leafletOutput('map', width = "auto", height = "430px"), size = 2),
                                                                                             absolutePanel(top = 70, right = 60,
                                                                                                           sliderInput("average_speed", "Average speed",
-                                                                                                                      floor(min(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE)),
+                                                                                                                      floor(min(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm = TRUE)),
                                                                                                                       ceiling(max(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE)),
                                                                                                                       value = c(floor(min(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE)),
                                                                                                                                 ceiling(max(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE))),
@@ -223,66 +230,40 @@ server <- function(input, output, session) {
                                                                                 )))
             )
         }
-        output$averageDistance <- renderValueBox({
-            text_output <- reactive({
-                if (length(data$sessionsSelected) >= 1) {
-                    paste0(round(mean(data$dataSelected$distance, na.rm=TRUE), 0), ' ',
-                           lab_sum('distance', data$summary, FALSE))
-                                        # print('ble')
-                } else {
-                    paste0(round(mean(data$summary$distance, na.rm=TRUE), 0), ' ',
-                           lab_sum('distance', data$summary, FALSE))
-                                        # print('bla')
-                }
-            })
-            valueBox(text_output(), "Average Distance",
-                     icon = icon(create_icon('distance')),
-                     color = "light-blue")
-        })
-        output$averageDuration <- renderValueBox({
-            text_output <- reactive({
-                if (length(data$sessionsSelected) >= 1) {
 
-                    paste0(round(mean(data$dataSelected$duration[is.finite(data$dataSelected$duration)], na.rm=TRUE), 0), ' ',
-                           lab_sum('duration', data$summary, FALSE))
-                } else {
-                    paste0(round(mean(data$summary$duration[is.finite(data$summary$duration)], na.rm=TRUE), 0), ' ',
-                           lab_sum('duration', data$summary, FALSE))
-                                        # print('bla')
+        box_text <- function(what, subtitle, icon) {
+            value <- reactive({
+                value <- round(mean(data$dataSelected[[what]], na.rm = TRUE))
+                if (is.na(value)) {
+                    "not available"
+                }
+                else {
+                    paste0(value, ' ', lab_sum(what, data$summary, FALSE))
                 }
             })
-            valueBox(text_output(), "Average Duration",
-                     icon = icon(create_icon('duration')), color = "light-blue")
+            v <- value()
+            valueBox(v, subtitle, icon, color = if (v == "not available") "olive" else "light-blue")
+        }
+
+        output$averageDistance <- renderValueBox({
+            box_text("distance",
+                     subtitle = "Average Distance",
+                     icon = icon(create_icon("distance")))
         })
+
+        output$averageDuration <- renderValueBox({
+            box_text("duration", "Average Duration",
+                     icon = icon(create_icon('duration')))
+        })
+
         output$averageHeartRate <- renderValueBox({
-            text_output <- reactive({
-                if (length(data$sessionsSelected) >= 1) {
-                    paste0(round(mean(data$dataSelected$avgHeartRate[is.finite(data$dataSelected$avgHeartRate)], na.rm=TRUE), 0), ' ',
-                           lab_sum('avgHeartRate', data$summary, FALSE))
-                                        # print('ble')
-                } else {
-                    paste0(round(mean(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE), 0), ' ',
-                           lab_sum('avgHeartRate', data$summary, FALSE))
-                                        # print('bla')
-                }
-            })
-            valueBox(text_output(), "Average Heart Rate",
-                     icon = icon(create_icon('avgHeartRate')), color = "light-blue")
+            box_text("avgHeartRate", "Average Heart Rate",
+                     icon = icon(create_icon('avgHeartRate')))
         })
+
         output$averagePace <- renderValueBox({
-            text_output <- reactive({
-                if (length(data$sessionsSelected) >= 1) {
-                    paste0(round(mean(data$dataSelected$avgPace[is.finite(data$dataSelected$avgPace)], na.rm=TRUE), 2), ' ',
-                           lab_sum('avgPace', data$summary, FALSE))
-                                        # print('ble')
-                } else {
-                    paste0(round(mean(data$summary$avgPace[is.finite(data$summary$avgPace)], na.rm=TRUE), 2), ' ',
-                           lab_sum('avgPace', data$summary, FALSE))
-                                        # print('bla')
-                }
-            })
-            valueBox(text_output(), "Average Pace",
-                     icon = icon(create_icon('avgPace')), color = "light-blue")
+            box_text("avgPace", "Average Pace",
+                     icon = icon(create_icon('avgPace')))
         })
 
         between <- function(x, lower, upper) {
@@ -306,14 +287,12 @@ server <- function(input, output, session) {
             })
             shiny::validate(
                        need(sessionData(), 'Session data missing'),
-                       need(data$dataSet, 'dataset missing'),
+                       need(data$trackeRdata_object, 'dataset missing'),
                        need(data$summary, 'summary missing')
                    )
-                                        # req(sessionData())
-                                        # req(data$dataSet)
-                                        # req(data$summary)
-            shiny_plot_map(data$dataSet,  sessionData(), data$summary)
+            shiny_plot_map(data$trackeRdata_object,  sessionData(), data$summary)
         })
+
         lapply(data$metrics, function(i) {
             plotData <-  reactive({generate_graph_data(x = data$summary, what = i)})
             feature <- reactive({lab_sum(feature = i, data = data$summary)})
@@ -330,9 +309,13 @@ server <- function(input, output, session) {
                 plot_workouts(dat = plotData(), feature = feature(), name = i, units = units())
             })
         })
+
+        ## DT
         output$summary <- DT::renderDataTable({
                                   data$hover <- event_data("plotly_selected")
-                                  data$dataSelected <- data$summary[data$summary$session %in% data$hover$key[!is.na(data$hover$key )]]
+                                  if (!is.null(data$hover)) {
+                                      data$dataSelected <- data$summary[data$summary$session %in% data$hover$key[!is.na(data$hover$key )]]
+                                  }
                                   data$sessionsSelected <- data$dataSelected$session
                                   dataSelected <- data.frame('Session' = data$dataSelected$session,
                                                              'sessionStart' =
@@ -352,10 +335,12 @@ server <- function(input, output, session) {
         })
         outputOptions(output, "cond", suspendWhenHidden = FALSE)
     })
+
     observeEvent(input$resetButton, {
         removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
         data$sessionsSelected <- NULL
     })
+
     observeEvent(input$plotSelectedWorkouts, {
         req(data$sessionsSelected)
         output$cond <-reactive({
@@ -364,7 +349,7 @@ server <- function(input, output, session) {
         output$timeline_plot <- renderPlot({
             timeline(data$summary[data$sessionsSelected])
         })
-        for(i in c("pace", "heart.rate", "altitude", "work_capacity")){
+        for (i in c("pace", "heart.rate", "altitude", "work_capacity")) {
             insertUI(
                 selector = ".content",
                 where = "beforeEnd",
@@ -383,6 +368,7 @@ server <- function(input, output, session) {
                                                                            plotlyOutput(paste0('plot_', i), width = if(length(as.vector(data$sessionsSelected)) > 2)
                                                                                                                         paste0(toString(750*length(as.vector(data$sessionsSelected))), 'px') else 'auto', height = "250px")))))))
         }
+
         lapply(c("pace", "heart.rate", "altitude"), function(i) {
             var_name_units <- reactive({lab_sum(feature = i,
                                                 data = data$summary,
@@ -391,19 +377,21 @@ server <- function(input, output, session) {
                                            whole_text = FALSE,
                                            transform_feature = FALSE)})
             output[[paste0('plot_', i)]] <- renderPlotly({
-                plot_selectedWorkouts(x = data$dataSet,
+                plot_selectedWorkouts(x = data$trackeRdata_object,
                                       session = as.vector(data$sessionsSelected),
                                       what = i, var_units = var_units(),
                                       var_name_units = var_name_units())
             })
         })
+
         output[[paste0('plot_', 'work_capacity')]] <- renderPlotly({
             if (all(is.na(data$summary$avgCadence)) == TRUE | all(is.na(data$summary$avgPower)) == TRUE) {
                 removeUI(selector = paste0("#", 'work_capacity'))
             }
             shiny::validate(need(!all(is.na(data$summary$avgCadence)) & !all(is.na(data$summary$avgPower)), 'No data'))
-            plot_work_capacity(run_data = data$dataSet, session = as.vector(data$sessionsSelected))
+            plot_work_capacity(run_data = data$trackeRdata_object, session = as.vector(data$sessionsSelected))
         })
+
         ## Time in Zones
         insertUI(
             selector = ".content",
@@ -430,22 +418,26 @@ server <- function(input, output, session) {
                          'Pace' = 'pace'
                          )
             available_data <- sapply(metrics, function(x) {
-                class(try(zones(data$dataSet, what = x), silent=TRUE))[1] != "try-error"
+                class(try(zones(data$trackeRdata_object, what = x), silent=TRUE))[1] != "try-error"
             })
             updateSelectizeInput(session, 'zones_for_plot', choices = metrics[available_data], server = TRUE, selected='speed')
         }, once=TRUE)
+
         ## Reactive plot height based on number of sessions selected
         plot_height <- reactive({
             paste0(250 * length(input$zones_for_plot), 'px')
         })
+
         ## Render UI for plot
         output$time_in_zones <- renderUI({
             plotlyOutput('time_in_zone_plots', width = 'auto', height = plot_height())
         })
+
         ## Render actual plot
         output$time_in_zone_plots <- renderPlotly({
-            plot_zones(run_data = data$dataSet, session = as.vector(data$sessionsSelected), what = input$zones_for_plot)
+            plot_zones(run_data = data$trackeRdata_object, session = as.vector(data$sessionsSelected), what = input$zones_for_plot)
         })
+
         ## Other metrics - Work capacity, Distribution profile, Concentration profile
         insertUI(
             selector = ".content",
@@ -463,6 +455,7 @@ server <- function(input, output, session) {
                                                                                                 ), selected = 'speed'
                                                                                               ),
                                                                                uiOutput('profiles'))))))
+
         metrics_test_data <- observeEvent(input$profile_metrics_for_plot, {
             metrics <- c('Heart Rate' = 'heart.rate',
                          'Altitude' = 'altitude',
@@ -472,21 +465,24 @@ server <- function(input, output, session) {
                          'Pace' = 'pace'
                          )
             available_data <- sapply(metrics, function(x) {
-                class(try(zones(data$dataSet, what = x), silent=TRUE))[1] != "try-error"
+                class(try(zones(data$trackeRdata_object, what = x), silent=TRUE))[1] != "try-error"
             })
             updateSelectizeInput(session, 'profile_metrics_for_plot', choices = metrics[available_data], server = TRUE, selected='speed')
         }, once=TRUE)
+
         ## Reactive plot height based on number of sessions selected
         profile_plot_height <- reactive({
             paste0(250 * length(input$profile_metrics_for_plot), 'px')
         })
+
         ## Render UI for plot
         output$profiles <- renderUI({
             plotlyOutput('profiles_plots', width = 'auto', height = profile_plot_height())
         })
+
         ## Render actual plot
         output$profiles_plots <- renderPlotly({
-            plot_profiles(run_data = data$dataSet, session = as.vector(data$sessionsSelected), what = input$profile_metrics_for_plot)
+            plot_profiles(run_data = data$trackeRdata_object, session = as.vector(data$sessionsSelected), what = input$profile_metrics_for_plot)
         })
     })
 }
