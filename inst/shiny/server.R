@@ -150,7 +150,6 @@ server <- function(input, output, session) {
                 saveRDS(data$trackeRdata_object, file)
             })
         }
-
         data$nsessions <- if (is.null(data$summary)) 0 else nsessions(data$summary)
         data$selected_sessions <- data$summary$session
     })
@@ -415,30 +414,36 @@ server <- function(input, output, session) {
             selector = ".content",
             where = "beforeEnd",
             ui = conditionalPanel(condition = "output.cond == false",
-                                  div(class='plots',  id = 'zones', fluidRow(
-                                                                        box(
-                                                                            status = 'primary',
-                                                                            width = 12,
-                                                                            title = tagList(shiny::icon("gear"), 'Time in Zones'),
-                                                                            selectizeInput('zones_for_plot', 'Select zone metrics to plot:', multiple = TRUE,
-                                                                                           c('Altitude' = 'altitude',
-                                                                                             'Speed' = 'speed',
-                                                                                             'Pace' = 'pace'
-                                                                                             ), selected = 'speed'
-                                                                                           ),
-                                                                            uiOutput('time_in_zones'))))))
+                                  div(class='plots',  id = 'zones',
+                                      fluidRow(box(
+                                          status = 'primary',
+                                          width = 12,
+                                          title = tagList(shiny::icon("gear"), 'Time in Zones'),
+                                          selectizeInput(inputId = 'zones_for_plot',
+                                                         label = 'Select zone metrics to plot:',
+                                                         multiple = TRUE,
+                                                         choices = c('Altitude' = 'altitude',
+                                                                     'Speed' = 'speed',
+                                                                     'Pace' = 'pace'),
+                                                         selected = c('speed', "pace")),
+                                          uiOutput('time_in_zones'))))))
         metrics_test_data <- observeEvent(input$zones_for_plot, {
             metrics <- c('Heart Rate' = 'heart.rate',
                          'Altitude' = 'altitude',
                          'Speed' = 'speed',
                          'Cadence' = 'cadence',
                          'Power' = 'power',
-                         'Pace' = 'pace'
-                         )
+                         'Pace' = 'pace')
+
             available_data <- sapply(metrics, function(x) {
-                class(try(zones(data$trackeRdata_object, what = x), silent=TRUE))[1] != "try-error"
+                ## IK: Not the most optimal thing to do here
+                length(zones(data$trackeRdata_object, session = data$selected_sessions, what = x)) > 0
             })
-            updateSelectizeInput(session, 'zones_for_plot', choices = metrics[available_data], server = TRUE, selected='speed')
+            updateSelectizeInput(session = session,
+                                 inputId = 'zones_for_plot',
+                                 choices = metrics[available_data],
+                                 server = TRUE,
+                                 selected = c('speed', 'pace'))
         }, once=TRUE)
 
         ## Reactive plot height based on number of sessions selected
@@ -453,7 +458,7 @@ server <- function(input, output, session) {
 
         ## Render actual plot
         output$time_in_zone_plots <- renderPlotly({
-            plot_zones(run_data = data$trackeRdata_object, session = as.vector(data$selected_sessions), what = input$zones_for_plot)
+            plot_zones(run_data = data$trackeRdata_object, session = data$selected_sessions, what = input$zones_for_plot)
         })
 
         ## Other metrics - Work capacity, Distribution profile, Concentration profile

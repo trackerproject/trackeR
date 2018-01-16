@@ -18,13 +18,13 @@
 #' runZones <- zones(run, what = 'speed', breaks = c(0, 2:6, 12.5))
 #' plot(runZones)
 #' @export
-zones <- function(object, session = NULL, what = c("speed", "heart.rate"), breaks = list(speed = 0:10, 
+zones <- function(object, session = NULL, what = c("speed", "heart.rate"), breaks = list(speed = 0:10,
     heart.rate = c(0, seq(75, 225, by = 50), 250)), parallel = FALSE, cores = NULL, ...) {
-        
+
     ##############################################################################
     # New code for automatic break selection
     df <- fortify(object)
-    
+
     find_step_size <- function (maximum, minimum = 0) {
         value_range <- as.character(ceiling(maximum - minimum))
         range_size <- nchar(value_range)
@@ -35,78 +35,81 @@ zones <- function(object, session = NULL, what = c("speed", "heart.rate"), break
         break_points <- seq(minimum, maximum, by = step_size)
         return(break_points)
     }
-    
-    #breaks <- list()
-    if('power' %in% what & all(is.na(df$power))) {
-        warning('No data for power')
-        what <- what[!(what %in% 'power')]
+
+                                        #breaks <- list()
+
+    for (feature in what) {
+        if (all(is.na(df[[feature]]))) {
+            warning(paste('No data for', feature))
+            what <- what[!(what %in% feature)]
+        }
     }
-    
-    for(feature in what) {
+
+    for (feature in what) {
         maximum <- ceiling(quantile(df[feature], 0.99, na.rm = TRUE))
         minimum <- if (feature == 'heart.rate') 70 else 0
         breaks[[feature]] <- find_step_size(maximum, minimum)
     }
     ##############################################################################
     ## select sessions
-    if (is.null(session)) 
+    if (is.null(session))
         session <- seq_along(object)
     object <- object[session]
-    
+
     ## process zone definitions
     if (!missing(what) && length(what) == 1 & !is.list(breaks)) {
         breaks <- list(breaks)
         names(breaks) <- what
     }
-    if (missing(what) & is.null(names(breaks))) 
+    if (missing(what) & is.null(names(breaks)))
         stop("Variable names need to be provided either in 'what' or the names of 'breaks'.")
-    if (missing(what)) 
+    if (missing(what))
         what <- names(breaks)
-    if (is.null(names(breaks))) 
+    if (is.null(names(breaks)))
         names(breaks) <- what
-    
+
     ## utility function
     zones_for_single_variable <- function(sess, what, breaks) {
         dur <- timeAboveThreshold(sess[, "speed"], 0, ge = TRUE)  ## use what or speed?
         ta <- sapply(breaks, function(thr) timeAboveThreshold(sess[, what], thr, ge = TRUE))
         td <- -diff(ta)
         perc <- td/as.numeric(dur) * 100
-        
+
         ## set time spent in zones to minutes
         attr(td, "units") <- units(dur)
         class(td) <- "difftime"
         units(td) <- "mins"
         ## td <- as.numeric(td)
-        
-        ret <- data.frame(variable = what, zone = 1:(length(breaks) - 1), lower = breaks[-length(breaks)], 
+
+        ret <- data.frame(variable = what, zone = 1:(length(breaks) - 1), lower = breaks[-length(breaks)],
             upper = breaks[-1], time = td, percent = perc)
         return(ret)
     }
-    
+
     ## get time in zones
     ret <- list()
     if (parallel) {
         dc <- parallel::detectCores()
         if (.Platform$OS.type != "windows") {
-            if (is.null(cores)) 
+            if (is.null(cores))
                 cores <- getOption("mc.cores", max(floor(dc/2), 1L))
             for (i in what) {
-                zonesForVar <- parallel::mclapply(object, zones_for_single_variable, what = i, 
+                zonesForVar <- parallel::mclapply(object, zones_for_single_variable, what = i,
                   breaks = breaks[[i]], mc.cores = cores)
                 zonesForVar <- do.call("rbind", zonesForVar)
-                ret[[i]] <- data.frame(session = rep(session, each = length(breaks[[i]]) - 
+                ret[[i]] <- data.frame(session = rep(session, each = length(breaks[[i]]) -
                   1), zonesForVar)
                 rownames(ret[[i]]) <- NULL
             }
         } else {
-            if (is.null(cores)) 
+            if (is.null(cores))
                 cores <- getOption("cores", max(floor(dc/2), 1L))
             cl <- parallel::makePSOCKcluster(rep("localhost", cores))
             for (i in what) {
-                zonesForVar <- parallel::parLapply(cl, object, zones_for_single_variable, 
+                zonesForVar <- parallel::parLapply(cl, object, zones_for_single_variable,
                   what = i, breaks = breaks[[i]])
                 zonesForVar <- do.call("rbind", zonesForVar)
-                ret[[i]] <- data.frame(session = rep(session, each = length(breaks[[i]]) - 
+                ret[[i]] <- data.frame(session = rep(session, each = length(breaks[[i]]) -
                   1), zonesForVar)
                 rownames(ret[[i]]) <- NULL
             }
@@ -116,12 +119,12 @@ zones <- function(object, session = NULL, what = c("speed", "heart.rate"), break
         for (i in what) {
             zonesForVar <- lapply(object, zones_for_single_variable, what = i, breaks = breaks[[i]])
             zonesForVar <- do.call("rbind", zonesForVar)
-            ret[[i]] <- data.frame(session = rep(session, each = length(breaks[[i]]) - 
+            ret[[i]] <- data.frame(session = rep(session, each = length(breaks[[i]]) -
                 1), zonesForVar)
             rownames(ret[[i]]) <- NULL
         }
     }
-    
+
     ## ret <- do.call('rbind', ret); rownames(ret) <- NULL
     attr(ret, "units") <- getUnits(object)
     class(ret) <- c("trackeRdataZones", class(ret))
@@ -139,33 +142,33 @@ zones <- function(object, session = NULL, what = c("speed", "heart.rate"), break
 #' plot(runZones, percent = FALSE)
 #' @export
 plot.trackeRdataZones <- function(x, percent = TRUE, ...) {
-    
+
     dat <- do.call("rbind", x)
-    dat$zoneF <- factor(paste0("[", paste(dat$lower, dat$upper, sep = "-"), ")"), levels = unique(paste0("[", 
+    dat$zoneF <- factor(paste0("[", paste(dat$lower, dat$upper, sep = "-"), ")"), levels = unique(paste0("[",
         paste(dat$lower, dat$upper, sep = "-"), ")")))
     ## dat$session <- factor(dat$session)
     dat$Session <- dat$session  ## rename for legend title
     dat$timeN <- as.numeric(dat$time)
-    
+
     ## basic plot
     p <- ggplot2::ggplot(dat) + ggplot2::xlab("Zones")
-    
+
     ## y: time or percent
     if (percent) {
-        p <- p + ggplot2::geom_bar(ggplot2::aes_(x = quote(zoneF), y = quote(percent), 
-            fill = quote(Session), group = quote(Session)), stat = "identity", position = ggplot2::position_dodge()) + 
+        p <- p + ggplot2::geom_bar(ggplot2::aes_(x = quote(zoneF), y = quote(percent),
+            fill = quote(Session), group = quote(Session)), stat = "identity", position = ggplot2::position_dodge()) +
             ggplot2::ylab("Percent")  ## +
         ## ggplot2::guides(fill = ggplot2::guide_legend(title = 'Session'))
     } else {
-        p <- p + ggplot2::geom_bar(ggplot2::aes_(x = quote(zoneF), y = quote(timeN), fill = quote(Session), 
-            group = quote(Session)), stat = "identity", position = ggplot2::position_dodge()) + 
+        p <- p + ggplot2::geom_bar(ggplot2::aes_(x = quote(zoneF), y = quote(timeN), fill = quote(Session),
+            group = quote(Session)), stat = "identity", position = ggplot2::position_dodge()) +
             ggplot2::ylab(paste0("Time [", units(dat$time), "]"))  ## +
         ## ggplot2::guides(fill = ggplot2::guide_legend(title = 'Session'))
     }
-    
+
     ## set colors hclpal <- colorspace::rainbow_hcl(n = nl  evels(dat$session), c = 60) p <- p
     ## + ggplot2::scale_fill_manual(values = hclpal)
-    
+
     ## facets
     units <- getUnits(x)
     lab_data <- function(series) {
@@ -174,12 +177,12 @@ plot.trackeRdataZones <- function(x, percent = TRUE, ...) {
         paste0(series, " [", prettyUnit, "]")
     }
     lab_data <- Vectorize(lab_data)
-    
+
     p <- p + ggplot2::facet_grid(. ~ variable, scales = "free_x", labeller = ggplot2::labeller(variable = lab_data))
-    
+
     ## theme
     p <- p + ggplot2::theme_bw()  ##+ ggplot2::theme(legend.position = 'top')
-    
+
     return(p)
 }
 

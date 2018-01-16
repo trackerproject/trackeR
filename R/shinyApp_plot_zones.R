@@ -4,20 +4,18 @@
 #' @param session A vector of selected sessions.
 #' @param what A vector of variable names to be plotted.
 
-
 plot_zones <- function(run_data, session, what = c("heart.rate")){
   x <- zones(run_data[session], what = what)
   # x <- runZones
-  
+
   dat <- do.call("rbind", x)
   dat$zoneF <- factor(paste0("[", paste(dat$lower, dat$upper, sep = "-"), ")"),
-                      levels = unique(paste0("[",paste(dat$lower, dat$upper, 
+                      levels = unique(paste0("[",paste(dat$lower, dat$upper,
                                                        sep = "-"), ")")),
                       ordered = TRUE)
   ## dat$session <- factor(dat$session)
   # dat$session <- sprintf("%02d", dat$session)
-  
-  # dat$Session <- factor(paste('Session', dat$session), ordered = TRUE)  ## rename for legend title
+
   dat$Session <- paste("Session", sprintf(paste0("%0", nchar(max(dat$session)), "d"), dat$session))
   dat$timeN <- as.numeric(dat$time)
   ## facets
@@ -28,11 +26,10 @@ plot_zones <- function(run_data, session, what = c("heart.rate")){
     paste0(series, " [", prettyUnit, "]")
   }
   pal <-  colorFactor(c('deepskyblue', 'dodgerblue4'), dat$Session)
-  
+
   individual_plots <- list()
   legend_status <- TRUE
   for (feature in what){
-    
     y <- list(
       title = '% of time'
     )
@@ -40,16 +37,16 @@ plot_zones <- function(run_data, session, what = c("heart.rate")){
       title = paste0('Zones (', lab_data(feature), ')')
       # tickangle = 180
     )
-    p <- plot_ly(subset(dat, variable == feature), x = ~zoneF, y = ~percent, 
+    p <- plot_ly(subset(dat, variable == feature), x = ~zoneF, y = ~percent,
                  color = ~Session, colors = pal(dat$Session), legendgroup = ~Session) %>%
           add_bars() %>%
           layout(xaxis = x, yaxis = y, hovermode = 'closest')
     individual_plots[[feature]] <- style(p, showlegend = legend_status)
     legend_status <- FALSE
   }
- 
-  plots <- do.call(subplot, c(individual_plots, nrows = length(what), 
+
+  plots <- do.call(subplot, c(individual_plots, nrows = length(what),
                               margin = 0.05, shareY = FALSE, titleX = TRUE, titleY = TRUE))
 
-  return(plots) 
+  return(plots)
 }
