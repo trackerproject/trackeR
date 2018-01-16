@@ -126,14 +126,11 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
                 add_lines(x = ~Index, y = smoothed_data, hoverinfo='text', text = ~paste(round(Value, 2), var_units),
                           color = I('deepskyblue3'),
                           showlegend = FALSE, alpha = 1) %>% layout(annotations = annotations_list)
-            cat(what, i, nrow(df_subset), has_values, "\n")
         }
         else {
             df_subset$Value <- 2
             a <- plot_ly(df_subset, x = ~ Index, y = ~ Value, hoverinfo = 'none', alpha = 0, color = I('black'), type = "scatter", mode = "none", showlegend = FALSE) %>%
                 layout(annotations = annotations_list)
-            cat(what, i, nrow(df_subset), has_values, "\n")
-
         }
         plot_stored[[as.character(i)]] <- a
     }
