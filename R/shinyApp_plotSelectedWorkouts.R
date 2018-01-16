@@ -20,10 +20,14 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
   Series <- NULL
 
   ## code inspired by autoplot.zoo
-  if (is.null(session)) session <- seq_along(x)
-  units <- getUnits(x)
+    if (is.null(session)) {
+        session <- seq_along(x)
+    }
+    units <- getUnits(x)
 
-  x <- x[session]
+    x <- x[session]
+
+
 
   ## threshold
   if (threshold){
@@ -31,7 +35,8 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
     if (all(c("variable", "lower", "upper") %in% names(dots))){
       ## thresholds provided by user
       th <- data.frame(variable = dots$variable, lower = dots$lower, upper = dots$upper)
-    } else {
+    }
+    else {
       ## default thresholds
       cycling <- units$unit[units$variable == "cadence"] == "rev_per_min"
       th <- generateDefaultThresholds(cycling)
@@ -42,6 +47,7 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
     ## apply thresholds
     x <- threshold(x, th)
   }
+
 
   ## for plotting pace, always apply a threshold
   ## upper threshold is based on preferred walking speed of 1.4 m/s,
@@ -57,79 +63,85 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
     xo <- x
     if (is.null(getOperations(x)$smooth)) {
       x <- smoother(x, what = what, ...)
-    } else {
+    }
+    else {
       warning("This object has already been smoothed. No additional smoothing takes place.")
       smooth <- FALSE ## it's not the plot function calling smoother
       x <- x
     }
-  } else {
+  }
+  else {
     x <- x
   }
-
 
   ## get data
   df <- if (smooth) fortify(xo, melt = TRUE) else fortify(x, melt = TRUE)
 
+    df$id <- session[df$SessionID]
   ## prepare session id for panel header
   if (dates) {
-    df$SessionID <- format(session[df$SessionID])
+    df$SessionID <- format(df$id)
     df$SessionID <- gsub(" ", "0", df$SessionID)
     df$SessionID <- paste(df$SessionID, format(df$Index, "%Y-%m-%d"), sep = ": ")
-  } else {
+  }
+  else {
     df$SessionID <- factor(df$SessionID, levels = seq_along(session), labels = session)
   }
   df <- subset(df, Series %in% what)
-  df$Series <- factor(df$Series)
+  ## df$Series <- factor(df$Series)
 
   ## check that there is data to plot
-  for(l in levels(df$Series)){
-    if (all(is.na(subset(df, Series == l, select = "Value"))))
-      df <- df[!(df$Series == l), ]
+  for (l in levels(df$Series)) {
+      if (all(is.na(subset(df, Series == l, select = "Value"))))
+          df <- df[!(df$Series == l), ]
   }
 
   #df$Index1 <- as.Date(df$Index, format = "%Y-%m-%d  %H:%M:%S")
 
   #format(dataSelected$sessionStart, format = "%Y-%m-%d  %H:%M:%S")
   df$Series <- as.character(df$Series)
-  df$id <- as.integer(factor(df$SessionID))
   df$numericDate <- as.numeric(df$Index)
-  N = nlevels(factor(df$id))
+  N <- length(unique(df$id))
 
-  plot_stored = vector("list", N)
+  plot_stored <- list()
+    for (i in unique(df$id)) {
+        df_subset <- df[df$id == i,]
+        has_values <- !all(is.na(df_subset[df_subset$Series == what, "Value"]))
+        annotations_list <- list(
+                text = paste('Session:', i),
+                xref = "paper",
+                yref = "paper",
+                yanchor = "bottom",
+                xanchor = "center",
+                align = "center",
+                x = 0.5,
+                y = 1,
+            showarrow = FALSE)
+        if (has_values) {
+            smoothed_model <- try(gam(Value ~ s(numericDate, bs = 'cs'), data = df_subset), silent = TRUE)
+            smoothed_data <- predict(smoothed_model, newdata = df_subset)
+            a <- plot_ly(df_subset, x = ~ Index, y = ~ Value, hoverinfo='none', alpha = 0.1, color = I('black')) %>%
+                add_lines(showlegend = FALSE) %>%
+                add_lines(x = ~Index, y = smoothed_data, hoverinfo='text', text = ~paste(round(Value, 2), var_units),
+                          color = I('deepskyblue3'),
+                          showlegend = FALSE, alpha = 1) %>% layout(annotations = annotations_list)
+            cat(what, i, nrow(df_subset), has_values, "\n")
 
+        }
+        else {
+            a <- plot_ly(df_subset, x = ~ Index, y = ~ Value, hoverinfo = 'none', alpha = 0.1, color = I('black')) %>%
+                add_lines(showlegend = FALSE) %>%
+                layout(annotations = annotations_list)
+            ##:ess-bp-start::browser@nil:##
+browser(expr=is.null(.ESSBP.[["@40@"]]));##:ess-bp-end:##
 
+            cat(what, i, nrow(df_subset), has_values, "\n")
 
-  plot_stored = vector("list", N)
-  j <- 1
-  for(i in unique(df$id)){
-
-    smoothed_model <- try(gam(Value ~ s(numericDate, bs = 'cs'), data = df[(df$id==i),]), silent=TRUE)
-    if (class(smoothed_model)[1] != "try-error") {
-      # annotations
-      annotations_list <- list(
-        text = paste('Session:', i),
-        # font = f,
-        xref = "paper",
-        yref = "paper",
-        yanchor = "bottom",
-        xanchor = "center",
-        align = "center",
-        x = 0.5,
-        y = 1,
-        showarrow = FALSE
-      )
-      smoothed_data <- predict(smoothed_model, newdata=df[(df$id==i),])
-
-      a <- plot_ly(df[(df$id==i),], x = ~Index, y = ~Value, hoverinfo='none', alpha = 0.1, color = I('black')) %>%
-          add_lines(showlegend = FALSE) %>%
-          add_lines(x = ~Index, y = smoothed_data, hoverinfo='text', text = ~paste(round(Value, 2), var_units),
-                    color = I('deepskyblue3'),
-                    showlegend = FALSE, alpha = 1) %>% layout(annotations = annotations_list)
-      plot_stored[[j]] <- a
-      j <- j + 1
+        }
+        plot_stored[[as.character(i)]] <- a
     }
-  }
-  plot_stored <- plot_stored[!sapply(plot_stored, is.null)]
+
+
   y <- list(
     title = var_name_units,
     fixedrange = TRUE
