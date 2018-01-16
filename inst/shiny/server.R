@@ -41,9 +41,13 @@ server <- function(input, output, session) {
 
     ## Units
     observeEvent(input$changeUnits, {
-        req(data$trackeRdata_object)
         get_selected_units <- function(feature){
-            getUnits(data$trackeRdata_object)$unit[getUnits(data$trackeRdata_object)$variable %in% feature]
+            if (is.null(data$trackeRdata_object)) {
+                return(NULL)
+            }
+            else {
+                getUnits(data$trackeRdata_object)$unit[getUnits(data$trackeRdata_object)$variable %in% feature]
+            }
         }
         showModal(modalDialog(
             title = "Change units",
@@ -87,21 +91,30 @@ server <- function(input, output, session) {
     })
 
     observeEvent(input$updateUnits, {
-        allUnits <- reactive({
-            unused_variables <- c('latitude', 'longitude', 'heart.rate', 'duration')
-            getUnits(data$trackeRdata_object)$variable[!(getUnits(data$trackeRdata_object)$variable %in% unused_variables)]
-        })
-        change_units <- function(data){
-            units <- c()
-            for (i in allUnits()){
-                units <- c(units, input[[paste0(i, 'Units')]])
-            }
-            data_updated <- changeUnits(data, variable = allUnits(), unit = units)
-            return(data_updated)
+        if (is.null(data$trackeRdata_object)) {
+            showModal(modalDialog(title = 'trackeR dashboard message',
+                                  div(tags$b("Please load processed and/or raw data",
+                                             class='warningMessage')),
+                                  easyClose = TRUE,
+                                  size = 's'))
         }
-        data$trackeRdata_object <- change_units(data$trackeRdata_object)
-        data$summary <- change_units(data$summary)
-        removeModal()
+        else {
+            allUnits <- reactive({
+                unused_variables <- c('latitude', 'longitude', 'heart.rate', 'duration')
+                getUnits(data$trackeRdata_object)$variable[!(getUnits(data$trackeRdata_object)$variable %in% unused_variables)]
+            })
+            change_units <- function(data){
+                units <- c()
+                for (i in allUnits()){
+                    units <- c(units, input[[paste0(i, 'Units')]])
+                }
+                data_updated <- changeUnits(data, variable = allUnits(), unit = units)
+                return(data_updated)
+            }
+            data$trackeRdata_object <- change_units(data$trackeRdata_object)
+            data$summary <- change_units(data$summary)
+            removeModal()
+        }
     })
 
 
@@ -135,11 +148,10 @@ server <- function(input, output, session) {
             },
             content = function(file) {
                 saveRDS(data$trackeRdata_object, file)
-            }
-            )
+            })
         }
 
-        data$nsessions <- nsessions(data$summary)
+        data$nsessions <- if (is.null(data$summary)) 0 else nsessions(data$summary)
         data$selected_sessions <- data$summary$session
     })
 
@@ -147,194 +159,200 @@ server <- function(input, output, session) {
         input$updateUnits
         input$plotButton
     }, {
-        shiny::req(data$trackeRdata_object)
-        output$timeline_plot <- renderPlot({
-            timeline(data$summary)
-        })
-        if (is.null(data$trackeRdata_object)) showModal(modalDialog(title = 'Important message',
-                                                                    div(tags$b("Please click upload data",
-                                                                               class='warningMessage')),
-                                                                    easyClose = TRUE,
-                                                                    size = 's'))
-        removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
-        data$metrics <- input$metricsSelected
-        data$button <- input$plotButton
-        insertUI(
-            selector = ".content",
-            where = "beforeEnd",
-            ui = conditionalPanel(condition = "output.cond == true", div(class='plots', fluidRow(box(
-                                                                                            status = 'primary',
-                                                                                            width = 12,
-                                                                                            height = "500px",
-                                                                                            title = tagList(shiny::icon("map"), 'Map'),
-                                                                                            withSpinner(leafletOutput('map', width = "auto", height = "430px"), size = 2),
-                                                                                            absolutePanel(top = 70, right = 60,
-                                                                                                          sliderInput("average_speed", "Average speed",
-                                                                                                                      floor(min(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm = TRUE)),
-                                                                                                                      ceiling(max(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE)),
-                                                                                                                      value = c(floor(min(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE)),
-                                                                                                                                ceiling(max(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE))),
-                                                                                                                      step = 0.1, width = '200px'),
-                                                                                                          sliderInput("average_heart_rate", "Average heart rate",
-                                                                                                                      floor(min(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10,
-                                                                                                                      ceiling(max(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10,
-                                                                                                                      value = c(floor(min(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10,
-                                                                                                                                ceiling(max(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10),
-                                                                                                                      step = 1, width = '200px'),
-                                                                                                          sliderInput("average_distance", "Distance",
-                                                                                                                      floor(min(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000,
-                                                                                                                      ceiling(max(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000,
-                                                                                                                      value = c(floor(min(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000,
-                                                                                                                                ceiling(max(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000),
-                                                                                                                      step = 1, width = '200px'),
-                                                                                                          actionButton('plotSelectedWorkouts', 'Plot selected workouts',
-                                                                                                                       style="color: #fff; background-color: #428bca; border-color:#428bca")
-                                                                                                          ))))))
-        insertUI(
-            selector = ".content",
-            where = "beforeEnd",
-            ui = conditionalPanel(condition = "output.cond == true",
-                                  div(class='plots', fluidRow(
-                                                         valueBoxOutput("averageDistance", width = 3),
-                                                         valueBoxOutput("averageDuration", width = 3),
-                                                         valueBoxOutput("averagePace", width = 3),
-                                                         valueBoxOutput("averageHeartRate", width = 3)
-                                                     ))))
-
-        for (i in data$metrics){
-            name <- reactive({switch(as.character(i),
-                                     "distance" = "Distance",
-                                     "duration" = "Duration",
-                                     "avgSpeed" = "Average Speed",
-                                     "avgPace" = "Average Pace",
-                                     "avgCadence" = "Average Cadence",
-                                     "avgPower" = "Average Power",
-                                     "avgHeartRate" = "Average Heart Rate",
-                                     "wrRatio" = "Work-to-rest Ratio")
+        if (is.null(data$trackeRdata_object)) {
+            showModal(modalDialog(title = 'trackeR dashboard message',
+                                  div(tags$b("Please load processed and/or raw data",
+                                             class='warningMessage')),
+                                  easyClose = TRUE,
+                                  size = 's'))
+        }
+        else {
+            output$timeline_plot <- renderPlot({
+                timeline(data$summary)
             })
 
+            removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
+            data$metrics <- input$metricsSelected
+            data$button <- input$plotButton
             insertUI(
                 selector = ".content",
                 where = "beforeEnd",
                 ui = conditionalPanel(condition = "output.cond == true",
-                                      div(class='plots', id = paste0("box", i), fluidRow(
-                                                                                    box(
-                                                                                        status = 'primary',
-                                                                                        width = 12,
-                                                                                        height = "250px",
-                                                                                        title = tagList(shiny::icon(create_icon(i)), name()),
-                                                                                        plotlyOutput(i, width = "auto", height = "180px")
-                                                                                    )
-                                                                                )))
-            )
-        }
+                                      div(class='plots', fluidRow(box(
+                                                             status = 'primary',
+                                                             width = 12,
+                                                             height = "500px",
+                                                             title = tagList(shiny::icon("map"), 'Map'),
+                                                             withSpinner(leafletOutput('map', width = "auto", height = "430px"), size = 2),
+                                                             absolutePanel(top = 70, right = 60,
+                                                                           sliderInput("average_speed", "Average speed",
+                                                                                       floor(min(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm = TRUE)),
+                                                                                       ceiling(max(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE)),
+                                                                                       value = c(floor(min(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE)),
+                                                                                                 ceiling(max(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm=TRUE))),
+                                                                                       step = 0.1, width = '200px'),
+                                                                           sliderInput("average_heart_rate", "Average heart rate",
+                                                                                       floor(min(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10,
+                                                                                       ceiling(max(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10,
+                                                                                       value = c(floor(min(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10,
+                                                                                                 ceiling(max(data$summary$avgHeartRate[is.finite(data$summary$avgHeartRate)], na.rm=TRUE)/10)*10),
+                                                                                       step = 1, width = '200px'),
+                                                                           sliderInput("average_distance", "Distance",
+                                                                                       floor(min(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000,
+                                                                                       ceiling(max(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000,
+                                                                                       value = c(floor(min(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000,
+                                                                                                 ceiling(max(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000),
+                                                                                       step = 1, width = '200px'),
+                                                                           actionButton('plotSelectedWorkouts', 'Plot selected workouts',
+                                                                                        style="color: #fff; background-color: #428bca; border-color:#428bca")
+                                                                           ))))))
+            insertUI(
+                selector = ".content",
+                where = "beforeEnd",
+                ui = conditionalPanel(condition = "output.cond == true",
+                                      div(class='plots', fluidRow(
+                                                             valueBoxOutput("averageDistance", width = 3),
+                                                             valueBoxOutput("averageDuration", width = 3),
+                                                             valueBoxOutput("averagePace", width = 3),
+                                                             valueBoxOutput("averageHeartRate", width = 3)
+                                                         ))))
 
-        box_text <- function(what, subtitle, icon) {
-            value <- reactive({
-                value <- round(mean(data$summary[data$selected_sessions][[what]], na.rm = TRUE))
-                if (is.na(value)) {
-                    "not available"
+            for (i in data$metrics){
+                name <- reactive({switch(as.character(i),
+                                         "distance" = "Distance",
+                                         "duration" = "Duration",
+                                         "avgSpeed" = "Average Speed",
+                                         "avgPace" = "Average Pace",
+                                         "avgCadence" = "Average Cadence",
+                                         "avgPower" = "Average Power",
+                                         "avgHeartRate" = "Average Heart Rate",
+                                         "wrRatio" = "Work-to-rest Ratio")
+                })
+
+                insertUI(
+                    selector = ".content",
+                    where = "beforeEnd",
+                    ui = conditionalPanel(condition = "output.cond == true",
+                                          div(class='plots', id = paste0("box", i), fluidRow(
+                                                                                        box(
+                                                                                            status = 'primary',
+                                                                                            width = 12,
+                                                                                            height = "250px",
+                                                                                            title = tagList(shiny::icon(create_icon(i)), name()),
+                                                                                            plotlyOutput(i, width = "auto", height = "180px")
+                                                                                        )
+                                                                                    )))
+                )
+            }
+
+            box_text <- function(what, subtitle, icon) {
+                value <- reactive({
+                    value <- round(mean(data$summary[data$selected_sessions][[what]], na.rm = TRUE))
+                    if (is.na(value)) {
+                        "not available"
+                    }
+                    else {
+                        paste0(value, ' ', lab_sum(what, data$summary, FALSE))
+                    }
+                })
+                v <- value()
+                valueBox(v, subtitle, icon, color = if (v == "not available") "olive" else "light-blue")
+            }
+
+            output$averageDistance <- renderValueBox({
+                box_text("distance",
+                         subtitle = "Average distance",
+                         icon = icon(create_icon("distance")))
+            })
+
+            output$averageDuration <- renderValueBox({
+                box_text("duration", "Average duration",
+                         icon = icon(create_icon('duration')))
+            })
+
+            output$averageHeartRate <- renderValueBox({
+                box_text("avgHeartRate", "Average heart rate",
+                         icon = icon(create_icon('avgHeartRate')))
+            })
+
+            output$averagePace <- renderValueBox({
+                box_text("avgPace", "Average pace",
+                         icon = icon(create_icon('avgPace')))
+            })
+
+            between <- function(x, lower, upper) {
+                if (any(is.na(c(x, lower, upper)))) {
+                return(rep(TRUE, length(x)))
                 }
                 else {
-                    paste0(value, ' ', lab_sum(what, data$summary, FALSE))
+                    return((x >= lower) & (x <= upper))
                 }
-            })
-            v <- value()
-            valueBox(v, subtitle, icon, color = if (v == "not available") "olive" else "light-blue")
-        }
-
-        output$averageDistance <- renderValueBox({
-            box_text("distance",
-                     subtitle = "Average distance",
-                     icon = icon(create_icon("distance")))
-        })
-
-        output$averageDuration <- renderValueBox({
-            box_text("duration", "Average duration",
-                     icon = icon(create_icon('duration')))
-        })
-
-        output$averageHeartRate <- renderValueBox({
-            box_text("avgHeartRate", "Average heart rate",
-                     icon = icon(create_icon('avgHeartRate')))
-        })
-
-        output$averagePace <- renderValueBox({
-            box_text("avgPace", "Average pace",
-                     icon = icon(create_icon('avgPace')))
-        })
-
-        between <- function(x, lower, upper) {
-            if (any(is.na(c(x, lower, upper)))) {
-                return(rep(TRUE, length(x)))
             }
-            else {
-                return((x >= lower) & (x <= upper))
-            }
-        }
 
-        output$map <- renderLeaflet({
-            sessionData <- reactive({
-                choices <- between(data$summary$avgSpeed, input$average_speed[1], input$average_speed[2]) &
-                    between(data$summary$avgHeartRate, input$average_heart_rate[1], input$average_heart_rate[2]) &
-                    between(data$summary$distance, input$average_distance[1], input$average_distance[2])
-                if (length(as.vector(data$selected_sessions))){
-                    choices <- choices & (data$summary$session %in% as.vector(data$selected_sessions))
-                }
-                data$summary$session[choices]
-            })
-            shiny::validate(
-                       need(sessionData(), 'Session data missing'),
-                       need(data$trackeRdata_object, 'dataset missing'),
-                       need(data$summary, 'summary missing')
-                   )
-            shiny_plot_map(data$trackeRdata_object,  sessionData(), data$summary)
-        })
-
-        lapply(data$metrics, function(i) {
-            plotData <-  reactive({generate_graph_data(x = data$summary, what = i)})
-            feature <- reactive({lab_sum(feature = i, data = data$summary)})
-            units <- reactive({lab_sum(feature = i, data = data$summary,
-                                       whole_text = FALSE)})
-            output[[paste0(i)]] <- renderPlotly({
-                if (all(is.na(plotData())) == TRUE) removeUI(selector = paste0("#box", i))
-                if (all(is.na(plotData())) == FALSE) {
-                    if (all(plotData()$value == 0) == TRUE) {
-                        removeUI(selector = paste0("#box", i))
+            output$map <- renderLeaflet({
+                sessionData <- reactive({
+                    choices <- between(data$summary$avgSpeed, input$average_speed[1], input$average_speed[2]) &
+                        between(data$summary$avgHeartRate, input$average_heart_rate[1], input$average_heart_rate[2]) &
+                        between(data$summary$distance, input$average_distance[1], input$average_distance[2])
+                    if (length(as.vector(data$selected_sessions))){
+                        choices <- choices & (data$summary$session %in% as.vector(data$selected_sessions))
                     }
-                }
-                shiny::validate(need(!all(is.na(plotData())), 'No data'))
-                plot_workouts(dat = plotData(), feature = feature(), name = i, units = units())
+                    data$summary$session[choices]
+                })
+                shiny::validate(
+                           need(sessionData(), 'Session data missing'),
+                           need(data$trackeRdata_object, 'dataset missing'),
+                           need(data$summary, 'summary missing')
+                       )
+                shiny_plot_map(data$trackeRdata_object,  sessionData(), data$summary)
             })
-        })
 
-        ## DT
-        output$summary <- DT::renderDataTable({
-                                  data$hover <- event_data("plotly_selected")
-                                  if (is.null(data$hover)) {
-                                      data$selected_sessions <- data$summary$session
-                                  }
-                                  else {
-                                      data$selected_sessions <- data$summary$session[na.omit(as.numeric(data$hover$key))]
-                                  }
-                                  dataSelected <- data.frame('Session' = data$summary[data$selected_sessions][["session"]],
-                                                             'sessionStart' =
-                                                                 format(data$summary[data$selected_sessions][["sessionStart"]],
-                                                                        format = "%Y-%m-%d  %H:%M:%S"),
-                                                             'sessionEnd' =
-                                                                 format(data$summary[data$selected_sessions][["sessionEnd"]],
-                                                                        format = "%Y-%m-%d %H:%M:%S"))
-                                  req(is.data.frame(dataSelected))
-                                  DT::datatable(dataSelected, rownames = FALSE, selection = 'none',
-                                                options = list(dom='t', scrollY = "300px",
-                                                               language =
-                                                                   list(zeroRecords = "No workouts selected")
-                                                               ))})
-        output$cond <- reactive({
-            TRUE
-        })
-        outputOptions(output, "cond", suspendWhenHidden = FALSE)
+            lapply(data$metrics, function(i) {
+                plotData <-  reactive({generate_graph_data(x = data$summary, what = i)})
+                feature <- reactive({lab_sum(feature = i, data = data$summary)})
+                units <- reactive({lab_sum(feature = i, data = data$summary,
+                                           whole_text = FALSE)})
+                output[[paste0(i)]] <- renderPlotly({
+                    if (all(is.na(plotData())) == TRUE) removeUI(selector = paste0("#box", i))
+                    if (all(is.na(plotData())) == FALSE) {
+                        if (all(plotData()$value == 0) == TRUE) {
+                            removeUI(selector = paste0("#box", i))
+                        }
+                    }
+                    shiny::validate(need(!all(is.na(plotData())), 'No data'))
+                    plot_workouts(dat = plotData(), feature = feature(), name = i, units = units())
+                })
+            })
+
+            ## DT
+            output$summary <- DT::renderDataTable({
+                                      data$hover <- event_data("plotly_selected")
+                                      if (is.null(data$hover)) {
+                                          data$selected_sessions <- data$summary$session
+                                      }
+                                      else {
+                                          data$selected_sessions <- data$summary$session[na.omit(as.numeric(data$hover$key))]
+                                      }
+                                      dataSelected <- data.frame('Session' = data$summary[data$selected_sessions][["session"]],
+                                                                 'sessionStart' =
+                                                                     format(data$summary[data$selected_sessions][["sessionStart"]],
+                                                                            format = "%Y-%m-%d  %H:%M:%S"),
+                                                                 'sessionEnd' =
+                                                                     format(data$summary[data$selected_sessions][["sessionEnd"]],
+                                                                            format = "%Y-%m-%d %H:%M:%S"))
+                                      req(is.data.frame(dataSelected))
+                                      DT::datatable(dataSelected, rownames = FALSE, selection = 'none',
+                                                    options = list(dom='t', scrollY = "300px",
+                                                                   language =
+                                                                       list(zeroRecords = "No workouts selected")
+                                                                   ))})
+            output$cond <- reactive({
+                TRUE
+            })
+            outputOptions(output, "cond", suspendWhenHidden = FALSE)
+        }
     })
+
 
     observeEvent(input$resetButton, {
         removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
