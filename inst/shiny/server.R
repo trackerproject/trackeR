@@ -314,7 +314,7 @@ server <- function(input, output, session) {
                                       data$selected_sessions <- data$summary$session
                                   }
                                   else {
-                                      data$selected_sessions <- as.numeric(data$hover$key)
+                                      data$selected_sessions <- data$summary$session[na.omit(as.numeric(data$hover$key))]
                                   }
                                   dataSelected <- data.frame('Session' = data$summary[data$selected_sessions][["session"]],
                                                              'sessionStart' =
