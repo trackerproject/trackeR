@@ -49,7 +49,7 @@ ui <- dashboardPage(
                             c('Running' = 'running',
                               'Cycling' = 'cycling')),
                 selectizeInput('metricsSelected', 'Select metrics', multiple = TRUE,
-                               c('Distance' = 'distance',
+                               choices = c('Distance' = 'distance',
                                  'Duration' = 'duration',
                                  'Average speed' = 'avgSpeed',
                                  'Average pace' = 'avgPace',
@@ -57,7 +57,8 @@ ui <- dashboardPage(
                                  'Average power' = 'avgPower',
                                  'Average heart rate' = 'avgHeartRate',
                                  'Work to rest ratio' = 'wrRatio'
-                                 )),
+                                 ),
+                               selected = c('duration', 'distance', 'avgPace')),
                 ## In color: qualitative, set 2 form choose_palette(gui = "shiny")
                 ## Out color: qualitative, even darker form choose_palette(gui = "shiny")
                 div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('plotButton', 'Plot', icon('area-chart'), style="color: #fff; background-color: #4FBF85; border-color: #00AB66", width = "80px")),

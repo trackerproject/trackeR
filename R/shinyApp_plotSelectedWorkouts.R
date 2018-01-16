@@ -91,10 +91,10 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
   ## df$Series <- factor(df$Series)
 
   ## check that there is data to plot
-  for (l in levels(df$Series)) {
-      if (all(is.na(subset(df, Series == l, select = "Value"))))
-          df <- df[!(df$Series == l), ]
-  }
+  ## for (l in levels(df$Series)) {
+  ##     if (all(is.na(subset(df, Series == l, select = "Value"))))
+  ##         df <- df[!(df$Series == l), ]
+  ## }
 
   #df$Index1 <- as.Date(df$Index, format = "%Y-%m-%d  %H:%M:%S")
 
@@ -105,6 +105,7 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
 
   plot_stored <- list()
     for (i in unique(df$id)) {
+
         df_subset <- df[df$id == i,]
         has_values <- !all(is.na(df_subset[df_subset$Series == what, "Value"]))
         annotations_list <- list(
@@ -126,21 +127,16 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
                           color = I('deepskyblue3'),
                           showlegend = FALSE, alpha = 1) %>% layout(annotations = annotations_list)
             cat(what, i, nrow(df_subset), has_values, "\n")
-
         }
         else {
-            a <- plot_ly(df_subset, x = ~ Index, y = ~ Value, hoverinfo = 'none', alpha = 0.1, color = I('black')) %>%
-                add_lines(showlegend = FALSE) %>%
+            df_subset$Value <- 2
+            a <- plot_ly(df_subset, x = ~ Index, y = ~ Value, hoverinfo = 'none', alpha = 0, color = I('black'), type = "scatter", mode = "none", showlegend = FALSE) %>%
                 layout(annotations = annotations_list)
-            ##:ess-bp-start::browser@nil:##
-browser(expr=is.null(.ESSBP.[["@40@"]]));##:ess-bp-end:##
-
             cat(what, i, nrow(df_subset), has_values, "\n")
 
         }
         plot_stored[[as.character(i)]] <- a
     }
-
 
   y <- list(
     title = var_name_units,

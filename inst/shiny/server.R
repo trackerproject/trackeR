@@ -202,16 +202,17 @@ server <- function(input, output, session) {
                                                      ))))
 
         for (i in data$metrics){
-            name <-reactive({switch(as.character(i),
-                                    "distance" = "Distance",
-                                    "duration" = "Duration",
-                                    "avgSpeed" = "Average Speed",
-                                    "avgPace" = "Average Pace",
-                                    "avgCadence" = "Average Cadence",
-                                    "avgPower" = "Average Power",
-                                    "avgHeartRate" = "Average Heart Rate",
-                                    "wrRatio" = "Work-to-rest Ratio")
+            name <- reactive({switch(as.character(i),
+                                     "distance" = "Distance",
+                                     "duration" = "Duration",
+                                     "avgSpeed" = "Average Speed",
+                                     "avgPace" = "Average Pace",
+                                     "avgCadence" = "Average Cadence",
+                                     "avgPower" = "Average Power",
+                                     "avgHeartRate" = "Average Heart Rate",
+                                     "wrRatio" = "Work-to-rest Ratio")
             })
+
             insertUI(
                 selector = ".content",
                 where = "beforeEnd",
