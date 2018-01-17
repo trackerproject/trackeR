@@ -434,7 +434,6 @@ server <- function(input, output, session) {
                          'Cadence' = 'cadence',
                          'Power' = 'power',
                          'Pace' = 'pace')
-
             available_data <- sapply(metrics, function(x) {
                 ## IK: Not the most optimal thing to do here
                 length(zones(data$trackeRdata_object, session = data$selected_sessions, what = x)) > 0
@@ -485,12 +484,16 @@ server <- function(input, output, session) {
                          'Speed' = 'speed',
                          'Cadence' = 'cadence',
                          'Power' = 'power',
-                         'Pace' = 'pace'
-                         )
+                         'Pace' = 'pace')
             available_data <- sapply(metrics, function(x) {
-                class(try(zones(data$trackeRdata_object, what = x), silent=TRUE))[1] != "try-error"
+                ## IK: Not the most optimal thing to do here
+                length(zones(data$trackeRdata_object, session = data$selected_sessions, what = x)) > 0
             })
-            updateSelectizeInput(session, 'profile_metrics_for_plot', choices = metrics[available_data], server = TRUE, selected='speed')
+            updateSelectizeInput(session = session,
+                                 inputId = 'zones_for_plot',
+                                 choices = metrics[available_data],
+                                 server = TRUE,
+                                 selected = c('speed', 'pace'))
         }, once=TRUE)
 
         ## Reactive plot height based on number of sessions selected
