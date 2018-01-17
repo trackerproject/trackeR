@@ -4,11 +4,12 @@
 \alias{readContainer}
 \title{Read a GPS container file.}
 \usage{
-readContainer(file, type = c("tcx", "db3", "json"), table = "gps_data",
-  timezone = "", sessionThreshold = 2, correctDistances = FALSE,
-  country = NULL, mask = TRUE, fromDistances = NULL, speedunit = NULL,
-  distanceunit = NULL, cycling = FALSE, lgap = 30, lskip = 5, m = 11,
-  silent = FALSE, parallel = FALSE, cores = getOption("mc.cores", 2L))
+readContainer(file, type = c("tcx", "gpx", "db3", "json"),
+  table = "gps_data", timezone = "", sessionThreshold = 2,
+  correctDistances = FALSE, country = NULL, mask = TRUE,
+  fromDistances = NULL, speedunit = NULL, distanceunit = NULL,
+  cycling = FALSE, lgap = 30, lskip = 5, m = 11, silent = FALSE,
+  parallel = FALSE, cores = getOption("mc.cores", 2L))
 }
 \arguments{
 \item{file}{The path to the file.}
@@ -18,8 +19,8 @@ readContainer(file, type = c("tcx", "db3", "json"), table = "gps_data",
 \item{table}{The name of the table in the database if \code{type} is set to \code{db3},
 ignored otherwise.}
 
-\item{timezone}{The timezone of the observations as passed on to \code{\link[base]{as.POSIXct}}.
-Ignored for JSON files.}
+\item{timezone}{The timezone of the observations as passed on to
+\code{\link[base]{as.POSIXct}}.  Ignored for JSON files.}
 
 \item{sessionThreshold}{The threshold in hours for the time
 difference between consecutive timestamps above which they are
@@ -58,7 +59,8 @@ observation after a small break.}
 
 \item{silent}{Logical. Should warnings be generated if any of the sanity checks on the data are triggered?}
 
-\item{parallel}{Logical. Should computation be carried out in parallel? (Not supported on Windows.)}
+\item{parallel}{Logical. Should computation be carried out in
+parallel? (Not supported on Windows.)}
 
 \item{cores}{Number of cores for parallel computing.}
 }

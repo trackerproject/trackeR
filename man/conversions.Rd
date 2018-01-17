@@ -91,6 +91,8 @@
 \alias{kW2kW}
 \alias{steps_per_min2steps_per_min}
 \alias{rev_per_min2rev_per_min}
+\alias{steps_per_min2rev_per_min}
+\alias{rev_per_min2steps_per_min}
 \title{Auxiliary conversion functions.}
 \usage{
 m2km(variable)
@@ -270,6 +272,10 @@ kW2kW(variable)
 steps_per_min2steps_per_min(variable)
 
 rev_per_min2rev_per_min(variable)
+
+steps_per_min2rev_per_min(variable)
+
+rev_per_min2steps_per_min(variable)
 }
 \arguments{
 \item{variable}{Variable to be converted.}

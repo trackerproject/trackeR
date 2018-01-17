@@ -465,18 +465,19 @@ server <- function(input, output, session) {
             selector = ".content",
             where = "beforeEnd",
             ui = conditionalPanel(condition = "output.cond == false",
-                                  div(class='plots',  id = 'profiles', fluidRow(
-                                                                           box(
-                                                                               status = 'primary',
-                                                                               width = 12,
-                                                                               title = tagList(shiny::icon("gear"), 'Profiles'),
-                                                                               selectizeInput('profile_metrics_for_plot', 'Concentration profiles:', multiple = TRUE,
-                                                                                              c('Altitude' = 'altitude',
-                                                                                                'Speed' = 'speed',
-                                                                                                'Pace' = 'pace'
-                                                                                                ), selected = 'speed'
-                                                                                              ),
-                                                                               uiOutput('profiles'))))))
+                                  div(class='plots',  id = 'profiles',
+                                      fluidRow(box(
+                                          status = 'primary',
+                                          width = 12,
+                                          title = tagList(shiny::icon("gear"), 'Profiles'),
+                                          selectizeInput(inputId = 'profile_metrics_for_plot',
+                                                         label = 'Concentration profiles:',
+                                                         multiple = TRUE,
+                                                         choices = c('Altitude' = 'altitude',
+                                                                     'Speed' = 'speed',
+                                                                     'Pace' = 'pace'),
+                                                         selected = 'speed'),
+                                          uiOutput('profiles'))))))
 
         metrics_test_data <- observeEvent(input$profile_metrics_for_plot, {
             metrics <- c('Heart Rate' = 'heart.rate',
@@ -490,7 +491,7 @@ server <- function(input, output, session) {
                 length(zones(data$trackeRdata_object, session = data$selected_sessions, what = x)) > 0
             })
             updateSelectizeInput(session = session,
-                                 inputId = 'zones_for_plot',
+                                 inputId = 'profile_metrics_for_plot',
                                  choices = metrics[available_data],
                                  server = TRUE,
                                  selected = c('speed', 'pace'))
@@ -508,7 +509,9 @@ server <- function(input, output, session) {
 
         ## Render actual plot
         output$profiles_plots <- renderPlotly({
-            plot_profiles(run_data = data$trackeRdata_object, session = as.vector(data$selected_sessions), what = input$profile_metrics_for_plot)
+            plot_profiles(run_data = data$trackeRdata_object,
+                          session = as.vector(data$selected_sessions),
+                          what = input$profile_metrics_for_plot)
         })
     })
 }

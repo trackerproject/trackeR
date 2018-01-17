@@ -492,7 +492,7 @@ as.data.frame.trackeRdata <- function(x, ...) {
     return(ret)
 }
 
-## print method for \code{\link{trackeRdata}} objects
+#' print method for \code{\link{trackeRdata}} objects
 #'
 #' @param x An object of class \code{\link{trackeRdata}}.
 #' @param ... Not used, for compatibility with generic summary method only.

@@ -7,9 +7,10 @@
 readDirectory(directory, aggregate = TRUE, table = "gps_data",
   timezone = "", sessionThreshold = 2, correctDistances = FALSE,
   country = NULL, mask = TRUE, fromDistances = NULL,
-  speedunit = list(tcx = "m_per_s", db3 = "km_per_h", json = "km_per_h"),
-  distanceunit = list(tcx = "m", db3 = "km", json = "km"), cycling = FALSE,
-  lgap = 30, lskip = 5, m = 11, silent = FALSE, parallel = FALSE,
+  speedunit = list(tcx = "m_per_s", gpx = "km_per_h", db3 = "km_per_h", json =
+  "km_per_h"), distanceunit = list(tcx = "m", gpx = "km", db3 = "km", json =
+  "km"), cycling = FALSE, lgap = 30, lskip = 5, m = 11,
+  silent = FALSE, make_reactive = FALSE, parallel = FALSE,
   cores = getOption("mc.cores", 2L), verbose = TRUE)
 }
 \arguments{
@@ -19,8 +20,8 @@ readDirectory(directory, aggregate = TRUE, table = "gps_data",
 
 \item{table}{The name of the table in the database for db3 files.}
 
-\item{timezone}{The timezone of the observations as passed on to \code{\link[base]{as.POSIXct}}.
-Ignored for JSON files.}
+\item{timezone}{The timezone of the observations as passed on to
+\code{\link[base]{as.POSIXct}}.  Ignored for JSON files.}
 
 \item{sessionThreshold}{The threshold in hours for the time
 difference between consecutive timestamps above which they are
@@ -58,7 +59,8 @@ observation after a small break.}
 
 \item{silent}{Logical. Should warnings be generated if any of the sanity checks on the data are triggered?}
 
-\item{parallel}{Logical. Should computation be carried out in parallel? (Not supported on Windows.)}
+\item{parallel}{Logical. Should computation be carried out in
+parallel? (Not supported on Windows.)}
 
 \item{cores}{Number of cores for parallel computing.}
 
