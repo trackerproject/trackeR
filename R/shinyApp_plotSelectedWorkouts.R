@@ -103,23 +103,23 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
         if (has_values) {
             smoothed_model <- try(mgcv::gam(Value ~ s(numericDate, bs = 'cs'), data = df_subset), silent = TRUE)
             smoothed_data <- mgcv::predict.gam(smoothed_model, newdata = df_subset)
-            a <- plot_ly(df_subset, x = ~ Index, y = ~ Value, hoverinfo = 'none',
-                         type = "scatter", mode = "lines",
-                         showlegend = FALSE, alpha = 0.1, color = I('black')) %>%
-                add_lines(x = ~ Index, y = smoothed_data, hoverinfo = 'text',
-                          text = ~ paste(round(Value, 2), var_units),
-                          color = I('deepskyblue3'),
-                          showlegend = FALSE, alpha = 1) %>%
-                layout(annotations = annotations_list,
-                       xaxis = axis_list, yaxis = c(axis_list, list(range = maximal_range * 1.02)))
+            a <- plotly::plot_ly(df_subset, x = ~ Index, y = ~ Value, hoverinfo = 'none',
+                                 type = "scatter", mode = "lines",
+                                 showlegend = FALSE, alpha = 0.1, color = I('black')) %>%
+                plotly::add_lines(x = ~ Index, y = smoothed_data, hoverinfo = 'text',
+                                  text = ~ paste(round(Value, 2), var_units),
+                                  color = I('deepskyblue3'),
+                                  showlegend = FALSE, alpha = 1) %>%
+                plotly::layout(annotations = annotations_list,
+                               xaxis = axis_list, yaxis = c(axis_list, list(range = maximal_range * 1.02)))
         }
         else {
             df_subset$Value <- if (na_ranges) 0 else mean(maximal_range)
-            a <- plot_ly(df_subset, x = ~ Index, y = ~ Value, hoverinfo = 'none',
-                         type = "scatter", mode = "none",
-                         showlegend = FALSE) %>%
-                layout(annotations = annotations_list,
-                       xaxis = axis_list, yaxis = c(axis_list, list(range = maximal_range * 1.02)))
+            a <- plotly::plot_ly(df_subset, x = ~ Index, y = ~ Value, hoverinfo = 'none',
+                                 type = "scatter", mode = "none",
+                                 showlegend = FALSE) %>%
+                plotly::layout(annotations = annotations_list,
+                               xaxis = axis_list, yaxis = c(axis_list, list(range = maximal_range * 1.02)))
         }
         plot_stored[[as.character(i)]] <- a
     }
@@ -127,7 +127,7 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
     y <- list(title = var_name_units, fixedrange = TRUE)
     x <- list(title = 'Time', fixedrange = TRUE)
 
-    return(subplot(plot_stored, nrows = 1, shareY = FALSE, margin = 0.002)  %>%
-           config(displayModeBar = FALSE) %>%
-           layout(showlegend = FALSE, yaxis = y, xaxis = x, hovermode = 'closest'))
+    return(plotly::subplot(plot_stored, nrows = 1, shareY = FALSE, margin = 0.002)  %>%
+           plotly::config(displayModeBar = FALSE) %>%
+           plotly::layout(showlegend = FALSE, yaxis = y, xaxis = x, hovermode = 'closest'))
 }

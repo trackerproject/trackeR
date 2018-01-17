@@ -238,7 +238,7 @@ server <- function(input, output, session) {
                                                                                             width = 12,
                                                                                             height = "250px",
                                                                                             title = tagList(shiny::icon(create_icon(i)), name()),
-                                                                                            plotlyOutput(i, width = "auto", height = "180px")
+                                                                                            plotly::plotlyOutput(i, width = "auto", height = "180px")
                                                                                         )
                                                                                     )))
                 )
@@ -311,7 +311,7 @@ server <- function(input, output, session) {
                 feature <- reactive({lab_sum(feature = i, data = data$summary)})
                 units <- reactive({lab_sum(feature = i, data = data$summary,
                                            whole_text = FALSE)})
-                output[[paste0(i)]] <- renderPlotly({
+                output[[paste0(i)]] <- plotly::renderPlotly({
                     if (all(is.na(plotData())) == TRUE) removeUI(selector = paste0("#box", i))
                     if (all(is.na(plotData())) == FALSE) {
                         if (all(plotData()$value == 0) == TRUE) {
@@ -325,7 +325,7 @@ server <- function(input, output, session) {
 
             ## DT
             output$summary <- DT::renderDataTable({
-                                      data$hover <- event_data("plotly_selected")
+                                      data$hover <- plotly::event_data("plotly_selected")
                                       if (is.null(data$hover)) {
                                           data$selected_sessions <- data$summary$session
                                       }
@@ -381,7 +381,7 @@ server <- function(input, output, session) {
                                                                                               "altitude" = paste0("Altitude"),
                                                                                               "work_capacity" = paste0("Work Capacity"))),
                                                                        div(style = 'overflow-x: scroll',
-                                                                           plotlyOutput(paste0('plot_', i), width = if(length(data$selected_sessions) > 2)
+                                                                           plotly::plotlyOutput(paste0('plot_', i), width = if(length(data$selected_sessions) > 2)
                                                                                                                         paste0(toString(750*length(as.vector(data$selected_sessions))), 'px') else 'auto', height = "250px")))))))
         }
 
@@ -393,7 +393,7 @@ server <- function(input, output, session) {
                                            whole_text = FALSE,
                                            transform_feature = FALSE)})
 
-            output[[paste0('plot_', i)]] <- renderPlotly({
+            output[[paste0('plot_', i)]] <- plotly::renderPlotly({
                 plot_selectedWorkouts(x = data$trackeRdata_object,
                                       session = data$selected_sessions,
                                       what = i, var_units = var_units(),
@@ -401,7 +401,7 @@ server <- function(input, output, session) {
             })
         })
 
-        output[[paste0('plot_', 'work_capacity')]] <- renderPlotly({
+        output[[paste0('plot_', 'work_capacity')]] <- plotly::renderPlotly({
             if (all(is.na(data$summary$avgCadence)) == TRUE | all(is.na(data$summary$avgPower)) == TRUE) {
                 removeUI(selector = paste0("#", 'work_capacity'))
             }
@@ -452,11 +452,11 @@ server <- function(input, output, session) {
 
         ## Render UI for plot
         output$time_in_zones <- renderUI({
-            plotlyOutput('time_in_zone_plots', width = 'auto', height = plot_height())
+            plotly::plotlyOutput('time_in_zone_plots', width = 'auto', height = plot_height())
         })
 
         ## Render actual plot
-        output$time_in_zone_plots <- renderPlotly({
+        output$time_in_zone_plots <- plotly::renderPlotly({
             plot_zones(run_data = data$trackeRdata_object, session = data$selected_sessions, what = input$zones_for_plot)
         })
 
@@ -504,11 +504,11 @@ server <- function(input, output, session) {
 
         ## Render UI for plot
         output$profiles <- renderUI({
-            plotlyOutput('profiles_plots', width = 'auto', height = profile_plot_height())
+            plotly::plotlyOutput('profiles_plots', width = 'auto', height = profile_plot_height())
         })
 
         ## Render actual plot
-        output$profiles_plots <- renderPlotly({
+        output$profiles_plots <- plotly::renderPlotly({
             plot_profiles(run_data = data$trackeRdata_object,
                           session = as.vector(data$selected_sessions),
                           what = input$profile_metrics_for_plot)

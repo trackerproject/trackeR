@@ -37,16 +37,16 @@ plot_zones <- function(run_data, session, what = c("heart.rate")){
       title = paste0('Zones (', lab_data(feature), ')')
       # tickangle = 180
     )
-    p <- plot_ly(subset(dat, variable == feature), x = ~zoneF, y = ~percent,
-                 color = ~Session, colors = pal(dat$Session), legendgroup = ~Session) %>%
-          add_bars() %>%
-          layout(xaxis = x, yaxis = y, hovermode = 'closest')
+    p <- plotly::plot_ly(subset(dat, variable == feature), x = ~zoneF, y = ~percent,
+                         color = ~Session, colors = pal(dat$Session), legendgroup = ~Session) %>%
+          plotly::add_bars() %>%
+          plotly::layout(xaxis = x, yaxis = y, hovermode = 'closest')
     individual_plots[[feature]] <- style(p, showlegend = legend_status)
     legend_status <- FALSE
   }
 
-  plots <- do.call(subplot, c(individual_plots, nrows = length(what),
-                              margin = 0.05, shareY = FALSE, titleX = TRUE, titleY = TRUE))
+  plots <- do.call(plotly::subplot, c(individual_plots, nrows = length(what),
+                                      margin = 0.05, shareY = FALSE, titleX = TRUE, titleY = TRUE))
 
   return(plots)
 }

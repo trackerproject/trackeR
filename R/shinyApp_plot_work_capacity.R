@@ -82,11 +82,11 @@ plot_work_capacity <- function(run_data, session){
     # smoothed_data <- predict(smoothed_model, newdata=df[(df$id==i),])
     print(i)
     print(subset(df, (id == i) & (Series == 'movement')))
-    a <- plot_ly(subset(df, (id == i) & (Series == 'movement')), x = ~Index, y = ~Value, hoverinfo='none',
-                 color = I('gray'),legendgroup = ~Series,
-                 name = mylabels[1], showlegend = show_legend) %>% add_lines(alpha=0.4) %>%
-      add_lines(data=subset(df, (id == i) & (Series == 'wprime')), x = ~Index, y = ~Value, hoverinfo='none',
-                color = I('#337ab7'), legendgroup = ~Series, name = mylabels[2], showlegend = show_legend)
+    a <- plotly::plot_ly(subset(df, (id == i) & (Series == 'movement')), x = ~Index, y = ~Value, hoverinfo='none',
+                         color = I('gray'),legendgroup = ~Series,
+                         name = mylabels[1], showlegend = show_legend) %>% add_lines(alpha=0.4) %>%
+        plotly::add_lines(data=subset(df, (id == i) & (Series == 'wprime')), x = ~Index, y = ~Value, hoverinfo='none',
+                          color = I('#337ab7'), legendgroup = ~Series, name = mylabels[2], showlegend = show_legend)
 
     plot_stored[[i]] <- a
     show_legend = F
@@ -103,8 +103,8 @@ plot_work_capacity <- function(run_data, session){
     fixedrange = TRUE
   )
 
-  return(subplot(plot_stored, nrows = 1, shareY = TRUE, margin = 0.002) %>% config(displayModeBar = F) %>%
-           layout(yaxis = y, xaxis = x, hovermode = 'closest', legend = list(y = 1, orientation = 'h')))
+  return(plotly::subplot(plot_stored, nrows = 1, shareY = TRUE, margin = 0.002) %>% config(displayModeBar = F) %>%
+         plotly::layout(yaxis = y, xaxis = x, hovermode = 'closest', legend = list(y = 1, orientation = 'h')))
 
 }
 

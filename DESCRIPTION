@@ -19,12 +19,12 @@ Depends:
     R (>= 2.10.0),
     zoo,
     ggplot2,
-    plotly,
     shiny,
     shinydashboard,
     shinycssloaders,
     shinyFiles
 Imports:
+    plotly,
     DT,
     mgcv,
     parallel,
