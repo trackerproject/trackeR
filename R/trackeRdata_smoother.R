@@ -19,59 +19,60 @@
 #' plot(runS, smooth = FALSE)
 #' @export
 smoother.trackeRdata <- function(object, session = NULL, control = list(...), ...) {
-    
+
     operations <- attr(object, "operations")
-    
+
     if (!is.null(operations$smooth)) {
-        stop("'object' is already the result of smoother.")
+        warning("'object' is already the result of smoother.")
+        return(object)
     }
-    
+
     ## select sessions
-    if (is.null(session)) 
+    if (is.null(session))
         session <- seq_len(length(object))
     object <- object[session]
-    
+
     ## evaluate control argument
     control$nsessions <- length(session)
     control <- do.call("smootherControl.trackeRdata", control)
-    
+
     ## Check that all what are available
     what <- match(unlist(control$what), names(object[[1]]))
-    
+
     if (any(is.na(what))) {
         stop("At least one of 'what' is not available.")
     }
-    
+
     ## apply rolling window
     if (control$parallel) {
         if (.Platform$OS.type != "windows") {
-            objectNew <- parallel::mclapply(object, zoo::rollapply, width = control$width, 
+            objectNew <- parallel::mclapply(object, zoo::rollapply, width = control$width,
                 match.fun(control$fun), mc.cores = control$cores)
         } else {
             cl <- parallel::makePSOCKcluster(rep("localhost", control$cores))
-            objectNew <- parallel::parLapply(cl, object, zoo::rollapply, width = control$width, 
+            objectNew <- parallel::parLapply(cl, object, zoo::rollapply, width = control$width,
                 match.fun(control$fun))
             parallel::stopCluster(cl)
         }
     } else {
         objectNew <- lapply(object, zoo::rollapply, width = control$width, match.fun(control$fun))
     }
-    
+
     ## replace variables not in control$what with the corresponding original data
     for (k in seq_len(length(object))) {
         inds <- index(objectNew[[k]])
         objectNew[[k]][, -what] <- object[[k]][inds, -what]
     }
-    
+
     class(objectNew) <- "trackeRdata"
-    
+
     ## Enrich attr(objectNew, 'operations') with the control of the operation that has just
     ## been performed
     operations$smooth <- control
     attr(objectNew, "operations") <- operations
     attr(objectNew, "units") <- getUnits(object)
     return(objectNew)
-    
+
 }
 
 #' Auxiliary function for \code{\link{smoother.trackeRdata}}. Typically used to construct
@@ -88,7 +89,7 @@ smoother.trackeRdata <- function(object, session = NULL, control = list(...), ..
 #' @param ... Currently not used.
 #' @seealso \code{\link{smoother.trackeRdata}}
 #' @export
-smootherControl.trackeRdata <- function(fun = "mean", width = 10, parallel = FALSE, cores = NULL, 
+smootherControl.trackeRdata <- function(fun = "mean", width = 10, parallel = FALSE, cores = NULL,
     what = c("speed", "heart.rate"), nsessions = NA, ...) {
     # Basic checks for the arguments
     if (!is.character(fun)) {
@@ -107,7 +108,7 @@ smootherControl.trackeRdata <- function(fun = "mean", width = 10, parallel = FAL
             cores <- getOption("cores", max(floor(dc/2), 1L))
         }
     }
-    
+
     list(fun = fun, width = width, parallel = parallel, cores = cores, what = what, nsessions = nsessions)
 }
 
