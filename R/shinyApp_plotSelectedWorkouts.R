@@ -130,6 +130,4 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
     return(subplot(plot_stored, nrows = 1, shareY = FALSE, margin = 0.002)  %>%
            config(displayModeBar = FALSE) %>%
            layout(showlegend = FALSE, yaxis = y, xaxis = x, hovermode = 'closest'))
-
-
 }
