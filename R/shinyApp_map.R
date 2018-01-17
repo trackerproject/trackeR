@@ -15,7 +15,6 @@ shiny_plot_map <- function(x, session, data_summary){
   df <- prepRoute(x, session = session, threshold = threshold)
   # create icons
   startIcon <- leaflet::makeIcon(
-
     iconUrl = system.file("icons", "green_marker.png", package = "trackeR"),
     iconWidth = 32, iconHeight = 37, iconAnchorX = 16, iconAnchorY = 37
   )
@@ -45,19 +44,18 @@ shiny_plot_map <- function(x, session, data_summary){
     )
   }
 
-  p <- leaflet() %>% addProviderTiles(leaflet::providers$CartoDB.Positron)
+  p <- leaflet::leaflet() %>% addProviderTiles(leaflet::providers$CartoDB.Positron)
   #p <- leaflet() %>% addTiles()
   ## add trace + markers + popups
   for (i in session){
     dfi <- df[df$SessionID == which(i == session), , drop = FALSE]
-    p <- addPolylines(p, group = paste("Session:", i),
-                               lng = dfi$longitude, lat = dfi$latitude, popup = popupText(session = i,
-                                                                                          start = TRUE))
-
-    p <- addMarkers(p, group = paste("Session:", i),
+    p <- leaflet::addPolylines(p, group = paste("Session:", i),
+                               lng = dfi$longitude, lat = dfi$latitude,
+                               popup = popupText(session = i, start = TRUE))
+    p <- leaflet::addMarkers(p, group = paste("Session:", i),
                              lng = dfi$longitude[1], lat = dfi$latitude[1],
                              popup = popupText(session = i, start = TRUE), icon = startIcon)
-    p <- addMarkers(p, group = paste("Session:", i),
+    p <- leaflet::addMarkers(p, group = paste("Session:", i),
                              lng = dfi$longitude[nrow(dfi)], lat = dfi$latitude[nrow(dfi)],
                              popup = popupText(session = i, start = FALSE), icon = finishIcon)
   }

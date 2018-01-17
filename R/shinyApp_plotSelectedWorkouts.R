@@ -3,7 +3,7 @@
 #' @param x An object of class \code{trackeRdata}.
 #' @param session A vector of selected sessions.
 #' @param what A character of the variable to be plotted (e.g. "heart.rate").
-#' @param var_units A character of the unit of measurement for the given variable (e.g. "[bmp]") generated using \code{lab_sum()}.
+#' @param var_units A character of the unit of measurement for the given variable (e.g. "bmp") generated using \code{lab_sum()}.
 #' @param var_name_units A character of the named unit of measurement for the given variable (e.g. "Heart Rate \n [bpm]") generated using \code{lab_sum()}.
 
 plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
@@ -101,8 +101,8 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
             showarrow = FALSE)
         axis_list <- list(zeroline = FALSE)
         if (has_values) {
-            smoothed_model <- try(gam(Value ~ s(numericDate, bs = 'cs'), data = df_subset), silent = TRUE)
-            smoothed_data <- predict(smoothed_model, newdata = df_subset)
+            smoothed_model <- try(mgcv::gam(Value ~ s(numericDate, bs = 'cs'), data = df_subset), silent = TRUE)
+            smoothed_data <- mgcv::predict.gam(smoothed_model, newdata = df_subset)
             a <- plot_ly(df_subset, x = ~ Index, y = ~ Value, hoverinfo = 'none',
                          type = "scatter", mode = "lines",
                          showlegend = FALSE, alpha = 0.1, color = I('black')) %>%

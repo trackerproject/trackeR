@@ -20,14 +20,13 @@ Depends:
     zoo,
     ggplot2,
     plotly,
-    leaflet,
-    mgcv,
-    DT,
     shiny,
     shinydashboard,
     shinycssloaders,
     shinyFiles
 Imports:
+    DT,
+    mgcv,
     parallel,
     XML,
     RSQLite,
@@ -35,6 +34,7 @@ Imports:
     raster,
     scam,
     fda,
+    leaflet,
     ggmap,
     gridExtra,
     gtable

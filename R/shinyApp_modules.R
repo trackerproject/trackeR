@@ -99,66 +99,62 @@ plot_workouts <- function(dat, feature, name, units) {
 #' @param feature A character representing the feature whose units we want to generate.
 #' @param data An object of class \code{trackeRdataSummary} or \code{trackeRdata}.
 #' @param whole_text Generate only unit (e.g "[bpm]") or whole text (e.g. "Heart Rate \n [bpm]").
-#' @param transform_feature If TRUE, epected format of \code{feature} is such as "avgCadence", "avgPower". If FALSE, expected format is "pace", "cadence", "heart.rate" or "altitude".
-
+#' @param transform_feature If TRUE, expected format of \code{feature} is such as "avgCadence", "avgPower". If FALSE, expected format is "pace", "cadence", "heart.rate" or "altitude".
 lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE){
   feature <- as.character(feature)
   units <- getUnits(data)
-  if(transform_feature == TRUE){
-    concept <- switch(feature, 'avgPace' = "pace", 'avgSpeed' = "speed",
-                      'distance' = "distance", 'duration' = "duration",
-                      'avgPower' = "power", 'avgCadence' = "cadence", 'avgHeartRate' = "heart.rate"
-                      )
-  } else {
-    concept <- feature
+  if (transform_feature) {
+      concept <- switch(feature, 'avgPace' = "pace", 'avgSpeed' = "speed",
+                        'distance' = "distance", 'duration' = "duration",
+                        'avgPower' = "power", 'avgCadence' = "cadence", 'avgHeartRate' = "heart.rate")
+  }
+  else {
+      concept <- feature
   }
   thisunit <- units$unit[units$variable == concept]
   prettyUnit <- prettifyUnits(thisunit)
-  if (whole_text == TRUE){
-    if(transform_feature == TRUE){
-    ret <- switch(feature,
-                  "distance" = paste0("Distance \n [", prettyUnit,"]"),
-                  "duration" = paste0("Duration \n [", prettyUnit,"]"),
-                  "avgSpeed" = paste0("Average Speed \n [", prettyUnit,"]"),
-                  "avgPace" = paste0("Average Pace \n [", prettyUnit,"]"),
-                  "avgCadence" = paste0("Average Cadence \n [", prettyUnit,"]"),
-                  "avgPower" = paste0("Average Power \n [", prettyUnit,"]"),
-                  "avgHeartRate" = paste0("Average Heart Rate \n [", prettyUnit,"]"),
-                  "wrRatio" = "work-to-rest \n ratio"
-                  )
-    } else {
-      ret <- switch(feature,
-                    "pace" = paste0("Pace \n [", prettyUnit,"]"),
-                    "cadence" = paste0("Cadence \n [", prettyUnit,"]"),
-                    "heart.rate" = paste0("Heart Rate \n [", prettyUnit,"]"),
-                    "altitude" = paste0("Altitude \n [", prettyUnit,"]")
-                    )
-    }
-
-    ret
-  } else {
-    if(transform_feature == TRUE){
-    ret <- switch(feature,
-                  "distance" = paste0("[", prettyUnit,"]"),
-                  "duration" = paste0("[", prettyUnit,"]"),
-                  "avgSpeed" = paste0("[", prettyUnit,"]"),
-                  "avgPace" = paste0("[", prettyUnit,"]"),
-                  "avgCadence" = paste0("[", prettyUnit,"]"),
-                  "avgPower" = paste0("[", prettyUnit,"]"),
-                  "avgHeartRate" = paste0("[", prettyUnit,"]"),
-                  "wrRatio" = "work-to-rest ratio"
-                  )
-    } else {
-      ret <- switch(feature,
-                    "pace" = paste0("[", prettyUnit,"]"),
-                    "cadence" = paste0("[", prettyUnit,"]"),
-                    "heart.rate" = paste0("[", prettyUnit,"]"),
-                    "altitude" = paste0("[", prettyUnit,"]")
-                    )
+  if (whole_text) {
+      if (transform_feature) {
+          ret <- switch(feature,
+                        "distance" = paste0("Distance \n[", prettyUnit, "]"),
+                        "duration" = paste0("Duration \n[", prettyUnit, "]"),
+                        "avgSpeed" = paste0("Average Speed \n[", prettyUnit, "]"),
+                        "avgPace" = paste0("Average Pace \n[", prettyUnit, "]"),
+                        "avgCadence" = paste0("Average Cadence \n[", prettyUnit, "]"),
+                        "avgPower" = paste0("Average Power \n[", prettyUnit, "]"),
+                        "avgHeartRate" = paste0("Average Heart Rate \n[", prettyUnit, "]"),
+                        "wrRatio" = "work-to-rest \n ratio")
+      }
+      else {
+          ret <- switch(feature,
+                        "pace" = paste0("Pace \n[", prettyUnit, "]"),
+                        "cadence" = paste0("Cadence \n[", prettyUnit, "]"),
+                        "heart.rate" = paste0("Heart Rate \n[", prettyUnit, "]"),
+                        "altitude" = paste0("Altitude \n[", prettyUnit, "]"))
     }
     ret
   }
-
+  else {
+      if (transform_feature){
+          ret <- switch(feature,
+                        "distance" = prettyUnit,
+                        "duration" = prettyUnit,
+                        "avgSpeed" = prettyUnit,
+                        "avgPace" = prettyUnit,
+                        "avgCadence" = prettyUnit,
+                        "avgPower" = prettyUnit,
+                        "avgHeartRate" = prettyUnit,
+                        "wrRatio" = "work-to-rest ratio")
+      }
+      else {
+          ret <- switch(feature,
+                        "pace" = prettyUnit,
+                        "cadence" = prettyUnit,
+                        "heart.rate" = prettyUnit,
+                        "altitude" = prettyUnit)
+      }
+      ret
+  }
 }
 
 
