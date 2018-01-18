@@ -68,7 +68,7 @@ ui <- shinydashboard::dashboardPage(
                                              div(class = 'form-group shiny-input-container', tags$label('Download data'),
                                                  div(class = 'input-group', downloadButton('download_data', 'Download procesed data'))),
                                              hr(),
-                                             div(class = "form-group shiny-input-container", tags$label("About"),                                                div(class = "input-group",  "This", a("trackeR", href = "https://cran.r-project.org/web/packages/trackeR/index.html"), "dashboard has been developed by Mr Robin Hornak and", a("Dr Ioannis Kosmidis", href="http://www.ucl.ac.uk/~ucakiko"))))
+                                             div(class = "form-group shiny-input-container", tags$label("About"),                                                div(class = "input-group",  "The", a("trackeR", href = "https://cran.r-project.org/web/packages/trackeR/index.html"), "dashboard has been developed by Mr Robin Hornak and", a("Dr Ioannis Kosmidis", href="http://www.ucl.ac.uk/~ucakiko"))))
                          ),
                          shinydashboard::dashboardBody(
                                              fluidRow(

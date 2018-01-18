@@ -424,7 +424,7 @@ server <- function(input, output, session) {
                                                          choices = c('Altitude' = 'altitude',
                                                                      'Speed' = 'speed',
                                                                      'Pace' = 'pace'),
-                                                         selected = c('speed', "pace")),
+                                                         selected = c('speed')),
                                           uiOutput('time_in_zones'))))))
         metrics_test_data <- observeEvent(input$zones_for_plot, {
             metrics <- c('Heart Rate' = 'heart.rate',
@@ -441,7 +441,7 @@ server <- function(input, output, session) {
                                  inputId = 'zones_for_plot',
                                  choices = metrics[available_data],
                                  server = TRUE,
-                                 selected = c('speed', 'pace'))
+                                 selected = c('speed'))
         }, once=TRUE)
 
         ## Reactive plot height based on number of sessions selected
@@ -493,7 +493,7 @@ server <- function(input, output, session) {
                                  inputId = 'profile_metrics_for_plot',
                                  choices = metrics[available_data],
                                  server = TRUE,
-                                 selected = c('speed', 'pace'))
+                                 selected = c('speed'))
         }, once=TRUE)
 
         ## Reactive plot height based on number of sessions selected
