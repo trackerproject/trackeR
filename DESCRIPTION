@@ -24,7 +24,8 @@ Depends:
     R (>= 2.10.0),
     zoo,
     ggplot2,
-    shiny
+    shiny,
+    shinydashboard
 Imports:
     plotly,
     DT,
@@ -41,8 +42,7 @@ Imports:
     gridExtra,
     gtable,
     shinyFiles,
-    shinycssloaders,
-    shinydashboard
+    shinycssloaders
 Suggests:
     testthat,
     knitr,

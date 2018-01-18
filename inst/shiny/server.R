@@ -182,7 +182,7 @@ server <- function(input, output, session) {
                                                              status = 'primary',
                                                              width = 12,
                                                              height = "500px",
-                                                             title = tagList(shiny::icon("map"), 'Map'),
+                                                             title = tagList(icon("map"), 'Map'),
                                                              shinycssloaders::withSpinner(leaflet::leafletOutput('map', width = "auto", height = "430px"), size = 2),
                                                              absolutePanel(top = 70, right = 60,
                                                                            sliderInput("average_speed", "Average speed",
