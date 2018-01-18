@@ -17,8 +17,8 @@ server <- function(input, output, session) {
     data <- reactiveValues()
 
     ## directory
-    shinyDirChoose(input, 'raw_data_directory', roots = c(home = '~'),
-                   filetypes = c('gpx', "tcx", "db3", "json"))
+    shinyFiles::shinyDirChoose(input, 'raw_data_directory', roots = c(home = '~'),
+                               filetypes = c('gpx', "tcx", "db3", "json"))
     raw_data_directory <- reactive(input$raw_data_directory)
     raw_data_path <- reactive({
         home <- normalizePath("~")
@@ -27,8 +27,8 @@ server <- function(input, output, session) {
     })
 
     ## Processed data
-    shinyFileChoose(input, 'processed_data_path', roots = c(home = '~'),
-                    filetypes = c('rds', 'rdata'))
+    shinyFiles::shinyFileChoose(input, 'processed_data_path', roots = c(home = '~'),
+                                filetypes = c('rds', 'rdata'))
     processed_data_file <- reactive(input$processed_data_path)
     processed_data_path <- reactive({
         home <- normalizePath("~")
@@ -117,7 +117,6 @@ server <- function(input, output, session) {
         }
     })
 
-
     ## Upload
     observeEvent(input$uploadButton, {
         data$sport <- input$sportSelected == 'cycling'
@@ -182,7 +181,7 @@ server <- function(input, output, session) {
                                                              width = 12,
                                                              height = "500px",
                                                              title = tagList(shiny::icon("map"), 'Map'),
-                                                             withSpinner(leaflet::leafletOutput('map', width = "auto", height = "430px"), size = 2),
+                                                             shinycssloaders::withSpinner(leaflet::leafletOutput('map', width = "auto", height = "430px"), size = 2),
                                                              absolutePanel(top = 70, right = 60,
                                                                            sliderInput("average_speed", "Average speed",
                                                                                        floor(min(data$summary$avgSpeed[is.finite(data$summary$avgSpeed)], na.rm = TRUE)),
