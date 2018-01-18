@@ -94,11 +94,11 @@ plot_workouts <- function(dat, feature, name, units) {
 # }
 
 
-#' Generate a character of formatted units, either only the unit (e.g "[bpm]") or whole text (e.g. "Heart Rate \n [bpm]").
+#' Generate a character of formatted units, either only the unit (e.g "[bpm]") or whole text (e.g. "Heart Rate [bpm]").
 #'
 #' @param feature A character representing the feature whose units we want to generate.
 #' @param data An object of class \code{trackeRdataSummary} or \code{trackeRdata}.
-#' @param whole_text Generate only unit (e.g "[bpm]") or whole text (e.g. "Heart Rate \n [bpm]").
+#' @param whole_text Generate only unit (e.g "[bpm]") or whole text (e.g. "Heart Rate [bpm]").
 #' @param transform_feature If TRUE, expected format of \code{feature} is such as "avgCadence", "avgPower". If FALSE, expected format is "pace", "cadence", "heart.rate" or "altitude".
 lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE){
   feature <- as.character(feature)

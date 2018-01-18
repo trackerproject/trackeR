@@ -13,9 +13,9 @@ plot_selectedWorkouts(x, session, what, var_units, var_name_units)
 
 \item{what}{A character of the variable to be plotted (e.g. "heart.rate").}
 
-\item{var_units}{A character of the unit of measurement for the given variable (e.g. "[bmp]") generated using \code{lab_sum()}.}
+\item{var_units}{A character of the unit of measurement for the given variable (e.g. "bmp") generated using \code{lab_sum()}.}
 
-\item{var_name_units}{A character of the named unit of measurement for the given variable (e.g. "Heart Rate \n [bpm]") generated using \code{lab_sum()}.}
+\item{var_name_units}{A character of the named unit of measurement for the given variable (e.g. "Heart Rate [bpm]") generated using \code{lab_sum()}.}
 }
 \description{
 Plot the profile for each selected session for a given variable (heart rate, altitude, pace).

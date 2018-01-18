@@ -4,7 +4,7 @@
 #' @param session A vector of selected sessions.
 #' @param what A character of the variable to be plotted (e.g. "heart.rate").
 #' @param var_units A character of the unit of measurement for the given variable (e.g. "bmp") generated using \code{lab_sum()}.
-#' @param var_name_units A character of the named unit of measurement for the given variable (e.g. "Heart Rate \n [bpm]") generated using \code{lab_sum()}.
+#' @param var_name_units A character of the named unit of measurement for the given variable (e.g. "Heart Rate [bpm]") generated using \code{lab_sum()}.
 
 plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
     threshold <- TRUE

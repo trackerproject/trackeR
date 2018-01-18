@@ -178,7 +178,7 @@ server <- function(input, output, session) {
                 selector = ".content",
                 where = "beforeEnd",
                 ui = conditionalPanel(condition = "output.cond == true",
-                                      div(class='plots', fluidRow(box(
+                                      div(class='plots', fluidRow(shinydashboard::box(
                                                              status = 'primary',
                                                              width = 12,
                                                              height = "500px",
@@ -211,10 +211,10 @@ server <- function(input, output, session) {
                 where = "beforeEnd",
                 ui = conditionalPanel(condition = "output.cond == true",
                                       div(class='plots', fluidRow(
-                                                             valueBoxOutput("averageDistance", width = 3),
-                                                             valueBoxOutput("averageDuration", width = 3),
-                                                             valueBoxOutput("averagePace", width = 3),
-                                                             valueBoxOutput("averageHeartRate", width = 3)
+                                                             shinydashboard::valueBoxOutput("averageDistance", width = 3),
+                                                             shinydashboard::valueBoxOutput("averageDuration", width = 3),
+                                                             shinydashboard::valueBoxOutput("averagePace", width = 3),
+                                                             shinydashboard::valueBoxOutput("averageHeartRate", width = 3)
                                                          ))))
 
             for (i in data$metrics){
@@ -234,7 +234,7 @@ server <- function(input, output, session) {
                     where = "beforeEnd",
                     ui = conditionalPanel(condition = "output.cond == true",
                                           div(class='plots', id = paste0("box", i), fluidRow(
-                                                                                        box(
+                                                                                        shinydashboard::box(
                                                                                             status = 'primary',
                                                                                             width = 12,
                                                                                             height = "250px",
@@ -256,26 +256,26 @@ server <- function(input, output, session) {
                     }
                 })
                 v <- value()
-                valueBox(v, subtitle, icon, color = if (v == "not available") "olive" else "light-blue")
+                shinydashboard::valueBox(v, subtitle, icon, color = if (v == "not available") "olive" else "light-blue")
             }
 
-            output$averageDistance <- renderValueBox({
+            output$averageDistance <- shinydashboard::renderValueBox({
                 box_text("distance",
                          subtitle = "Average distance",
                          icon = icon(create_icon("distance")))
             })
 
-            output$averageDuration <- renderValueBox({
+            output$averageDuration <- shinydashboard::renderValueBox({
                 box_text("duration", "Average duration",
                          icon = icon(create_icon('duration')))
             })
 
-            output$averageHeartRate <- renderValueBox({
+            output$averageHeartRate <- shinydashboard::renderValueBox({
                 box_text("avgHeartRate", "Average heart rate",
                          icon = icon(create_icon('avgHeartRate')))
             })
 
-            output$averagePace <- renderValueBox({
+            output$averagePace <- shinydashboard::renderValueBox({
                 box_text("avgPace", "Average pace",
                          icon = icon(create_icon('avgPace')))
             })
@@ -378,7 +378,7 @@ server <- function(input, output, session) {
                 where = "beforeEnd",
                 ui = conditionalPanel(condition = "output.cond == false",
                                       div(class='plots', id=i, fluidRow(
-                                                                   box(
+                                                                   shinydashboard::box(
                                                                        status = 'primary',
                                                                        width = 12,
                                                                        height = "350px",
@@ -422,7 +422,7 @@ server <- function(input, output, session) {
             where = "beforeEnd",
             ui = conditionalPanel(condition = "output.cond == false",
                                   div(class='plots',  id = 'zones',
-                                      fluidRow(box(
+                                      fluidRow(shinydashboard::box(
                                           status = 'primary',
                                           width = 12,
                                           title = tagList(shiny::icon("gear"), 'Time in Zones'),
@@ -473,7 +473,7 @@ server <- function(input, output, session) {
             where = "beforeEnd",
             ui = conditionalPanel(condition = "output.cond == false",
                                   div(class='plots',  id = 'profiles',
-                                      fluidRow(box(
+                                      fluidRow(shinydashboard::box(
                                           status = 'primary',
                                           width = 12,
                                           title = tagList(shiny::icon("gear"), 'Profiles'),
