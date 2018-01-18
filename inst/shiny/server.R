@@ -42,11 +42,11 @@ server <- function(input, output, session) {
     ## Units
     observeEvent(input$changeUnits, {
         get_selected_units <- function(feature){
-            if (is.null(data$trackeRdata_object)) {
+            if (is.null(data$object)) {
                 return(NULL)
             }
             else {
-                getUnits(data$trackeRdata_object)$unit[getUnits(data$trackeRdata_object)$variable %in% feature]
+                getUnits(data$object)$unit[getUnits(data$object)$variable %in% feature]
             }
         }
         showModal(modalDialog(
@@ -91,9 +91,9 @@ server <- function(input, output, session) {
     })
 
     observeEvent(input$updateUnits, {
-        if (is.null(data$trackeRdata_object)) {
+        if (is.null(data$object)) {
             showModal(modalDialog(title = 'trackeR dashboard message',
-                                  div(tags$b("Please load processed and/or raw data",
+                                  div(tags$b("Load processed and/or raw data",
                                              class='warningMessage')),
                                   easyClose = TRUE,
                                   size = 's'))
@@ -101,7 +101,7 @@ server <- function(input, output, session) {
         else {
             allUnits <- reactive({
                 unused_variables <- c('latitude', 'longitude', 'heart.rate', 'duration')
-                getUnits(data$trackeRdata_object)$variable[!(getUnits(data$trackeRdata_object)$variable %in% unused_variables)]
+                getUnits(data$object)$variable[!(getUnits(data$object)$variable %in% unused_variables)]
             })
             change_units <- function(data){
                 units <- c()
@@ -111,7 +111,7 @@ server <- function(input, output, session) {
                 data_updated <- changeUnits(data, variable = allUnits(), unit = units)
                 return(data_updated)
             }
-            data$trackeRdata_object <- change_units(data$trackeRdata_object)
+            data$object <- change_units(data$object)
             data$summary <- change_units(data$summary)
             removeModal()
         }
@@ -122,7 +122,7 @@ server <- function(input, output, session) {
         data$sport <- input$sportSelected == 'cycling'
         if ((raw_data_path() == home) & (processed_data_path() == home)) {
                 showModal(modalDialog(title = 'trackeR dashboard message',
-                                      div(tags$b("Please select a processed data image or a directory with raw datafiles",
+                                      div(tags$b("Select a processed data image or a directory with raw datafiles",
                                                  class='warningMessage')),
                                       easyClose = TRUE,
                                       size = 's'))
@@ -139,14 +139,14 @@ server <- function(input, output, session) {
                                        timezone = "GMT", cycling = data$sport,
                                        correctDistances = TRUE)
             }
-            data$trackeRdata_object <- c.trackeRdata(processed_data, raw_data)
-            data$summary <- summary(data$trackeRdata_object)
+            data$object <- c.trackeRdata(processed_data, raw_data)
+            data$summary <- summary(data$object)
             output$download_data <- downloadHandler(
                 filename = function() {
                 paste0("data-", Sys.Date(), ".RData")
             },
             content = function(file) {
-                saveRDS(data$trackeRdata_object, file)
+                saveRDS(data$object, file)
             })
         }
         data$nsessions <- if (is.null(data$summary)) 0 else nsessions(data$summary)
@@ -157,9 +157,9 @@ server <- function(input, output, session) {
         input$updateUnits
         input$plotButton
     }, {
-        if (is.null(data$trackeRdata_object)) {
+        if (is.null(data$object)) {
             showModal(modalDialog(title = 'trackeR dashboard message',
-                                  div(tags$b("Please load processed and/or raw data",
+                                  div(tags$b("Load processed and/or raw data",
                                              class='warningMessage')),
                                   easyClose = TRUE,
                                   size = 's'))
@@ -299,10 +299,10 @@ server <- function(input, output, session) {
                 })
                 shiny::validate(
                            need(sessionData(), 'Session data missing'),
-                           need(data$trackeRdata_object, 'dataset missing'),
+                           need(data$object, 'dataset missing'),
                            need(data$summary, 'summary missing')
                        )
-                shiny_plot_map(data$trackeRdata_object,  sessionData(), data$summary)
+                shiny_plot_map(data$object,  sessionData(), data$summary)
             })
 
             lapply(data$metrics, function(i) {
@@ -325,6 +325,7 @@ server <- function(input, output, session) {
             ## DT
             output$summary <- DT::renderDataTable({
                                       data$hover <- plotly::event_data("plotly_selected")
+                                      if (!is.null(data$summary)) {
                                       if (is.null(data$hover)) {
                                           data$selected_sessions <- data$summary$session
                                       }
@@ -338,12 +339,12 @@ server <- function(input, output, session) {
                                                                  'sessionEnd' =
                                                                      format(data$summary[data$selected_sessions][["sessionEnd"]],
                                                                             format = "%Y-%m-%d %H:%M:%S"))
-                                      req(is.data.frame(dataSelected))
-                                      DT::datatable(dataSelected, rownames = FALSE, selection = 'none',
-                                                    options = list(dom='t', scrollY = "300px",
-                                                                   language =
-                                                                       list(zeroRecords = "No workouts selected")
-                                                                   ))})
+                                      DT::datatable(dataSelected,
+                                                    rownames = FALSE,
+                                                    selection = 'none',
+                                                    autoHideNavigation = FALSE,
+                                                    options = list(paging = FALSE, scrollY = "300px"))
+                                      }})
             output$cond <- reactive({
                 TRUE
             })
@@ -354,7 +355,8 @@ server <- function(input, output, session) {
 
     observeEvent(input$resetButton, {
         removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
-        data$selected_sessions <- data$summary$session
+        data$object <- data$summary <- data$nsessions <- data$selected_sessions <- NULL
+        ## data$selected_sessions <- data$summary$session
     })
 
     observeEvent(input$plotSelectedWorkouts, {
@@ -393,7 +395,7 @@ server <- function(input, output, session) {
                                            transform_feature = FALSE)})
 
             output[[paste0('plot_', i)]] <- plotly::renderPlotly({
-                plot_selectedWorkouts(x = data$trackeRdata_object,
+                plot_selectedWorkouts(x = data$object,
                                       session = data$selected_sessions,
                                       what = i, var_units = var_units(),
                                       var_name_units = var_name_units())
@@ -405,7 +407,7 @@ server <- function(input, output, session) {
                 removeUI(selector = paste0("#", 'work_capacity'))
             }
             shiny::validate(need(!all(is.na(data$summary$avgCadence)) & !all(is.na(data$summary$avgPower)), 'No data'))
-            plot_work_capacity(run_data = data$trackeRdata_object, session = as.vector(data$selected_sessions))
+            plot_work_capacity(run_data = data$object, session = as.vector(data$selected_sessions))
         })
 
         ## Time in Zones
@@ -435,7 +437,7 @@ server <- function(input, output, session) {
                          'Pace' = 'pace')
             available_data <- sapply(metrics, function(x) {
                 ## IK: Not the most optimal thing to do here
-                length(zones(data$trackeRdata_object, session = data$selected_sessions, what = x)) > 0
+                length(zones(data$object, session = data$selected_sessions, what = x)) > 0
             })
             updateSelectizeInput(session = session,
                                  inputId = 'zones_for_plot',
@@ -456,7 +458,7 @@ server <- function(input, output, session) {
 
         ## Render actual plot
         output$time_in_zone_plots <- plotly::renderPlotly({
-            plot_zones(run_data = data$trackeRdata_object, session = data$selected_sessions, what = input$zones_for_plot)
+            plot_zones(run_data = data$object, session = data$selected_sessions, what = input$zones_for_plot)
         })
 
         ## Other metrics - Work capacity, Distribution profile, Concentration profile
@@ -487,7 +489,7 @@ server <- function(input, output, session) {
                          'Pace' = 'pace')
             available_data <- sapply(metrics, function(x) {
                 ## IK: Not the most optimal thing to do here
-                length(zones(data$trackeRdata_object, session = data$selected_sessions, what = x)) > 0
+                length(zones(data$object, session = data$selected_sessions, what = x)) > 0
             })
             updateSelectizeInput(session = session,
                                  inputId = 'profile_metrics_for_plot',
@@ -508,7 +510,7 @@ server <- function(input, output, session) {
 
         ## Render actual plot
         output$profiles_plots <- plotly::renderPlotly({
-            plot_profiles(run_data = data$trackeRdata_object,
+            plot_profiles(run_data = data$object,
                           session = as.vector(data$selected_sessions),
                           what = input$profile_metrics_for_plot)
         })
