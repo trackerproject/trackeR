@@ -166,7 +166,9 @@ server <- function(input, output, session) {
         }
         else {
             output$timeline_plot <- renderPlot({
-                timeline(data$summary)
+                if (!is.null(data$summary)) {
+                    timeline(data$summary)
+                }
             })
 
             removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
@@ -355,16 +357,20 @@ server <- function(input, output, session) {
 
     observeEvent(input$resetButton, {
         removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
+        ## data <- reactiveValues()
         data$object <- data$summary <- data$nsessions <- data$selected_sessions <- NULL
-        ## data$selected_sessions <- data$summary$session
     })
 
     observeEvent(input$plotSelectedWorkouts, {
+        if (!is.null(data$object)) {
+
         output$cond <-reactive({
             FALSE
         })
         output$timeline_plot <- renderPlot({
-            timeline(data$summary[data$selected_sessions])
+            if (!is.null(data$summary)) {
+                timeline(data$summary[data$selected_sessions])
+            }
         })
         for (i in c("pace", "heart.rate", "altitude", "work_capacity")) {
             insertUI(
@@ -513,6 +519,7 @@ server <- function(input, output, session) {
             plot_profiles(run_data = data$object,
                           session = as.vector(data$selected_sessions),
                           what = input$profile_metrics_for_plot)
-        })
+            })
+            }
     })
 }
