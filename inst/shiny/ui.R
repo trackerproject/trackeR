@@ -65,9 +65,10 @@ ui <- shinydashboard::dashboardPage(
                                                  div(style="display: inline-block;vertical-align:top; width: 120px;", actionButton('changeUnits', 'Units', icon('balance-scale'), width = "80px"))),
                                              div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton('resetButton', 'Reset', icon('eraser'), style="color: #fff; background-color: #ED90A4; border-color: #E16A86", width = "80px")),
                                              hr(),
-                                             tags$div(class = 'form-group shiny-input-container', tags$label('Download data'),
-                                                      tags$div(class = 'input-group', downloadButton('download_data', 'Download procesed data')))
-                                         )
+                                             div(class = 'form-group shiny-input-container', tags$label('Download data'),
+                                                 div(class = 'input-group', downloadButton('download_data', 'Download procesed data'))),
+                                             hr(),
+                                             div(class = "form-group shiny-input-container", tags$label("About"),                                                div(class = "input-group",  "This", a("trackeR", href = "https://cran.r-project.org/web/packages/trackeR/index.html"), "dashboard has been developed by Mr Robin Hornak and", a("Dr Ioannis Kosmidis", href="http://www.ucl.ac.uk/~ucakiko"))))
                          ),
                          shinydashboard::dashboardBody(
                                              fluidRow(
