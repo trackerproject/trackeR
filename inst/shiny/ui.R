@@ -1,18 +1,3 @@
-## app.R ##
-## file.sources = list.files(pattern="*.R")
-## sapply(file.sources,source,.GlobalEnv)
-## library(shiny)
-## library(shinydashboard)
-## library(plotly)
-## library(leaflet)
-## library(mgcv)
-## source('directoryInput.R')
-## library("zoo")
-## library("trackeR")
-## source('modules.R')
-## source('map.R')
-## source('plotSelectedWorkouts.R')
-
 ui <- shinydashboard::dashboardPage(
                           skin = 'black',
                           shinydashboard::dashboardHeader(title = span(tagList(icon("dashboard"), "trackeR dashboard"))),

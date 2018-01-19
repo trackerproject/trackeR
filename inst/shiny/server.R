@@ -1,19 +1,5 @@
 server <- function(input, output, session) {
 
-    ## ## Metrics for cycling
-    ## metrics <- c('Distance' = 'distance',
-    ##              'Duration' = 'duration',
-    ##              'Average speed' = 'avgSpeed',
-    ##              'Average pace' = 'avgPace',
-    ##              'Average cadence' = 'avgCadence',
-    ##              'Average heart rate' = 'avgHeartRate'
-    ##              )
-    ## observeEvent(input$sportSelected, { if(input$sportSelected == 'running') {
-    ##                                         updateSelectizeInput(session, 'metricsSelected', choices = metrics, server = TRUE)
-    ##                                     }
-    ## })
-    ## Disable selection of Power if sport is running
-    ## storing all data
     data <- reactiveValues()
 
     ## directory
