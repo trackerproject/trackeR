@@ -41,7 +41,7 @@ test_that("only speed is smoothed in DataNonGarmin_smoothed (test only first ses
 })
 
 test_that("smoother returns error is the trackeRdata object is already smoothed", {
-    expect_error(smoother(DataNonGarmin_smoothed, cores = 2))
+    expect_warning(smoother(DataNonGarmin_smoothed, cores = 2))
 })
 
 

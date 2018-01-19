@@ -1,8 +1,8 @@
-#' Plot concentration profiles for given variables.
-#'
-#' @param run_data An object of class \code{trackeRdata}..
-#' @param session A vector of selected sessions.
-#' @param what A vector of variable names to be plotted.
+## Plot concentration profiles for given variables.
+##
+## @param run_data An object of class \code{trackeRdata}..
+## @param session A vector of selected sessions.
+## @param what A vector of variable names to be plotted.
 
 
 plot_profiles <- function(run_data, session, what = c("speed")){
@@ -77,16 +77,15 @@ plot_profiles <- function(run_data, session, what = c("speed")){
   ## get data
   rownames(x) <- NULL
   df <- fortify(x, melt = TRUE)
-  ## if (length(session) > 1L) df <- subset(df, Series %in% session) df <- subset(df,
-  ## Profile %in% what) HACK: If there is only one session (=series) to be plotted, give
-  ## it a proper name for multiple = TRUE.
-  if (length(session) < 2) {
-    df$Series <- session  ## paste0('Session', session)
-    ## df$Series <- factor(df$Series)
-  } else {
-    df$Series <- as.numeric(sapply(strsplit(as.character(df$Series), "Session"), function(x) x[2]))
-  }
-  df$Profile <- factor(df$Profile)
+
+    if (length(session) < 2) {
+        df$Series <- session  ## paste0('Session', session)
+        ## df$Series <- factor(df$Series)
+    }
+    else {
+        df$Series <- as.numeric(sapply(strsplit(as.character(df$Series), "Session"), function(x) x[2]))
+    }
+    df$Profile <- factor(df$Profile)
 
   ## ## check that there is data to plot for(l in levels(df$Series)){ if
   ## (all(is.na(subset(df, Series == l, select = 'Value')))) df <- df[!(df$Series == l), ]
@@ -106,24 +105,20 @@ plot_profiles <- function(run_data, session, what = c("speed")){
   # df$Series <- paste('Session', df$Series)
   #df$Series <- as.factor(df$Series)
 
-  pal <-  colorFactor(c('deepskyblue', 'dodgerblue4'), df$series)
+  pal <-  leaflet::colorFactor(c('deepskyblue', 'dodgerblue4'), df$series)
 
   individual_plots <- list()
   legend_status <- TRUE
+
   for (feature in what){
 
-    y <- list(
-      title = 'dtime'
-    )
-    x <- list(
-      title = lab_data(feature)
-      # tickangle = 180
-    )
-    p <- plotly::plot_ly(subset(df, Profile == feature), x = ~Index, y = ~Value,
+    y <- list(title = 'dtime')
+    x <- list(title = lab_data(feature))
+    p <- plotly::plot_ly(df[df$Profile == feature, ], x = ~ Index, y = ~ Value,
                          color = ~series, colors = pal(df$series), legendgroup = ~series) %>%
         plotly::add_lines() %>%
         plotly::layout(xaxis = x, yaxis = y, hovermode = 'closest')
-    individual_plots[[feature]] <- style(p, showlegend = legend_status)
+    individual_plots[[feature]] <- plotly::style(p, showlegend = legend_status)
     legend_status <- FALSE
   }
 

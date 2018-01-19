@@ -1,8 +1,8 @@
-#' Plot all selected workouts on an interactive leaflet map.
-#'
-#' @param x An object of class \code{trackeRdata}.
-#' @param session A vector of selected sessions.
-#' @param data_summary An object of class \code{trackeRdataSummary}.
+## Plot all selected workouts on an interactive leaflet map.
+##
+## @param x An object of class \code{trackeRdata}.
+## @param session A vector of selected sessions.
+## @param data_summary An object of class \code{trackeRdataSummary}.
 
 shiny_plot_map <- function(x, session, data_summary){
   data <- x
@@ -44,7 +44,7 @@ shiny_plot_map <- function(x, session, data_summary){
     )
   }
 
-  p <- leaflet::leaflet() %>% addProviderTiles(leaflet::providers$CartoDB.Positron)
+  p <- leaflet::leaflet() %>% leaflet::addProviderTiles(leaflet::providers$CartoDB.Positron)
   #p <- leaflet() %>% addTiles()
   ## add trace + markers + popups
   for (i in session){

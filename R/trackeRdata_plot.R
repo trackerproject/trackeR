@@ -538,3 +538,24 @@ timeline.trackeRdata <- function(object, lims = NULL, ...) {
     sobject <- summary.trackeRdata(object, ...)
     timeline.trackeRdataSummary(sobject, lims = lims)
 }
+
+
+
+#' @export
+ridges.trackeRdata <- function(object, session = NULL, what = "speed",
+                               grid = list(speed = seq(0, 12.5, by = 0.05)),
+                               parallel = FALSE, cores = NULL) {
+
+    ## Add check for single argument
+    dates <- summary(object, session = session)$sessionStart
+
+    dp <- distributionProfile(object = object, session = session, what = what, grid = grid, parallel = parallel, cores = cores)
+    cp <- concentrationProfile(dp)
+    dat <- fortify.distrProfile(cp, melt = TRUE)
+    dat$Series <- as.numeric(dat$Series)
+    sc <- 2/max(dat$Value)
+    ggplot2::ggplot(dat) +
+        ggridges::geom_ridgeline(ggplot2::aes_(x = quote(Index), y = quote(Series), height = quote(Value), group = quote(Series), scale = sc), alpha = 0.5) +
+            ggridges::theme_ridges()
+}
+

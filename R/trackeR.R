@@ -23,9 +23,22 @@
 #' @docType package
 #' @name trackeR
 #' @import zoo
+#' @import shiny
 #' @importFrom ggplot2 fortify
+#' @importFrom stats quantile
+#' @importFrom plotly "%>%"
 NULL
 # > NULL
+
+## ## Define global variables (IK: some can be avoided)
+## if (getRversion() >= "2.15.1") {
+##     utils::globalVariables(c("Profile", # plot_profiles
+##                              "Series", # plot_selectedWorkouts, ridges.trackeRdata
+##                              "variable", # plot_zones
+##                              "Value", # ridges.trackeRdata
+##                              "Index", # ridges.trackeRdata
+##                              "id")) # plot_work_capacity
+## }
 
 ## register S3 methods (need a name which doesn't conflict with e.g. the smooth function
 ## from the stats package)

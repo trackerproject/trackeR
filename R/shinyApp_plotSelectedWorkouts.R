@@ -1,12 +1,13 @@
-#' Plot the profile for each selected session for a given variable (heart rate, altitude, pace).
-#'
-#' @param x An object of class \code{trackeRdata}.
-#' @param session A vector of selected sessions.
-#' @param what A character of the variable to be plotted (e.g. "heart.rate").
-#' @param var_units A character of the unit of measurement for the given variable (e.g. "bmp") generated using \code{lab_sum()}.
-#' @param var_name_units A character of the named unit of measurement for the given variable (e.g. "Heart Rate [bpm]") generated using \code{lab_sum()}.
+## Plot the profile for each selected session for a given variable (heart rate, altitude, pace).
+##
+## @param x An object of class \code{trackeRdata}.
+## @param session A vector of selected sessions.
+## @param what A character of the variable to be plotted (e.g. "heart.rate").
+## @param var_units A character of the unit of measurement for the given variable (e.g. "bmp") generated using \code{lab_sum()}.
+## @param var_name_units A character of the named unit of measurement for the given variable (e.g. "Heart Rate [bpm]") generated using \code{lab_sum()}.
+## @param other arguments to be passed to the \code{control} arguments in \code{\link{smoother.trackeRdata}}
 
-plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
+plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units, ...){
     threshold <- TRUE
     smooth <- FALSE
     dates <- TRUE
@@ -46,7 +47,7 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
     }
 
     if (smooth) {
-        x <- smoother(x, what = what, ...)
+        x <- smoother(x, ...)
     }
 
     df <- fortify(x, melt = TRUE)
@@ -61,7 +62,7 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units){
     else {
         df$SessionID <- factor(df$SessionID, levels = seq_along(session), labels = session)
     }
-    df <- subset(df, Series %in% what)
+    df <- df[df$Series %in% what, ]
 
     df$Series <- as.character(df$Series)
     df$numericDate <- as.numeric(df$Index)

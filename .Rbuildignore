@@ -12,7 +12,6 @@ inst/extdata/2013-06-03-184846.TCX
 inst/extdata/2013-06-04-174137.TCX
 inst/extdata/2013-06-05-062419.TCX
 inst/extdata/2013-06-06-124422.TCX
-inst/extdata/2013-06-08-090442.TCX
 inst/extdata/2013-06-09-165756.TCX
 inst/extdata/2013-06-11-181035.TCX
 inst/extdata/2013-06-12-182257.TCX
@@ -39,6 +38,7 @@ inst/extdata/2013-06-28-062238.TCX
 inst/extdata/2013-06-29-064742.TCX
 inst/extdata/2013-06-30-070511.TCX
 inst/extdata/2013-06-30-084200.TCX
+#inst/extdata/2013-06-08-090442.TCX
 
 inst/shiny/GBR*
 

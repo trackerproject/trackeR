@@ -1,7 +1,7 @@
-#' Plot the work capacity W' (w prime).
-#'
-#' @param run_data An object of class \code{trackeRdata}.
-#' @param session A vector of selected sessions.
+## Plot the work capacity W' (w prime).
+##
+## @param run_data An object of class \code{trackeRdata}.
+## @param session A vector of selected sessions.
 
 plot_work_capacity <- function(run_data, session){
   quantity = "expended"
@@ -76,34 +76,33 @@ plot_work_capacity <- function(run_data, session){
 
 	plot_stored = vector("list", N)
 
-  show_legend = T
-  for(i in unique(df$id)){
+  show_legend <- TRUE
+
+  for (i in unique(df$id)){
     # smoothed_model <- gam(Value ~ s(numericDate, bs = 'cs'), data = df[(df$id==i),])
     # smoothed_data <- predict(smoothed_model, newdata=df[(df$id==i),])
-    print(i)
-    print(subset(df, (id == i) & (Series == 'movement')))
-    a <- plotly::plot_ly(subset(df, (id == i) & (Series == 'movement')), x = ~Index, y = ~Value, hoverinfo='none',
-                         color = I('gray'),legendgroup = ~Series,
-                         name = mylabels[1], showlegend = show_legend) %>% add_lines(alpha=0.4) %>%
-        plotly::add_lines(data=subset(df, (id == i) & (Series == 'wprime')), x = ~Index, y = ~Value, hoverinfo='none',
-                          color = I('#337ab7'), legendgroup = ~Series, name = mylabels[2], showlegend = show_legend)
-
+    ## print(i)
+    ## print(subset(df, (id == i) & (Series == 'movement')))
+      a <- plotly::plot_ly(df[(id == i) & (Series == 'movement'), ], x = ~ Index, y = ~ Value,
+                           hoverinfo = 'none',
+                           color = I('gray'),legendgroup = ~ Series,
+                           name = mylabels[1], showlegend = show_legend) %>%
+          plotly::add_lines(alpha=0.4) %>%
+          plotly::add_lines(data = df[(df$id == i) & (df$Series == 'wprime'), ],
+                            x = ~ Index, y = ~ Value, hoverinfo = 'none',
+                            color = I('#337ab7'), legendgroup = ~ Series, name = mylabels[2],
+                            showlegend = show_legend)
     plot_stored[[i]] <- a
     show_legend = F
   }
 
   plot_stored <- plot_stored[!sapply(plot_stored, is.null)]
 
-  y <- list(
-    title = '',
-    fixedrange = TRUE
-  )
-  x <- list(
-    title = 'Time',
-    fixedrange = TRUE
-  )
+  y <- list(title = '', fixedrange = TRUE)
+  x <- list(title = 'Time', fixedrange = TRUE)
 
-  return(plotly::subplot(plot_stored, nrows = 1, shareY = TRUE, margin = 0.002) %>% config(displayModeBar = F) %>%
+  return(plotly::subplot(plot_stored, nrows = 1, shareY = TRUE, margin = 0.002) %>%
+         plotly::config(displayModeBar = F) %>%
          plotly::layout(yaxis = y, xaxis = x, hovermode = 'closest', legend = list(y = 1, orientation = 'h')))
 
 }

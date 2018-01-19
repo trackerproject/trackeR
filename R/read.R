@@ -610,6 +610,7 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
 #'     measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min} and power is
 #'     imputed with \code{0}, else with \code{NA}.
 #' @param verbose Logical. Should progress reports be printed?
+#' @param make_reactive Logical. Should the output of readDirectory be made \code{\link[shiny]{reactive}}? For use in the shiny interface. Default is \code{FALSE}.
 #' @inheritParams readX
 #' @inheritParams restingPeriods
 #' @inheritParams imputeSpeeds

@@ -59,6 +59,8 @@ observation after a small break.}
 
 \item{silent}{Logical. Should warnings be generated if any of the sanity checks on the data are triggered?}
 
+\item{make_reactive}{Logical. Should the output of readDirectory be made \code{\link[shiny]{reactive}}? For use in the shiny interface. Default is \code{FALSE}.}
+
 \item{parallel}{Logical. Should computation be carried out in
 parallel? (Not supported on Windows.)}
 

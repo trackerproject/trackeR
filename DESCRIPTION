@@ -22,11 +22,11 @@ Description: The aim of this package is to provide infrastructure for
     analysis of the data.
 Depends:
     R (>= 2.10.0),
-    zoo,
-    ggplot2,
-    shiny
+    zoo
 Imports:
     plotly,
+    ggplot2,
+    ggridges,
     DT,
     mgcv,
     parallel,
@@ -41,8 +41,10 @@ Imports:
     gridExtra,
     gtable,
     shinyFiles,
+    shiny,
     shinycssloaders,
-    shinydashboard
+    shinydashboard,
+    sp
 Suggests:
     testthat,
     knitr,
