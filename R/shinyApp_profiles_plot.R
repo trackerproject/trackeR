@@ -9,6 +9,7 @@ plot_profiles <- function(run_data, session, what = c("speed")){
 
   # Get grid
   breaks <- list()
+
   df <- fortify(run_data)
 
   find_step_size <- function (maximum, minimum = 0) {
@@ -16,21 +17,22 @@ plot_profiles <- function(run_data, session, what = c("speed")){
     range_size <- nchar(value_range)
     round_table <- list('1' = 5, '2' = 5, '3' = 10, '4' = 100,
                         '5' = 10000, '6' = 100000)
-    maximum <- round_any(maximum, round_table[[range_size]], f = ceiling)
+    maximum <- ceiling(maximum/round_table[[range_size]]) * round_table[[range_size]]
     step_size <- (maximum - minimum) / 500
     break_points <- seq(minimum, maximum, by = step_size)
     return(break_points)
   }
 
-  #breaks <- list()
-  if('power' %in% what & all(is.na(df$power))) {
-    warning('No data for power')
-    what <- what[!(what %in% 'power')]
-  }
+    for (feature in what) {
+            if (all(is.na(df[[feature]]))) {
+                warning(paste('No drata for', feature))
+                what <- what[!(what %in% feature)]
+            }
+    }
 
   for(feature in what) {
     maximum <- ceiling(quantile(df[feature], 0.99, na.rm = TRUE))
-    minimum <- if (feature == 'heart.rate') 70 else 0
+    minimum <- if (feature == 'heart.rate') 35 else 0
     breaks[[feature]] <- find_step_size(maximum, minimum)
   }
 

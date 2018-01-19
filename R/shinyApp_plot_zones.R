@@ -5,7 +5,7 @@
 #' @param what A vector of variable names to be plotted.
 
 plot_zones <- function(run_data, session, what = c("heart.rate")){
-  x <- zones(run_data[session], what = what)
+  x <- zones(run_data[session], what = what, auto_breaks = TRUE)
   # x <- runZones
 
   dat <- do.call("rbind", x)

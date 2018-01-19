@@ -6,6 +6,7 @@
 #' @param breaks A list of breakpoints between zones, corresponding to the variables in \code{what}.
 #' @param parallel Logical. Should computation be carried out in parallel?
 #' @param cores Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options('corese')} (on Windows) or \code{options('mc.cores')} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.
+#' @param auto_breaks Logical. Should breaks be selected automatically? Default is \code{FALSE} and \code{breaks} will be ignored if \code{TRUE}.
 #' @param ... Currently not used.
 #' @return An object of class \code{trackeRdataZones}.
 #' @seealso \code{\link{plot.trackeRdataZones}}
@@ -19,41 +20,41 @@
 #' plot(runZones)
 #' @export
 zones <- function(object, session = NULL, what = c("speed", "heart.rate"), breaks = list(speed = 0:10,
-    heart.rate = c(0, seq(75, 225, by = 50), 250)), parallel = FALSE, cores = NULL, ...) {
+    heart.rate = c(0, seq(75, 225, by = 50), 250)), parallel = FALSE, cores = NULL, auto_breaks = FALSE, ...) {
 
-    ##############################################################################
-    # New code for automatic break selection
-    df <- fortify(object)
+    if (auto_breaks) {
+        breaks <- list()
 
-    find_step_size <- function (maximum, minimum = 0) {
-        value_range <- as.character(ceiling(maximum - minimum))
-        range_size <- nchar(value_range)
-        round_table <- list('1' = 5, '2' = 5, '3' = 10, '4' = 100,
-        '5' = 10000, '6' = 100000)
-        maximum <- round_any(maximum, round_table[[range_size]], f = ceiling)
-        step_size <- (maximum - minimum) / 10
-        break_points <- seq(minimum, maximum, by = step_size)
-        return(break_points)
-    }
+        df <- fortify(object, melt = FALSE)
 
-                                        #breaks <- list()
+        find_step_size <- function (maximum, minimum = 0) {
+            value_range <- as.character(ceiling(maximum - minimum))
+            range_size <- nchar(value_range)
+            round_table <- list('1' = 5, '2' = 5, '3' = 10, '4' = 100,
+                                '5' = 10000, '6' = 100000)
+            maximum <- ceiling(maximum/round_table[[range_size]]) * round_table[[range_size]]
+            step_size <- (maximum - minimum) / 10
+            break_points <- seq(minimum, maximum, by = step_size)
+            break_points
+        }
 
-    for (feature in what) {
-        if (all(is.na(df[[feature]]))) {
-            warning(paste('No data for', feature))
-            what <- what[!(what %in% feature)]
+        for (feature in what) {
+            if (all(is.na(df[[feature]]))) {
+                warning(paste('No drata for', feature))
+                what <- what[!(what %in% feature)]
+            }
+        }
+        for (feature in what) {
+            maximum <- ceiling(quantile(df[feature], 0.999, na.rm = TRUE))
+            minimum <- if (feature == 'heart.rate') 35 else 0
+            breaks[[feature]] <- find_step_size(maximum, minimum)
         }
     }
 
-    for (feature in what) {
-        maximum <- ceiling(quantile(df[feature], 0.99, na.rm = TRUE))
-        minimum <- if (feature == 'heart.rate') 70 else 0
-        breaks[[feature]] <- find_step_size(maximum, minimum)
-    }
-    ##############################################################################
     ## select sessions
-    if (is.null(session))
+    if (is.null(session)) {
         session <- seq_along(object)
+    }
     object <- object[session]
 
     ## process zone definitions
