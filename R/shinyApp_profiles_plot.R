@@ -25,7 +25,7 @@ plot_profiles <- function(run_data, session, what = c("speed")){
 
     for (feature in what) {
             if (all(is.na(df[[feature]]))) {
-                warning(paste('No drata for', feature))
+                warning(paste('No data for', feature))
                 what <- what[!(what %in% feature)]
             }
     }

@@ -72,10 +72,12 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units, .
     for (i in unique(df$id)) {
         df_subset <- df[df$id == i,]
         values <- df_subset[df_subset$Series == what, "Value"]
-        has_values <- !all(is.na(values))
-        current_range <- range(values, na.rm = TRUE)
-        if (any(is.infinite(current_range))) {
+        no_values <- all(is.na(values))
+        if (no_values) {
             current_range <- c(NA, NA)
+        }
+        else {
+            current_range <- range(values, na.rm = TRUE)
         }
         ranges <- rbind(ranges, current_range)
     }
