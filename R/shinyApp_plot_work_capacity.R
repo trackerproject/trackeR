@@ -83,7 +83,7 @@ plot_work_capacity <- function(run_data, session){
     # smoothed_data <- predict(smoothed_model, newdata=df[(df$id==i),])
     ## print(i)
     ## print(subset(df, (id == i) & (Series == 'movement')))
-      a <- plotly::plot_ly(df[(id == i) & (Series == 'movement'), ], x = ~ Index, y = ~ Value,
+      a <- plotly::plot_ly(df[(df$id == i) & (df$idSeries == 'movement'), ], x = ~ Index, y = ~ Value,
                            hoverinfo = 'none',
                            color = I('gray'),legendgroup = ~ Series,
                            name = mylabels[1], showlegend = show_legend) %>%

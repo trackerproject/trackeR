@@ -106,11 +106,11 @@ nsessions <- function(object, ...) UseMethod("nsessions")
 #' @examples
 #' \dontrun{
 #' data('runs', package = 'trackeR')
-#' ## timeline plot applied on the trackeRdata object directly and with
+#' ## timeline plot applied on the \code{trackeRdata} object directly and with
 #' ## inferred limits for the time axis
 #' timeline(runs)
 #'
-#' ## the same timeline plot applied on the trackeRdataSummary object
+#' ## the same timeline plot applied on the \code{trackeRdataSummary} object
 ## ## with the time axis spanning between '00:01' and '23:59'
 #' runSummary <- summary(runs)
 #' timeline(runSummary, lims = c('00:01', '23:59'))
@@ -123,3 +123,9 @@ timeline <- function(object, lims, ...) UseMethod("timeline")
 #' @param ... Arguments to be passed to methods.
 #' @export
 funPCA <- function(object, ...) UseMethod("funPCA")
+
+#' Generic function for ridgeline plots.
+#'
+#' @param x An object of class \code{distrProfile} or \code{conProfile}.
+#' @param ... Arguments to be passed to methods.
+ridges <- function(x, ...) UseMethod("ridges")

@@ -8,6 +8,7 @@
 #' @param cores Number of cores for parallel computing. If NULL, the number of cores is
 #'     set to the value of \code{options("cores")} (on Windows) or \code{options("mc.cores")}
 #'     (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.
+#' @param auto_breaks Logical. Should grids be selected automatically? Default is \code{FALSE} and \code{grid} will be ignored if \code{TRUE}.
 #' @return An object of class \code{distrProfile}.
 #' @references Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
 #'     Endurance Runners to Training and Physiological Effects via Multi-Resolution
@@ -19,7 +20,39 @@
 #' @export
 distributionProfile <- function(object, session = NULL, what = c("speed", "heart.rate"),
                                 grid = list(speed = seq(0, 12.5, by = 0.05), heart.rate = seq(0, 250)),
-                                parallel = FALSE, cores = NULL){
+                                parallel = FALSE, cores = NULL, auto_grid = FALSE) {
+
+
+    if (auto_grid) {
+
+        grid <- list()
+
+        df <- fortify(object, melt = FALSE)
+
+        find_step_size <- function (maximum, minimum = 0) {
+            value_range <- as.character(ceiling(maximum - minimum))
+            range_size <- nchar(value_range)
+            round_table <- list('1' = 5, '2' = 5, '3' = 10, '4' = 100,
+                                '5' = 10000, '6' = 100000)
+            maximum <- ceiling(maximum/round_table[[range_size]]) * round_table[[range_size]]
+            step_size <- (maximum - minimum) / 100
+            break_points <- seq(minimum, maximum, by = step_size)
+            break_points
+        }
+
+        for (feature in what) {
+            if (all(is.na(df[[feature]]))) {
+                warning(paste('No data for', feature))
+                what <- what[!(what %in% feature)]
+            }
+        }
+        for (feature in what) {
+            maximum <- ceiling(quantile(df[feature], 0.999, na.rm = TRUE))
+            minimum <- if (feature == 'heart.rate') 35 else 0
+            grid[[feature]] <- find_step_size(maximum, minimum)
+        }
+    }
+
 
     units <- getUnits(object)
     if (is.null(session))
@@ -619,4 +652,74 @@ c.distrProfile <- function(..., recursive = FALSE){
 #' @export
 nsessions.distrProfile <- function(object, ...) {
     if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
+}
+
+
+#' Ridgeline plots for \code{distrProfile} objects
+#'
+#' @inheritParams plot.distrProfile
+#'
+#' @examples
+#' \dontrun{
+#'
+#' data("runs", package = "trackeR")
+#' dProfile <- distributionProfile(runs, what = c("speed", "heart.rate"), auto_grid = TRUE)
+#' ridges(dProfile)
+#'
+#' }
+ridges.distrProfile <- function(x, session = NULL, what = c("speed"),
+                                smooth = TRUE, ...){
+    ## code inspired by autoplot.zoo
+    units <- getUnits(x)
+    operations <- getOperations(x)
+
+    ## select variables
+    what <- what[what %in% names(x)]
+    if (length(what) > 1) {
+        warnings(paste("Only", what[1], "is plotted"))
+        what <- what[1]
+    }
+    x <- x[what] ## FIXME: implement [] method for profiles/variables instead of sessions
+    class(x) <- "distrProfile"; attr(x, "operations") <- operations; attr(x, "unit") <- units
+
+    ## select sessions
+    availSessions <- if (is.null(ncol(x[[1]]))) 1 else ncol(x[[1]])
+    if (is.null(session)) session <- 1:availSessions
+    for(i in what) x[[i]] <- x[[i]][,session]
+
+    ## smooth
+    if (smooth){
+        if (!is.null(operations$smooth)){
+            warning("This object has already been smoothed. No additional smoothing takes place.")
+        } else {
+            x <- smoother(x, what = what, ...)
+        }
+    }
+
+    ## get data
+    rownames(x) <- NULL
+    df <- fortify(x, melt = TRUE)
+
+    if (length(session) < 2) {
+        df$Series <- session
+        ## df$Series <- factor(df$Series)
+    } else {
+        df$Series <- as.numeric(sapply(strsplit(as.character(df$Series), "Session"), function(x) x[2]))
+    }
+    df$Profile <- factor(df$Profile)
+
+    singleSession <- nlevels(df$Series) == 1L
+    lab_data <- function(series){
+        thisunit <- units$unit[units$variable == series]
+        prettyUnit <- prettifyUnits(thisunit)
+        paste0(series, " [", prettyUnit,"]")
+    }
+    lab_data <- Vectorize(lab_data)
+
+    sc <- 2/max(df$Value)
+    ggplot2::ggplot(df) +
+        ggridges::geom_ridgeline(ggplot2::aes_(x = quote(Index), y = quote(Series), height = quote(Value), group = quote(Series), scale = sc), alpha = 0.5) +
+            ggridges::theme_ridges() +
+            ggplot2::labs(x = lab_data(what), y = "Session")
+
 }

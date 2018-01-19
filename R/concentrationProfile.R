@@ -349,3 +349,85 @@ nsessions.conProfile <- function(object, ...) {
     if (is.null(ncol(object[[1]])))
         1 else ncol(object[[1]])
 }
+
+#' Ridgeline plots for distrProfile objects
+#'
+#' @inheritParams plot.conProfile
+#'
+#' @examples
+#' \dontrun{
+#'
+#' data("runs", package = "trackeR")
+#' dProfile <- distributionProfile(runs, what = c("speed", "heart.rate"), auto_grid = TRUE)
+#' cProfile <- concentrationProfile(dProfile)
+#' ridges(cProfile, what = "speed")
+#' ridges(cProfile, what = "heart.rate")
+#' }
+#'
+ridges.conProfile <- function(x, session = NULL, what = c("speed"),
+                              smooth = TRUE, ...){
+
+    ## code inspired by autoplot.zoo
+    units <- getUnits(x)
+    operations <- getOperations(x)
+
+    ## select variables
+    what <- what[what %in% names(x)]
+    if (length(what) > 1) {
+        warnings(paste("Only", what[1], "is plotted"))
+        what <- what[1]
+    }
+    x <- x[what]  ## FIXME: implement [] method for profiles/variables instead of sessions
+    class(x) <- "conProfile"
+    attr(x, "operations") <- operations
+    attr(x, "unit") <- units
+
+    ## select sessions if (is.null(session)) { session <- attr(x[[1]], 'dimnames')[[2]]
+    ## #1:ncol(x[[1]]) } else { if(is.numeric(session)) session <- attr(x[[1]],
+    ## 'dimnames')[[2]][session] }
+    availSessions <- if (is.null(ncol(x[[1]])))
+        1 else ncol(x[[1]])
+    if (is.null(session))
+        session <- 1:availSessions
+    for (i in what) x[[i]] <- x[[i]][, session]
+
+    ## smooth
+    if (smooth) {
+        if (!is.null(operations$smooth)) {
+            warning("This object has already been smoothed. No additional smoothing takes place.")
+        } else {
+            x <- smoother(x, what = what, ...)
+        }
+    }
+
+    ## get data
+    rownames(x) <- NULL
+    df <- fortify(x, melt = TRUE)
+    ## if (length(session) > 1L) df <- subset(df, Series %in% session) df <- subset(df,
+    ## Profile %in% what) HACK: If there is only one session (=series) to be plotted, give
+    ## it a proper name for multiple = TRUE.
+    if (length(session) < 2) {
+        df$Series <- session  ## paste0('Session', session)
+        ## df$Series <- factor(df$Series)
+    } else {
+        df$Series <- as.numeric(sapply(strsplit(as.character(df$Series), "Session"), function(x) x[2]))
+    }
+    df$Profile <- factor(df$Profile)
+
+
+    singleSession <- nlevels(df$Series) == 1L
+    lab_data <- function(series){
+        thisunit <- units$unit[units$variable == series]
+        prettyUnit <- prettifyUnits(thisunit)
+        paste0(series, " [", prettyUnit,"]")
+    }
+    lab_data <- Vectorize(lab_data)
+
+    sc <- 2/max(df$Value)
+    ggplot2::ggplot(df) +
+        ggridges::geom_ridgeline(ggplot2::aes_(x = quote(Index), y = quote(Series), height = quote(Value), group = quote(Series), scale = sc), alpha = 0.5) +
+            ggridges::theme_ridges() +
+            ggplot2::labs(x = lab_data(what), y = "Session")
+
+}
+
