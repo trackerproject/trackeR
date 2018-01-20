@@ -334,6 +334,36 @@ c.trackeRdata <- function(..., recursive = FALSE) {
 
 }
 
+
+#' Sort the sessions \code{trackeRdata} objects into ascending or
+#' descending order according to the first session timestamp.
+#'
+#' @export
+sort.trackeRdata <- function(x, decreasing = FALSE) {
+    oo <- order(sapply(x, function(session) index(session)[1]))
+    if (decreasing) {
+        x[rev(oo)]
+    }
+    else {
+        x[oo]
+    }
+}
+
+#' Exrtact unique sessions in a \code{trackerRdata} object.
+#'
+#' @param x a \code{trackeRdata} object.
+#' @param incomparables currently inactive.
+#'
+#' @details Uniqueness is determined by comparing the first timestamp
+#'     of the sessions in the \code{trackeRdata} object.
+#'
+#' @export
+unique.trackeRdata <- function(x, incomparables = FALSE, ...) {
+    start <- sapply(x, function(session) index(session)[1])
+    x[!duplicated(start, incomparables = FALSE)]
+}
+
+
 #' @export
 "[.trackeRdata" <- function(x, i, j, drop = TRUE, ...) {
 
