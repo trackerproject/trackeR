@@ -4,22 +4,13 @@
 \alias{ridges.trackeRdata}
 \title{Ridgeline plots for \code{trackeRdata} objects}
 \usage{
-<<<<<<< HEAD
 \method{ridges}{trackeRdata}(x, session = NULL, what = "speed",
   smooth = TRUE, ...)
-=======
-\method{ridges}{trackeRdata}(x, session = NULL, what = "speed", ...)
->>>>>>> c8a908c
 }
 \arguments{
 \item{session}{A numeric vector of the sessions to be used, defaults to all sessions.}
 
 \item{what}{The variables for which the distribution profiles should be generated.}
-<<<<<<< HEAD
-=======
-
-\item{...}{Further arguments to be passed to \code{\link{smootherControl.distrProfile}}.}
->>>>>>> c8a908c
 }
 \description{
 Ridgeline plots for \code{trackeRdata} objects

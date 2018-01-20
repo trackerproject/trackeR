@@ -10,8 +10,6 @@
 \item{x}{a \code{trackeRdata} object.}
 
 \item{incomparables}{currently inactive.}
-
-\item{...}{Currently not used.}
 }
 \description{
 Exrtact unique sessions in a \code{trackerRdata} object.

@@ -6,7 +6,7 @@
 \usage{
 distributionProfile(object, session = NULL, what = c("speed", "heart.rate"),
   grid = list(speed = seq(0, 12.5, by = 0.05), heart.rate = seq(0, 250)),
-  parallel = FALSE, cores = NULL, auto_grid = FALSE)
+  parallel = FALSE, cores = NULL, auto_grid = TRUE)
 }
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}

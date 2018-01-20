@@ -1,5 +1,5 @@
 Package: trackeR
-Version: 1.0.0
+Version: 1.0.9.900
 Date: 2017-01-11
 Title: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices
 Authors@R: c(person(given = "Hannah", family = "Frick",
@@ -21,7 +21,7 @@ Description: The aim of this package is to provide infrastructure for
     (type 'trackeR_app()') that implements a workflow for the extraction and
     analysis of the data.
 Depends:
-    R (>= 2.10.0),
+    R (>= 3.1.0),
     zoo
 Imports:
     plotly,
