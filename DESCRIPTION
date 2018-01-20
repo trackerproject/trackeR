@@ -1,8 +1,9 @@
 Package: trackeR
-Version: 0.0.5.900
+Version: 1.0.0
 Date: 2017-01-11
 Title: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices
 Authors@R: c(person(given = "Hannah", family = "Frick",
+<<<<<<< HEAD
 	            role = c("aut", "cre"), email = "h.frick@ucl.ac.uk",
 		    comment = c(ORCID = "0000-0002-6049-5258")),
              person(given = "Ioannis", family = "Kosmidis",
@@ -20,6 +21,21 @@ Description: The aim of this package is to provide infrastructure for
     flexible and extensible methods. A shiny dashboard is provided
     (type 'trackeR_app()') that implements a workflow for the extraction and
     analysis of the data.
+=======
+	   	    role = c("aut", "cre"),
+		    email = "hannah.frick@gmail.com",
+		    comment = c(ORCID = "0000-0002-6049-5258")),
+             person(given = "Ioannis", family = "Kosmidis",
+	     	    role = "aut",
+		    email = "i.kosmidis@ucl.ac.uk",
+		    comment = c(ORCID = "0000-0003-1556-0302")))
+Description: The aim of this package is to provide infrastructure for handling running and cycling
+    data from GPS-enabled tracking devices. After extraction and appropriate
+    manipulation of the training or competition attributes, the data are placed
+    into session-based and unit-aware data objects of class 'trackeRdata' (S3 class). The
+    information in the resulting data objects can then be visualised, summarised,
+    and analysed through corresponding flexible and extensible methods.
+>>>>>>> upstream/master
 Depends:
     R (>= 2.10.0),
     zoo
@@ -39,12 +55,16 @@ Imports:
     leaflet,
     ggmap,
     gridExtra,
+<<<<<<< HEAD
     gtable,
     shinyFiles,
     shiny,
     shinycssloaders,
     shinydashboard,
     sp
+=======
+    gtable
+>>>>>>> upstream/master
 Suggests:
     testthat,
     knitr,

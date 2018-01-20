@@ -91,8 +91,11 @@
 \alias{kW2kW}
 \alias{steps_per_min2steps_per_min}
 \alias{rev_per_min2rev_per_min}
+<<<<<<< HEAD
 \alias{steps_per_min2rev_per_min}
 \alias{rev_per_min2steps_per_min}
+=======
+>>>>>>> upstream/master
 \title{Auxiliary conversion functions.}
 \usage{
 m2km(variable)
