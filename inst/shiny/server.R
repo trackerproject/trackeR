@@ -504,16 +504,17 @@ server <- function(input, output, session) {
                 paste0(250 * length(input$profile_metrics_for_plot), 'px')
             })
 
+            ## Render UI for plot
+            output$profiles <- renderUI({
+                plotly::plotlyOutput('profiles_plots', width = 'auto', height = profile_plot_height())
+            })
+
             ## Render actual plot
             output$profiles_plots <- plotly::renderPlotly({
                                                  plot_profiles(run_data = data$object,
                                                                session = as.vector(data$selected_sessions),
                                                                what = input$profile_metrics_for_plot)
                                              })
-            ## Render UI for plot
-            output$profiles <- renderUI({
-                plotly::plotlyOutput('profiles_plots', width = 'auto', height = profile_plot_height())
-            })
 
         }
     })

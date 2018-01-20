@@ -36,7 +36,7 @@ distributionProfile <- function(object, session = NULL, what = c("speed", "heart
             round_table <- list('1' = 5, '2' = 5, '3' = 10, '4' = 100,
                                 '5' = 10000, '6' = 100000)
             maximum <- ceiling(maximum/round_table[[range_size]]) * round_table[[range_size]]
-            step_size <- (maximum - minimum) / 100
+            step_size <- (maximum - minimum) / 500
             break_points <- seq(minimum, maximum, by = step_size)
             break_points
         }

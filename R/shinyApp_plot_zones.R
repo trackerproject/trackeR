@@ -13,12 +13,11 @@ plot_zones <- function(run_data, session, what = c("heart.rate")){
                         levels = unique(paste0("[",paste(dat$lower, dat$upper,
                                                          sep = "-"), ")")),
                         ordered = TRUE)
-    ## dat$session <- factor(dat$session)
-                                        # dat$session <- sprintf("%02d", dat$session)
 
     dat$Session <- paste("Session", sprintf(paste0("%0", nchar(max(dat$session)), "d"), dat$session))
 
     dat$timeN <- as.numeric(dat$time)
+
     ## facets
     units <- getUnits(x)
     lab_data <- function(series) {
