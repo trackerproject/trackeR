@@ -125,7 +125,7 @@ server <- function(input, output, session) {
                                        timezone = "GMT", cycling = data$sport,
                                        correctDistances = TRUE)
             }
-            data$object <- c.trackeRdata(processed_data, raw_data)
+            data$object <- sort(unique(c.trackeRdata(processed_data, raw_data)), decreasing = FALSE)
             data$summary <- summary(data$object)
             output$download_data <- downloadHandler(
                 filename = function() {
