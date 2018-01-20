@@ -279,15 +279,15 @@ server <- function(input, output, session) {
                                                between(data$summary$avgHeartRate, input$average_heart_rate[1], input$average_heart_rate[2]) &
                                                between(data$summary$distance, input$average_distance[1], input$average_distance[2])
                                            if (length(as.vector(data$selected_sessions))){
-                                               choices <- choices & (data$summary$session %in% as.vector(data$selected_sessions))
+                                               choices <- choices & (data$summary$session %in% data$selected_sessions)
                                            }
                                            data$summary$session[choices]
                                        })
-                                       shiny::validate(
-                                                  need(sessionData(), 'Session data missing'),
-                                                  need(data$object, 'dataset missing'),
-                                                  need(data$summary, 'summary missing')
-                                              )
+                                       ## shiny::validate(
+                                       ##            need(sessionData(), 'Session data missing'),
+                                       ##            need(data$object, 'dataset missing'),
+                                       ##            need(data$summary, 'summary missing')
+                                       ##        )
                                        shiny_plot_map(data$object,  sessionData(), data$summary)
                                    })
 
