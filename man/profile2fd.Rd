@@ -20,6 +20,7 @@ An object of class \code{\link[fda]{fd}}.
 Transform distribution and concentration profiles to functional data objects of class fd.
 }
 \examples{
+\dontrun{
 library('fda')
 data('runs', package = 'trackeR')
 dp <- distributionProfile(runs, what = 'speed')
@@ -32,4 +33,5 @@ dp.pca$varprop
 plot(dp.pca, harm = 1)
 sumRuns <- summary(runs)
 plot(sumRuns$durationMoving, dp.pca$scores[,1])
+}
 }

@@ -13,6 +13,16 @@ session-aware data objects with an S3 class trackeRdata. The information in the
 resultant data objects can then be visualised, summarised and analysed through
 corresponding flexible and extensible methods.
 }
+\note{
+This work has been supported by the English Institute of Sport
+\url{http://www.eis2win.co.uk} and University College London (UCL),
+which jointly contributed to the grant that funded Hannah Frick's
+Post Doctoral Research Fellowship at UCL between 2014 and 2016 and
+a percentage of Ioannis Kosmidis' time. Ioannis Kosmidis has also
+been supported by the Alan Turing Institute under the EPSRC grant
+EP/N510129/1 (Turing award number TU/B/000082). The support of the
+aforementioned organisations is greatly acknowledged.
+}
 \section{Note}{
 
 

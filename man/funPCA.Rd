@@ -34,6 +34,7 @@ Generic function for functional principal components analysis.
 The \code{...} argument is passed on to \code{\link[fda]{pca.fd}}.
 }
 \examples{
+\dontrun{
 data('runs', package = 'trackeR')
 dp <- distributionProfile(runs, what = 'speed')
 dp.pca <- funPCA(dp, what = 'speed', nharm = 4)
@@ -42,6 +43,7 @@ plot(dp.pca, harm = 1)
 ## time spent above speed = 0 is the characteristic distinguishing the profiles
 sumRuns <- summary(runs)
 plot(sumRuns$durationMoving, dp.pca$scores[,1])
+}
 }
 \references{
 Ramsay JO, Silverman BW (2005). Functional Data Analysis. Springer-Verlag New York.

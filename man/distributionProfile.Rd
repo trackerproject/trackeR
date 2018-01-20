@@ -23,7 +23,7 @@ distributionProfile(object, session = NULL, what = c("speed", "heart.rate"),
 set to the value of \code{options("cores")} (on Windows) or \code{options("mc.cores")}
 (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.}
 
-\item{auto_breaks}{Logical. Should grids be selected automatically? Default is \code{FALSE} and \code{grid} will be ignored if \code{TRUE}.}
+\item{auto_grid}{Logical. Should grids be selected automatically? Default is \code{FALSE} and \code{grid} will be ignored if \code{TRUE}.}
 }
 \value{
 An object of class \code{distrProfile}.

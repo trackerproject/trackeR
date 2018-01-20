@@ -24,12 +24,14 @@ point characters? Otherwise, lines are used.}
 Plot function for functional principal components analysis of distribution and concentration profiles.
 }
 \examples{
+\dontrun{
 data('runs', package = 'trackeR')
 dp <- distributionProfile(runs, what = 'speed')
 dp.pca <- funPCA(dp, what = 'speed', nharm = 4)
 ## 1st harmonic  captures vast majority of the variation
 plot(dp.pca)
 plot(dp.pca, harm = 1, pointplot = FALSE)
+}
 }
 \references{
 Ramsay JO, Silverman BW (2005). Functional Data Analysis. Springer-Verlag New York.

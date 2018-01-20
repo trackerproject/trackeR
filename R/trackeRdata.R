@@ -339,8 +339,13 @@ c.trackeRdata <- function(..., recursive = FALSE) {
 #' Sort the sessions \code{trackeRdata} objects into ascending or
 #' descending order according to the first session timestamp.
 #'
+#' @param x a \code{trackeRdata} object.
+#' @param decreasing Logical. Should the objects be sorted in
+#'     increasing or decreasing order?
+#' @param ... Currently not used.
+#'
 #' @export
-sort.trackeRdata <- function(x, decreasing = FALSE) {
+sort.trackeRdata <- function(x, decreasing = FALSE, ...) {
     oo <- order(sapply(x, function(session) index(session)[1]))
     if (decreasing) {
         x[rev(oo)]
@@ -353,7 +358,8 @@ sort.trackeRdata <- function(x, decreasing = FALSE) {
 #' Exrtact unique sessions in a \code{trackerRdata} object.
 #'
 #' @param x a \code{trackeRdata} object.
-#' @param incomparables currently inactive.
+#' @param incomparables currently not used.
+#' @param ... Currently not used.
 #'
 #' @details Uniqueness is determined by comparing the first timestamp
 #'     of the sessions in the \code{trackeRdata} object.

@@ -8,7 +8,7 @@
 #' @param cores Number of cores for parallel computing. If NULL, the number of cores is
 #'     set to the value of \code{options("cores")} (on Windows) or \code{options("mc.cores")}
 #'     (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.
-#' @param auto_breaks Logical. Should grids be selected automatically? Default is \code{FALSE} and \code{grid} will be ignored if \code{TRUE}.
+#' @param auto_grid Logical. Should grids be selected automatically? Default is \code{FALSE} and \code{grid} will be ignored if \code{TRUE}.
 #' @return An object of class \code{distrProfile}.
 #' @references Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
 #'     Endurance Runners to Training and Physiological Effects via Multi-Resolution

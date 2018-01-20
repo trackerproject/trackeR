@@ -543,6 +543,9 @@ timeline.trackeRdata <- function(object, lims = NULL, ...) {
 #' Ridgeline plots for \code{trackeRdata} objects
 #'
 #' @inheritParams distributionProfile
+#' @param x a \code{trackeRdata} object.
+#' @param smooth Logical. Should the concentration profiles be smoothed before plotting?
+#' @param ... Currently not used.
 #'
 #' @examples
 #'

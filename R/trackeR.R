@@ -17,6 +17,17 @@
 #' that was developed by Ioannis Kosmidis for the requirements of the
 #' analyses in Kosmidis & Passfield (2015).
 #'
+#' @note
+#'
+#' This work has been supported by the English Institute of Sport
+#' \url{http://www.eis2win.co.uk} and University College London (UCL),
+#' which jointly contributed to the grant that funded Hannah Frick's
+#' Post Doctoral Research Fellowship at UCL between 2014 and 2016 and
+#' a percentage of Ioannis Kosmidis' time. Ioannis Kosmidis has also
+#' been supported by the Alan Turing Institute under the EPSRC grant
+#' EP/N510129/1 (Turing award number TU/B/000082). The support of the
+#' aforementioned organisations is greatly acknowledged.
+#'
 #' @references Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal of Statistical Software}, \bold{82}(7), 1--29. doi:10.18637/jss.v082.i07
 #' Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
 #'     Endurance Runners to Training and Physiological Effects via Multi-Resolution
