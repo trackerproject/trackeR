@@ -20,11 +20,11 @@ Generic function for visualising the sessions on a time versus date plot.
 \examples{
 \dontrun{
 data('runs', package = 'trackeR')
-## timeline plot applied on the trackeRdata object directly and with
+## timeline plot applied on the \\code{trackeRdata} object directly and with
 ## inferred limits for the time axis
 timeline(runs)
 
-## the same timeline plot applied on the trackeRdataSummary object
+## the same timeline plot applied on the \\code{trackeRdataSummary} object
 runSummary <- summary(runs)
 timeline(runSummary, lims = c('00:01', '23:59'))
 }

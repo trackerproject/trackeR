@@ -6,7 +6,7 @@
 \usage{
 distributionProfile(object, session = NULL, what = c("speed", "heart.rate"),
   grid = list(speed = seq(0, 12.5, by = 0.05), heart.rate = seq(0, 250)),
-  parallel = FALSE, cores = NULL)
+  parallel = FALSE, cores = NULL, auto_grid = FALSE)
 }
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}
@@ -22,6 +22,8 @@ distributionProfile(object, session = NULL, what = c("speed", "heart.rate"),
 \item{cores}{Number of cores for parallel computing. If NULL, the number of cores is
 set to the value of \code{options("cores")} (on Windows) or \code{options("mc.cores")}
 (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.}
+
+\item{auto_breaks}{Logical. Should grids be selected automatically? Default is \code{FALSE} and \code{grid} will be ignored if \code{TRUE}.}
 }
 \value{
 An object of class \code{distrProfile}.
