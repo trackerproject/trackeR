@@ -388,7 +388,7 @@ timeline.trackeRdataSummary <- function(object, lims = NULL, ...) {
     p <- ggplot2::ggplot(df) + ## geom_point(aes(x = start, y = sday), alpha = 0.5) + geom_point(aes(x = end, y =
     ## eday), alpha = 0.5) +
     ggplot2::geom_segment(ggplot2::aes_(x = quote(start), xend = quote(end), y = quote(sday),
-        yend = quote(eday)), color = '#428bca', size=3)
+        yend = quote(eday)), color = '#428bca', size=1)
     ## take care of breaks, limits on the time axes and style of breakpoints
     p <- p + ggplot2::scale_x_datetime(date_labels = "%H:%m", date_breaks = "4 hour", limits = lims)
     p <- p + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1)) +
