@@ -19,6 +19,7 @@ ui <- shinydashboard::dashboardPage(
                           }
                          ")),
                          shinydashboard::sidebarMenu(
+                                             shinyjs::useShinyjs(),
                                              ## menuItem('', tabName = 'dashboard', icon = icon('dashboard')),
                                              ## hr(),
                                              ## fileInput('processed_data_path', 'Load processed data'),

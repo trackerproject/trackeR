@@ -42,6 +42,7 @@ Imports:
     gtable,
     shinyFiles,
     shiny,
+    shinyjs,
     shinycssloaders,
     shinydashboard,
     sp
