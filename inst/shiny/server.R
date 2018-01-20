@@ -105,7 +105,7 @@ server <- function(input, output, session) {
 
     ## Upload
     observeEvent(input$uploadButton, {
-        data$sport <- input$sportSelected == 'cycling'
+        data$is_cycling <- input$sportSelected == 'cycling'
         if ((raw_data_path() == home) & (processed_data_path() == home)) {
             showModal(modalDialog(title = 'trackeR dashboard message',
                                   div(tags$b("Select a processed data image or a directory with raw datafiles",
@@ -122,7 +122,7 @@ server <- function(input, output, session) {
                 raw_data <- callModule(module = readDirectory_reactive,
                                        id = "datafile",
                                        directory = raw_data_path(),
-                                       timezone = "GMT", cycling = data$sport,
+                                       timezone = "GMT", cycling = data$is_cycling,
                                        correctDistances = TRUE)
             }
             data$object <- sort(unique(c.trackeRdata(processed_data, raw_data)), decreasing = FALSE)
