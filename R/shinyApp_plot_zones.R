@@ -31,15 +31,11 @@ plot_zones <- function(run_data, session, what = c("heart.rate")){
     individual_plots <- list()
     legend_status <- TRUE
     for (feature in what){
-        y <- list(
-            title = '% of time'
-        )
-        x <- list(
-            title = paste0('Zones (', lab_data(feature), ')')
-                                        # tickangle = 180
-        )
-        p <- plotly::plot_ly(dat[dat$variable == feature, ], x = ~zoneF, y = ~percent,
-                             color = ~Session, colors = pal(dat$Session), legendgroup = ~Session) %>%
+        y <- list(title = '% of time')
+        x <- list(title = paste0('Zones (', lab_data(feature), ')'))
+        feature_zones <- dat[dat$variable == feature, ]
+        p <- plotly::plot_ly(feature_zones, x = ~ zoneF, y = ~ percent,
+                             color = ~Session, colors = pal(feature_zones$Session), legendgroup = ~ Session) %>%
             plotly::add_bars() %>%
             plotly::layout(xaxis = x, yaxis = y, hovermode = 'closest')
         individual_plots[[feature]] <- plotly::style(p, showlegend = legend_status)

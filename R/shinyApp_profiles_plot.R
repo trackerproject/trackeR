@@ -114,8 +114,9 @@ plot_profiles <- function(run_data, session, what = c("speed")){
 
         y <- list(title = 'dtime')
         x <- list(title = lab_data(feature))
-        p <- plotly::plot_ly(df[df$Profile == feature, ], x = ~ Index, y = ~ Value,
-                             color = ~series, colors = pal(df$series), legendgroup = ~series) %>%
+        feature_profile <- df[df$Profile == feature, ]
+        p <- plotly::plot_ly(feature_profile, x = ~ Index, y = ~ Value,
+                             color = ~series, colors = pal(feature_profile$series), legendgroup = ~series) %>%
             plotly::add_lines() %>%
             plotly::layout(xaxis = x, yaxis = y, hovermode = 'closest')
         individual_plots[[feature]] <- plotly::style(p, showlegend = legend_status)

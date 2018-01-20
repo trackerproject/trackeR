@@ -122,7 +122,9 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units, .
                                  type = "scatter", mode = "none",
                                  showlegend = FALSE) %>%
                 plotly::layout(annotations = annotations_list,
-                               xaxis = axis_list, yaxis = c(axis_list, list(range = maximal_range * 1.02)))
+                               xaxis = axis_list, yaxis = c(axis_list,
+                                                            list(range = maximal_range * 1.02,
+                                                                 showticklabels = FALSE)))
         }
         plot_stored[[as.character(i)]] <- a
     }
