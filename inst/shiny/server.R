@@ -27,53 +27,50 @@ server <- function(input, output, session) {
 
     ## Units
     observeEvent(input$changeUnits, {
-        get_selected_units <- function(feature){
-            if (is.null(data$object)) {
-                return(NULL)
-            }
-            else {
+        if (!is.null(data$object)) {
+            get_selected_units <- function(feature){
                 getUnits(data$object)$unit[getUnits(data$object)$variable %in% feature]
             }
+            showModal(modalDialog(
+                title = "Change units",
+                radioButtons('altitudeUnits', 'Altitude:',
+                             c('m' = 'm',
+                               'km' = 'km',
+                               'mi' = 'mi',
+                               'ft' = 'ft'), inline = TRUE,
+                             selected = get_selected_units('altitude')),
+                radioButtons('distanceUnits', 'Distance:',
+                             c('m' = 'm',
+                               'km' = 'km',
+                               'mi' = 'mi',
+                               'ft' = 'ft'), inline = TRUE,
+                             selected = get_selected_units('distance')),
+                radioButtons('speedUnits', 'Speed:',
+                             c('m/s' = 'm_per_s',
+                               'km/h' = 'km_per_h',
+                               'ft/min' = 'ft_per_min',
+                               'ft/s' = 'ft_per_s',
+                               'mi/h' = 'mi_per_h'), inline = TRUE,
+                             selected = get_selected_units('speed')),
+                radioButtons('cadenceUnits', 'Cadence:',
+                             c('steps/min' = 'steps_per_min',
+                               'revolutions/min' = 'rev_per_min'), inline = TRUE,
+                             selected = get_selected_units('cadence')),
+                radioButtons('powerUnits', 'Power:',
+                             c('W' = 'W',
+                               'kW' = 'kW'), inline = TRUE,
+                             selected = get_selected_units('power')),
+                radioButtons('paceUnits', 'Pace:',
+                             c('min/km' = 'min_per_km',
+                               'min/mi' = 'min_per_mi',
+                               's/min' = 's_per_m'), inline = TRUE,
+                             selected = get_selected_units('pace')),
+                footer = tagList(
+                    modalButton("Cancel"),
+                    actionButton("updateUnits", "Apply")
+                )
+            ))
         }
-        showModal(modalDialog(
-            title = "Change units",
-            radioButtons('altitudeUnits', 'Altitude:',
-                         c('m' = 'm',
-                           'km' = 'km',
-                           'mi' = 'mi',
-                           'ft' = 'ft'), inline = TRUE,
-                         selected = get_selected_units('altitude')),
-            radioButtons('distanceUnits', 'Distance:',
-                         c('m' = 'm',
-                           'km' = 'km',
-                           'mi' = 'mi',
-                           'ft' = 'ft'), inline = TRUE,
-                         selected = get_selected_units('distance')),
-            radioButtons('speedUnits', 'Speed:',
-                         c('m/s' = 'm_per_s',
-                           'km/h' = 'km_per_h',
-                           'ft/min' = 'ft_per_min',
-                           'ft/s' = 'ft_per_s',
-                           'mi/h' = 'mi_per_h'), inline = TRUE,
-                         selected = get_selected_units('speed')),
-            radioButtons('cadenceUnits', 'Cadence:',
-                         c('steps/min' = 'steps_per_min',
-                           'revolutions/min' = 'rev_per_min'), inline = TRUE,
-                         selected = get_selected_units('cadence')),
-            radioButtons('powerUnits', 'Power:',
-                         c('W' = 'W',
-                           'kW' = 'kW'), inline = TRUE,
-                         selected = get_selected_units('power')),
-            radioButtons('paceUnits', 'Pace:',
-                         c('min/km' = 'min_per_km',
-                           'min/mi' = 'min_per_mi',
-                           's/min' = 's_per_m'), inline = TRUE,
-                         selected = get_selected_units('pace')),
-            footer = tagList(
-                modalButton("Cancel"),
-                actionButton("updateUnits", "Apply")
-            )
-        ))
     })
 
     observeEvent(input$updateUnits, {
@@ -105,7 +102,7 @@ server <- function(input, output, session) {
 
     ## Upload
     observeEvent(input$uploadButton, {
-        data$sport <- input$sportSelected == 'cycling'
+        data$is_cycling <- input$sportSelected == 'cycling'
         if ((raw_data_path() == home) & (processed_data_path() == home)) {
             showModal(modalDialog(title = 'trackeR dashboard message',
                                   div(tags$b("Select a processed data image or a directory with raw datafiles",
@@ -122,10 +119,10 @@ server <- function(input, output, session) {
                 raw_data <- callModule(module = readDirectory_reactive,
                                        id = "datafile",
                                        directory = raw_data_path(),
-                                       timezone = "GMT", cycling = data$sport,
+                                       timezone = "GMT", cycling = data$is_cycling,
                                        correctDistances = TRUE)
             }
-            data$object <- c.trackeRdata(processed_data, raw_data)
+            data$object <- sort(unique(c.trackeRdata(processed_data, raw_data)), decreasing = FALSE)
             data$summary <- summary(data$object)
             output$download_data <- downloadHandler(
                 filename = function() {
@@ -138,6 +135,7 @@ server <- function(input, output, session) {
         data$nsessions <- if (is.null(data$summary)) 0 else nsessions(data$summary)
         data$selected_sessions <- data$summary$session
     })
+
 
     observeEvent({
         input$updateUnits
@@ -343,9 +341,14 @@ server <- function(input, output, session) {
 
     observeEvent(input$resetButton, {
         removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
-        ## data <- reactiveValues()
         data$object <- data$summary <- data$nsessions <- data$selected_sessions <- NULL
     })
+
+    ## observe({
+    ##   if (input$refresh) {
+    ##       shinyjs::js$refresh();
+    ##   }
+    ## })
 
     observeEvent(input$plotSelectedWorkouts, {
         if (!is.null(data$object)) {

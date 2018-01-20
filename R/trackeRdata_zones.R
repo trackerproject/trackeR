@@ -20,7 +20,7 @@
 #' plot(runZones)
 #' @export
 zones <- function(object, session = NULL, what = c("speed", "heart.rate"), breaks = list(speed = 0:10,
-    heart.rate = c(0, seq(75, 225, by = 50), 250)), parallel = FALSE, cores = NULL, auto_breaks = FALSE, ...) {
+    heart.rate = c(0, seq(75, 225, by = 50), 250)), parallel = FALSE, cores = NULL, auto_breaks = TRUE, ...) {
 
     if (auto_breaks) {
         breaks <- list()
