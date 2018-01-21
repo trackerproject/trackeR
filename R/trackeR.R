@@ -28,6 +28,13 @@
 #' EP/N510129/1 (Turing award number TU/B/000082). The support of the
 #' aforementioned organisations is greatly acknowledged.
 #'
+#' The trackeR dashboard \code{\link{trackeR_app}} has been designed
+#' and developed by Robin Hornak and Ioannis Kosmidis, while Robin
+#' Hornak was completing his undergraduate research project in the
+#' Department of Statistical Science, University College London under
+#' the supervision of Ioannis Kosmidis.
+#'
+#'
 #' @references Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal of Statistical Software}, \bold{82}(7), 1--29. doi:10.18637/jss.v082.i07
 #' Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
 #'     Endurance Runners to Training and Physiological Effects via Multi-Resolution

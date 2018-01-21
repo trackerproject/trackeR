@@ -22,6 +22,12 @@ a percentage of Ioannis Kosmidis' time. Ioannis Kosmidis has also
 been supported by the Alan Turing Institute under the EPSRC grant
 EP/N510129/1 (Turing award number TU/B/000082). The support of the
 aforementioned organisations is greatly acknowledged.
+
+The trackeR dashboard \code{\link{trackeR_app}} has been designed
+and developed by Robin Hornak and Ioannis Kosmidis, while Robin
+Hornak was completing his undergraduate research project in the
+Department of Statistical Science, University College London under
+the supervision of Ioannis Kosmidis.
 }
 \section{Note}{
 
