@@ -188,7 +188,7 @@ server <- function(input, output, session) {
                                                                                                                           ceiling(max(data$summary$distance[is.finite(data$summary$distance)], na.rm=TRUE)/1000)*1000),
                                                                                                                 step = 1, width = '200px'),
                                                                                                     actionButton('plotSelectedWorkouts', 'Plot selected workouts',
-                                                                                                                 style="color: #fff; background-color: #428bca; border-color:#428bca")
+                                                                                                                 style="color: #fff; background-color: #4FBF85; border-color: #00AB66")
                                                                                                     ))))))
             insertUI(
                 selector = ".content",
@@ -328,8 +328,8 @@ server <- function(input, output, session) {
                                           DT::datatable(dataSelected,
                                                         rownames = FALSE,
                                                         selection = 'none',
-                                                        autoHideNavigation = FALSE,
-                                                        options = list(paging = FALSE, scrollY = "300px"))
+                                                        autoHideNavigation = TRUE,
+                                                        options = list(paging = FALSE, scrollY = "295px", info = FALSE))
                                       }})
             output$cond <- reactive({
                 TRUE

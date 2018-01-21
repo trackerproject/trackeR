@@ -67,7 +67,7 @@ ui <- shinydashboard::dashboardPage(
                                                                      width = 6,
                                                                      height = "420px",
                                                                      title = tagList(shiny::icon("reorder"), "Summary of selected workouts"),
-                                                                     div(style = 'overflow-y: scroll', DT::dataTableOutput('summary'))
+                                                                     DT::dataTableOutput('summary')
                                                                  ),
                                                  shinydashboard::box(
                                                                      status = 'primary',
