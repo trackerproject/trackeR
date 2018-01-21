@@ -97,7 +97,7 @@ Generate distribution and concentration profiles
 
 ```{r, cprofile, fig.width = 9}
 runsT <- threshold(runs)
-dpRuns <- distributionProfile(runsT, what = "speed")
+dpRuns <- distributionProfile(runsT, what = c("speed", "heart.rate"))
 dpRunsS <- smoother(dpRuns)
 cpRuns <- concentrationProfile(dpRunsS)
 plot(cpRuns, multiple = TRUE, smooth = FALSE)
@@ -105,7 +105,11 @@ plot(cpRuns, multiple = TRUE, smooth = FALSE)
 
 A ridgeline plot of the concentration profiles
 ```{r, cprofile-ridges, warning = FALSE, fig.width = 9}
-ridges(cpRuns)
+ridges(cpRuns, what = "speed")
+```
+
+```{r, cprofile-ridges-hr, warning = FALSE, fig.width = 9}
+ridges(cpRuns, what = "heart.rate")
 ```
 
 Explore concentration profiles for speed, e.g., via functional principal

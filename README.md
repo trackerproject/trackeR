@@ -98,7 +98,7 @@ Summarise sessions
 Generate distribution and concentration profiles
 
     runsT <- threshold(runs)
-    dpRuns <- distributionProfile(runsT, what = "speed")
+    dpRuns <- distributionProfile(runsT, what = c("speed", "heart.rate"))
     dpRunsS <- smoother(dpRuns)
     cpRuns <- concentrationProfile(dpRunsS)
     plot(cpRuns, multiple = TRUE, smooth = FALSE)
@@ -107,9 +107,13 @@ Generate distribution and concentration profiles
 
 A ridgeline plot of the concentration profiles
 
-    ridges(cpRuns)
+    ridges(cpRuns, what = "speed")
 
 ![](README_files/figure-markdown_github/cprofile-ridges-1.png)
+
+    ridges(cpRuns, what = "heart.rate")
+
+![](README_files/figure-markdown_github/cprofile-ridges-hr-1.png)
 
 Explore concentration profiles for speed, e.g., via functional principal
 components analysis (PCA)
