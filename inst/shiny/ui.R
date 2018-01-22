@@ -1,4 +1,14 @@
+jscode <- "
+    shinyjs.collapse = function(boxid) {
+    $('#' + boxid).closest('.box').find('[data-widget=collapse]').click();
+    }
+
+"
+
+
+
 ui <- shinydashboard::dashboardPage(
+                          title = 'TrackeR',
                           skin = 'black',
                           shinydashboard::dashboardHeader(title = span(tagList(icon("dashboard"), "trackeR dashboard"))),
                           shinydashboard::dashboardSidebar(
@@ -22,12 +32,12 @@ ui <- shinydashboard::dashboardPage(
                                              ## menuItem('', tabName = 'dashboard', icon = icon('dashboard')),
                                              ## hr(),
                                              ## fileInput('processed_data_path', 'Load processed data'),
-                                             div(class = 'form-group shiny-input-container',
+                                             div(class = 'form-group shiny-input-container', id = 'processed_path',
                                                  tags$label('Processed data file'),
-                                                 div(class = 'input-group', shinyFiles::shinyFilesButton("processed_data_path", "Select file...", "Select processed data file", multiple = FALSE))),
-                                             div(class = 'form-group shiny-input-container',
+                                                 div(class = 'input-group', shinyFiles::shinyFilesButton("processed_data_path0", "Select file...", "Select processed data file", multiple = FALSE))),
+                                             div(class = 'form-group shiny-input-container', id = 'raw_directory',
                                                  tags$label('New raw data directory'),
-                                                 div(class = 'input-group', shinyFiles::shinyDirButton("raw_data_directory", "Select directory...", "Select new raw data directory"))),
+                                                 div(class = 'input-group', shinyFiles::shinyDirButton("raw_data_directory0", "Select directory...", "Select new raw data directory"))),
                                              actionButton('uploadButton', 'Load data', icon("upload"), style="color: #fff; background-color: #6FB1E7; border-color: #5093E3"),
                                              hr(),
                                              div(selectInput('sportSelected', 'Select sport', multiple = FALSE,
@@ -61,20 +71,24 @@ ui <- shinydashboard::dashboardPage(
                                  br(),
                                  a("Bugs, issues, feature requests", href = "https://github.com/hfrick/trackeR/issues"))))),
                          shinydashboard::dashboardBody(
+                                             useShinyjs(),
+                                             extendShinyjs(text = jscode),
                                              fluidRow(
                                                  shinydashboard::box(
                                                                      status = 'primary',
                                                                      width = 6,
-                                                                     height = "420px",
                                                                      title = tagList(shiny::icon("reorder"), "Summary of selected workouts"),
-                                                                     DT::dataTableOutput('summary')
+                                                                     DT::dataTableOutput('summary', height = 'auto'),
+                                                                     collapsible = TRUE,
+                                                                     collapsed = TRUE
                                                                  ),
                                                  shinydashboard::box(
                                                                      status = 'primary',
                                                                      width = 6,
-                                                                     height = '420px',
+                                                                     collapsible = TRUE,
+                                                                     collapsed = TRUE,
                                                                      title = tagList(shiny::icon('calendar', lib='glyphicon'), 'Workout Timeline'),
-                                                                     plotOutput('timeline_plot', width = "100%", height = "350px")
+                                                                     plotOutput('timeline_plot', height = '350px')
                                                                  )
                                              ))
                       )

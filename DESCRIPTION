@@ -45,7 +45,8 @@ Imports:
     shinyjs,
     shinycssloaders,
     shinydashboard,
-    sp
+    sp,
+    V8
 Suggests:
     testthat,
     knitr,

@@ -1,11 +1,11 @@
 server <- function(input, output, session) {
 
     data <- reactiveValues()
-
+    data$n <- 0
     ## directory
-    shinyFiles::shinyDirChoose(input, 'raw_data_directory', roots = c(home = '~'),
+    shinyFiles::shinyDirChoose(input, 'raw_data_directory0', roots = c(home = '~'),
                                filetypes = c('gpx', "tcx", "db3", "json"))
-    raw_data_directory <- reactive(input$raw_data_directory)
+    raw_data_directory <-  reactive({ input[[paste0("raw_data_directory", data$n)]] })
     raw_data_path <- reactive({
         home <- normalizePath("~")
         file.path(home, paste(unlist(raw_data_directory()$path[-1]),
@@ -13,14 +13,19 @@ server <- function(input, output, session) {
     })
 
     ## Processed data
-    shinyFiles::shinyFileChoose(input, 'processed_data_path', roots = c(home = '~'),
+    shinyFiles::shinyFileChoose(input, paste0('processed_data_path', data$n), roots = c(home = '~'),
                                 filetypes = c('rds', 'rdata'))
-    processed_data_file <- reactive(input$processed_data_path)
+    processed_data_file <- reactive({ input[[paste0("processed_data_path", data$n)]] })
     processed_data_path <- reactive({
         home <- normalizePath("~")
         file.path(home, paste(unlist(processed_data_file()$files)[-1],
                               collapse = .Platform$file.sep))
     })
+
+
+
+
+
 
     ## Home
     home <- paste0(normalizePath("~"), '/')
@@ -102,6 +107,7 @@ server <- function(input, output, session) {
 
     ## Upload
     observeEvent(input$uploadButton, {
+
         data$is_cycling <- input$sportSelected == 'cycling'
         if ((raw_data_path() == home) & (processed_data_path() == home)) {
             showModal(modalDialog(title = 'trackeR dashboard message',
@@ -136,11 +142,21 @@ server <- function(input, output, session) {
         data$selected_sessions <- data$summary$session
     })
 
+    observeEvent(input$plotButton, {
+            js$collapse("timeline_plot")
+            js$collapse("summary")
+    }, once = TRUE)
+
+    observeEvent(input$plotSelectedWorkouts, {
+            js$collapse("timeline_plot")
+            js$collapse("summary")
+    }, once = TRUE)
 
     observeEvent({
         input$updateUnits
         input$plotButton
     }, {
+
         if (is.null(data$object)) {
             showModal(modalDialog(title = 'trackeR dashboard message',
                                   div(tags$b("Load processed and/or raw data",
@@ -149,6 +165,7 @@ server <- function(input, output, session) {
                                   size = 's'))
         }
         else {
+
             output$timeline_plot <- renderPlot({
                 if (!is.null(data$summary)) {
                     timeline(data$summary)
@@ -165,7 +182,7 @@ server <- function(input, output, session) {
                                       div(class='plots', fluidRow(shinydashboard::box(
                                                                                       status = 'primary',
                                                                                       width = 12,
-                                                                                      height = "500px",
+                                                                                      collapsible = TRUE,
                                                                                       title = tagList(icon("map"), 'Map'),
                                                                                       shinycssloaders::withSpinner(leaflet::leafletOutput('map', width = "auto", height = "430px"), size = 2),
                                                                                       absolutePanel(top = 70, right = 60,
@@ -221,7 +238,8 @@ server <- function(input, output, session) {
                                                                                         shinydashboard::box(
                                                                                                             status = 'primary',
                                                                                                             width = 12,
-                                                                                                            height = "250px",
+                                                                                                            collapsible = TRUE,
+                                                                                                            # height = "250px",
                                                                                                             title = tagList(shiny::icon(create_icon(i)), name()),
                                                                                                             plotly::plotlyOutput(i, width = "auto", height = "180px")
                                                                                                         )
@@ -231,7 +249,8 @@ server <- function(input, output, session) {
 
             box_text <- function(what, subtitle, icon) {
                 value <- reactive({
-                    value <- round(mean(data$summary[data$selected_sessions][[what]], na.rm = TRUE))
+                    value <- data$summary[data$selected_sessions][[what]]
+                    value <- round(mean(value[is.finite(value)], na.rm = TRUE))
                     if (is.na(value)) {
                         "not available"
                     }
@@ -340,17 +359,41 @@ server <- function(input, output, session) {
 
 
     observeEvent(input$resetButton, {
+
         removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
         data$object <- data$summary <- data$nsessions <- data$selected_sessions <- NULL
-    })
+        removeUI(selector = paste0("#processed_data_path", data$n), immediate = TRUE, multiple = TRUE, session = session)
+        removeUI(selector = paste0("#raw_data_directory", data$n), immediate = TRUE, multiple = TRUE, session = session)
+
+        data$n <- data$n + 1
+        insertUI(
+                 selector = '#processed_path',
+                 ui = div(class = 'input-group', shinyFiles::shinyFilesButton(paste0("processed_data_path", data$n), "Select file...", "Select processed data file", multiple = FALSE)),
+                 immediate = TRUE
+                 )
+        insertUI(
+                 selector = '#raw_directory',
+                 ui = div(class = 'input-group', shinyFiles::shinyDirButton(paste0("raw_data_directory", data$n), "Select directory...", "Select new raw data directory")),
+                 immediate = TRUE
+                 )
+
+    # ## directory
+    shinyFiles::shinyDirChoose(input, paste0("raw_data_directory", data$n), roots = c(home = '~'),
+                               filetypes = c('gpx', "tcx", "db3", "json"))
+
+
+    ## Processed data
+    shinyFiles::shinyFileChoose(input, paste0("processed_data_path", data$n), roots = c(home = '~'),
+                                filetypes = c('rds', 'rdata'))
 
     ## observe({
     ##   if (input$refresh) {
     ##       shinyjs::js$refresh();
     ##   }
-    ## })
+    })
 
     observeEvent(input$plotSelectedWorkouts, {
+
         if (!is.null(data$object)) {
 
             output$cond <-reactive({
@@ -360,8 +403,11 @@ server <- function(input, output, session) {
                 if (!is.null(data$summary)) {
                     timeline(data$summary[data$selected_sessions])
                 }
-            })
+
+
+              })
             for (i in c("pace", "heart.rate", "altitude", "work_capacity")) {
+
                 insertUI(
                     selector = ".content",
                     where = "beforeEnd",
@@ -370,7 +416,8 @@ server <- function(input, output, session) {
                                                                        shinydashboard::box(
                                                                                            status = 'primary',
                                                                                            width = 12,
-                                                                                           height = "350px",
+                                                                                           # height = "350px",
+                                                                                           collapsible = TRUE,
                                                                                            title = tagList(shiny::icon("gear"),
                                                                                                            switch(i, "pace" = paste0("Pace"),
                                                                                                                   "heart.rate" = paste0("Heart Rate"),
@@ -414,6 +461,7 @@ server <- function(input, output, session) {
                                           fluidRow(shinydashboard::box(
                                                                        status = 'primary',
                                                                        width = 12,
+                                                                       collapsible = TRUE,
                                                                        title = tagList(shiny::icon("gear"), 'Time in Zones'),
                                                                        selectizeInput(inputId = 'zones_for_plot',
                                                                                       label = 'Select zone metrics to plot:',
@@ -431,14 +479,22 @@ server <- function(input, output, session) {
                              'Power' = 'power',
                              'Pace' = 'pace')
 
+                data$data_frame <- fortify.trackeRdata(data$object)
+
                 has_data <- sapply(metrics, function(x) {
-                    ## IK: Not the most optimal thing to do here
-                    current_zones <- zones(data$object, session = data$selected_sessions, what = x, auto_breaks = TRUE)
-                    any(current_zones[[x]]$percent > 0)
+
+                    !all(is.na(data$data_frame[x]) | data$data_frame[x] == 0)
+
                 })
 
                 updateSelectizeInput(session = session,
                                      inputId = 'zones_for_plot',
+                                     choices = metrics[has_data],
+                                     server = TRUE,
+                                     selected = c('speed'))
+
+                updateSelectizeInput(session = session,
+                                     inputId = 'profile_metrics_for_plot',
                                      choices = metrics[has_data],
                                      server = TRUE,
                                      selected = c('speed'))
@@ -468,6 +524,7 @@ server <- function(input, output, session) {
                                           fluidRow(shinydashboard::box(
                                                                        status = 'primary',
                                                                        width = 12,
+                                                                       collapsible = TRUE,
                                                                        title = tagList(shiny::icon("gear"), 'Profiles'),
                                                                        selectizeInput(inputId = 'profile_metrics_for_plot',
                                                                                       label = 'Concentration profiles:',
@@ -478,26 +535,6 @@ server <- function(input, output, session) {
                                                                                       selected = 'speed'),
                                                                        uiOutput('profiles'))))))
 
-            metrics_test_data <- observeEvent(input$profile_metrics_for_plot, {
-                metrics <- c('Heart Rate' = 'heart.rate',
-                             'Altitude' = 'altitude',
-                             'Speed' = 'speed',
-                             'Cadence' = 'cadence',
-                             'Power' = 'power',
-                             'Pace' = 'pace')
-
-                has_data <- sapply(metrics, function(x) {
-                    ## IK: Not the most optimal thing to do here
-                    current_zones <- zones(data$object, session = data$selected_sessions, what = x, auto_breaks = TRUE)
-                    any(current_zones[[x]]$percent > 0)
-                })
-
-                updateSelectizeInput(session = session,
-                                     inputId = 'profile_metrics_for_plot',
-                                     choices = metrics[has_data],
-                                     server = TRUE,
-                                     selected = c('speed'))
-            }, once=TRUE)
 
             ## Reactive plot height based on number of sessions selected
             profile_plot_height <- reactive({
