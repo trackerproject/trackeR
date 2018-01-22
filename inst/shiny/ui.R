@@ -5,8 +5,6 @@ jscode <- "
 
 "
 
-
-
 ui <- shinydashboard::dashboardPage(
                           title = 'TrackeR',
                           skin = 'black',
@@ -71,8 +69,8 @@ ui <- shinydashboard::dashboardPage(
                                  br(),
                                  a("Bugs, issues, feature requests", href = "https://github.com/hfrick/trackeR/issues"))))),
                          shinydashboard::dashboardBody(
-                                             useShinyjs(),
-                                             extendShinyjs(text = jscode),
+                                             shinyjs::useShinyjs(),
+                                             shinyjs::extendShinyjs(text = jscode),
                                              fluidRow(
                                                  shinydashboard::box(
                                                                      status = 'primary',
