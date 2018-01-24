@@ -1,8 +1,8 @@
 jscode <- "
     shinyjs.collapse = function(boxid) {
     $('#' + boxid).closest('.box').find('[data-widget=collapse]').click();
-    }
-
+    };
+    shinyjs.resetClick = function() { Shiny.onInputChange('.clientValue-plotly_selected-A', 'null'); }
 "
 
 ui <- shinydashboard::dashboardPage(

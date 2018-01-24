@@ -143,13 +143,13 @@ server <- function(input, output, session) {
     })
 
     observeEvent(input$plotButton, {
-            js$collapse("timeline_plot")
-            js$collapse("summary")
+            shinyjs::js$collapse("timeline_plot")
+            shinyjs::js$collapse("summary")
     }, once = TRUE)
 
     observeEvent(input$plotSelectedWorkouts, {
-            js$collapse("timeline_plot")
-            js$collapse("summary")
+            shinyjs::js$collapse("timeline_plot")
+            shinyjs::js$collapse("summary")
     }, once = TRUE)
 
     observeEvent({
@@ -302,11 +302,9 @@ server <- function(input, output, session) {
                                            }
                                            data$summary$session[choices]
                                        })
-                                       ## shiny::validate(
-                                       ##            need(sessionData(), 'Session data missing'),
-                                       ##            need(data$object, 'dataset missing'),
-                                       ##            need(data$summary, 'summary missing')
-                                       ##        )
+                                       shiny::validate(
+                                                  need(sessionData(), 'No session data')
+                                              )
                                        shiny_plot_map(data$object,  sessionData(), data$summary)
                                    })
 
@@ -361,7 +359,9 @@ server <- function(input, output, session) {
     observeEvent(input$resetButton, {
 
         removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
-        data$object <- data$summary <- data$nsessions <- data$selected_sessions <- NULL
+        data$object <- data$summary <- data$nsessions <- data$selected_sessions <- data$hover <- NULL
+        shinyjs::js$resetClick()
+
         removeUI(selector = paste0("#processed_data_path", data$n), immediate = TRUE, multiple = TRUE, session = session)
         removeUI(selector = paste0("#raw_data_directory", data$n), immediate = TRUE, multiple = TRUE, session = session)
 
@@ -470,7 +470,8 @@ server <- function(input, output, session) {
                                                                                                   'Speed' = 'speed',
                                                                                                   'Pace' = 'pace'),
                                                                                       selected = c('speed')),
-                                                                       uiOutput('time_in_zones'))))))
+                                                                       uiOutput('time_in_zones')
+                                                                       )))))
             metrics_test_data <- observeEvent(input$zones_for_plot, {
                 metrics <- c('Heart Rate' = 'heart.rate',
                              'Altitude' = 'altitude',
@@ -507,11 +508,15 @@ server <- function(input, output, session) {
 
             ## Render UI for plot
             output$time_in_zones <- renderUI({
-                plotly::plotlyOutput('time_in_zone_plots', width = 'auto', height = plot_height())
+                shinycssloaders::withSpinner(plotly::plotlyOutput('time_in_zone_plots', width = 'auto', height = plot_height()), size = 2)
+
             })
 
             ## Render actual plot
             output$time_in_zone_plots <- plotly::renderPlotly({
+                                                shiny::req(
+                                                  input$zones_for_plot
+                                                )
                                                      plot_zones(run_data = data$object, session = data$selected_sessions, what = input$zones_for_plot)
                                                  })
 
@@ -533,7 +538,9 @@ server <- function(input, output, session) {
                                                                                                   'Speed' = 'speed',
                                                                                                   'Pace' = 'pace'),
                                                                                       selected = 'speed'),
-                                                                       uiOutput('profiles'))))))
+                                                                                      uiOutput('profiles')
+
+                                                                      )))))
 
 
             ## Reactive plot height based on number of sessions selected
@@ -543,11 +550,16 @@ server <- function(input, output, session) {
 
             ## Render UI for plot
             output$profiles <- renderUI({
-                plotly::plotlyOutput('profiles_plots', width = 'auto', height = profile_plot_height())
+
+                shinycssloaders::withSpinner(plotly::plotlyOutput('profiles_plots', width = 'auto', height = profile_plot_height()), size = 2)
+
             })
 
             ## Render actual plot
             output$profiles_plots <- plotly::renderPlotly({
+                                                shiny::req(
+                                                  input$profile_metrics_for_plot
+                                                )
                                                  plot_profiles(run_data = data$object,
                                                                session = as.vector(data$selected_sessions),
                                                                what = input$profile_metrics_for_plot)
