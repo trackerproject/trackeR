@@ -43,3 +43,6 @@ inst/extdata/2013-06-30-084200.TCX
 inst/shiny/GBR*
 
 vignettes/TourDetrackeR_files/
+
+^.*\.Rproj$
+^\.Rproj\.user$
