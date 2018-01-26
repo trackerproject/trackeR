@@ -480,13 +480,10 @@ server <- function(input, output, session) {
                              'Power' = 'power',
                              'Pace' = 'pace')
 
-                data$data_frame <- fortify.trackeRdata(data$object)
-
-                has_data <- sapply(metrics, function(x) {
-
-                    !all(is.na(data$data_frame[x]) | data$data_frame[x] == 0)
-
+                has_data <- !sapply(metrics, function(metric) {
+                    all(sapply(data$object[data$selected_sessions], function(x) all(is.na(x[, metric]))))
                 })
+
 
                 updateSelectizeInput(session = session,
                                      inputId = 'zones_for_plot',
