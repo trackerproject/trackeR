@@ -83,8 +83,7 @@ plot_selectedWorkouts <- function(x, session, what, var_units, var_name_units, .
     }
     if (na_ranges <- all(is.na(ranges))) {
         maximal_range <- c(-1, 1)
-    }
-    else {
+    } else {
         maximal_range <- c(min(ranges[, 1], na.rm = TRUE), max(ranges[, 2], na.rm = TRUE))
     }
 
