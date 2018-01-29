@@ -1,0 +1,61 @@
+# Render data in summary box
+render_summary_box <- function(short_name, long_name, data) {
+
+  box_text <- function(what, subtitle, icon, data) {
+    value <- reactive({
+      value <- data$summary[data$selected_sessions][[what]]
+      value <- round(mean(value[is.finite(value)], na.rm = TRUE))
+      if (is.na(value)) {
+        "not available"
+      }
+      else {
+        paste0(value, " ", lab_sum(what, data$summary, FALSE))
+      }
+    })
+    shinydashboard::valueBox(value(), subtitle, icon, color = if (value() == "not available") "olive" else "light-blue")
+  }
+
+  shinydashboard::renderValueBox({
+        box_text(
+          what = short_name,
+          subtitle = long_name,
+          icon = icon(create_icon(short_name)),
+          data = data
+        )
+      })
+}
+
+# Render summary table
+render_summary_table <- function(data) {
+  DT::renderDataTable({
+      data$hover <- plotly::event_data("plotly_selected")
+      if (!is.null(data$summary)) {
+        if (is.null(data$hover)) {
+          data$selected_sessions <- data$summary$session
+        }
+        else {
+          data$selected_sessions <- data$summary$session[na.omit(as.numeric(data$hover$key))]
+        }
+        dataSelected <- data.frame(
+          "Session" = data$summary[data$selected_sessions][["session"]],
+          "sessionStart" =
+            format(
+              data$summary[data$selected_sessions][["sessionStart"]],
+              format = "%Y-%m-%d  %H:%M:%S"
+            ),
+          "sessionEnd" =
+            format(
+              data$summary[data$selected_sessions][["sessionEnd"]],
+              format = "%Y-%m-%d %H:%M:%S"
+            )
+        )
+        DT::datatable(
+          dataSelected,
+          rownames = FALSE,
+          selection = "none",
+          autoHideNavigation = TRUE,
+          options = list(paging = FALSE, scrollY = "295px", info = FALSE)
+        )
+      }
+    })
+}

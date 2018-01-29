@@ -28,7 +28,8 @@
 #' }
 #' @export
 plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
-                             threshold = TRUE, smooth = FALSE, trend = TRUE, dates = TRUE, ...){
+                             threshold = TRUE, smooth = FALSE, trend = TRUE, dates = TRUE,
+                             shiny = FALSE, ...){
     ## the following line is just intended to prevent R CMD check to produce the NOTE
     ## "no visible binding for global variable 'Series'" because that variable is used in subset()
     Series <- NULL
@@ -83,6 +84,7 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     ## get data
     df <- if (smooth) fortify(xo, melt = TRUE) else fortify(x, melt = TRUE)
 
+    df$id <- if (shiny) session[df$SessionID]
     ## prepare session id for panel header
     if (dates) {
         df$SessionID <- format(session[df$SessionID])
@@ -95,90 +97,94 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     df <- subset(df, Series %in% what)
     df$Series <- factor(df$Series)
 
-    ## check that there is data to plot
-    for(l in levels(df$Series)){
-        if (all(is.na(subset(df, Series == l, select = "Value"))))
-            df <- df[!(df$Series == l), ]
-    }
-
-    ## make facets
-    singleVariable <- nlevels(df$Series) == 1L
-    ## Include the labels even if there is a single session. This will
-    ## have the (undesirable?) effect that sessions which extend
-    ## beyond midnight will be split in two panels at midnight
-    singleSession <- FALSE #length(session) == 1L
-
-    facets <- if (singleVariable) {
-        if (singleSession) NULL else ". ~ SessionID"
+    if (shiny) {
+        return(df)
     } else {
-        if(singleSession) "Series ~ ." else "Series ~ SessionID"
-    }
-    ## lab <- function(variable, value){
-    ##     if (variable == "Series"){
-    ##         ret <- paste0(value, " [", units$unit[units$variable == value], "]")
-    ##     } else {
-    ##         ret <- as.character(value)
-    ##     }
-    ##     return(ret)
-    ## }
-    ## lab <- Vectorize(lab)
-    ## new (todo: make units an argument and move outside of plotting function
-    lab_data <- function(series){
-        thisunit <- units$unit[units$variable == series]
-        prettyUnit <- prettifyUnits(thisunit)
-        paste0(series, " [", prettyUnit,"]")
-    }
-    lab_data <- Vectorize(lab_data)
-
-    ## basic plot
-    p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
-        ggplot2::geom_line(color = if (smooth) "gray" else "black", na.rm = TRUE) +
-        ggplot2::ylab(if(singleVariable) lab_data(levels(df$Series)) else "") + ggplot2::xlab("Time")
-    if (trend & !smooth){
-        p <- p + ggplot2::geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"),
-                                      ## mapping = ggplot2::aes_(alpha = 0.5),
-                                      ## aes should understand alpha but doesn't?
-                                      alpha = 0.5,
-                                      se = FALSE, na.rm = TRUE)
-    }
-    ## add facet if necessary
-    if (!is.null(facets)){
-        p <- p + ggplot2::facet_grid(facets, scales = "free", labeller = ggplot2::labeller("Series" = lab_data))
-    }
-    ## add bw theme
-    p <- p + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1))
-
-
-    ## if plot did smoothing add smoothed data on top of plot
-    if (smooth){
-        ## data prep
-        dfs <- fortify(x, melt = TRUE)
-        if (dates) {
-            dfs$SessionID <- format(session[dfs$SessionID])
-            dfs$SessionID <- gsub(" ", "0", dfs$SessionID)
-            dfs$SessionID <- paste(dfs$SessionID, format(dfs$Index, "%Y-%m-%d"), sep = ": ")
+        ## check that there is data to plot
+        for(l in levels(df$Series)){
+            if (all(is.na(subset(df, Series == l, select = "Value"))))
+                df <- df[!(df$Series == l), ]
         }
-        else {
-            dfs$SessionID <- factor(dfs$SessionID, levels = seq_along(session), labels = session)
+
+        ## make facets
+        singleVariable <- nlevels(df$Series) == 1L
+        ## Include the labels even if there is a single session. This will
+        ## have the (undesirable?) effect that sessions which extend
+        ## beyond midnight will be split in two panels at midnight
+        singleSession <- FALSE #length(session) == 1L
+
+        facets <- if (singleVariable) {
+            if (singleSession) NULL else ". ~ SessionID"
+        } else {
+            if(singleSession) "Series ~ ." else "Series ~ SessionID"
         }
-        dfs <- subset(dfs, Series %in% what)
-        dfs$Series <- factor(dfs$Series)
-        for(l in levels(dfs$Series)){
-            if (all(is.na(subset(dfs, Series == l, select = "Value"))))
-                dfs <- dfs[!(dfs$Series == l), ]
+        ## lab <- function(variable, value){
+        ##     if (variable == "Series"){
+        ##         ret <- paste0(value, " [", units$unit[units$variable == value], "]")
+        ##     } else {
+        ##         ret <- as.character(value)
+        ##     }
+        ##     return(ret)
+        ## }
+        ## lab <- Vectorize(lab)
+        ## new (todo: make units an argument and move outside of plotting function
+        lab_data <- function(series){
+            thisunit <- units$unit[units$variable == series]
+            prettyUnit <- prettifyUnits(thisunit)
+            paste0(series, " [", prettyUnit,"]")
         }
-        ## add plot layers
-        p <- p + ggplot2::geom_line(ggplot2::aes_(x = quote(Index), y = quote(Value)),
-                                    data = dfs, col = "black", na.rm = TRUE)
-        if (trend){
-            p <- p + ggplot2::geom_smooth(data = dfs, method = "gam", formula = y ~ s(x, bs = "cs"),
+        lab_data <- Vectorize(lab_data)
+
+        ## basic plot
+        p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
+            ggplot2::geom_line(color = if (smooth) "gray" else "black", na.rm = TRUE) +
+            ggplot2::ylab(if(singleVariable) lab_data(levels(df$Series)) else "") + ggplot2::xlab("Time")
+        if (trend & !smooth){
+            p <- p + ggplot2::geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"),
                                           ## mapping = ggplot2::aes_(alpha = 0.5),
                                           ## aes should understand alpha but doesn't?
-                                          alpha = 0.5, se = FALSE, na.rm = TRUE)
+                                          alpha = 0.5,
+                                          se = FALSE, na.rm = TRUE)
         }
-    }
+        ## add facet if necessary
+        if (!is.null(facets)){
+            p <- p + ggplot2::facet_grid(facets, scales = "free", labeller = ggplot2::labeller("Series" = lab_data))
+        }
+        ## add bw theme
+        p <- p + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1))
 
-    return(p)
+
+        ## if plot did smoothing add smoothed data on top of plot
+        if (smooth){
+            ## data prep
+            dfs <- fortify(x, melt = TRUE)
+            if (dates) {
+                dfs$SessionID <- format(session[dfs$SessionID])
+                dfs$SessionID <- gsub(" ", "0", dfs$SessionID)
+                dfs$SessionID <- paste(dfs$SessionID, format(dfs$Index, "%Y-%m-%d"), sep = ": ")
+            }
+            else {
+                dfs$SessionID <- factor(dfs$SessionID, levels = seq_along(session), labels = session)
+            }
+            dfs <- subset(dfs, Series %in% what)
+            dfs$Series <- factor(dfs$Series)
+            for(l in levels(dfs$Series)){
+                if (all(is.na(subset(dfs, Series == l, select = "Value"))))
+                    dfs <- dfs[!(dfs$Series == l), ]
+            }
+            ## add plot layers
+            p <- p + ggplot2::geom_line(ggplot2::aes_(x = quote(Index), y = quote(Value)),
+                                        data = dfs, col = "black", na.rm = TRUE)
+            if (trend){
+                p <- p + ggplot2::geom_smooth(data = dfs, method = "gam", formula = y ~ s(x, bs = "cs"),
+                                              ## mapping = ggplot2::aes_(alpha = 0.5),
+                                              ## aes should understand alpha but doesn't?
+                                              alpha = 0.5, se = FALSE, na.rm = TRUE)
+            }
+        }
+
+        return(p)
+    }
 }
 
 prettifyUnit <- function(unit){
@@ -340,26 +346,16 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
 #' leafletRoute(runs, session = 23:24)
 #' }
 #' @export
-leafletRoute <- function(x, session = NULL, threshold = TRUE, ...){
+leafletRoute <- function(x, session = NULL, threshold = TRUE, shiny = FALSE, sumX = NULL, ...){
 
     if (is.null(session)) session <- seq_along(x)
 
     ## get prepared data.frame
     df <- prepRoute(x, session = session, threshold = threshold, ...)
 
-    ## prepare markers
-    startIcon <- leaflet::makeIcon(
-        iconUrl = system.file("icons", "start.png", package = "trackeR"),
-        iconWidth = 32, iconHeight = 37, iconAnchorX = 16, iconAnchorY = 37
-    )
-    finishIcon <- leaflet::makeIcon(
-        iconUrl = system.file("icons", "finish.png", package = "trackeR"),
-        iconWidth = 32, iconHeight = 37, iconAnchorX = 16, iconAnchorY = 37
-    )
-
     ## prepare popups
     units <- getUnits(x)
-    sumX <- summary(x)
+
     popupText <- function(session, start = TRUE){
         w <- which(sumX$session == session)
         unitDist4pace <- strsplit(units$unit[units$variable == "pace"],
@@ -377,12 +373,90 @@ leafletRoute <- function(x, session = NULL, threshold = TRUE, ...){
         )
     }
 
-    ## get map
-    p <- leaflet::leaflet()
-    p <- leaflet::addTiles(p, group = "OSM (default)")
-    p <- leaflet::addProviderTiles(p, "Stamen.Toner", group = "Toner")
-    p <- leaflet::addProviderTiles(p, "Stamen.TonerLite", group = "Toner Lite")
+    if (shiny) {
+        # create icons
+        startIcon <- leaflet::makeIcon(
+        iconUrl = system.file("icons", "green_marker.png", package = "trackeR"),
+        iconWidth = 32, iconHeight = 37, iconAnchorX = 16, iconAnchorY = 37
+        )
+        finishIcon <- leaflet::makeIcon(
+        iconUrl = system.file("icons", "red_marker.png", package = "trackeR"),
+        iconWidth = 32, iconHeight = 37, iconAnchorX = 16, iconAnchorY = 37
+        )
 
+        p <- leaflet::leaflet() %>% leaflet::addProviderTiles(leaflet::providers$CartoDB.Positron)
+        #p <- leaflet() %>% addTiles()
+        ## add trace + markers + popups
+        # for (i in session){
+        # dfi <- df[df$SessionID == which(i == session), , drop = FALSE]
+        # p <- leaflet::addPolylines(p, group = paste("Session:", i),
+        #                            lng = dfi$longitude, lat = dfi$latitude,
+        #                            popup = popupText(session = i, start = TRUE))
+        # p <- leaflet::addMarkers(p, group = paste("Session:", i),
+        #                          lng = dfi$longitude[1], lat = dfi$latitude[1],
+        #                          popup = popupText(session = i, start = TRUE), icon = startIcon)
+        # p <- leaflet::addMarkers(p, group = paste("Session:", i),
+        #                          lng = dfi$longitude[nrow(dfi)], lat = dfi$latitude[nrow(dfi)],
+        #                          popup = popupText(session = i, start = FALSE), icon = finishIcon)
+        # }
+
+        # return(p)
+    } else {
+
+        ## prepare markers
+        startIcon <- leaflet::makeIcon(
+            iconUrl = system.file("icons", "start.png", package = "trackeR"),
+            iconWidth = 32, iconHeight = 37, iconAnchorX = 16, iconAnchorY = 37
+        )
+        finishIcon <- leaflet::makeIcon(
+            iconUrl = system.file("icons", "finish.png", package = "trackeR"),
+            iconWidth = 32, iconHeight = 37, iconAnchorX = 16, iconAnchorY = 37
+        )
+        sumX <- summary(x)
+        ## get map
+        p <- leaflet::leaflet()
+        p <- leaflet::addTiles(p, group = "OSM (default)")
+        p <- leaflet::addProviderTiles(p, "Stamen.Toner", group = "Toner")
+        p <- leaflet::addProviderTiles(p, "Stamen.TonerLite", group = "Toner Lite")
+        ## color trace according to speed is disabled for now as it is
+        ## typically too slow to plot all the segments separately.
+        ##
+        ## if (speed){
+        ##     ncol <- 10
+        ##     mypal <- colorspace::heat_hcl(n = ncol)
+
+        ##     for (i in session){
+        ##         dfi <- df[df$SessionID == which(i == session), , drop = FALSE]
+
+        ##         speedCat <- cut(df$speed, breaks = seq(min(df$speed), max(df$speed), length.out = ncol + 1),
+        ##                         include.lowest = TRUE, labels = FALSE)
+        ##         mycol <- mypal[speedCat]
+        ##         for (j in 1:nrow(dfi)){
+        ##             p <- leaflet::addPolylines(p, group = paste("Session:", i),
+        ##                                        lng = c(dfi$longitude0[j], dfi$longitude1[j]),
+        ##                                        lat = c(dfi$latitude0[j], dfi$latitude1[j]),
+        ##                                        col = mycol[j])
+        ##         }
+        ##         ## ## alternative for making the palette
+        ##         ## pal <- leaflet::colorNumeric(palette = mypal, domain = dfi$speed)
+        ##         ## ## however, still just a single colour for the entire path
+        ##         ## p <- leaflet::addPolylines(p, group = paste("Session:", i),
+        ##         ##                            lng = dfi$longitude, lat = dfi$latitude,
+        ##         ##                            color = pal(dfi$speed))
+        ##         p <- leaflet::addMarkers(p, group = paste("Session:", i),
+        ##                         lng = dfi$longitude[1], lat = dfi$latitude[1],
+        ##                         popup = htmltools::htmlEscape(paste("Start session", i)))
+        ##         p <- leaflet::addMarkers(p, group = paste("Session:", i),
+        ##                         lng = dfi$longitude[nrow(dfi)], lat = dfi$latitude[nrow(dfi)],
+        ##                         popup = htmltools::htmlEscape(paste("End session", i)))
+        ##     }
+        ## }
+
+        ## add control panel
+        p <- leaflet::addLayersControl(p, baseGroups = c("OSM (default)", "Toner", "Toner Lite"),
+                              overlayGroups = paste("Session:", session),
+                              options = leaflet::layersControlOptions(collapsed = FALSE))
+    }
     ## add trace + markers + popups
     for (i in session){
         dfi <- df[df$SessionID == which(i == session), , drop = FALSE]
@@ -397,45 +471,6 @@ leafletRoute <- function(x, session = NULL, threshold = TRUE, ...){
                                  lng = dfi$longitude[nrow(dfi)], lat = dfi$latitude[nrow(dfi)],
                                  popup = popupText(session = i, start = FALSE), icon = finishIcon)
     }
-
-    ## color trace according to speed is disabled for now as it is
-    ## typically too slow to plot all the segments separately.
-    ##
-    ## if (speed){
-    ##     ncol <- 10
-    ##     mypal <- colorspace::heat_hcl(n = ncol)
-
-    ##     for (i in session){
-    ##         dfi <- df[df$SessionID == which(i == session), , drop = FALSE]
-
-    ##         speedCat <- cut(df$speed, breaks = seq(min(df$speed), max(df$speed), length.out = ncol + 1),
-    ##                         include.lowest = TRUE, labels = FALSE)
-    ##         mycol <- mypal[speedCat]
-    ##         for (j in 1:nrow(dfi)){
-    ##             p <- leaflet::addPolylines(p, group = paste("Session:", i),
-    ##                                        lng = c(dfi$longitude0[j], dfi$longitude1[j]),
-    ##                                        lat = c(dfi$latitude0[j], dfi$latitude1[j]),
-    ##                                        col = mycol[j])
-    ##         }
-    ##         ## ## alternative for making the palette
-    ##         ## pal <- leaflet::colorNumeric(palette = mypal, domain = dfi$speed)
-    ##         ## ## however, still just a single colour for the entire path
-    ##         ## p <- leaflet::addPolylines(p, group = paste("Session:", i),
-    ##         ##                            lng = dfi$longitude, lat = dfi$latitude,
-    ##         ##                            color = pal(dfi$speed))
-    ##         p <- leaflet::addMarkers(p, group = paste("Session:", i),
-    ##                         lng = dfi$longitude[1], lat = dfi$latitude[1],
-    ##                         popup = htmltools::htmlEscape(paste("Start session", i)))
-    ##         p <- leaflet::addMarkers(p, group = paste("Session:", i),
-    ##                         lng = dfi$longitude[nrow(dfi)], lat = dfi$latitude[nrow(dfi)],
-    ##                         popup = htmltools::htmlEscape(paste("End session", i)))
-    ##     }
-    ## }
-
-    ## add control panel
-    p <- leaflet::addLayersControl(p, baseGroups = c("OSM (default)", "Toner", "Toner Lite"),
-                          overlayGroups = paste("Session:", session),
-                          options = leaflet::layersControlOptions(collapsed = FALSE))
 
     return(p)
 }

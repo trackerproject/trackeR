@@ -281,7 +281,7 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...) {
 #'     what = c('distance', 'duration', 'avgSpeed'))
 #' @export
 plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, lines = TRUE,
-    ...) {
+    shiny = FALSE,...) {
     ## the following line is just intended to prevent R CMD check to produce the NOTE 'no
     ## visible binding for global variable *' because those variables are used in subset()
     variable <- type <- NULL
@@ -306,8 +306,7 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, l
     ## clean up: if there are only NA observations for a variable, the (free) y-scale cannot
     ## be determined
     empty <- tapply(dat$value, dat$variable, function(x) all(is.na(x)))
-    if (any(empty))
-        dat <- subset(dat, !(variable %in% names(empty)[empty]))
+    if (any(empty)) dat <- subset(dat, !(variable %in% names(empty)[empty]))
 
     ## single session
     if (nsessions < 2) {
@@ -323,6 +322,10 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, l
         dat$xaxis <- dat$session
         xlab <- "Session"
     }
+
+    if (shiny) {
+        return(dat)
+    } else {
 
     ## (basic) plot
     p <- ggplot2::ggplot(dat)
@@ -368,6 +371,7 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, l
     p <- p + ggplot2::theme_bw() + ggplot2::theme(legend.position = "top")
 
     return(p)
+    }
 }
 
 #' @export
