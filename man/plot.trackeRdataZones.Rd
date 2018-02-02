@@ -4,7 +4,7 @@
 \alias{plot.trackeRdataZones}
 \title{Plot training zones.}
 \usage{
-plot.trackeRdataZones(x, percent = TRUE, ...)
+\method{plot}{trackeRdataZones}(x, percent = TRUE, ...)
 }
 \arguments{
 \item{x}{An object of class \code{trackeRdataZones} as returned by \code{\link{zones}}.}

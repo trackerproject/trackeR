@@ -1,11 +1,12 @@
-## Plot training zones
-##
-## @param run_data An object of class \code{trackeRdata} as returned by \code{\link{readDirectory}}.
-## @param session A vector of selected sessions.
-## @param what A vector of variable names to be plotted.
+#' Plot training zones.
+#'
+#' @param x An object of class \code{trackeRdata}.
+#' @param session A vector of selected sessions.
+#' @param what A vector of variable names to be plotted.
 
-plot_zones <- function(run_data, session, what = c("heart.rate")) {
-  x <- zones(run_data, session = session, what = what, auto_breaks = TRUE)
+plot_zones <- function(x, session, what = c("heart.rate")) {
+  x <- zones(x, session = session, what = what, auto_breaks = TRUE)
+
   dat <- do.call("rbind", x)
   dat$zoneF <- factor(
     paste0("[", paste(dat$lower, dat$upper, sep = "-"), ")"),

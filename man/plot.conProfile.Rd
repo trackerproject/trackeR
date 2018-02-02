@@ -4,8 +4,8 @@
 \alias{plot.conProfile}
 \title{Plot concentration profiles.}
 \usage{
-plot.conProfile(x, session = NULL, what = c("speed", "heart.rate"),
-  multiple = FALSE, smooth = TRUE, ...)
+\method{plot}{conProfile}(x, session = NULL, what = c("speed",
+  "heart.rate"), multiple = FALSE, smooth = TRUE, ...)
 }
 \arguments{
 \item{x}{An object of class \code{conProfile} as returned by \code{\link{concentrationProfile}}.}

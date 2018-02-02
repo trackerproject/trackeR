@@ -1,4 +1,4 @@
-# Insert map
+#' Insert map
 create_map <- function() {
   insertUI(
     selector = ".content",
@@ -23,7 +23,7 @@ create_map <- function() {
   )
 }
 
-# Insert summary boxes
+#' Insert summary boxes
 create_summary_boxes <- function() {
   insertUI(
   selector = ".content",
@@ -40,7 +40,7 @@ create_summary_boxes <- function() {
   )
 }
 
-# Create workout plots
+#' Create workout plots
 create_workout_plots <- function(i) {
   name <- switch(as.character(i),
       "distance" = "Distance",
@@ -72,7 +72,7 @@ create_workout_plots <- function(i) {
   )
 }
 
-# Create selected_workouts plot
+#' Create selected_workouts plot
 create_selected_workout_plot <- function(id, data) {
   insertUI(
     selector = ".content",
@@ -107,7 +107,7 @@ create_selected_workout_plot <- function(id, data) {
   )
 }
 
-# Create time in zones plot
+#' Create time in zones plot
 create_time_in_zones_plot <- function() {
   ## Time in Zones
   insertUI(
@@ -140,7 +140,7 @@ create_time_in_zones_plot <- function() {
   )
 }
 
-# Create concentration profile plot
+#' Create concentration profile plot
 create_concentration_profile_plot <- function() {
   ## Other metrics - Work capacity, Distribution profile, Concentration profile
   insertUI(

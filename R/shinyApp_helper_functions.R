@@ -1,9 +1,9 @@
-## Generate a character of formatted units, either only the unit (e.g "[bpm]") or whole text (e.g. "Heart Rate [bpm]").
-##
-## @param feature A character representing the feature whose units we want to generate.
-## @param data An object of class \code{trackeRdataSummary} or \code{trackeRdata}.
-## @param whole_text Generate only unit (e.g "[bpm]") or whole text (e.g. "Heart Rate [bpm]").
-## @param transform_feature If TRUE, expected format of \code{feature} is such as "avgCadence", "avgPower". If FALSE, expected format is "pace", "cadence", "heart.rate" or "altitude".
+#' Generate a character of formatted units, either only the unit (e.g "[bpm]") or whole text (e.g. "Heart Rate [bpm]").
+#'
+#' @param feature A character representing the feature whose units we want to generate.
+#' @param data An object of class \code{trackeRdataSummary} or \code{trackeRdata}.
+#' @param whole_text Generate only unit (e.g "[bpm]") or whole text (e.g. "Heart Rate [bpm]").
+#' @param transform_feature If TRUE, expected format of \code{feature} is such as "avgCadence", "avgPower". If FALSE, expected format is "pace", "cadence", "heart.rate" or "altitude".
 lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE) {
   feature <- as.character(feature)
   units <- getUnits(data)
@@ -66,9 +66,9 @@ lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE) 
   }
 }
 
-## Generate an icon for a given feature.
-##
-## @param feature A character representing the feature whose units we want to generate.
+#' Generate an icon for a given feature.
+#'
+#' @param feature A character representing the feature whose units we want to generate.
 create_icon <- function(feature) {
   icon <- switch(feature,
     "distance" = "area-chart",
@@ -83,17 +83,17 @@ create_icon <- function(feature) {
   icon
 }
 
-## Get units of measurement for a given feature
-##
-## @param feature A character for the feature whose units we want to access, for example 'altitude', 'distance',...
-## @param data An object of class \code{reactivevalues}.
+#' Get units of measurement for a given feature
+#'
+#' @param feature A character for the feature whose units we want to access, for example 'altitude', 'distance',...
+#' @param data An object of class \code{reactivevalues}.
 get_selected_units <- function(feature, data) {
   getUnits(data$object)$unit[getUnits(data$object)$variable %in% feature]
 }
 
-## Generate a modal window where user can chage units of measurement.
-##
-## @param data An object of class \code{reactivevalues}.
+#' Generate a modal window where user can chage units of measurement.
+#'
+#' @param data An object of class \code{reactivevalues}.
 show_change_unit_window <- function(data) {
   showModal(modalDialog(
     title = "Change units",
@@ -161,11 +161,11 @@ show_change_unit_window <- function(data) {
   )
 }
 
-## Change units of variables.
-##
-## @param data An object of class \code{reactivevalues}.
-## @param input An object of class \code{reactivevalues}.
-## @param object A character of either 'summary' or 'object' to specify which objects' units to change.
+#' Change units of variables.
+#'
+#' @param data An object of class \code{reactivevalues}.
+#' @param input An object of class \code{reactivevalues}.
+#' @param object A character of either 'summary' or 'object' to specify which objects' units to change.
 change_units <- function(data, input, object) {
   unused_variables <- c("latitude", "longitude", "heart.rate", "duration")
   allUnits <- getUnits(data$object)$variable[!(getUnits(data$object)$variable %in% unused_variables)]
@@ -178,7 +178,7 @@ change_units <- function(data, input, object) {
   return(data_updated)
 }
 
-## Generate choices for plots
+#' Generate choices for plots
 choices <- function() {
   c(
     "Distance" = "distance",
@@ -192,7 +192,7 @@ choices <- function() {
     )
 }
 
-## Generate metrics to test if they have data
+#' Generate metrics to test if they have data
 metrics <- function() {
    c(
     "Heart Rate" = "heart.rate",
@@ -204,7 +204,7 @@ metrics <- function() {
   )
 }
 
-## Update panel with metrics to plot
+#' Update panel with metrics to plot
 update_metrics_to_plot_workouts <- function(session, choices, data) {
   updateSelectizeInput(
     session = session,
@@ -215,7 +215,7 @@ update_metrics_to_plot_workouts <- function(session, choices, data) {
   )
 }
 
-## Update metrics to plot for Work capacity and time in zones
+#' Update metrics to plot for Work capacity and time in zones
 update_metrics_to_plot_selected_workouts <- function(id, session, metrics, has_data) {
   updateSelectizeInput(
     session = session,
@@ -226,7 +226,7 @@ update_metrics_to_plot_selected_workouts <- function(id, session, metrics, has_d
   )
 }
 
-## Download handler
+#' Download handler
 download_handler <- function(data) {
   downloadHandler(
       filename = function() {
@@ -238,7 +238,7 @@ download_handler <- function(data) {
     )
 }
 
-## Show warning window when no data uploaded
+#' Show warning window when no data uploaded
 show_warning_window <- function() {
   showModal(modalDialog(
   title = "trackeR dashboard message",
@@ -251,7 +251,7 @@ show_warning_window <- function() {
   ))
 }
 
-# Calculate plot height for either time in zones or work capacity
+#' Calculate plot height for either time in zones or work capacity
 calculate_plot_height <- function(metrics) {
   paste0(250 * length(metrics), "px")
 }

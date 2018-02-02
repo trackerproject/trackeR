@@ -1,16 +1,13 @@
-## Plot concentration profiles for given variables.
-##
-## @param run_data An object of class \code{trackeRdata}..
-## @param session A vector of selected sessions.
-## @param what A vector of variable names to be plotted.
+#' Plot concentration profiles for given variables.
+#'
+#' @param x An object of class \code{trackeRdata}.
+#' @param session A vector of selected sessions.
+#' @param what A vector of variable names to be plotted.
 
-plot_concentration_profiles <- function(run_data, session, what = c("speed")) {
+plot_concentration_profiles <- function(x, session, what = c("speed")) {
 
   ## Generate distribution profile
-  dProfile <- distributionProfile(
-    run_data, session = session, what = what,
-    auto_grid = TRUE
-  )
+  dProfile <- distributionProfile(x, session = session, what = what, auto_grid = TRUE)
 
   ## Generate concentration profile
   x <- concentrationProfile(dProfile, what = what)

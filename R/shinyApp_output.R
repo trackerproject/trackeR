@@ -1,4 +1,4 @@
-# Render data in summary box
+#' Render data in summary box
 render_summary_box <- function(short_name, long_name, data) {
 
   box_text <- function(what, subtitle, icon, data) {
@@ -25,7 +25,7 @@ render_summary_box <- function(short_name, long_name, data) {
       })
 }
 
-# Render summary table
+#' Render summary table
 render_summary_table <- function(data) {
   DT::renderDataTable({
       data$hover <- plotly::event_data("plotly_selected")

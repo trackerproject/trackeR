@@ -10,7 +10,7 @@ readDirectory(directory, aggregate = TRUE, table = "gps_data",
   speedunit = list(tcx = "m_per_s", gpx = "km_per_h", db3 = "km_per_h", json =
   "km_per_h"), distanceunit = list(tcx = "m", gpx = "km", db3 = "km", json =
   "km"), cycling = FALSE, lgap = 30, lskip = 5, m = 11,
-  silent = FALSE, make_reactive = FALSE, parallel = FALSE,
+  silent = FALSE, shiny = FALSE, parallel = FALSE,
   cores = getOption("mc.cores", 2L), verbose = TRUE)
 }
 \arguments{
@@ -59,7 +59,7 @@ observation after a small break.}
 
 \item{silent}{Logical. Should warnings be generated if any of the sanity checks on the data are triggered?}
 
-\item{make_reactive}{Logical. Should the output of readDirectory be made \code{\link[shiny]{reactive}}? For use in the shiny interface. Default is \code{FALSE}.}
+\item{shiny}{Logical. Should the output of readDirectory be made \code{\link[shiny]{reactive}}? For use in the shiny interface. Default is \code{FALSE}.}
 
 \item{parallel}{Logical. Should computation be carried out in
 parallel? (Not supported on Windows.)}

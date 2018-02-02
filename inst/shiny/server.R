@@ -140,7 +140,7 @@ observeEvent({
 
     lapply(input$metricsSelected, function(i) {
         output[[paste0(i)]] <- plotly::renderPlotly({
-          plot_workouts(x = data$summary, what = i, data = data)
+          plot_workouts(sumX = data$summary, what = i)
         })
     })
 
@@ -176,7 +176,7 @@ observeEvent(input$plotSelectedWorkouts, {
 
   lapply(c("pace", "heart.rate", "altitude"), function(i) {
     output[[paste0("plot_", i)]] <- plotly::renderPlotly({
-      plot_selectedWorkouts(what = i, data = data)
+      plot_selectedWorkouts(x=data$object, session=data$selected_sessions, what=i, sumX=data$summary)
     })
   })
 
@@ -184,7 +184,7 @@ observeEvent(input$plotSelectedWorkouts, {
     if (data$is_cycling & all(is.na(data$summary$avgPower)) == TRUE) {
       removeUI(selector = paste0("#", "work_capacity"))
     } else {
-      plot_work_capacity(data = data)
+      plot_work_capacity(x=data$object, session=data$selected_sessions)
     }
   })
 
@@ -200,8 +200,7 @@ observeEvent(input$plotSelectedWorkouts, {
   })
   ## Render actual plot
   output$time_in_zone_plots <- plotly::renderPlotly({
-    shiny::req(input$zones_for_plot)
-    plot_zones(run_data = data$object, session = data$selected_sessions, what = input$zones_for_plot)
+    plot_zones(x = data$object, session = data$selected_sessions, what = input$zones_for_plot)
   })
 
   ## Render UI for concentration profiles
@@ -211,11 +210,7 @@ observeEvent(input$plotSelectedWorkouts, {
   })
   ## Render actual plot
   output$concentration_profiles_plots <- plotly::renderPlotly({
-    plot_concentration_profiles(
-      run_data = data$object,
-      session = as.vector(data$selected_sessions),
-      what = input$concentration_profile_metrics_for_plot
-    )
+    plot_concentration_profiles(x = data$object, session = data$selected_sessions, what = input$concentration_profile_metrics_for_plot)
   })
 })
 }
