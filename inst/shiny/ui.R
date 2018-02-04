@@ -68,7 +68,7 @@ ui <- shinydashboard::dashboardPage(
         ## In color: qualitative, set 2 form choose_palette(gui = "shiny")
         ## Out color: qualitative, even darker form choose_palette(gui = "shiny")
         div(style = "display: inline-block;vertical-align:top; width: 100px;", actionButton("plotButton", "Plot", icon("area-chart"), style = "color: #fff; background-color: #4FBF85; border-color: #00AB66", width = "80px")),
-        div(style = "display: inline-block;vertical-align:top; width: 120px;", actionButton("changeUnits", "Units", icon("balance-scale"), width = "80px"))
+        div(style = "display: inline-block;vertical-align:top; width: 120px;", actionButton("showModalUnits", "Units", icon("balance-scale"), width = "80px"))
       ),
       hr(),
       div(

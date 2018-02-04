@@ -1,42 +1,42 @@
 server <- function(input, output, session) {
-  # Main object where all data is stored
-  data <- reactiveValues()
-  choices <- choices()
-  metrics <- metrics()
+# Main object where all data is stored
+data <- reactiveValues()
+choices <- choices()
+metrics <- metrics()
 ##################################################################################
 # Get path to files
-  ## Directory
-  shinyFiles::shinyDirChoose(
-    input, "rawDataDirectory", roots = c(home = "~"),
-    filetypes = c("gpx", "tcx", "db3", "json")
-  )
-  rawDataDirectory <- reactive({
-    input$rawDataDirectory
-  })
-  raw_data_path <- reactive({
-    home <- normalizePath("~")
-    file.path(home, paste(
-      unlist(rawDataDirectory()$path[-1]),
-      collapse = .Platform$file.sep
-    ))
-  })
-  ## Processed data
-  shinyFiles::shinyFileChoose(
-    input, "processedDataPath", roots = c(home = "~"),
-    filetypes = c("rds", "rdata", "rda")
-  )
-  processed_data_file <- reactive({
-    input$processedDataPath
-  })
-  processedDataPath <- reactive({
-    home <- normalizePath("~")
-    file.path(home, paste(
-      unlist(processed_data_file()$files)[-1],
-      collapse = .Platform$file.sep
-    ))
-  })
-  ## Home
-  home <- paste0(normalizePath("~"), "/")
+## Directory
+shinyFiles::shinyDirChoose(
+  input, "rawDataDirectory", roots = c(home = "~"),
+  filetypes = c("gpx", "tcx", "db3", "json")
+)
+rawDataDirectory <- reactive({
+  input$rawDataDirectory
+})
+raw_data_path <- reactive({
+  home <- normalizePath("~")
+  file.path(home, paste(
+    unlist(rawDataDirectory()$path[-1]),
+    collapse = .Platform$file.sep
+  ))
+})
+## Processed data
+shinyFiles::shinyFileChoose(
+  input, "processedDataPath", roots = c(home = "~"),
+  filetypes = c("rds", "rdata", "rda")
+)
+processed_data_file <- reactive({
+  input$processedDataPath
+})
+processedDataPath <- reactive({
+  home <- normalizePath("~")
+  file.path(home, paste(
+    unlist(processed_data_file()$files)[-1],
+    collapse = .Platform$file.sep
+  ))
+})
+## Home
+home <- paste0(normalizePath("~"), "/")
 ##################################################################################
 # Upload and process data
 observeEvent(input$uploadButton, {
@@ -65,7 +65,7 @@ observeEvent(input$uploadButton, {
         timezone = "GMT", cycling = data$isCycling,
         correctDistances = TRUE
       )
-    } 
+    }
     # Remove duplicate sessions and create trackeRdata object
     data$object <- sort(unique(c.trackeRdata(processed_data, raw_data)), decreasing = FALSE)
     # Create trackeRdataSummary object
@@ -81,7 +81,7 @@ observeEvent(input$uploadButton, {
 }, once = TRUE)
 ##################################################################################
 # Change units
-observeEvent(input$changeUnits, {
+observeEvent(input$showModalUnits, {
   if (!is.null(data$object)) {
     show_change_unit_window(data)
   } else {
@@ -111,42 +111,47 @@ observeEvent({input$plotButton}, {
     show_warning_window()
   }
   else {
+    # Button for plotting selected workouts and return to main page
+    create_option_button()
+
     output$timeline_plot <- renderPlot({
       if (!is.null(data$summary)) {
         timeline(data$summary[data$selectedSessions])
       }
     })
+
+    ## DT
+    output$summary <- render_summary_table(data)
     # Re-render all plots
     removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
-    create_map()
-    create_summary_boxes()
-    for (i in input$metricsSelected) {
-      create_workout_plots(i)
-    }
-    output$averageDistance <- render_summary_box('distance', 'Average distance', data)
-    output$averageDuration <- render_summary_box('duration', 'Average duration', data)
-    output$averageHeartRate <- render_summary_box('avgHeartRate', 'Average heart rate', data)
-    output$averagePace <- render_summary_box('avgPace', 'Average pace', data)
 
+    create_summary_boxes()
+    output$avgDistance_box <- render_summary_box('distance', 'Average distance', data)
+    output$avgDuration_box <- render_summary_box('duration', 'Average duration', data)
+    output$avgHeartRate_box <- render_summary_box('avgHeartRate', 'Average heart rate', data)
+    output$avgPace_box <- render_summary_box('avgPace', 'Average pace', data)
+
+    create_map()
     output$map <- leaflet::renderLeaflet({
       shiny_plot_map(x = data$object, session = data$selectedSessions, sumX = data$summary)
     })
 
+    for (i in input$metricsSelected) {
+      create_workout_plots(paste0(i, '_plot'))
+    }
     lapply(input$metricsSelected, function(i) {
-        output[[paste0(i)]] <- plotly::renderPlotly({
+        output[[paste0(i, '_plot')]] <- plotly::renderPlotly({
           plot_workouts(sumX = data$summary, what = i)
         })
     })
 
-    ## DT
-    output$summary <- render_summary_table(data)
     # XXX:
     output$cond <- reactive({
       TRUE
     })
     outputOptions(output, "cond", suspendWhenHidden = FALSE)
   }
-})
+}, once=TRUE)
 ##################################################################################
 observeEvent(input$resetButton, {
   shinyjs::js$reset_page()
@@ -159,24 +164,19 @@ observeEvent(input$plotSelectedWorkouts, {
   })
   })
 
-  ### XXX here use to create go-back button
-  output$cond <- reactive({
-    FALSE
-  })
-
   for (i in c("pace", "heart.rate", "altitude", "work_capacity")) {
     create_selected_workout_plot(id = i, data = data)
   }
 
   lapply(c("pace", "heart.rate", "altitude"), function(i) {
-    output[[paste0("plot_", i)]] <- plotly::renderPlotly({
+    output[[paste0(i, "_plot")]] <- plotly::renderPlotly({
       plot_selectedWorkouts(x=data$object, session=data$selectedSessions, what=i, sumX=data$summary)
     })
   })
 
-  output[[paste0("plot_", "work_capacity")]] <- plotly::renderPlotly({
+  output$work_capacity_plot <- plotly::renderPlotly({
     if (data$isCycling & all(is.na(data$summary$avgPower)) == TRUE) {
-      removeUI(selector = paste0("#", "work_capacity"))
+      removeUI(selector = "#work_capacity_plot")
     } else {
       plot_work_capacity(x=data$object, session=data$selectedSessions)
     }
@@ -189,22 +189,38 @@ observeEvent(input$plotSelectedWorkouts, {
 
   ## Render UI for time in zones plot
   output$time_in_zones <- renderUI({
-    shinycssloaders::withSpinner(plotly::plotlyOutput("time_in_zone_plots", width = "auto",
+    shinycssloaders::withSpinner(plotly::plotlyOutput("time_zones_plots", width = "auto",
                                                       height = calculate_plot_height(input$zonesMetricsPlot)), size = 2)
   })
   ## Render actual plot
-  output$time_in_zone_plots <- plotly::renderPlotly({
+  output$time_zones_plots <- plotly::renderPlotly({
     plot_zones(x = data$object, session = data$selectedSessions, what = input$zonesMetricsPlot)
   })
 
   ## Render UI for concentration profiles
   output$concentration_profiles <- renderUI({
-    shinycssloaders::withSpinner(plotly::plotlyOutput("concentration_profiles_plots", width = "auto",
+    shinycssloaders::withSpinner(plotly::plotlyOutput("conc_profiles_plots", width = "auto",
                                                       height = calculate_plot_height(input$profileMetricsPlot)), size = 2)
   })
   ## Render actual plot
-  output$concentration_profiles_plots <- plotly::renderPlotly({
+  output$conc_profiles_plots <- plotly::renderPlotly({
     plot_concentration_profiles(x = data$object, session = data$selectedSessions, what = input$profileMetricsPlot)
   })
+}, once=TRUE)
+
+observeEvent(input$return_to_main_page, {
+### XXX here use to create go-back button
+output$cond <- reactive({
+  TRUE
+})
+})
+observeEvent(input$plotSelectedWorkouts, {
+### XXX here use to create go-back button
+output$cond <- reactive({
+  FALSE
+})
 })
 }
+##################################################################################
+
+

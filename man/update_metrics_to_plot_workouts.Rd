@@ -4,7 +4,7 @@
 \alias{update_metrics_to_plot_workouts}
 \title{Update panel with metrics to plot}
 \usage{
-update_metrics_to_plot_workouts(session, choices, data)
+update_metrics_to_plot_workouts(session, choices, has_data)
 }
 \description{
 Update panel with metrics to plot

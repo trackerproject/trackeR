@@ -10,14 +10,7 @@ create_map <- function() {
         width = 12,
         collapsible = TRUE,
         title = tagList(icon("map"), "Map"),
-        shinycssloaders::withSpinner(leaflet::leafletOutput("map", width = "auto", height = "430px"), size = 2),
-        absolutePanel(
-          top = 70, right = 60,
-          actionButton(
-            "plotSelectedWorkouts", "Plot selected workouts",
-            style = "color: #fff; background-color: #4FBF85; border-color: #00AB66"
-          )
-        )
+        shinycssloaders::withSpinner(leaflet::leafletOutput("map", width = "auto", height = "430px"), size = 2)
       )))
     )
   )
@@ -31,10 +24,10 @@ create_summary_boxes <- function() {
   ui = conditionalPanel(
     condition = "output.cond == true",
     div(class = "plots", fluidRow(
-      shinydashboard::valueBoxOutput("averageDistance", width = 3),
-      shinydashboard::valueBoxOutput("averageDuration", width = 3),
-      shinydashboard::valueBoxOutput("averagePace", width = 3),
-      shinydashboard::valueBoxOutput("averageHeartRate", width = 3)
+      shinydashboard::valueBoxOutput("avgDistance_box", width = 3),
+      shinydashboard::valueBoxOutput("avgDuration_box", width = 3),
+      shinydashboard::valueBoxOutput("avgPace_box", width = 3),
+      shinydashboard::valueBoxOutput("avgHeartRate_box", width = 3)
     ))
   )
   )
@@ -95,7 +88,7 @@ create_selected_workout_plot <- function(id, data) {
           ),
           div(
             style = "overflow-x: scroll",
-            plotly::plotlyOutput(paste0("plot_", id), width = if (length(data$selectedSessions) > 2) {
+            plotly::plotlyOutput(paste0(id, "_plot"), width = if (length(data$selectedSessions) > 2) {
               paste0(toString(750 * length(as.vector(data$selectedSessions))), "px")
             } else {
               "auto"
@@ -171,6 +164,33 @@ create_concentration_profile_plot <- function() {
       )
     )
   )
+}
+
+#' Create a return button from selected workouts plot
+create_option_button <- function() {
+  insertUI(
+           selector = ".content",
+           where = "afterBegin",
+           ui = fluidRow(shinydashboard::box(
+                                            status = "primary",
+                                            width = "12",
+                                            collapsible = TRUE,
+                                            title = tagList('Options'),
+                                            conditionalPanel(
+                                                condition = "output.cond == false",
+                                                 actionButton(
+                                                  "return_to_main_page", "Go back",
+                                                  style = "color: #fff; background-color: #4FBF85; border-color: #00AB66"
+                                                  )),
+                                            conditionalPanel(
+                                                condition = "output.cond == true",
+                                                 actionButton(
+                                                  "plotSelectedWorkouts", "Plot Selected workouts",
+                                                  style = "color: #fff; background-color: #4FBF85; border-color: #00AB66"
+                                                  ))
+
+                                 )))
+
 }
 
 
