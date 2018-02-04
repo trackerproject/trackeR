@@ -7,28 +7,28 @@ server <- function(input, output, session) {
 # Get path to files
   ## Directory
   shinyFiles::shinyDirChoose(
-    input, "raw_data_directory", roots = c(home = "~"),
+    input, "rawDataDirectory", roots = c(home = "~"),
     filetypes = c("gpx", "tcx", "db3", "json")
   )
-  raw_data_directory <- reactive({
-    input$raw_data_directory
+  rawDataDirectory <- reactive({
+    input$rawDataDirectory
   })
   raw_data_path <- reactive({
     home <- normalizePath("~")
     file.path(home, paste(
-      unlist(raw_data_directory()$path[-1]),
+      unlist(rawDataDirectory()$path[-1]),
       collapse = .Platform$file.sep
     ))
   })
   ## Processed data
   shinyFiles::shinyFileChoose(
-    input, "processed_data_path", roots = c(home = "~"),
+    input, "processedDataPath", roots = c(home = "~"),
     filetypes = c("rds", "rdata", "rda")
   )
   processed_data_file <- reactive({
-    input$processed_data_path
+    input$processedDataPath
   })
-  processed_data_path <- reactive({
+  processedDataPath <- reactive({
     home <- normalizePath("~")
     file.path(home, paste(
       unlist(processed_data_file()$files)[-1],
@@ -40,8 +40,8 @@ server <- function(input, output, session) {
 ##################################################################################
 # Upload and process data
 observeEvent(input$uploadButton, {
-  data$is_cycling <- input$sportSelected == "cycling"
-  if ((raw_data_path() == home) & (processed_data_path() == home)) {
+  data$isCycling <- input$sportSelected == "cycling"
+  if ((raw_data_path() == home) & (processedDataPath() == home)) {
     showModal(modalDialog(
       title = "trackeR dashboard message",
       div(tags$b(
@@ -54,33 +54,31 @@ observeEvent(input$uploadButton, {
   }
   else {
     processed_data <- raw_data <- NULL
-    if (processed_data_path() != home) {
-      processed_data <- readRDS(processed_data_path())
+    if (processedDataPath() != home) {
+      processed_data <- readRDS(processedDataPath())
     }
     if (raw_data_path() != home) {
       raw_data <- callModule(
         module = readDirectory_shiny,
         id = "datafile",
         directory = raw_data_path(),
-        timezone = "GMT", cycling = data$is_cycling,
+        timezone = "GMT", cycling = data$isCycling,
         correctDistances = TRUE
       )
-    }
+    } 
     # Remove duplicate sessions and create trackeRdata object
     data$object <- sort(unique(c.trackeRdata(processed_data, raw_data)), decreasing = FALSE)
     # Create trackeRdataSummary object
     data$summary <- summary(data$object)
     # Test if data in each element of trackeRdataSummary object
-    data$has_data <- lapply(data$summary, function(session_summaries) {
+    data$hasData <- lapply(data$summary, function(session_summaries) {
       !all(is.na(session_summaries) | session_summaries == 0)
     })
-
-    update_metrics_to_plot_workouts(session, choices, data)
+    update_metrics_to_plot_workouts(session, choices, data$hasData)
     output$download_data <- download_handler(data)
   }
-  data$nsessions <- if (is.null(data$summary)) 0 else nsessions(data$summary)
-  data$selected_sessions <- data$summary$session
-})
+  data$selectedSessions <- data$summary$session
+}, once = TRUE)
 ##################################################################################
 # Change units
 observeEvent(input$changeUnits, {
@@ -108,34 +106,30 @@ observeEvent(input$plotSelectedWorkouts, {
 }, once = TRUE)
 ##################################################################################
 ## Main page
-observeEvent({
-  input$plotButton
-}, {
+observeEvent({input$plotButton}, {
   if (is.null(data$object)) {
     show_warning_window()
   }
   else {
     output$timeline_plot <- renderPlot({
       if (!is.null(data$summary)) {
-        timeline(data$summary[data$selected_sessions])
+        timeline(data$summary[data$selectedSessions])
       }
     })
     # Re-render all plots
     removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
-
     create_map()
     create_summary_boxes()
     for (i in input$metricsSelected) {
       create_workout_plots(i)
     }
-
     output$averageDistance <- render_summary_box('distance', 'Average distance', data)
     output$averageDuration <- render_summary_box('duration', 'Average duration', data)
     output$averageHeartRate <- render_summary_box('avgHeartRate', 'Average heart rate', data)
     output$averagePace <- render_summary_box('avgPace', 'Average pace', data)
 
     output$map <- leaflet::renderLeaflet({
-      shiny_plot_map(x = data$object, session = data$selected_sessions, sumX = data$summary)
+      shiny_plot_map(x = data$object, session = data$selectedSessions, sumX = data$summary)
     })
 
     lapply(input$metricsSelected, function(i) {
@@ -159,9 +153,9 @@ observeEvent(input$resetButton, {
 })
 ##################################################################################
 observeEvent(input$plotSelectedWorkouts, {
-  # Test which metrics have data
-  have_data_metrics <- reactive({ !sapply(metrics, function(metric) {
-    all(sapply(data$object[data$selected_sessions], function(x) all(is.na(x[, metric]))))
+  # Test which metrics have data for selected sessions
+  have_data_metrics_selected <- reactive({ !sapply(metrics, function(metric) {
+    all(sapply(data$object[data$selectedSessions], function(x) all(is.na(x[, metric]))))
   })
   })
 
@@ -176,41 +170,41 @@ observeEvent(input$plotSelectedWorkouts, {
 
   lapply(c("pace", "heart.rate", "altitude"), function(i) {
     output[[paste0("plot_", i)]] <- plotly::renderPlotly({
-      plot_selectedWorkouts(x=data$object, session=data$selected_sessions, what=i, sumX=data$summary)
+      plot_selectedWorkouts(x=data$object, session=data$selectedSessions, what=i, sumX=data$summary)
     })
   })
 
   output[[paste0("plot_", "work_capacity")]] <- plotly::renderPlotly({
-    if (data$is_cycling & all(is.na(data$summary$avgPower)) == TRUE) {
+    if (data$isCycling & all(is.na(data$summary$avgPower)) == TRUE) {
       removeUI(selector = paste0("#", "work_capacity"))
     } else {
-      plot_work_capacity(x=data$object, session=data$selected_sessions)
+      plot_work_capacity(x=data$object, session=data$selectedSessions)
     }
   })
 
   create_time_in_zones_plot()
   create_concentration_profile_plot()
-  update_metrics_to_plot_selected_workouts(id = 'zones_for_plot', session, metrics, have_data_metrics())
-  update_metrics_to_plot_selected_workouts(id = 'concentration_profile_metrics_for_plot', session, metrics, have_data_metrics())
+  update_metrics_to_plot_selected_workouts(id = 'zonesMetricsPlot', session, metrics, have_data_metrics_selected())
+  update_metrics_to_plot_selected_workouts(id = 'profileMetricsPlot', session, metrics, have_data_metrics_selected())
 
   ## Render UI for time in zones plot
   output$time_in_zones <- renderUI({
     shinycssloaders::withSpinner(plotly::plotlyOutput("time_in_zone_plots", width = "auto",
-                                                      height = calculate_plot_height(input$zones_for_plot)), size = 2)
+                                                      height = calculate_plot_height(input$zonesMetricsPlot)), size = 2)
   })
   ## Render actual plot
   output$time_in_zone_plots <- plotly::renderPlotly({
-    plot_zones(x = data$object, session = data$selected_sessions, what = input$zones_for_plot)
+    plot_zones(x = data$object, session = data$selectedSessions, what = input$zonesMetricsPlot)
   })
 
   ## Render UI for concentration profiles
   output$concentration_profiles <- renderUI({
     shinycssloaders::withSpinner(plotly::plotlyOutput("concentration_profiles_plots", width = "auto",
-                                                      height = calculate_plot_height(input$concentration_profile_metrics_for_plot)), size = 2)
+                                                      height = calculate_plot_height(input$profileMetricsPlot)), size = 2)
   })
   ## Render actual plot
   output$concentration_profiles_plots <- plotly::renderPlotly({
-    plot_concentration_profiles(x = data$object, session = data$selected_sessions, what = input$concentration_profile_metrics_for_plot)
+    plot_concentration_profiles(x = data$object, session = data$selectedSessions, what = input$profileMetricsPlot)
   })
 })
 }

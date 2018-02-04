@@ -34,12 +34,12 @@ ui <- shinydashboard::dashboardPage(
       div(
         class = "form-group shiny-input-container", id = "processed_path",
         tags$label("Processed data file"),
-        div(class = "input-group", shinyFiles::shinyFilesButton("processed_data_path", "Select file...", "Select processed data file", multiple = FALSE))
+        div(class = "input-group", shinyFiles::shinyFilesButton("processedDataPath", "Select file...", "Select processed data file", multiple = FALSE))
       ),
       div(
         class = "form-group shiny-input-container", id = "raw_directory",
         tags$label("New raw data directory"),
-        div(class = "input-group", shinyFiles::shinyDirButton("raw_data_directory", "Select directory...", "Select new raw data directory"))
+        div(class = "input-group", shinyFiles::shinyDirButton("rawDataDirectory", "Select directory...", "Select new raw data directory"))
       ),
       actionButton("uploadButton", "Load data", icon("upload"), style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"),
       hr(),

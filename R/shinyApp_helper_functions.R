@@ -205,11 +205,11 @@ metrics <- function() {
 }
 
 #' Update panel with metrics to plot
-update_metrics_to_plot_workouts <- function(session, choices, data) {
+update_metrics_to_plot_workouts <- function(session, choices, has_data) {
   updateSelectizeInput(
     session = session,
     inputId = "metricsSelected",
-    choices = choices[sapply(choices, function(x) { data$has_data[[x]] })],
+    choices = choices[sapply(choices, function(x) { has_data[[x]] })],
     server = TRUE,
     selected = c("distance", "duration", 'avgSpeed')
   )

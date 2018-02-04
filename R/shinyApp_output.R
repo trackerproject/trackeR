@@ -3,7 +3,7 @@ render_summary_box <- function(short_name, long_name, data) {
 
   box_text <- function(what, subtitle, icon, data) {
     value <- reactive({
-      value <- data$summary[data$selected_sessions][[what]]
+      value <- data$summary[data$selectedSessions][[what]]
       value <- round(mean(value[is.finite(value)], na.rm = TRUE))
       if (is.na(value)) {
         "not available"
@@ -30,22 +30,22 @@ render_summary_table <- function(data) {
   DT::renderDataTable({
       data$hover <- plotly::event_data("plotly_selected")
       if (!is.null(data$summary)) {
-        if (is.null(data$hover)) {
-          data$selected_sessions <- data$summary$session
+        if (is.null(data$hover) | length(data$hover) == 0) {
+          data$selectedSessions <- data$summary$session
         }
         else {
-          data$selected_sessions <- data$summary$session[na.omit(as.numeric(data$hover$key))]
+          data$selectedSessions <- data$summary$session[na.omit(as.numeric(data$hover$key))]
         }
         dataSelected <- data.frame(
-          "Session" = data$summary[data$selected_sessions][["session"]],
+          "Session" = data$summary[data$selectedSessions][["session"]],
           "sessionStart" =
             format(
-              data$summary[data$selected_sessions][["sessionStart"]],
+              data$summary[data$selectedSessions][["sessionStart"]],
               format = "%Y-%m-%d  %H:%M:%S"
             ),
           "sessionEnd" =
             format(
-              data$summary[data$selected_sessions][["sessionEnd"]],
+              data$summary[data$selectedSessions][["sessionEnd"]],
               format = "%Y-%m-%d %H:%M:%S"
             )
         )

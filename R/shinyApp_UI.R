@@ -95,8 +95,8 @@ create_selected_workout_plot <- function(id, data) {
           ),
           div(
             style = "overflow-x: scroll",
-            plotly::plotlyOutput(paste0("plot_", id), width = if (length(data$selected_sessions) > 2) {
-              paste0(toString(750 * length(as.vector(data$selected_sessions))), "px")
+            plotly::plotlyOutput(paste0("plot_", id), width = if (length(data$selectedSessions) > 2) {
+              paste0(toString(750 * length(as.vector(data$selectedSessions))), "px")
             } else {
               "auto"
             } , height = "250px")
@@ -123,7 +123,7 @@ create_time_in_zones_plot <- function() {
           collapsible = TRUE,
           title = tagList(shiny::icon("gear"), "Time in Zones"),
           selectizeInput(
-            inputId = "zones_for_plot",
+            inputId = "zonesMetricsPlot",
             label = "Select zone metrics to plot:",
             multiple = TRUE,
             choices = c(
@@ -156,7 +156,7 @@ create_concentration_profile_plot <- function() {
           collapsible = TRUE,
           title = tagList(shiny::icon("gear"), "Profiles"),
           selectizeInput(
-            inputId = "concentration_profile_metrics_for_plot",
+            inputId = "profileMetricsPlot",
             label = "Concentration profiles:",
             multiple = TRUE,
             choices = c(
