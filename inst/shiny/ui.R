@@ -110,7 +110,7 @@ ui <- shinydashboard::dashboardPage(
         collapsible = TRUE,
         collapsed = TRUE,
         title = tagList(shiny::icon("calendar", lib = "glyphicon"), "Workout Timeline"),
-        plotOutput("timeline_plot", height = "350px")
+        plotOutput("timeline_plot", height = "365px")
       )
     )
   )

@@ -123,21 +123,19 @@ observeEvent({input$plotButton}, {
     ## DT
     output$summary <- render_summary_table(data)
     # Re-render all plots
-    removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
-
+    # removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
+    create_map()
+    output$map <- leaflet::renderLeaflet({
+      shiny_plot_map(x = data$object, session = data$selectedSessions, sumX = data$summary)
+    })
     create_summary_boxes()
     output$avgDistance_box <- render_summary_box('distance', 'Average distance', data)
     output$avgDuration_box <- render_summary_box('duration', 'Average duration', data)
     output$avgHeartRate_box <- render_summary_box('avgHeartRate', 'Average heart rate', data)
     output$avgPace_box <- render_summary_box('avgPace', 'Average pace', data)
 
-    create_map()
-    output$map <- leaflet::renderLeaflet({
-      shiny_plot_map(x = data$object, session = data$selectedSessions, sumX = data$summary)
-    })
-
     for (i in input$metricsSelected) {
-      create_workout_plots(paste0(i, '_plot'))
+      create_workout_plots(i)
     }
     lapply(input$metricsSelected, function(i) {
         output[[paste0(i, '_plot')]] <- plotly::renderPlotly({

@@ -58,7 +58,7 @@ create_workout_plots <- function(i) {
           collapsible = TRUE,
           # height = "250px",
           title = tagList(shiny::icon(create_icon(i)), name),
-          plotly::plotlyOutput(i, width = "auto", height = "180px")
+          plotly::plotlyOutput(paste0(i, '_plot'), width = "auto", height = "180px")
         )
       ))
     )
