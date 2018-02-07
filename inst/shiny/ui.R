@@ -31,6 +31,13 @@ ui <- shinydashboard::dashboardPage(
       ## menuItem('', tabName = 'dashboard', icon = icon('dashboard')),
       ## hr(),
       ## fileInput('processed_data_path', 'Load processed data'),
+      div(selectInput(
+        "sportSelected", "Select sport", multiple = FALSE,
+        c(
+          "Running" = "running",
+          "Cycling" = "cycling"
+        )
+      )),
       div(
         class = "form-group shiny-input-container", id = "processed_path",
         tags$label("Processed data file"),
@@ -44,13 +51,6 @@ ui <- shinydashboard::dashboardPage(
       actionButton("uploadButton", "Load data", icon("upload"), style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"),
       hr(),
       div(
-        selectInput(
-          "sportSelected", "Select sport", multiple = FALSE,
-          c(
-            "Running" = "running",
-            "Cycling" = "cycling"
-          )
-        ),
         selectizeInput(
           "metricsSelected", "Select metrics", multiple = TRUE,
           choices = c(

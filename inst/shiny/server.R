@@ -3,6 +3,8 @@ server <- function(input, output, session) {
 data <- reactiveValues()
 choices <- choices()
 metrics <- metrics()
+# Button for plotting selected workouts and return to main page
+create_option_button()
 ##################################################################################
 # Get path to files
 ## Directory
@@ -40,7 +42,7 @@ home <- paste0(normalizePath("~"), "/")
 ##################################################################################
 # Upload and process data
 observeEvent(input$uploadButton, {
-  data$isCycling <- input$sportSelected == "cycling"
+  # data$isCycling <- input$sportSelected == "cycling"
   if ((raw_data_path() == home) & (processedDataPath() == home)) {
     showModal(modalDialog(
       title = "trackeR dashboard message",
@@ -62,7 +64,7 @@ observeEvent(input$uploadButton, {
         module = readDirectory_shiny,
         id = "datafile",
         directory = raw_data_path(),
-        timezone = "GMT", cycling = data$isCycling,
+        timezone = "GMT", cycling = input$sportSelected == "cycling",
         correctDistances = TRUE
       )
     }
@@ -111,9 +113,6 @@ observeEvent({input$plotButton}, {
     show_warning_window()
   }
   else {
-    # Button for plotting selected workouts and return to main page
-    create_option_button()
-
     output$timeline_plot <- renderPlot({
       if (!is.null(data$summary)) {
         timeline(data$summary[data$selectedSessions])
@@ -123,7 +122,7 @@ observeEvent({input$plotButton}, {
     ## DT
     output$summary <- render_summary_table(data)
     # Re-render all plots
-    # removeUI(selector = ".plots", immediate = TRUE, multiple = TRUE)
+    removeUI(selector = ".main_plots", immediate = TRUE, multiple = TRUE)
     create_map()
     output$map <- leaflet::renderLeaflet({
       shiny_plot_map(x = data$object, session = data$selectedSessions, sumX = data$summary)
@@ -142,14 +141,12 @@ observeEvent({input$plotButton}, {
           plot_workouts(sumX = data$summary, what = i)
         })
     })
-
-    # XXX:
     output$cond <- reactive({
       TRUE
     })
     outputOptions(output, "cond", suspendWhenHidden = FALSE)
   }
-}, once=TRUE)
+})
 ##################################################################################
 observeEvent(input$resetButton, {
   shinyjs::js$reset_page()
@@ -173,30 +170,36 @@ observeEvent(input$plotSelectedWorkouts, {
   })
 
   output$work_capacity_plot <- plotly::renderPlotly({
-    if (data$isCycling & all(is.na(data$summary$avgPower)) == TRUE) {
+    if (input$sportSelected == "cycling" & all(is.na(data$summary$avgPower)) == TRUE) {
       removeUI(selector = "#work_capacity_plot")
     } else {
       plot_work_capacity(x=data$object, session=data$selectedSessions)
     }
   })
 
-  create_time_in_zones_plot()
-  create_concentration_profile_plot()
+  create_box(title='Time in Zones', inputId='zonesMetricsPlot',
+             label='Select zone metrics to plot', plotId='zonesPlotUi')
+  create_box(title='Concentration profiles', inputId='profileMetricsPlot',
+             label='Select profile metrics to plot', plotId='concentration_profiles')
+
+
   update_metrics_to_plot_selected_workouts(id = 'zonesMetricsPlot', session, metrics, have_data_metrics_selected())
   update_metrics_to_plot_selected_workouts(id = 'profileMetricsPlot', session, metrics, have_data_metrics_selected())
 
   ## Render UI for time in zones plot
-  output$time_in_zones <- renderUI({
-    shinycssloaders::withSpinner(plotly::plotlyOutput("time_zones_plots", width = "auto",
+  output$zonesPlotUi <- renderUI({
+    shiny::req(input$zonesMetricsPlot)
+    shinycssloaders::withSpinner(plotly::plotlyOutput("zones_plot", width = "100%",
                                                       height = calculate_plot_height(input$zonesMetricsPlot)), size = 2)
   })
   ## Render actual plot
-  output$time_zones_plots <- plotly::renderPlotly({
+  output$zones_plot <- plotly::renderPlotly({
     plot_zones(x = data$object, session = data$selectedSessions, what = input$zonesMetricsPlot)
   })
 
   ## Render UI for concentration profiles
   output$concentration_profiles <- renderUI({
+    shiny::req(input$profileMetricsPlot)
     shinycssloaders::withSpinner(plotly::plotlyOutput("conc_profiles_plots", width = "auto",
                                                       height = calculate_plot_height(input$profileMetricsPlot)), size = 2)
   })
@@ -206,19 +209,13 @@ observeEvent(input$plotSelectedWorkouts, {
   })
 }, once=TRUE)
 
+##################################################################################
 observeEvent(input$return_to_main_page, {
-### XXX here use to create go-back button
-output$cond <- reactive({
-  TRUE
-})
+output$cond <- reactive({ TRUE })
 })
 observeEvent(input$plotSelectedWorkouts, {
-### XXX here use to create go-back button
-output$cond <- reactive({
-  FALSE
+output$cond <- reactive({ FALSE })
 })
-})
-}
 ##################################################################################
-
+}
 

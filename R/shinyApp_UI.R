@@ -5,7 +5,7 @@ create_map <- function() {
     where = "beforeEnd",
     ui = conditionalPanel(
       condition = "output.cond == true",
-      div(class = "plots", fluidRow(shinydashboard::box(
+      div(class = "main_plots", fluidRow(shinydashboard::box(
         status = "primary",
         width = 12,
         collapsible = TRUE,
@@ -23,7 +23,7 @@ create_summary_boxes <- function() {
   where = "beforeEnd",
   ui = conditionalPanel(
     condition = "output.cond == true",
-    div(class = "plots", fluidRow(
+    div(class = "main_plots", fluidRow(
       shinydashboard::valueBoxOutput("avgDistance_box", width = 3),
       shinydashboard::valueBoxOutput("avgDuration_box", width = 3),
       shinydashboard::valueBoxOutput("avgPace_box", width = 3),
@@ -51,7 +51,7 @@ create_workout_plots <- function(i) {
     where = "beforeEnd",
     ui = conditionalPanel(
       condition = "output.cond == true",
-      div(class = "plots", id = paste0("box", i), fluidRow(
+      div(class = "main_plots", id = paste0("box", i), fluidRow(
         shinydashboard::box(
           status = "primary",
           width = 12,
@@ -89,7 +89,7 @@ create_selected_workout_plot <- function(id, data) {
           div(
             style = "overflow-x: scroll",
             plotly::plotlyOutput(paste0(id, "_plot"), width = if (length(data$selectedSessions) > 2) {
-              paste0(toString(750 * length(as.vector(data$selectedSessions))), "px")
+              paste0(toString(500 * length(as.vector(data$selectedSessions))), "px")
             } else {
               "auto"
             } , height = "250px")
@@ -100,57 +100,25 @@ create_selected_workout_plot <- function(id, data) {
   )
 }
 
-#' Create time in zones plot
-create_time_in_zones_plot <- function() {
-  ## Time in Zones
-  insertUI(
-    selector = ".content",
-    where = "beforeEnd",
-    ui = conditionalPanel(
-      condition = "output.cond == false",
-      div(
-        class = "plots", id = "zones",
-        fluidRow(shinydashboard::box(
-          status = "primary",
-          width = 12,
-          collapsible = TRUE,
-          title = tagList(shiny::icon("gear"), "Time in Zones"),
-          selectizeInput(
-            inputId = "zonesMetricsPlot",
-            label = "Select zone metrics to plot:",
-            multiple = TRUE,
-            choices = c(
-              "Altitude" = "altitude",
-              "Speed" = "speed",
-              "Pace" = "pace"
-            ),
-            selected = c("speed")
-          ),
-          uiOutput("time_in_zones")
-        ))
-      )
-    )
-  )
-}
 
-#' Create concentration profile plot
-create_concentration_profile_plot <- function() {
-  ## Other metrics - Work capacity, Distribution profile, Concentration profile
+#' Create concentration profile plot and time in zones plot UI.
+create_box <- function(title, inputId, label, plotId) {
+ ## Other metrics - Work capacity, Distribution profile, Concentration profile
   insertUI(
     selector = ".content",
     where = "beforeEnd",
     ui = conditionalPanel(
       condition = "output.cond == false",
       div(
-        class = "plots", id = "concentration_profiles",
+        class = "plots",
         fluidRow(shinydashboard::box(
           status = "primary",
           width = 12,
           collapsible = TRUE,
-          title = tagList(shiny::icon("gear"), "Profiles"),
+          title = tagList(shiny::icon("gear"), title),
           selectizeInput(
-            inputId = "profileMetricsPlot",
-            label = "Concentration profiles:",
+            inputId = inputId,
+            label = paste0(label, ':'),
             multiple = TRUE,
             choices = c(
               "Altitude" = "altitude",
@@ -159,7 +127,7 @@ create_concentration_profile_plot <- function() {
             ),
             selected = "speed"
           ),
-          uiOutput("concentration_profiles")
+          uiOutput(plotId)
         ))
       )
     )

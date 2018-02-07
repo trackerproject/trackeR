@@ -34,7 +34,8 @@ render_summary_table <- function(data) {
           data$selectedSessions <- data$summary$session
         }
         else {
-          data$selectedSessions <- data$summary$session[na.omit(as.numeric(data$hover$key))]
+          # data$selectedSessions <- data$summary$session[na.omit(as.numeric(data$hover$key))]
+          data$selectedSessions <- data$hover$key
         }
         dataSelected <- data.frame(
           "Session" = data$summary[data$selectedSessions][["session"]],
