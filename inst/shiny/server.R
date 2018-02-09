@@ -1,6 +1,7 @@
 server <- function(input, output, session) {
 # Main object where all data is stored
-data <- reactiveValues()
+data <- reactiveValues(summary=NULL, object=NULL, selectedSessions=NULL, hasData=NULL)
+
 choices <- choices()
 metrics <- metrics()
 # Button for plotting selected workouts and return to main page
@@ -65,17 +66,22 @@ observeEvent(input$uploadButton, {
         id = "datafile",
         directory = raw_data_path(),
         timezone = "GMT", cycling = input$sportSelected == "cycling",
-        correctDistances = TRUE
+        correctDistances = FALSE
       )
     }
     # Remove duplicate sessions and create trackeRdata object
     data$object <- sort(unique(c.trackeRdata(processed_data, raw_data)), decreasing = FALSE)
     # Create trackeRdataSummary object
     data$summary <- summary(data$object)
+    observe({
+      data$summary <- summary(data$object)
+      })
+
     # Test if data in each element of trackeRdataSummary object
     data$hasData <- lapply(data$summary, function(session_summaries) {
       !all(is.na(session_summaries) | session_summaries == 0)
     })
+
     update_metrics_to_plot_workouts(session, choices, data$hasData)
     output$download_data <- download_handler(data)
   }
@@ -92,7 +98,8 @@ observeEvent(input$showModalUnits, {
 })
 observeEvent(input$updateUnits, {
     data$object <- change_units(data, input, 'object')
-    data$summary <- change_units(data, input, 'summary')
+
+    # data$summary <- change_units(data, input, 'summary')
     removeModal()
 })
 ##################################################################################
