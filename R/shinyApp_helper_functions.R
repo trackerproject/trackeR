@@ -217,6 +217,7 @@ update_metrics_to_plot_workouts <- function(session, choices, has_data) {
 
 #' Update metrics to plot for Work capacity and time in zones
 update_metrics_to_plot_selected_workouts <- function(id, session, metrics, has_data) {
+  
   updateSelectizeInput(
     session = session,
     inputId = id,

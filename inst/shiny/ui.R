@@ -62,8 +62,7 @@ ui <- shinydashboard::dashboardPage(
             "Average power" = "avgPower",
             "Average heart rate" = "avgHeartRate",
             "Work to rest ratio" = "wrRatio"
-          ),
-          selected = c("duration", "distance", "avgPace")
+          )
         ),
         ## In color: qualitative, set 2 form choose_palette(gui = "shiny")
         ## Out color: qualitative, even darker form choose_palette(gui = "shiny")
@@ -110,7 +109,7 @@ ui <- shinydashboard::dashboardPage(
         collapsible = TRUE,
         collapsed = TRUE,
         title = tagList(shiny::icon("calendar", lib = "glyphicon"), "Workout Timeline"),
-        plotOutput("timeline_plot", height = "365px")
+        plotly::plotlyOutput("timeline_plot", height = "365px")
       )
     )
   )

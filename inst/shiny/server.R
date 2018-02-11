@@ -120,9 +120,9 @@ observeEvent({input$plotButton}, {
     show_warning_window()
   }
   else {
-    output$timeline_plot <- renderPlot({
+    output$timeline_plot <- plotly::renderPlotly({
       if (!is.null(data$summary)) {
-        timeline(data$summary[data$selectedSessions])
+        plot_timeline(data$summary[data$selectedSessions])
       }
     })
 
@@ -185,13 +185,14 @@ observeEvent(input$plotSelectedWorkouts, {
   })
 
   create_box(title='Time in Zones', inputId='zonesMetricsPlot',
-             label='Select zone metrics to plot', plotId='zonesPlotUi')
+             label='Select zone metrics to plot', plotId='zonesPlotUi', choices = metrics[have_data_metrics_selected()])
   create_box(title='Concentration profiles', inputId='profileMetricsPlot',
-             label='Select profile metrics to plot', plotId='concentration_profiles')
+             label='Select profile metrics to plot', plotId='concentration_profiles', choices = metrics[have_data_metrics_selected()])
 
 
-  update_metrics_to_plot_selected_workouts(id = 'zonesMetricsPlot', session, metrics, have_data_metrics_selected())
-  update_metrics_to_plot_selected_workouts(id = 'profileMetricsPlot', session, metrics, have_data_metrics_selected())
+  # update_metrics_to_plot_selected_workouts(id = 'zonesMetricsPlot', session, metrics, have_data_metrics_selected())
+  #
+  # update_metrics_to_plot_selected_workouts(id = 'profileMetricsPlot', session, metrics, have_data_metrics_selected())
 
   ## Render UI for time in zones plot
   output$zonesPlotUi <- renderUI({
@@ -210,6 +211,7 @@ observeEvent(input$plotSelectedWorkouts, {
     shinycssloaders::withSpinner(plotly::plotlyOutput("conc_profiles_plots", width = "auto",
                                                       height = calculate_plot_height(input$profileMetricsPlot)), size = 2)
   })
+
   ## Render actual plot
   output$conc_profiles_plots <- plotly::renderPlotly({
     plot_concentration_profiles(x = data$object, session = data$selectedSessions, what = input$profileMetricsPlot)

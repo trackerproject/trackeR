@@ -102,7 +102,7 @@ create_selected_workout_plot <- function(id, data) {
 
 
 #' Create concentration profile plot and time in zones plot UI.
-create_box <- function(title, inputId, label, plotId) {
+create_box <- function(title, inputId, label, plotId, choices) {
  ## Other metrics - Work capacity, Distribution profile, Concentration profile
   insertUI(
     selector = ".content",
@@ -120,11 +120,7 @@ create_box <- function(title, inputId, label, plotId) {
             inputId = inputId,
             label = paste0(label, ':'),
             multiple = TRUE,
-            choices = c(
-              "Altitude" = "altitude",
-              "Speed" = "speed",
-              "Pace" = "pace"
-            ),
+            choices = choices,
             selected = "speed"
           ),
           uiOutput(plotId)

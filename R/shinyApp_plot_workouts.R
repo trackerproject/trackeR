@@ -82,8 +82,8 @@ plot_workouts <- function(sumX, what, plotly=TRUE, shiny=TRUE, date = TRUE, grou
     if (shiny){
       if (length(d[["key"]]) > 0) {
         m <- dat[dat$session %in% d[["key"]], ]
-        p <- plotly::add_markers(p, data = m, color = I("darkorange3")) %>%
-          plotly::add_lines(data = m, color = I("darkorange2"))
+        p <- plotly::add_markers(p, data = m, color = I("darkorange3"))
+          # plotly::add_lines(data = m, color = I("darkorange2"))
       }
     }
 
