@@ -96,6 +96,7 @@ ui <- shinydashboard::dashboardPage(
     shinyjs::extendShinyjs(text = jscode),
     fluidRow(
       shinydashboard::box(
+        id = 'summary_box',
         status = "primary",
         width = 6,
         title = tagList(shiny::icon("reorder"), "Summary of selected workouts"),
@@ -104,6 +105,7 @@ ui <- shinydashboard::dashboardPage(
         collapsed = TRUE
       ),
       shinydashboard::box(
+        id = "workout_timeline_box",
         status = "primary",
         width = 6,
         collapsible = TRUE,

@@ -27,6 +27,18 @@ plot_timeline <- function(sumX, lims=NULL, shiny=TRUE, plotly=TRUE) {
                                           yend = quote(eday),
                                           text=sprintf("Session: %s<br>Start: %s <br>End: %s",
                                                        df$session, df$start, df$end)), color = '#428bca', size=1)
+    # does not currently work
+    # if (shiny){
+    #   if (length(d[["key"]]) > 0) {
+    #     m <- df[df$session %in% d[["key"]], ]
+
+    #     for(i in c(1:nrow(m))) {
+    #       p <- p + ggplot2::geom_segment(aes(x = m[i,'start'], y = m[i,'sday'], xend = m[i,'end'], yend = m[i,'eday']),
+    #                                      color = "darkorange3", size=2)
+    #     }
+
+    #   }
+    # }
     ## take care of breaks, limits on the time axes and style of breakpoints
     p <- p + ggplot2::scale_x_datetime(date_labels = "%H:%m", date_breaks = "4 hour")
     p <- p + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1)) +

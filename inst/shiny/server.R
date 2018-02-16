@@ -104,18 +104,19 @@ observeEvent(input$updateUnits, {
 })
 ##################################################################################
 ## Collapsing and opening timeline and summary boxes at top of page
-observeEvent(input$plotButton, {
-  shinyjs::js$collapse("timeline_plot")
-  shinyjs::js$collapse("summary")
-}, once = TRUE)
+# observeEvent(input$plotButton, {
+#   shinyjs::js$collapse("timeline_plot")
+#   shinyjs::js$collapse("summary")
+# }, once = TRUE)
 
-observeEvent(input$plotSelectedWorkouts, {
-  shinyjs::js$collapse("timeline_plot")
-  shinyjs::js$collapse("summary")
-}, once = TRUE)
+# observeEvent(input$plotSelectedWorkouts, {
+#   shinyjs::js$collapse("timeline_plot")
+#   shinyjs::js$collapse("summary")
+# }, once = TRUE)
 ##################################################################################
 ## Main page
 observeEvent({input$plotButton}, {
+  shinyjs::addClass(selector = "body", class = "sidebar-collapse")
   if (is.null(data$object)) {
     show_warning_window()
   }
@@ -160,6 +161,7 @@ observeEvent(input$resetButton, {
 })
 ##################################################################################
 observeEvent(input$plotSelectedWorkouts, {
+  shinyjs::addClass(selector = "body", class = "sidebar-collapse")
   # Test which metrics have data for selected sessions
   have_data_metrics_selected <- reactive({ !sapply(metrics, function(metric) {
     all(sapply(data$object[data$selectedSessions], function(x) all(is.na(x[, metric]))))
@@ -220,9 +222,11 @@ observeEvent(input$plotSelectedWorkouts, {
 
 ##################################################################################
 observeEvent(input$return_to_main_page, {
+shinyjs::addClass(selector = "body", class = "sidebar-collapse")
 output$cond <- reactive({ TRUE })
 })
 observeEvent(input$plotSelectedWorkouts, {
+shinyjs::addClass(selector = "body", class = "sidebar-collapse")
 output$cond <- reactive({ FALSE })
 })
 ##################################################################################
