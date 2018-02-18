@@ -22,7 +22,7 @@ plot_timeline <- function(sumX, lims=NULL, shiny=TRUE, plotly=TRUE) {
     }
     key <- df$session
     p <- ggplot2::ggplot(df, ggplot2::aes(key=key)) +
-      ggplot2::geom_point(aes(x = start, y = sday), alpha=0) +
+      ggplot2::geom_point(ggplot2::aes(x = start, y = sday), alpha=0) +
       ggplot2::geom_segment(ggplot2::aes_(x = quote(start), xend = quote(end), y = quote(sday),
                                           yend = quote(eday),
                                           text=sprintf("Session: %s<br>Start: %s <br>End: %s",
@@ -40,7 +40,7 @@ plot_timeline <- function(sumX, lims=NULL, shiny=TRUE, plotly=TRUE) {
     #   }
     # }
     ## take care of breaks, limits on the time axes and style of breakpoints
-    p <- p + ggplot2::scale_x_datetime(date_labels = "%H:%m", date_breaks = "4 hour")
+    p <- p + ggplot2::scale_x_datetime(date_labels = "%H", date_breaks = "1 hour")
     p <- p + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1)) +
       ggplot2::xlab("Time") + ggplot2::ylab("Date")
     p <- p + ggplot2::theme_bw()

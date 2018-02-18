@@ -9,6 +9,7 @@ create_map <- function() {
         status = "primary",
         width = 12,
         collapsible = TRUE,
+        collapsed = TRUE,
         title = tagList(icon("map"), "Map"),
         shinycssloaders::withSpinner(leaflet::leafletOutput("map", width = "auto", height = "430px"), size = 2)
       )))

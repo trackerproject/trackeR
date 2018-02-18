@@ -88,7 +88,7 @@ create_icon <- function(feature) {
 #' @param feature A character for the feature whose units we want to access, for example 'altitude', 'distance',...
 #' @param data An object of class \code{reactivevalues}.
 get_selected_units <- function(feature, data) {
-  getUnits(data$object)$unit[getUnits(data$object)$variable %in% feature]
+  getUnits(data$summary)$unit[getUnits(data$summary)$variable %in% feature]
 }
 
 #' Generate a modal window where user can chage units of measurement.
@@ -153,6 +153,15 @@ show_change_unit_window <- function(data) {
       ), inline = TRUE,
       selected = get_selected_units('pace', data)
     ),
+    radioButtons(
+      "durationUnits", "Duration:",
+      c(
+        "seconds" = "s",
+        "minutes" = "min",
+        "hours" = "h"
+      ), inline = TRUE,
+      selected = get_selected_units('duration', data)
+    ),
     footer = tagList(
       modalButton("Cancel"),
       actionButton("updateUnits", "Apply")
@@ -175,6 +184,9 @@ change_units <- function(data, input, object) {
     units <- c(units, input[[paste0(i, "Units")]])
   }
   data_updated <- changeUnits(data[[object]], variable = allUnits, unit = units)
+  if(object == 'summary'){
+    data_updated <- changeUnits(data_updated , variable='duration', unit=input[['durationUnits']])
+  }
   return(data_updated)
 }
 
@@ -217,7 +229,7 @@ update_metrics_to_plot_workouts <- function(session, choices, has_data) {
 
 #' Update metrics to plot for Work capacity and time in zones
 update_metrics_to_plot_selected_workouts <- function(id, session, metrics, has_data) {
-  
+
   updateSelectizeInput(
     session = session,
     inputId = id,

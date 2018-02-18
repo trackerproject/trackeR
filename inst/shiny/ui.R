@@ -101,15 +101,14 @@ ui <- shinydashboard::dashboardPage(
         width = 6,
         title = tagList(shiny::icon("reorder"), "Summary of selected workouts"),
         DT::dataTableOutput("summary", height = "auto"),
-        collapsible = TRUE,
-        collapsed = TRUE
+        collapsible = FALSE
       ),
       shinydashboard::box(
         id = "workout_timeline_box",
         status = "primary",
         width = 6,
         collapsible = TRUE,
-        collapsed = TRUE,
+        collapsed = FALSE,
         title = tagList(shiny::icon("calendar", lib = "glyphicon"), "Workout Timeline"),
         plotly::plotlyOutput("timeline_plot", height = "365px")
       )

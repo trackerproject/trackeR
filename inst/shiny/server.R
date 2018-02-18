@@ -73,10 +73,6 @@ observeEvent(input$uploadButton, {
     data$object <- sort(unique(c.trackeRdata(processed_data, raw_data)), decreasing = FALSE)
     # Create trackeRdataSummary object
     data$summary <- summary(data$object)
-    observe({
-      data$summary <- summary(data$object)
-      })
-
     # Test if data in each element of trackeRdataSummary object
     data$hasData <- lapply(data$summary, function(session_summaries) {
       !all(is.na(session_summaries) | session_summaries == 0)
@@ -84,22 +80,24 @@ observeEvent(input$uploadButton, {
 
     update_metrics_to_plot_workouts(session, choices, data$hasData)
     output$download_data <- download_handler(data)
+    shinyjs::disable(selector = "#uploadButton")
   }
   data$selectedSessions <- data$summary$session
-}, once = TRUE)
+})
 ##################################################################################
 # Change units
 observeEvent(input$showModalUnits, {
   if (!is.null(data$object)) {
     show_change_unit_window(data)
+
   } else {
     show_warning_window()
    }
 })
 observeEvent(input$updateUnits, {
-    data$object <- change_units(data, input, 'object')
 
-    # data$summary <- change_units(data, input, 'summary')
+    data$object <- change_units(data, input, 'object')
+    data$summary <- change_units(data, input, 'summary')
     removeModal()
 })
 ##################################################################################
@@ -133,6 +131,7 @@ observeEvent({input$plotButton}, {
     removeUI(selector = ".main_plots", immediate = TRUE, multiple = TRUE)
     create_map()
     output$map <- leaflet::renderLeaflet({
+
       shiny_plot_map(x = data$object, session = data$selectedSessions, sumX = data$summary)
     })
     create_summary_boxes()

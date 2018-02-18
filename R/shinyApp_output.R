@@ -4,7 +4,7 @@ render_summary_box <- function(short_name, long_name, data) {
   box_text <- function(what, subtitle, icon, data) {
     value <- reactive({
       value <- data$summary[data$selectedSessions][[what]]
-      value <- round(mean(value[is.finite(value)], na.rm = TRUE))
+      value <- round(mean(value[is.finite(value)], na.rm = TRUE), 1)
       if (is.na(value)) {
         "not available"
       }
@@ -35,7 +35,7 @@ render_summary_table <- function(data) {
         }
         else {
           # data$selectedSessions <- data$summary$session[na.omit(as.numeric(data$hover$key))]
-          data$selectedSessions <- as.numeric(data$hover$key)
+          data$selectedSessions <- na.omit(as.numeric(data$hover$key))
         }
         dataSelected <- data.frame(
           "Session" = data$summary[data$selectedSessions][["session"]],
