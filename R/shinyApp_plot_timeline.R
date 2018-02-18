@@ -7,8 +7,8 @@
 plot_timeline <- function(sumX, lims=NULL, shiny=TRUE, plotly=TRUE) {
   if (plotly) {
     d <- if(shiny) plotly::event_data("plotly_selected") else NULL
-    startdates <- as.Date(sumX$sessionStart)
-    enddates <- as.Date(sumX$sessionEnd)
+    startdates <- as.POSIXct(as.Date(sumX$sessionStart))
+    enddates <- as.POSIXct(as.Date(sumX$sessionEnd))
     ## Hack to extract times
     endtimes <- sumX$sessionEnd
     starttimes <- sumX$sessionStart
@@ -41,6 +41,7 @@ plot_timeline <- function(sumX, lims=NULL, shiny=TRUE, plotly=TRUE) {
     # }
     ## take care of breaks, limits on the time axes and style of breakpoints
     p <- p + ggplot2::scale_x_datetime(date_labels = "%H", date_breaks = "1 hour")
+    p <- p + ggplot2::scale_y_datetime(date_labels = "%d %b", date_breaks = "2 days")
     p <- p + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1)) +
       ggplot2::xlab("Time") + ggplot2::ylab("Date")
     p <- p + ggplot2::theme_bw()
