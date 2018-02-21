@@ -112,15 +112,13 @@ readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "
         ## Avoid memory leaks
         nodeDoc <- XML::xmlDoc(node)
         extnode <- XML::getNodeSet(nodeDoc, "//s:Extensions", "s")
-        if (length(extnode)) {
-            extnode <- extnode[[1]]
-            ns <- XML::xmlNamespaceDefinitions(extnode, recursive = TRUE, simplify = TRUE)
-            extnodeDoc <- XML::xmlDoc(extnode)
+            if (length(extnode)) {
+                extnodeDoc <- XML::xmlDoc(extnode[[1]])
             ## What if speed is not in an extensions node?
-            speed <- XML::xpathApply(extnodeDoc, "//o:Speed", namespaces = c(o = ns[1]), XML::xmlValue)
+            speed <- XML::xpathApply(extnodeDoc, "//ns3:Speed", XML::xmlValue)
             ## Check if there is cadence in nodeDoc or in an Extensions tag with distinct namespace
-            cadence2 <- XML::xpathApply(extnodeDoc, "//o:RunCadence", namespaces = c(o = ns[1]), XML::xmlValue)
-            watts <- XML::xpathApply(extnodeDoc, "//o:Watts", namespaces = c(o = ns[1]), XML::xmlValue)
+            cadence2 <- XML::xpathApply(extnodeDoc, "//ns3:RunCadence", XML::xmlValue)
+            watts <- XML::xpathApply(extnodeDoc, "//ns3:Watts", XML::xmlValue)
         }
         else {
             speed <- cadence2 <- watts <- list()
