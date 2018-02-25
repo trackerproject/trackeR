@@ -49,7 +49,8 @@ plot_concentration_profiles <- function(x, session, what = c("speed")) {
     feature_profile$Value[is.na(feature_profile$Value)] <- 0
     p <- plotly::plot_ly(
       feature_profile, x = ~ Index, y = ~ Value,
-      color = ~series, colors = pal(feature_profile$series), legendgroup = ~series
+      color = ~series, colors = pal(feature_profile$series), legendgroup = ~series,
+      hoverinfo = "text", text = ~ round(Index, 1)
     ) %>%
       plotly::add_lines() %>%
       plotly::layout(xaxis = x, yaxis = y, hovermode = "closest")

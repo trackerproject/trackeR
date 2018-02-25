@@ -1,22 +1,10 @@
-jscode <- "
-    shinyjs.collapse = function(boxid) {
-    $('#' + boxid).closest('.box').find('[data-widget=collapse]').click();
-    };
-    // shinyjs.resetClick = function() { Shiny.onInputChange('.clientValue-plotly_selected-A', 'null'); }
-    shinyjs.reset_page = function() { location.reload(); }
-"
+jscode <- get_javascript()
 
 ui <- shinydashboard::dashboardPage(
   title = "TrackeR",
   skin = "black",
   shinydashboard::dashboardHeader(title = span(tagList(icon("dashboard"), "trackeR dashboard"))),
   shinydashboard::dashboardSidebar(
-    tags$head(tags$script("
-                            function hideElement(i) {
-                                var x = document.getElementById(i);
-                                x.style.display = 'none';
-                            }
-                           ")),
     tags$head(tags$style(".warningMessage {
                           font-size: 20px;
                          }
@@ -28,9 +16,6 @@ ui <- shinydashboard::dashboardPage(
                           }
                          ")),
     shinydashboard::sidebarMenu(
-      ## menuItem('', tabName = 'dashboard', icon = icon('dashboard')),
-      ## hr(),
-      ## fileInput('processed_data_path', 'Load processed data'),
       div(selectInput(
         "sportSelected", "Select sport", multiple = FALSE,
         c(
@@ -93,25 +78,6 @@ ui <- shinydashboard::dashboardPage(
   ),
   shinydashboard::dashboardBody(
     shinyjs::useShinyjs(),
-    shinyjs::extendShinyjs(text = jscode),
-    fluidRow(
-      shinydashboard::box(
-        id = 'summary_box',
-        status = "primary",
-        width = 6,
-        title = tagList(shiny::icon("reorder"), "Summary of selected workouts"),
-        DT::dataTableOutput("summary", height = "auto"),
-        collapsible = FALSE
-      ),
-      shinydashboard::box(
-        id = "workout_timeline_box",
-        status = "primary",
-        width = 6,
-        collapsible = TRUE,
-        collapsed = FALSE,
-        title = tagList(shiny::icon("calendar", lib = "glyphicon"), "Workout Timeline"),
-        plotly::plotlyOutput("timeline_plot", height = "365px")
-      )
-    )
+    shinyjs::extendShinyjs(text = jscode)
   )
 )

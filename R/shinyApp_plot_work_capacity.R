@@ -91,6 +91,8 @@ plot_work_capacity <- function(x, session, plotly=TRUE, dates = TRUE, scaled = T
 
     plot_stored <- vector("list", N)
     show_legend <- TRUE
+    y_axis_range <- c(min(na.omit(df[df$Series == "wprime", 'Value'])) * 0.8,
+                      max(na.omit(df[df$Series == "wprime", 'Value'])) * 1.2)
 
     for (i in unique(df$id)) {
       df_subset <- df[(df$id == i) & (df$Series == "movement"), ]
@@ -146,7 +148,7 @@ plot_work_capacity <- function(x, session, plotly=TRUE, dates = TRUE, scaled = T
       show_legend <- FALSE
     }
 
-    y <- list(title = "", fixedrange = TRUE)
+    y <- list(title = "", fixedrange = TRUE, range=y_axis_range)
     x <- list(title = "Time", fixedrange = TRUE)
 
     return(plotly::subplot(plot_stored, nrows = 1, shareY = TRUE, margin = 0.002) %>%

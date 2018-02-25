@@ -36,7 +36,8 @@ lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE) 
         "pace" = paste0("Pace \n[", prettyUnit, "]"),
         "cadence" = paste0("Cadence \n[", prettyUnit, "]"),
         "heart.rate" = paste0("Heart Rate \n[", prettyUnit, "]"),
-        "altitude" = paste0("Altitude \n[", prettyUnit, "]")
+        "altitude" = paste0("Altitude \n[", prettyUnit, "]"),
+        "speed" = paste0("Speed \n[", prettyUnit, "]")
       )
     }
     ret
@@ -59,7 +60,8 @@ lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE) 
         "pace" = prettyUnit,
         "cadence" = prettyUnit,
         "heart.rate" = prettyUnit,
-        "altitude" = prettyUnit
+        "altitude" = prettyUnit,
+        "speed" = prettyUnit
       )
     }
     ret
@@ -229,7 +231,6 @@ update_metrics_to_plot_workouts <- function(session, choices, has_data) {
 
 #' Update metrics to plot for Work capacity and time in zones
 update_metrics_to_plot_selected_workouts <- function(id, session, metrics, has_data) {
-
   updateSelectizeInput(
     session = session,
     inputId = id,
@@ -267,6 +268,17 @@ show_warning_window <- function() {
 #' Calculate plot height for either time in zones or work capacity
 calculate_plot_height <- function(metrics) {
   paste0(250 * length(metrics), "px")
+}
+
+#' Get Javascript code for reseting page and collapsing boxes
+get_javascript <- function() {
+  "
+    shinyjs.collapse = function(boxid) {
+    $('#' + boxid).closest('.box').find('[data-widget=collapse]').click();
+    };
+    // shinyjs.resetClick = function() { Shiny.onInputChange('.clientValue-plotly_selected-A', 'null'); }
+    shinyjs.reset_page = function() { location.reload(); }
+  "
 }
 
 

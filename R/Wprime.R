@@ -7,13 +7,13 @@
 #' @param w0 Inital capacity of W', as calculated based on the critical
 #' power model by Monod and Scherrer (1965).
 #' @param cp Critical power/speed, i.e., the power/speed which can be maintained for
-#' longer period of time. 
+#' longer period of time.
 #' @param version How should W' be replenished? Options include \code{'2015'}
 #' and \code{'2012'} for the versions presented in Skiba et al. (2015) and
 #' Skiba et al. (2012), respectively. See Details.
 #' @param meanRecoveryPower Should the mean of all power outputs below critical
 #' power be used as recovery power? See Details.
-#' 
+#'
 #' @details Skiba et al. (2015) and Skiba et al. (2012) both describe an exponential decay of W' expended over an interval [t_{i-1}, t_i) if the power output during this interval is below critical power:
 #' W_exp (t_i) = W_exp(t_{i-1}) * exp(nu * (t_i - t_{i-1})).
 #' However, the factor nu differs: Skiba et al. (2012) describe it as 1/tau with tau estimated as
@@ -26,14 +26,14 @@
 #' Skiba PF, Fulford J, Clarke DC, Vanhatalo A, Jones AM (2015). 'Intramuscular Determinants of the Abilility to Recover Work Capacity above Critical Power.' European Journal of Applied Physiology, 115(4), 703--713.
 Wexp <- function(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower = FALSE) {
     version <- match.arg(version, c("2015", "2012"))
-    
+
     time <- index(object)
     power <- coredata(object)
-    
+
     dp <- power - cp
     delta <- as.numeric(difftime(c(time[-1], time[length(time)]), time, units = "secs"))
     ind <- dp > 0
-    
+
     wna <- is.na(power)
     ## if all power values are NA, return NA
     if (all(wna)) {
@@ -48,7 +48,7 @@ Wexp <- function(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower 
     dp <- dp[!wna]
     delta <- delta[!wna]
     ind <- ind[!wna]
-    
+
     ## Done in papers (Skiba et al (2012) and Skiba et al (2015)) but not necessary with
     ## assumption of constant power over intervals between observations: use mean power over
     ## all instances with power below CP as recovery power (here weighted by length of time
@@ -60,7 +60,7 @@ Wexp <- function(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower 
         rDeltaSum <- sum(rDelta)
         dp[recovery] <- sum(rPower * rDelta/sum(rDeltaSum)) - cp
     }
-    
+
     ## recovery factor
     if (version == "2015") {
         recoveryFactor <- dp/w0
@@ -69,10 +69,10 @@ Wexp <- function(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower 
         tau <- 546 * exp(0.01 * dp) + 316
         recoveryFactor <- -1/tau
     }
-    
+
     ## W'expended is W' previously depleted and not yet recovered
     Wexp <- rep(NA, length(ind))
-    Wexp[1] <- if (ind[1]) 
+    Wexp[1] <- if (ind[1])
         dp[1] * delta[1] else 0
     for (i in 2:length(ind)) {
         if (ind[i]) {
@@ -81,13 +81,13 @@ Wexp <- function(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower 
             Wexp[i] <- Wexp[i - 1] * exp(recoveryFactor[i] * delta[i])
         }
     }
-    
+
     ret <- rep(NA, length(object))
     ret[!wna] <- Wexp
     ret <- cbind(coredata(object), ret)
     colnames(ret) <- c("movement", "wprime")
     ret <- zoo(ret, order.by = index(object))
-    
+
     return(ret)
 }
 
@@ -132,62 +132,62 @@ Wexp <- function(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower 
 #' data('runs', package = 'trackeR')
 #' wexp <- Wprime(runs, session = c(11,13), cp = 4, version = '2012')
 #' plot(wexp)
-Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), w0, cp, 
-    version = c("2015", "2012"), meanRecoveryPower = FALSE, parallel = FALSE, cores = NULL, 
+Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), w0, cp,
+    version = c("2015", "2012"), meanRecoveryPower = FALSE, parallel = FALSE, cores = NULL,
     ...) {
     ## prep args
     quantity <- match.arg(quantity, c("expended", "balance"))
-    if (quantity == "balance" & missing(w0)) 
+    if (quantity == "balance" & missing(w0))
         stop("Please provide w0 or choose quantity = 'expended'.")
     version <- match.arg(version, c("2015", "2012"))
-    if (version == "2015" & missing(w0)) 
+    if (version == "2015" & missing(w0))
         stop("Please provide w0 or choose version = '2012'.")
-    if (missing(w0)) 
+    if (missing(w0))
         w0 <- NA
-    
+
     ## units
     units <- getUnits(object)
     cycling <- units$unit[units$variable == "cadence"] == "rev_per_min"
     ps <- ifelse(cycling, "power", "speed")
     if (cycling) {
         if (units$unit[units$variable == "power"] != "W") {
-            changeUnits(object, variable = "power", unit = "W")
+            object <- changeUnits(object, variable = "power", unit = "W")
+            units <- getUnits(object)
             conversion <- match.fun(paste(units$unit[units$variable == "power"], "W", sep = "2"))
             cp <- conversion(cp)
-            units$unit[units$variable == "power"] <- "W"
         }
     } else {
         if (units$unit[units$variable == "speed"] != "m_per_s") {
-            changeUnits(object, variable = "speed", unit = "m_per_s")
-            conversion <- match.fun(paste(units$unit[units$variable == "speed"], "m_per_s", 
+            object <- changeUnits(object, variable = "speed", unit = "m_per_s")
+            units <- getUnits(object)
+            conversion <- match.fun(paste(units$unit[units$variable == "speed"], "m_per_s",
                 sep = "2"))
             cp <- conversion(cp)
-            units$unit[units$variable == "speed"] <- "m_per_s"
         }
     }
-    
+
     ## select sessions
-    if (is.null(session)) 
+    if (is.null(session))
         session <- 1:length(object)
     object <- object[session]
-    
+
     ## get W'
     getW <- function(x) {
         W <- Wexp(x[, ps], w0 = w0, cp = cp, version = version, meanRecoveryPower = meanRecoveryPower)
-        if (quantity == "balance") 
+        if (quantity == "balance")
             W$wprime <- w0 - W$wprime
         return(W)
     }
-    
+
     if (parallel) {
         dc <- parallel::detectCores()
         if (.Platform$OS.type != "windows") {
-            if (is.null(cores)) 
+            if (is.null(cores))
                 cores <- getOption("mc.cores", max(floor(dc/2), 1L))
             ## parallel::mclapply(..., mc.cores = cores)
             ret <- parallel::mclapply(object, getW, mc.cores = cores)
         } else {
-            if (is.null(cores)) 
+            if (is.null(cores))
                 cores <- getOption("cores", max(floor(dc/2), 1L))
             cl <- parallel::makePSOCKcluster(rep("localhost", cores))
             ## parallel::parLapply(cl, ...)
@@ -198,10 +198,10 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), 
         ## lapply(...)
         ret <- lapply(object, getW)
     }
-    
+
     ## class and return
     attr(ret, "quantity") <- quantity
-    attr(ret, "w0") <- if (missing(w0)) 
+    attr(ret, "w0") <- if (missing(w0))
         NA else w0
     attr(ret, "cp") <- cp
     attr(ret, "cycling") <- cycling
@@ -222,33 +222,33 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), 
 #' @examples
 #' data('runs', package = 'trackeR')
 #' wexp <- Wprime(runs, session = 1:3, cp = 4, version = '2012')
-#' plot(wexp, session = 1:2) 
+#' plot(wexp, session = 1:2)
 plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, ...) {
     ## the following line is just intended to prevent R CMD check to produce the NOTE 'no
     ## visible binding for global variable 'Series'' because that variable is used in
     ## subset()
     Series <- NULL
-    
+
     quantity <- attr(x, "quantity")
     cp <- attr(x, "cp")
     cycling <- attr(x, "cycling")
-    Wunit <- if (cycling) 
+    Wunit <- if (cycling)
         "[J]" else "[m]"
-    mylabels <- c(paste0(ifelse(cycling, "Power", "Speed"), " [", prettifyUnits(attr(x, 
+    mylabels <- c(paste0(ifelse(cycling, "Power", "Speed"), " [", prettifyUnits(attr(x,
         "unit")$unit), "]"), paste("W'", quantity, "[scaled]"))
-    
+
     ## select sessions
-    if (is.null(session)) 
+    if (is.null(session))
         session <- seq_along(x)
     x <- x[session]
-    
+
     ## transform W' to match power/speed scale
     if (scaled) {
         sdMov <- stats::sd(unlist(lapply(x, function(z) z$movement)), na.rm = TRUE)
         mMov <- mean(unlist(lapply(x, function(z) z$movement)), na.rm = TRUE)
-        
+
         x <- lapply(x, function(z) {
-            w <- (coredata(z$wprime) - mean(coredata(z$wprime), na.rm = TRUE))/stats::sd(coredata(z$wprime), 
+            w <- (coredata(z$wprime) - mean(coredata(z$wprime), na.rm = TRUE))/stats::sd(coredata(z$wprime),
                 na.rm = TRUE)
             w <- w * sdMov  #sd(coredata(z$movement), na.rm = TRUE)
             z$wprime <- w + mMov
@@ -257,11 +257,11 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, .
             return(z)
         })
     }
-    
+
     ## get data
     class(x) <- "trackeRWprime"
     df <- fortify(x, melt = TRUE)
-    
+
     ## prepare session id for panel header
     if (dates) {
         df$SessionID <- format(session[df$SessionID])
@@ -271,32 +271,32 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, .
         df$SessionID <- factor(df$SessionID, levels = seq_along(session), labels = session)
     }
     df$Series <- factor(df$Series)
-    
+
     ## check that there is data to plot
     for (l in levels(df$Series)) {
-        if (all(is.na(subset(df, Series == l, select = "Value")))) 
+        if (all(is.na(subset(df, Series == l, select = "Value"))))
             df <- df[!(df$Series == l), ]
     }
-    
+
     ## make facets
     singleSession <- length(session) == 1L
-    facets <- if (singleSession) 
+    facets <- if (singleSession)
         NULL else ". ~ SessionID"
-    
+
     if (scaled) {
         ## basic plot
-        p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) + 
+        p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
             ggplot2::ylab("") + ggplot2::xlab("Time")
         ## lines for power/speed and W'
-        p <- p + ggplot2::geom_line(ggplot2::aes_(group = quote(Series), col = quote(Series)), 
-            na.rm = TRUE) + ggplot2::scale_colour_manual(name = "", labels = mylabels, 
+        p <- p + ggplot2::geom_line(ggplot2::aes_(group = quote(Series), col = quote(Series)),
+            na.rm = TRUE) + ggplot2::scale_colour_manual(name = "", labels = mylabels,
             values = c("gray", "blue"))
         ## add line for cp
-        p <- p + ggplot2::geom_hline(data = data.frame(cp = cp), ggplot2::aes(yintercept = cp), 
+        p <- p + ggplot2::geom_hline(data = data.frame(cp = cp), ggplot2::aes(yintercept = cp),
             col = "black")
     } else {
         ## basic plot
-        p <- ggplot2::ggplot(data = subset(df, Series == "wprime"), mapping = ggplot2::aes_(x = quote(Index), 
+        p <- ggplot2::ggplot(data = subset(df, Series == "wprime"), mapping = ggplot2::aes_(x = quote(Index),
             y = quote(Value))) + ggplot2::ylab(paste("W'", quantity, Wunit)) + ggplot2::xlab("Time")
         ## lines for W'
         p <- p + ggplot2::geom_line(na.rm = TRUE)
@@ -306,9 +306,9 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, .
         p <- p + ggplot2::facet_grid(facets, scales = "free")
     }
     ## add bw theme
-    p <- p + ggplot2::theme_bw() + ggplot2::theme(legend.position = "top", axis.text.x = ggplot2::element_text(angle = 50, 
+    p <- p + ggplot2::theme_bw() + ggplot2::theme(legend.position = "top", axis.text.x = ggplot2::element_text(angle = 50,
         hjust = 1))
-    
+
     return(p)
 }
 

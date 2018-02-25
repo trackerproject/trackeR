@@ -73,6 +73,7 @@ plot_workouts <- function(sumX, what, plotly=TRUE, shiny=TRUE, date = TRUE, grou
     p <- plotly::plot_ly(
       dat, x = ~xaxis, y = ~value, hoverinfo = "text",
       text = ~paste(
+        "Session:", session, "\n",
         "Date:", format(sessionStart, format = "%Y-%m-%d"),
         "\n", what, ":", round(value, 2), units_text
       )

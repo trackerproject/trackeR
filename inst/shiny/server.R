@@ -1,11 +1,8 @@
 server <- function(input, output, session) {
 # Main object where all data is stored
 data <- reactiveValues(summary=NULL, object=NULL, selectedSessions=NULL, hasData=NULL)
-
 choices <- choices()
 metrics <- metrics()
-# Button for plotting selected workouts and return to main page
-create_option_button()
 ##################################################################################
 # Get path to files
 ## Directory
@@ -114,7 +111,6 @@ observeEvent(input$updateUnits, {
 ##################################################################################
 ## Main page
 observeEvent({input$plotButton}, {
-  shinyjs::addClass(selector = "body", class = "sidebar-collapse")
   if (is.null(data$object)) {
     show_warning_window()
   }
@@ -124,7 +120,9 @@ observeEvent({input$plotButton}, {
         plot_timeline(data$summary[data$selectedSessions])
       }
     })
-
+    create_option_box()
+    create_summary_timeline_boxes()
+    shinyjs::addClass(selector = "body", class = "sidebar-collapse")
     ## DT
     output$summary <- render_summary_table(data)
     # Re-render all plots
@@ -167,11 +165,11 @@ observeEvent(input$plotSelectedWorkouts, {
   })
   })
 
-  for (i in c("pace", "heart.rate", "altitude", "work_capacity")) {
+  for (i in c("pace", "heart.rate", "altitude", "work_capacity","speed")) {
     create_selected_workout_plot(id = i, data = data)
   }
 
-  lapply(c("pace", "heart.rate", "altitude"), function(i) {
+  lapply(c("pace", "heart.rate", "altitude", "speed"), function(i) {
     output[[paste0(i, "_plot")]] <- plotly::renderPlotly({
       plot_selectedWorkouts(x=data$object, session=data$selectedSessions, what=i, sumX=data$summary)
     })
@@ -185,9 +183,10 @@ observeEvent(input$plotSelectedWorkouts, {
     }
   })
 
-  create_box(title='Time in Zones', inputId='zonesMetricsPlot',
-             label='Select zone metrics to plot', plotId='zonesPlotUi', choices = metrics[have_data_metrics_selected()])
-  create_box(title='Concentration profiles', inputId='profileMetricsPlot',
+  create_zones_box(title='Time in Zones', inputId='zonesMetricsPlot',
+             label='Select zone metrics to plot', plotId='zonesPlotUi',
+             choices = metrics[have_data_metrics_selected()])
+  create_profiles_box(title='Concentration profiles', inputId='profileMetricsPlot',
              label='Select profile metrics to plot', plotId='concentration_profiles', choices = metrics[have_data_metrics_selected()])
 
 
@@ -203,7 +202,8 @@ observeEvent(input$plotSelectedWorkouts, {
   })
   ## Render actual plot
   output$zones_plot <- plotly::renderPlotly({
-    plot_zones(x = data$object, session = data$selectedSessions, what = input$zonesMetricsPlot)
+    plot_zones(x = data$object, session = data$selectedSessions, what = input$zonesMetricsPlot,
+               n_zones = as.numeric(input$n_zones))
   })
 
   ## Render UI for concentration profiles

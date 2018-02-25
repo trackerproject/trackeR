@@ -84,7 +84,8 @@ create_selected_workout_plot <- function(id, data) {
             switch(id, "pace" = paste0("Pace"),
               "heart.rate" = paste0("Heart Rate"),
               "altitude" = paste0("Altitude"),
-              "work_capacity" = paste0("Work Capacity")
+              "work_capacity" = paste0("Work Capacity"),
+              "speed" = paste0("Speed")
             )
           ),
           div(
@@ -102,8 +103,8 @@ create_selected_workout_plot <- function(id, data) {
 }
 
 
-#' Create concentration profile plot and time in zones plot UI.
-create_box <- function(title, inputId, label, plotId, choices) {
+#' Create concentration profile plot UI.
+create_profiles_box <- function(title, inputId, label, plotId, choices) {
  ## Other metrics - Work capacity, Distribution profile, Concentration profile
   insertUI(
     selector = ".content",
@@ -117,13 +118,61 @@ create_box <- function(title, inputId, label, plotId, choices) {
           width = 12,
           collapsible = TRUE,
           title = tagList(shiny::icon("gear"), title),
+          fluidRow(
+          column(3,
           selectizeInput(
             inputId = inputId,
             label = paste0(label, ':'),
             multiple = TRUE,
             choices = choices,
             selected = "speed"
-          ),
+          ))),
+          uiOutput(plotId)
+        ))
+      )
+    )
+  )
+}
+
+#' Create time in zones plot UI.
+create_zones_box <- function(title, inputId, label, plotId, choices) {
+ ## Other metrics - Work capacity, Distribution profile, Concentration profile
+  insertUI(
+    selector = ".content",
+    where = "beforeEnd",
+    ui = conditionalPanel(
+      condition = "output.cond == false",
+      div(
+        class = "plots",
+        fluidRow(shinydashboard::box(
+          status = "primary",
+          width = 12,
+          collapsible = TRUE,
+          title = tagList(shiny::icon("gear"), title),
+          fluidRow(
+          column(3, selectizeInput(
+            inputId = inputId,
+            label = paste0(label, ':'),
+            multiple = TRUE,
+            choices = choices,
+            selected = "speed"
+          )),
+          column(3, selectizeInput(
+                         inputId = 'n_zones',
+                         label = 'Select number of zones:',
+                         multiple = FALSE,
+                         choices = c(
+                                    '2' = 2,
+                                    '3' = 3,
+                                    '4' = 4,
+                                    '5' = 5,
+                                    '6' = 6,
+                                    '7' = 7,
+                                    '8' = 8,
+                                    '9' = 9
+                                    ),
+                         selected = '6'
+                         ))),
           uiOutput(plotId)
         ))
       )
@@ -132,7 +181,7 @@ create_box <- function(title, inputId, label, plotId, choices) {
 }
 
 #' Create a return button from selected workouts plot
-create_option_button <- function() {
+create_option_box <- function() {
   insertUI(
            selector = ".content",
            where = "afterBegin",
@@ -158,4 +207,31 @@ create_option_button <- function() {
 
 }
 
+#' Create a summary and timeline boxes
+#'
+create_summary_timeline_boxes <- function() {
+  insertUI(
+           selector=".content",
+           where="beforeEnd",
+           ui=fluidRow(
+                        shinydashboard::box(
+                          id = 'summary_box',
+                          status = "primary",
+                          width = 6,
+                          title = tagList(shiny::icon("reorder"), "Summary of selected workouts"),
+                          DT::dataTableOutput("summary", height = "auto"),
+                          collapsible = FALSE
+                        ),
+                        shinydashboard::box(
+                          id = "workout_timeline_box",
+                          status = "primary",
+                          width = 6,
+                          collapsible = TRUE,
+                          collapsed = FALSE,
+                          title = tagList(shiny::icon("calendar", lib = "glyphicon"), "Workout Timeline"),
+                          plotly::plotlyOutput("timeline_plot", height = "365px")
+                        )
+                       )
+           )
+}
 

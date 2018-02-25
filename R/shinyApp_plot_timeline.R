@@ -20,13 +20,14 @@ plot_timeline <- function(sumX, lims=NULL, shiny=TRUE, plotly=TRUE) {
     if (!is.null(lims)) {
       lims <- as.POSIXct(paste(Sys.Date(), lims))
     }
+    
     key <- df$session
     p <- ggplot2::ggplot(df, ggplot2::aes(key=key)) +
       ggplot2::geom_point(ggplot2::aes(x = start, y = sday), alpha=0) +
       ggplot2::geom_segment(ggplot2::aes_(x = quote(start), xend = quote(end), y = quote(sday),
                                           yend = quote(eday),
                                           text=sprintf("Session: %s<br>Start: %s <br>End: %s",
-                                                       df$session, df$start, df$end)), color = '#428bca', size=1)
+                                                       df$session, sumX$sessionStart, sumX$sessionEnd)), color = '#428bca', size=1)
     # does not currently work
     # if (shiny){
     #   if (length(d[["key"]]) > 0) {
@@ -39,11 +40,12 @@ plot_timeline <- function(sumX, lims=NULL, shiny=TRUE, plotly=TRUE) {
 
     #   }
     # }
+    date_breaks <- if((max(startdates) - min(startdates) > 15)) round((max(startdates) - min(startdates))/15, 0) else 1
     ## take care of breaks, limits on the time axes and style of breakpoints
     p <- p + ggplot2::scale_x_datetime(date_labels = "%H", date_breaks = "1 hour")
-    p <- p + ggplot2::scale_y_datetime(date_labels = "%d %b", date_breaks = "2 days")
+    p <- p + ggplot2::scale_y_datetime(date_labels = "%d %b", date_breaks = paste(date_breaks, 'days'))
     p <- p + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1)) +
-      ggplot2::xlab("Time") + ggplot2::ylab("Date")
+          ggplot2::xlab("Time") + ggplot2::ylab("Date")
     p <- p + ggplot2::theme_bw()
     p <- plotly::ggplotly(p, tooltip = c("text"))
     p <- plotly::layout(p, dragmode = "select")

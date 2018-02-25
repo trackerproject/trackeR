@@ -109,6 +109,7 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
     }
 
     plot_stored <- list()
+    smoothed_values <- list(maximum=numeric(), minimum=numeric())
     for (i in unique(df$id)) {
       df_subset <- df[df$id == i, ]
       has_values <- !all(is.na(df_subset[df_subset$Series == what, "Value"]))
@@ -123,10 +124,13 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
         y = 1,
         showarrow = FALSE
       )
-      axis_list <- list(zeroline = FALSE)
+      axis_list <- list(zeroline = FALSE, fixedrange = TRUE)
       if (has_values) {
-        smoothed_model <- try(mgcv::gam(Value ~ s(numericDate, bs = "cs"), data = df_subset), silent = TRUE)
+        smoothed_model <- mgcv::gam(Value ~ s(numericDate, bs = "cs"), data = df_subset)
+
         smoothed_data <- mgcv::predict.gam(smoothed_model, newdata = df_subset)
+        smoothed_values$minimum <- c(smoothed_values$minimum, min(smoothed_data))
+        smoothed_values$maximum <- c(smoothed_values$maximum, max(smoothed_data))
         a <- plotly::plot_ly(
           df_subset, x = ~ Index, y = ~ Value, hoverinfo = "none",
           type = "scatter", mode = "lines",
@@ -134,13 +138,14 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
         ) %>%
           plotly::add_lines(
             x = ~ Index, y = smoothed_data, hoverinfo = "text",
-            text = ~ paste(round(Value, 2), var_units),
+            text = paste(round(smoothed_data, 2), var_units),
             color = I("deepskyblue3"),
             showlegend = FALSE, alpha = 1
           ) %>%
           plotly::layout(
             annotations = annotations_list,
-            xaxis = axis_list, yaxis = c(axis_list, list(range = maximal_range * 1.02))
+            xaxis = axis_list, yaxis = c(axis_list, list(range = c(min(smoothed_data) * 0.9, max(smoothed_data) * 1.1)))
+            # xaxis = axis_list, yaxis = c(axis_list, list(range = maximal_range * 1.02))
           )
       }
       else {
@@ -163,11 +168,11 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
       }
       plot_stored[[as.character(i)]] <- a
     }
-
-    y <- list(title = var_name_units, fixedrange = TRUE)
+    y_axis_range <- if(what == 'heart.rate') {c(80, 200)} else {c(min(smoothed_values$minimum) * 0.9, max(smoothed_values$maximum) * 1.1)}
+    y <- list(title = var_name_units, fixedrange = TRUE, range=y_axis_range)
     x <- list(title = "Time", fixedrange = TRUE)
 
-    return(plotly::subplot(plot_stored, nrows = 1, shareY = FALSE, margin = 0.002) %>%
+    return(plotly::subplot(plot_stored, nrows = 1, shareY = TRUE, margin = 0.003) %>%
       plotly::config(displayModeBar = FALSE) %>%
       plotly::layout(showlegend = FALSE, yaxis = y, xaxis = x, hovermode = "closest"))
   } else {

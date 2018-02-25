@@ -4,8 +4,8 @@
 #' @param session A vector of selected sessions.
 #' @param what A vector of variable names to be plotted.
 
-plot_zones <- function(x, session, what = c("heart.rate")) {
-  x <- zones(x, session = session, what = what, auto_breaks = TRUE)
+plot_zones <- function(x, session, what = c("heart.rate"), n_zones) {
+  x <- zones(x, session = session, what = what, auto_breaks = TRUE, n_zones = n_zones)
 
   dat <- do.call("rbind", x)
   dat$zoneF <- factor(
@@ -38,7 +38,8 @@ plot_zones <- function(x, session, what = c("heart.rate")) {
     feature_zones <- dat[dat$variable == feature, ]
     p <- plotly::plot_ly(
       feature_zones, x = ~ zoneF, y = ~ percent,
-      color = ~Session, colors = pal(feature_zones$Session), legendgroup = ~ Session
+      color = ~Session, colors = pal(feature_zones$Session), legendgroup = ~ Session, hoverinfo = "text",
+            text = ~ paste0(round(percent, 1), '%')
     ) %>%
       plotly::add_bars() %>%
       plotly::layout(xaxis = x, yaxis = y, hovermode = "closest")
