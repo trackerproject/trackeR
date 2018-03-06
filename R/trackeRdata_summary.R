@@ -99,7 +99,7 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
         if (resting)
             m <- 1 - m
 
-        w <- dt * i * m/sum(dt * i * m)
+        w <- dt * i * m/sum(dt * i * m, na.rm = TRUE)
         ret <- sum(z * w, na.rm = TRUE)
         return(ret)
     }
