@@ -46,7 +46,8 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
     sessionEnd <- as.POSIXct(sapply(object, function(x) max(index(x))), origin = "1970-01-01")
 
     ## distance
-    distance <- sapply(object, function(x) zoo::coredata(x$distance)[nrow(x)])
+    #distance <- sapply(object, function(x) zoo::coredata(x$distance)[nrow(x)])
+    distance <- sapply(object, function(x) max(zoo::coredata(x$distance), na.rm = TRUE))
 
     ## session length (unit set by difftime)
     duration <- difftime(sessionEnd, sessionStart)
