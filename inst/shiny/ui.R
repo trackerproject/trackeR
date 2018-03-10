@@ -1,4 +1,4 @@
-jscode <- get_javascript()
+jscode <- trackeR:::get_javascript()
 
 ui <- shinydashboard::dashboardPage(
   title = "TrackeR",

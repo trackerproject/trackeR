@@ -79,9 +79,9 @@ observeEvent(input$uploadButton, {
       !all(is.na(session_summaries) | session_summaries == 0)
     })
 
-    update_metrics_to_plot_workouts(session, choices, data$hasData)
-    output$download_data <- download_handler(data)
-    shinyjs::disable(selector = "#uploadButton")
+      trackeR:::update_metrics_to_plot_workouts(session, choices, data$hasData)
+      output$download_data <- trackeR:::download_handler(data)
+      shinyjs::disable(selector = "#uploadButton")
   }
   data$selectedSessions <- data$summary$session
 })
@@ -89,16 +89,15 @@ observeEvent(input$uploadButton, {
 # Change units
 observeEvent(input$showModalUnits, {
   if (!is.null(data$object)) {
-    show_change_unit_window(data)
+    trackeR:::show_change_unit_window(data)
 
   } else {
-    show_warning_window()
+    trackeR:::show_warning_window()
    }
 })
 observeEvent(input$updateUnits, {
-
-    data$object <- change_units(data, input, 'object')
-    data$summary <- change_units(data, input, 'summary')
+    data$object <- trackeR:::change_units(data, input, 'object')
+    data$summary <- trackeR:::change_units(data, input, 'summary')
     removeModal()
 })
 ##################################################################################
@@ -116,38 +115,38 @@ observeEvent(input$updateUnits, {
 ## Main page
 observeEvent({input$plotButton}, {
   if (is.null(data$object)) {
-    show_warning_window()
+    trackeR:::show_warning_window()
   }
   else {
     output$timeline_plot <- plotly::renderPlotly({
       if (!is.null(data$summary)) {
-        plot_timeline(data$summary[data$selectedSessions])
+        trackeR:::plot_timeline(data$summary[data$selectedSessions])
       }
     })
-    create_option_box()
-    create_summary_timeline_boxes()
+    trackeR:::create_option_box()
+    trackeR:::create_summary_timeline_boxes()
     shinyjs::addClass(selector = "body", class = "sidebar-collapse")
     ## DT
-    output$summary <- render_summary_table(data)
+    output$summary <- trackeR:::render_summary_table(data)
     # Re-render all plots
     removeUI(selector = ".main_plots", immediate = TRUE, multiple = TRUE)
-    create_map()
+    trackeR:::create_map()
     output$map <- leaflet::renderLeaflet({
 
-      shiny_plot_map(x = data$object, session = data$selectedSessions, sumX = data$summary)
+      trackeR:::shiny_plot_map(x = data$object, session = data$selectedSessions, sumX = data$summary)
     })
-    create_summary_boxes()
-    output$avgDistance_box <- render_summary_box('distance', 'Average distance', data)
-    output$avgDuration_box <- render_summary_box('duration', 'Average duration', data)
-    output$avgHeartRate_box <- render_summary_box('avgHeartRate', 'Average heart rate', data)
-    output$avgPace_box <- render_summary_box('avgPace', 'Average pace', data)
+    trackeR:::create_summary_boxes()
+    output$avgDistance_box <- trackeR:::render_summary_box('distance', 'Average distance', data)
+    output$avgDuration_box <- trackeR:::render_summary_box('duration', 'Average duration', data)
+    output$avgHeartRate_box <- trackeR:::render_summary_box('avgHeartRate', 'Average heart rate', data)
+    output$avgPace_box <- trackeR:::render_summary_box('avgPace', 'Average pace', data)
 
     for (i in input$metricsSelected) {
-      create_workout_plots(i)
+      trackeR:::create_workout_plots(i)
     }
     lapply(input$metricsSelected, function(i) {
         output[[paste0(i, '_plot')]] <- plotly::renderPlotly({
-          plot_workouts(sumX = data$summary, what = i)
+          trackeR:::plot_workouts(sumX = data$summary, what = i)
         })
     })
     output$cond <- reactive({
@@ -170,12 +169,12 @@ observeEvent(input$plotSelectedWorkouts, {
   })
 
   for (i in c("pace", "heart.rate", "altitude", "work_capacity","speed")) {
-    create_selected_workout_plot(id = i, data = data)
+    trackeR:::create_selected_workout_plot(id = i, data = data)
   }
 
   lapply(c("pace", "heart.rate", "altitude", "speed"), function(i) {
     output[[paste0(i, "_plot")]] <- plotly::renderPlotly({
-      plot_selectedWorkouts(x=data$object, session=data$selectedSessions, what=i, sumX=data$summary)
+      trackeR:::plot_selectedWorkouts(x=data$object, session=data$selectedSessions, what=i, sumX=data$summary)
     })
   })
 
@@ -183,15 +182,16 @@ observeEvent(input$plotSelectedWorkouts, {
     if (input$sportSelected == "cycling" & all(is.na(data$summary$avgPower)) == TRUE) {
       removeUI(selector = "#work_capacity_plot")
     } else {
-      plot_work_capacity(x=data$object, session=data$selectedSessions)
+      trackeR:::plot_work_capacity(x=data$object, session=data$selectedSessions)
     }
   })
 
-  create_zones_box(title='Time in Zones', inputId='zonesMetricsPlot',
+  trackeR:::create_zones_box(title='Time in Zones', inputId='zonesMetricsPlot',
              label='Select zone metrics to plot', plotId='zonesPlotUi',
              choices = metrics[have_data_metrics_selected()])
-  create_profiles_box(title='Concentration profiles', inputId='profileMetricsPlot',
-             label='Select profile metrics to plot', plotId='concentration_profiles', choices = metrics[have_data_metrics_selected()])
+  trackeR:::create_profiles_box(title='Concentration profiles', inputId='profileMetricsPlot',
+             label='Select profile metrics to plot', plotId='concentration_profiles',
+             choices = metrics[have_data_metrics_selected()])
 
 
   # update_metrics_to_plot_selected_workouts(id = 'zonesMetricsPlot', session, metrics, have_data_metrics_selected())
@@ -202,11 +202,11 @@ observeEvent(input$plotSelectedWorkouts, {
   output$zonesPlotUi <- renderUI({
     shiny::req(input$zonesMetricsPlot)
     shinycssloaders::withSpinner(plotly::plotlyOutput("zones_plot", width = "100%",
-                                                      height = calculate_plot_height(input$zonesMetricsPlot)), size = 2)
+                                                      height = trackeR:::calculate_plot_height(input$zonesMetricsPlot)), size = 2)
   })
   ## Render actual plot
   output$zones_plot <- plotly::renderPlotly({
-    plot_zones(x = data$object, session = data$selectedSessions, what = input$zonesMetricsPlot,
+    trackeR:::plot_zones(x = data$object, session = data$selectedSessions, what = input$zonesMetricsPlot,
                n_zones = as.numeric(input$n_zones))
   })
 
@@ -214,12 +214,13 @@ observeEvent(input$plotSelectedWorkouts, {
   output$concentration_profiles <- renderUI({
     shiny::req(input$profileMetricsPlot)
     shinycssloaders::withSpinner(plotly::plotlyOutput("conc_profiles_plots", width = "auto",
-                                                      height = calculate_plot_height(input$profileMetricsPlot)), size = 2)
+                                                      height = trackeR:::calculate_plot_height(input$profileMetricsPlot)), size = 2)
   })
 
   ## Render actual plot
   output$conc_profiles_plots <- plotly::renderPlotly({
-    plot_concentration_profiles(x = data$object, session = data$selectedSessions, what = input$profileMetricsPlot)
+
+    trackeR:::plot_concentration_profiles(x = data$object, session = data$selectedSessions, what = input$profileMetricsPlot)
   })
 }, once=TRUE)
 
