@@ -70,6 +70,10 @@ observeEvent(input$uploadButton, {
     data$object <- sort(unique(c.trackeRdata(processed_data, raw_data)), decreasing = FALSE)
     # Create trackeRdataSummary object
     data$summary <- summary(data$object)
+    data$object <- threshold(data$object)
+    data$object <- threshold(data$object, variable = 'distance', lower = 0, upper = 1000000)
+    # Create trackeRdataSummary object
+    data$summary <- summary(data$object, movingThreshold = 0.4)
     # Test if data in each element of trackeRdataSummary object
     data$hasData <- lapply(data$summary, function(session_summaries) {
       !all(is.na(session_summaries) | session_summaries == 0)
