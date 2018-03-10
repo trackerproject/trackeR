@@ -71,7 +71,7 @@ observeEvent(input$uploadButton, {
     # Create trackeRdataSummary object
     data$summary <- summary(data$object)
     data$object <- threshold(data$object)
-    data$object <- threshold(data$object, variable = 'distance', lower = 0, upper = 1000000)
+    data$object <- threshold(data$object, variable = 'distance', lower = 0, upper = 500000)
     # Create trackeRdataSummary object
     data$summary <- summary(data$object, movingThreshold = 0.4)
     # Test if data in each element of trackeRdataSummary object

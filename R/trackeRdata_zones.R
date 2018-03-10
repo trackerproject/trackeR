@@ -42,8 +42,8 @@ zones <- function(object, session = NULL, what = c("speed", "heart.rate"), break
             round_table <- list('1' = 5, '2' = 5, '3' = 10, '4' = 100,
                                 '5' = 10000, '6' = 100000)
             maximum <- ceiling(maximum/round_table[[range_size]]) * round_table[[range_size]]
-            step_size <- round((maximum - minimum) / (n_zones + 1), 1)
-            break_points <- seq(minimum, maximum, by = step_size)
+            step_size <- round((maximum - minimum) / (n_zones), 1)
+            break_points <- seq(minimum, minimum + n_zones * step_size, by = step_size)
             break_points
         }
 
