@@ -1,4 +1,4 @@
-#' A timeline plot for workouts
+#' A timeline plot for workouts.
 #'
 #' @param sumX An object of class \code{trackeRdataSummary}.
 #' @param plotly Logical. Return plotly plots or standard TrackeR plots
@@ -20,7 +20,7 @@ plot_timeline <- function(sumX, lims=NULL, shiny=TRUE, plotly=TRUE) {
     if (!is.null(lims)) {
       lims <- as.POSIXct(paste(Sys.Date(), lims))
     }
-    
+
     key <- df$session
     p <- ggplot2::ggplot(df, ggplot2::aes(key=key)) +
       ggplot2::geom_point(ggplot2::aes(x = start, y = sday), alpha=0) +

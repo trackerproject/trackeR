@@ -7,7 +7,7 @@
 #' @param threshold Logical. Should thresholds be applied?
 #' @param shiny_version Logical. Whether plot shiny version of map or TrackeR version.
 #'
-shiny_plot_map <- function(x, sumX, session = NULL, threshold = TRUE, shiny_version = TRUE, ...){
+plot_map <- function(x, sumX, session = NULL, threshold = TRUE, shiny_version = TRUE, ...){
     if (is.null(session)) session <- seq_along(x)
     ## get prepared data.frame
     df <- prepRoute(x, session = session, threshold = threshold, ...)

@@ -67,7 +67,7 @@ create_workout_plots <- function(i) {
 }
 
 #' Create selected_workouts plot
-create_selected_workout_plot <- function(id, data) {
+create_selected_workout_plot <- function(id) {
   insertUI(
     selector = ".content",
     where = "beforeEnd",
@@ -90,11 +90,7 @@ create_selected_workout_plot <- function(id, data) {
           ),
           div(
             style = "overflow-x: scroll",
-            plotly::plotlyOutput(paste0(id, "_plot"), width = if (length(data$selectedSessions) > 2) {
-              paste0(toString(500 * length(as.vector(data$selectedSessions))), "px")
-            } else {
-              "auto"
-            } , height = "250px")
+            uiOutput(paste0(id, "_plot"))
           )
         )
       ))
@@ -233,5 +229,84 @@ create_summary_timeline_boxes <- function() {
                         )
                        )
            )
+}
+
+#' Generate a modal window where user can chage units of measurement.
+#'
+#' @param data An object of class \code{reactivevalues}.
+show_change_unit_window <- function(data) {
+  showModal(modalDialog(
+    title = "Change units",
+    radioButtons(
+      "altitudeUnits", "Altitude:",
+      c(
+        "m" = "m",
+        "km" = "km",
+        "mi" = "mi",
+        "ft" = "ft"
+      ), inline = TRUE,
+      selected = get_selected_units('altitude', data)
+    ),
+    radioButtons(
+      "distanceUnits", "Distance:",
+      c(
+        "m" = "m",
+        "km" = "km",
+        "mi" = "mi",
+        "ft" = "ft"
+      ), inline = TRUE,
+      selected = get_selected_units('distance', data)
+    ),
+    radioButtons(
+      "speedUnits", "Speed:",
+      c(
+        "m/s" = "m_per_s",
+        "km/h" = "km_per_h",
+        "ft/min" = "ft_per_min",
+        "ft/s" = "ft_per_s",
+        "mi/h" = "mi_per_h"
+      ), inline = TRUE,
+      selected = get_selected_units('speed', data)
+    ),
+    radioButtons(
+      "cadenceUnits", "Cadence:",
+      c(
+        "steps/min" = "steps_per_min",
+        "revolutions/min" = "rev_per_min"
+      ), inline = TRUE,
+      selected = get_selected_units('cadence', data)
+    ),
+    radioButtons(
+      "powerUnits", "Power:",
+      c(
+        "W" = "W",
+        "kW" = "kW"
+      ), inline = TRUE,
+      selected = get_selected_units('power', data)
+    ),
+    radioButtons(
+      "paceUnits", "Pace:",
+      c(
+        "min/km" = "min_per_km",
+        "min/mi" = "min_per_mi",
+        "s/min" = "s_per_m"
+      ), inline = TRUE,
+      selected = get_selected_units('pace', data)
+    ),
+    radioButtons(
+      "durationUnits", "Duration:",
+      c(
+        "seconds" = "s",
+        "minutes" = "min",
+        "hours" = "h"
+      ), inline = TRUE,
+      selected = get_selected_units('duration', data)
+    ),
+    footer = tagList(
+      modalButton("Cancel"),
+      actionButton("updateUnits", "Apply")
+    )
+  )
+  )
 }
 
