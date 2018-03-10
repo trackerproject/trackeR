@@ -1,8 +1,8 @@
 server <- function(input, output, session) {
 # Main object where all data is stored
 data <- reactiveValues(summary=NULL, object=NULL, selectedSessions=NULL, hasData=NULL)
-choices <- choices()
-metrics <- metrics()
+choices <- trackeR:::choices()
+metrics <- trackeR:::metrics()
 ##################################################################################
 # Get path to files
 ## Directory
@@ -79,9 +79,9 @@ observeEvent(input$uploadButton, {
       !all(is.na(session_summaries) | session_summaries == 0)
     })
 
-      trackeR:::update_metrics_to_plot_workouts(session, choices, data$hasData)
-      output$download_data <- trackeR:::download_handler(data)
-      shinyjs::disable(selector = "#uploadButton")
+    trackeR:::update_metrics_to_plot_workouts(session, choices, data$hasData)
+    output$download_data <- trackeR:::download_handler(data)
+    shinyjs::disable(selector = "#uploadButton")
   }
   data$selectedSessions <- data$summary$session
 })
