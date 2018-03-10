@@ -1,3 +1,5 @@
+options(shiny.maxRequestSize=30*1024^3)
+
 server <- function(input, output, session) {
 # Main object where all data is stored
 data <- reactiveValues(summary=NULL, object=NULL, selectedSessions=NULL, hasData=NULL)
@@ -6,42 +8,46 @@ metrics <- metrics()
 ##################################################################################
 # Get path to files
 ## Directory
-shinyFiles::shinyDirChoose(
-  input, "rawDataDirectory", roots = c(home = "~"),
-  filetypes = c("gpx", "tcx", "db3", "json")
-)
-rawDataDirectory <- reactive({
-  input$rawDataDirectory
-})
-raw_data_path <- reactive({
-  home <- normalizePath("~")
-  file.path(home, paste(
-    unlist(rawDataDirectory()$path[-1]),
-    collapse = .Platform$file.sep
-  ))
-})
-## Processed data
-shinyFiles::shinyFileChoose(
-  input, "processedDataPath", roots = c(home = "~"),
-  filetypes = c("rds", "rdata", "rda")
-)
-processed_data_file <- reactive({
-  input$processedDataPath
-})
-processedDataPath <- reactive({
-  home <- normalizePath("~")
-  file.path(home, paste(
-    unlist(processed_data_file()$files)[-1],
-    collapse = .Platform$file.sep
-  ))
-})
+# shinyFiles::shinyDirChoose(
+#   input, "rawDataDirectory", roots = c(home = "~"),
+#   filetypes = c("gpx", "tcx", "db3", "json")
+# )
+# rawDataDirectory <- reactive({
+#   input$rawDataDirectory
+# })
+# raw_data_path <- reactive({
+#   input$rawDataDirectory$datapath
+#   # home <- normalizePath("~")
+#   # file.path(home, paste(
+#   #   unlist(rawDataDirectory()$path[-1]),
+#   #   collapse = .Platform$file.sep
+#   # ))
+# })
+# ## Processed data
+# shinyFiles::shinyFileChoose(
+#   input, "processedDataPath", roots = c(home = "~"),
+#   filetypes = c("rds", "rdata", "rda")
+# )
+# processed_data_file <- reactive({
+#   input$processedDataPath
+# })
+# processedDataPath <- reactive({
+#   input$processedDataPath$datapath
+#   home <- normalizePath("~")
+#   # file.path(home, paste(
+#   #   unlist(processed_data_file()$files)[-1],
+#   #   collapse = .Platform$file.sep
+#   # ))
+# })
 ## Home
 home <- paste0(normalizePath("~"), "/")
 ##################################################################################
 # Upload and process data
 observeEvent(input$uploadButton, {
+  
   # data$isCycling <- input$sportSelected == "cycling"
-  if ((raw_data_path() == home) & (processedDataPath() == home)) {
+  # if ((raw_data_path() == home) & (processedDataPath() == home)) {
+  if ((is.null(input$rawDataDirectory$datapath)) & (is.null(input$processedDataPath$datapath))) {
     showModal(modalDialog(
       title = "trackeR dashboard message",
       div(tags$b(
@@ -51,33 +57,35 @@ observeEvent(input$uploadButton, {
       easyClose = TRUE,
       size = "s"
     ))
-  }
-  else {
-    processed_data <- raw_data <- NULL
-    if (processedDataPath() != home) {
-      processed_data <- readRDS(processedDataPath())
-    }
-    if (raw_data_path() != home) {
-      raw_data <- callModule(
-        module = readDirectory_shiny,
-        id = "datafile",
-        directory = raw_data_path(),
-        timezone = "GMT", cycling = input$sportSelected == "cycling",
-        correctDistances = FALSE
-      )
-    }
-    # Remove duplicate sessions and create trackeRdata object
-    data$object <- sort(unique(c.trackeRdata(processed_data, raw_data)), decreasing = FALSE)
-    # Create trackeRdataSummary object
-    data$summary <- summary(data$object)
-    # Test if data in each element of trackeRdataSummary object
-    data$hasData <- lapply(data$summary, function(session_summaries) {
-      !all(is.na(session_summaries) | session_summaries == 0)
-    })
+  } else {
+      processed_data <- raw_data <- NULL
+      # if (processedDataPath() != home) {
+      if (!is.null(input$processedDataPath$datapath)) {
+        processed_data <- readRDS(input$processedDataPath$datapath)
+      }
+      if (!is.null(input$rawDataDirectory$datapath)) {
+        raw_data <- callModule(
+          module = readDirectory_shiny,
+          id = "datafile",
+          directory = input$rawDataDirectory$datapath,
+          timezone = "GMT", cycling = input$sportSelected == "cycling",
+          correctDistances = FALSE
+        )
+      }
+      # Remove duplicate sessions and create trackeRdata object
+      data$object <- sort(unique(c.trackeRdata(processed_data, raw_data)), decreasing = FALSE)
+      data$object <- threshold(data$object)
+      data$object <- threshold(data$object, variable = 'distance', lower = 0, upper = 1000000)
+      # Create trackeRdataSummary object
+      data$summary <- summary(data$object, movingThreshold = 0.4)
+      # Test if data in each element of trackeRdataSummary object
+      data$hasData <- lapply(data$summary, function(session_summaries) {
+        !all(is.na(session_summaries) | session_summaries == 0)
+      })
 
-    update_metrics_to_plot_workouts(session, choices, data$hasData)
-    output$download_data <- download_handler(data)
-    shinyjs::disable(selector = "#uploadButton")
+      update_metrics_to_plot_workouts(session, choices, data$hasData)
+      output$download_data <- download_handler(data)
+      shinyjs::disable(selector = "#uploadButton")
   }
   data$selectedSessions <- data$summary$session
 })
@@ -187,7 +195,8 @@ observeEvent(input$plotSelectedWorkouts, {
              label='Select zone metrics to plot', plotId='zonesPlotUi',
              choices = metrics[have_data_metrics_selected()])
   create_profiles_box(title='Concentration profiles', inputId='profileMetricsPlot',
-             label='Select profile metrics to plot', plotId='concentration_profiles', choices = metrics[have_data_metrics_selected()])
+             label='Select profile metrics to plot', plotId='concentration_profiles',
+             choices = metrics[have_data_metrics_selected()])
 
 
   # update_metrics_to_plot_selected_workouts(id = 'zonesMetricsPlot', session, metrics, have_data_metrics_selected())
@@ -215,6 +224,7 @@ observeEvent(input$plotSelectedWorkouts, {
 
   ## Render actual plot
   output$conc_profiles_plots <- plotly::renderPlotly({
+
     plot_concentration_profiles(x = data$object, session = data$selectedSessions, what = input$profileMetricsPlot)
   })
 }, once=TRUE)

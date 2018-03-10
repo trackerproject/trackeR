@@ -93,85 +93,6 @@ get_selected_units <- function(feature, data) {
   getUnits(data$summary)$unit[getUnits(data$summary)$variable %in% feature]
 }
 
-#' Generate a modal window where user can chage units of measurement.
-#'
-#' @param data An object of class \code{reactivevalues}.
-show_change_unit_window <- function(data) {
-  showModal(modalDialog(
-    title = "Change units",
-    radioButtons(
-      "altitudeUnits", "Altitude:",
-      c(
-        "m" = "m",
-        "km" = "km",
-        "mi" = "mi",
-        "ft" = "ft"
-      ), inline = TRUE,
-      selected = get_selected_units('altitude', data)
-    ),
-    radioButtons(
-      "distanceUnits", "Distance:",
-      c(
-        "m" = "m",
-        "km" = "km",
-        "mi" = "mi",
-        "ft" = "ft"
-      ), inline = TRUE,
-      selected = get_selected_units('distance', data)
-    ),
-    radioButtons(
-      "speedUnits", "Speed:",
-      c(
-        "m/s" = "m_per_s",
-        "km/h" = "km_per_h",
-        "ft/min" = "ft_per_min",
-        "ft/s" = "ft_per_s",
-        "mi/h" = "mi_per_h"
-      ), inline = TRUE,
-      selected = get_selected_units('speed', data)
-    ),
-    radioButtons(
-      "cadenceUnits", "Cadence:",
-      c(
-        "steps/min" = "steps_per_min",
-        "revolutions/min" = "rev_per_min"
-      ), inline = TRUE,
-      selected = get_selected_units('cadence', data)
-    ),
-    radioButtons(
-      "powerUnits", "Power:",
-      c(
-        "W" = "W",
-        "kW" = "kW"
-      ), inline = TRUE,
-      selected = get_selected_units('power', data)
-    ),
-    radioButtons(
-      "paceUnits", "Pace:",
-      c(
-        "min/km" = "min_per_km",
-        "min/mi" = "min_per_mi",
-        "s/min" = "s_per_m"
-      ), inline = TRUE,
-      selected = get_selected_units('pace', data)
-    ),
-    radioButtons(
-      "durationUnits", "Duration:",
-      c(
-        "seconds" = "s",
-        "minutes" = "min",
-        "hours" = "h"
-      ), inline = TRUE,
-      selected = get_selected_units('duration', data)
-    ),
-    footer = tagList(
-      modalButton("Cancel"),
-      actionButton("updateUnits", "Apply")
-    )
-  )
-  )
-}
-
 #' Change units of variables.
 #'
 #' @param data An object of class \code{reactivevalues}.
@@ -252,18 +173,6 @@ download_handler <- function(data) {
     )
 }
 
-#' Show warning window when no data uploaded
-show_warning_window <- function() {
-  showModal(modalDialog(
-  title = "trackeR dashboard message",
-  div(tags$b(
-    "Load processed and/or raw data",
-    class = "warningMessage"
-  )),
-  easyClose = TRUE,
-  size = "s"
-  ))
-}
 
 #' Calculate plot height for either time in zones or work capacity
 calculate_plot_height <- function(metrics) {
