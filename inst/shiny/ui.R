@@ -25,21 +25,13 @@ ui <- shinydashboard::dashboardPage(
       )),
       div(
         class = "form-group shiny-input-container", id = "processed_path",
-      # Input: Select a file ----
         tags$label("Processed data file"),
-        fileInput("processedDataPath", "Choose File",
-                  multiple = FALSE,
-                  accept = c(".rds", ".rdata", ".rda"))
-
-        # div(class = "input-group", shinyFiles::shinyFilesButton("processedDataPath", "Select file...", "Select processed data file", multiple = FALSE))
+        div(class = "input-group", shinyFiles::shinyFilesButton("processedDataPath", "Select file...", "Select processed data file", multiple = FALSE))
       ),
       div(
         class = "form-group shiny-input-container", id = "raw_directory",
         tags$label("New raw data directory"),
-        fileInput("rawDataDirectory", "Choose Directory",
-                  multiple = TRUE,
-                  accept = c("gpx", "tcx", "db3", "json"))
-        # div(class = "input-group", shinyFiles::shinyDirButton("rawDataDirectory", "Select directory...", "Select new raw data directory"))
+        div(class = "input-group", shinyFiles::shinyDirButton("rawDataDirectory", "Select directory...", "Select new raw data directory"))
       ),
       actionButton("uploadButton", "Load data", icon("upload"), style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"),
       hr(),
@@ -89,4 +81,3 @@ ui <- shinydashboard::dashboardPage(
     shinyjs::extendShinyjs(text = jscode)
   )
 )
-
