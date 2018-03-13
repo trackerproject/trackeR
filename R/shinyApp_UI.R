@@ -184,6 +184,7 @@ create_option_box <- function() {
            ui = fluidRow(shinydashboard::box(
                                             status = "primary",
                                             width = "12",
+                                            class = "main_plots",
                                             collapsible = TRUE,
                                             title = tagList('Options'),
                                             conditionalPanel(

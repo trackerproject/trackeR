@@ -82,8 +82,8 @@ observeEvent(input$uploadButton, {
     update_metrics_to_plot_workouts(session, choices, data$hasData)
     output$download_data <- download_handler(data)
     shinyjs::disable(selector = "#uploadButton")
+    data$selectedSessions <- data$summary$session
   }
-  data$selectedSessions <- data$summary$session
 })
 ##################################################################################
 # Change units
