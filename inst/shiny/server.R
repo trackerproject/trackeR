@@ -123,13 +123,13 @@ observeEvent({input$plotButton}, {
         plot_timeline(data$summary[data$selectedSessions])
       }
     })
+    # Re-render all plots
+    removeUI(selector = ".main_plots", immediate = TRUE, multiple = TRUE)
     create_option_box()
     create_summary_timeline_boxes()
     shinyjs::addClass(selector = "body", class = "sidebar-collapse")
     ## DT
     output$summary <- render_summary_table(data)
-    # Re-render all plots
-    removeUI(selector = ".main_plots", immediate = TRUE, multiple = TRUE)
     create_map()
     output$map <- leaflet::renderLeaflet({
       plot_map(x = data$object, session = data$selectedSessions, sumX = data$summary)

@@ -181,10 +181,9 @@ create_option_box <- function() {
   insertUI(
            selector = ".content",
            where = "afterBegin",
-           ui = fluidRow(shinydashboard::box(
+           ui = div(class = "main_plots", fluidRow(shinydashboard::box(
                                             status = "primary",
                                             width = "12",
-                                            class = "main_plots",
                                             collapsible = TRUE,
                                             title = tagList('Options'),
                                             conditionalPanel(
@@ -200,7 +199,7 @@ create_option_box <- function() {
                                                   style = "color: #fff; background-color: #4FBF85; border-color: #00AB66"
                                                   ))
 
-                                 )))
+                                 ))))
 
 }
 
@@ -210,7 +209,7 @@ create_summary_timeline_boxes <- function() {
   insertUI(
            selector=".content",
            where="beforeEnd",
-           ui=fluidRow(
+           ui=div(class = "main_plots", fluidRow(
                         shinydashboard::box(
                           id = 'summary_box',
                           status = "primary",
@@ -228,7 +227,7 @@ create_summary_timeline_boxes <- function() {
                           title = tagList(shiny::icon("calendar", lib = "glyphicon"), "Workout Timeline"),
                           plotly::plotlyOutput("timeline_plot", height = "365px")
                         )
-                       )
+                       ))
            )
 }
 
