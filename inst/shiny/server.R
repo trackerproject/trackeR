@@ -78,13 +78,21 @@ observeEvent(input$uploadButton, {
     data$hasData <- lapply(data$summary, function(session_summaries) {
       !all(is.na(session_summaries) | session_summaries == 0)
     })
-
+##############################
+    # load data for sport classification
+    data(sport_classification)
+    data$summary <- changeUnits(data$summary, variable = c("distance", 'pace'),
+                                                     unit = c("km", 'min_per_km'))
+    data$classification <- class::knn(sport_classification[,c(1,2)], cbind(data$summary$distance, data$summary$avgPaceMoving), sport_classification[,3], k=3)
+ 
+##########################
     update_metrics_to_plot_workouts(session, choices, data$hasData)
     output$download_data <- download_handler(data)
     shinyjs::disable(selector = "#uploadButton")
     data$selectedSessions <- data$summary$session
   }
 })
+
 ##################################################################################
 # Change units
 observeEvent(input$showModalUnits, {
@@ -125,11 +133,16 @@ observeEvent({input$plotButton}, {
     })
     # Re-render all plots
     removeUI(selector = ".main_plots", immediate = TRUE, multiple = TRUE)
-    create_option_box()
+    sports_options <- c("Running" = "running",
+                        "Cycling" = "cycling",
+                        "Swimming" = "swimming")
+    create_option_box(sport_options = sports_options[sapply(sports_options, function(x)
+      { x %in% unique(data$classification) })])
+
     create_summary_timeline_boxes()
     shinyjs::addClass(selector = "body", class = "sidebar-collapse")
     ## DT
-    output$summary <- render_summary_table(data)
+    output$summary <- render_summary_table(data, input)
     create_map()
     output$map <- leaflet::renderLeaflet({
       plot_map(x = data$object, session = data$selectedSessions, sumX = data$summary)
@@ -145,7 +158,8 @@ observeEvent({input$plotButton}, {
     }
     lapply(input$metricsSelected, function(i) {
         output[[paste0(i, '_plot')]] <- plotly::renderPlotly({
-          plot_workouts(sumX = data$summary, what = i)
+          selected_sports <- data$summary$session[data$classification %in% input$sports]
+          plot_workouts(sumX = data$summary[selected_sports], what = i)
         })
     })
     output$cond <- reactive({

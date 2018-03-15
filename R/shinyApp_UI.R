@@ -177,15 +177,16 @@ create_zones_box <- function(title, inputId, label, plotId, choices) {
 }
 
 #' Create a return button from selected workouts plot
-create_option_box <- function() {
+create_option_box <- function(sport_options) {
   insertUI(
            selector = ".content",
            where = "afterBegin",
            ui = div(class = "main_plots", fluidRow(shinydashboard::box(
                                             status = "primary",
-                                            width = "12",
+                                            width = 3,
                                             collapsible = TRUE,
                                             title = tagList('Options'),
+
                                             conditionalPanel(
                                                 condition = "output.cond == false",
                                                  actionButton(
@@ -198,10 +199,23 @@ create_option_box <- function() {
                                                   "plotSelectedWorkouts", "Plot Selected workouts",
                                                   style = "color: #fff; background-color: #4FBF85; border-color: #00AB66"
                                                   ))
+                                          ),
+           shinydashboard::box(
+                               status = 'primary',
+                               width = 3,
+                               collapsible = TRUE,
+                               title = tagList('Classified sports'),
+                                        selectizeInput(
+                                        "sports", "Select from identified sports", multiple = TRUE,
+                                        choices = sport_options,
+                                        selected = sport_options)
+                                        )
 
-                                 ))))
+
+                                 )))
 
 }
+
 
 #' Create a summary and timeline boxes
 #'

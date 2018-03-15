@@ -26,16 +26,17 @@ render_summary_box <- function(short_name, long_name, data) {
 }
 
 #' Render summary table
-render_summary_table <- function(data) {
+render_summary_table <- function(data, input) {
   DT::renderDataTable({
+      sessions_by_sport <- data$summary$session[data$classification %in% input$sports]
       data$hover <- plotly::event_data("plotly_selected")
       if (!is.null(data$summary)) {
         if (is.null(data$hover) | length(data$hover) == 0) {
-          data$selectedSessions <- data$summary$session
+          data$selectedSessions <- intersect(data$summary$session, sessions_by_sport)
         }
         else {
           # data$selectedSessions <- data$summary$session[na.omit(as.numeric(data$hover$key))]
-          data$selectedSessions <- na.omit(as.numeric(data$hover$key))
+          data$selectedSessions <- intersect(na.omit(as.numeric(data$hover$key)), sessions_by_sport)
         }
         dataSelected <- data.frame(
           "Session" = data$summary[data$selectedSessions][["session"]],
