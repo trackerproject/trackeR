@@ -84,7 +84,7 @@ observeEvent(input$uploadButton, {
     data$summary <- changeUnits(data$summary, variable = c("distance", 'pace'),
                                                      unit = c("km", 'min_per_km'))
     data$classification <- class::knn(sport_classification[,c(1,2)], cbind(data$summary$distance, data$summary$avgPaceMoving), sport_classification[,3], k=3)
- 
+
 ##########################
     update_metrics_to_plot_workouts(session, choices, data$hasData)
     output$download_data <- download_handler(data)
@@ -158,7 +158,12 @@ observeEvent({input$plotButton}, {
     }
     lapply(input$metricsSelected, function(i) {
         output[[paste0(i, '_plot')]] <- plotly::renderPlotly({
-          selected_sports <- data$summary$session[data$classification %in% input$sports]
+          if(!is.null(input$sports)){
+            selected_sports <- data$summary$session[data$classification %in% input$sports]
+          } else {
+            selected_sports <- data$summary$session
+          }
+
           plot_workouts(sumX = data$summary[selected_sports], what = i)
         })
     })

@@ -28,7 +28,12 @@ render_summary_box <- function(short_name, long_name, data) {
 #' Render summary table
 render_summary_table <- function(data, input) {
   DT::renderDataTable({
-      sessions_by_sport <- data$summary$session[data$classification %in% input$sports]
+      if(!is.null(input$sports)){
+        sessions_by_sport <- data$summary$session[data$classification %in% input$sports]
+      } else {
+        sessions_by_sport <- data$summary$session
+      }
+
       data$hover <- plotly::event_data("plotly_selected")
       if (!is.null(data$summary)) {
         if (is.null(data$hover) | length(data$hover) == 0) {
