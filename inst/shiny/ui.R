@@ -47,7 +47,8 @@ ui <- shinydashboard::dashboardPage(
             "Average power" = "avgPower",
             "Average heart rate" = "avgHeartRate",
             "Work to rest ratio" = "wrRatio"
-          )
+          ),
+          selected = c('avgSpeed', 'distance')
         ),
         ## In color: qualitative, set 2 form choose_palette(gui = "shiny")
         ## Out color: qualitative, even darker form choose_palette(gui = "shiny")

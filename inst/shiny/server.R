@@ -90,6 +90,8 @@ observeEvent(input$uploadButton, {
     output$download_data <- download_handler(data)
     shinyjs::disable(selector = "#uploadButton")
     data$selectedSessions <- data$summary$session
+
+    shinyjs::click("plotButton")
   }
 })
 
@@ -186,10 +188,12 @@ observeEvent(input$plotSelectedWorkouts, {
   })
   })
 
-  for (i in c("pace", "heart.rate", "altitude", "work_capacity","speed")) {
-    create_selected_workout_plot(id = i)
+  for (i in c("pace", "heart.rate")) {
+    create_selected_workout_plot(id = i, collapsed = FALSE)
   }
-
+  for (i in c("altitude", "work_capacity","speed")) {
+    create_selected_workout_plot(id = i, collapsed = TRUE)
+  }
   lapply(c("pace", "heart.rate", "altitude", "speed", "work_capacity"), function(i) {
     ## Render UI for time in zones plot
     output[[paste0(i, "_plot")]] <- renderUI({

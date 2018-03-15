@@ -67,7 +67,7 @@ create_workout_plots <- function(i) {
 }
 
 #' Create selected_workouts plot
-create_selected_workout_plot <- function(id) {
+create_selected_workout_plot <- function(id, collapsed = FALSE) {
   insertUI(
     selector = ".content",
     where = "beforeEnd",
@@ -79,6 +79,7 @@ create_selected_workout_plot <- function(id) {
           width = 12,
           # height = "350px",
           collapsible = TRUE,
+          collapsed = collapsed,
           title = tagList(
             shiny::icon("gear"),
             switch(id, "pace" = paste0("Pace"),
