@@ -45,7 +45,7 @@ plot_timeline <- function(sumX, lims=NULL, shiny=TRUE, plotly=TRUE) {
     p <- p + ggplot2::scale_x_datetime(date_labels = "%H", date_breaks = "1 hour")
     p <- p + ggplot2::scale_y_datetime(date_labels = "%d %b", date_breaks = paste(date_breaks, 'days'))
     p <- p + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1)) +
-          ggplot2::xlab("Time") + ggplot2::ylab("Date")
+          ggplot2::xlab("Time") + ggplot2::ylab("")
     p <- p + ggplot2::theme_bw()
     p <- plotly::ggplotly(p, tooltip = c("text"))
     p <- plotly::layout(p, dragmode = "select")
