@@ -11,9 +11,11 @@
 #' @param plotly Logical. Whether return plotly plots or standard TrackeR plot.
 #' @param changepoints Logical. Whether changepoints should be identified and plotted.
 #' @param Q Numeric. The maximum number of changepoints to be considered (when changepoints = TRUE).
+#' @param print_changepoints Logical. Whether or not to print changepoint values (when changepoints = TRUE).
 
 plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smooth = FALSE, trend = TRUE, dates = TRUE,
-                                  plotly = TRUE, changepoints = FALSE, n_changepoints = 6, ...) {
+                                  plotly = TRUE, changepoints = FALSE, n_changepoints = 6,
+                                  print_changepoints = FALSE, ...) {
 
   if (plotly) {
     var_name_units <- lab_sum(feature = what, data = sumX,
@@ -140,12 +142,17 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
           # m.binseg <- changepoint::cpt.mean(df_subset$Value, method = "BinSeg",
           #                      penalty = 'Manual', pen.value = '700 * log(n)',
           #                      minseglen = length(df_subset$Value) / 100, Q = n_changepoints)
-          m.binseg <- changepoint::cpt.mean(df_subset$Value, method = "BinSeg",
+          n_sessions <- length(df_subset$Value) - 5
+          m.binseg <- changepoint::cpt.mean(df_subset$Value[6:n_sessions], method = "BinSeg",
                                penalty = 'BIC',
                                minseglen = length(df_subset$Value) / 100, Q = n_changepoints)
-          x_values <- c(1, changepoint::cpts(m.binseg), length(df_subset$Value))
+          x_values <- c(1, changepoint::cpts(m.binseg) + 5, length(df_subset$Value))
           y_values <- changepoint::coef(m.binseg)$mean
 
+          if(print_changepoints) {
+            print(df_subset$Index[changepoint::cpts(m.binseg)])
+            print(changepoint::coef(m.binseg))
+          }
           # initiate a line shape object
           line <- list(
             type = "line",

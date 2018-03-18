@@ -78,16 +78,23 @@ observeEvent(input$uploadButton, {
     data$hasData <- lapply(data$summary, function(session_summaries) {
       !all(is.na(session_summaries) | session_summaries == 0)
     })
+    
 ##############################
     # load data for sport classification
     data(sport_classification_train)
     data$summary <- trackeR::changeUnits(data$summary, variable = c("distance", 'pace', 'duration'),
                                 unit = c("km", 'min_per_km', 'h'))
-    scaled_df <- scale(sport_classification_train[,c('avgPaceMoving','distance')], center=FALSE, scale=TRUE)
-    distance_parameter <- attr(scaled_df, 'scaled:scale')['distance']
-    pace_parameter <- attr(scaled_df, 'scaled:scale')['avgPaceMoving']
-    test_df <- data.frame(distance = data$summary$distance / distance_parameter, avgPaceMoving = data$summary$avgPaceMoving / pace_parameter)
-    data$classification <- class::knn(scaled_df, test_df, sport_classification_train[,'sport'], k=5)
+    n_train <- nrow(sport_classification_train)
+    merged_df <- rbind(sport_classification_train[,c('avgPaceMoving','distance')],
+                       data.frame(avgPaceMoving = data$summary$avgPaceMoving,
+                                  distance = data$summary$distance))
+    merged_df <- scale(merged_df)
+    # scaled_df <- scale(sport_classification_train[,c('avgPaceMoving','distance')], center=FALSE, scale=TRUE)
+    # distance_parameter <- attr(scaled_df, 'scaled:scale')['distance']
+    # pace_parameter <- attr(scaled_df, 'scaled:scale')['avgPaceMoving']
+    # test_df <- data.frame(distance = data$summary$distance / distance_parameter, avgPaceMoving = data$summary$avgPaceMoving / pace_parameter)
+    data$classification <- class::knn(
+      merged_df[1:n_train,], merged_df[(n_train + 1):nrow(merged_df),], sport_classification_train[,'sport'], k=5)
 
 ##########################
     update_metrics_to_plot_workouts(session, choices, data$hasData)
@@ -141,7 +148,8 @@ observeEvent({input$plotButton}, {
     removeUI(selector = ".main_plots", immediate = TRUE, multiple = TRUE)
     sports_options <- c("Running" = "running",
                         "Cycling" = "cycling",
-                        "Swimming" = "swimming")
+                        "Swimming" = "swimming",
+                        "Triathlon" = 'triathlon')
     create_option_box(sport_options = sports_options[sapply(sports_options, function(x)
       { x %in% unique(data$classification) })])
 
