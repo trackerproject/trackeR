@@ -86,6 +86,71 @@ create_selected_workout_plot <- function(id, collapsed = FALSE) {
               "heart.rate" = paste0("Heart Rate"),
               "altitude" = paste0("Altitude"),
               "work_capacity" = paste0("Work Capacity"),
+              "speed" = paste0("Speed"),
+              'cadence' = paste0('Cadence')
+            )
+          ),
+          fluidRow(
+          column(3,
+          div(
+            class = "form-group shiny-input-container", id = "processed_path",
+            tags$label("Press button to detect changepoints:"),
+            div(class = "input-group", actionButton(paste0('detect_changepoints', id),
+                       label = 'Detect changepoints'))
+          )
+          ), column(3,
+          selectizeInput(
+            inputId = paste0('n_changepoints', id),
+            label = 'Maximum number of changepoints:',
+            multiple = FALSE,
+            choices = c(
+                        '1' = 1,
+                        '2' = 2,
+                        '3' = 3,
+                        '4' = 4,
+                        '5' = 5,
+                        '6' = 6,
+                        '7' = 7,
+                        '8' = 8,
+                        '9' = 9,
+                        '10' = 10,
+                        '11' = 11,
+                        '12' = 12
+                        ),
+            selected = '4'
+          )
+          )),
+          hr(),
+          div(
+            style = "overflow-x: scroll",
+            uiOutput(paste0(id, "_plot"))
+          )
+        )
+      ))
+    )
+  )
+}
+
+#' Create work capacity plot
+create_work_capacity_plot <- function(id, collapsed = FALSE) {
+  insertUI(
+    selector = ".content",
+    where = "beforeEnd",
+    ui = conditionalPanel(
+      condition = "output.cond == false",
+      div(class = "plots", id = id, fluidRow(
+        shinydashboard::box(
+          status = "primary",
+          width = 12,
+          # height = "350px",
+          collapsible = TRUE,
+          collapsed = collapsed,
+          title = tagList(
+            shiny::icon("gear"),
+            switch(id, "pace" = paste0("Pace"),
+              "heart.rate" = paste0("Heart Rate"),
+              "altitude" = paste0("Altitude"),
+              "work_capacity" = paste0("Work Capacity"),
               "speed" = paste0("Speed")
             )
           ),
@@ -147,7 +212,7 @@ create_zones_box <- function(title, inputId, label, plotId, choices) {
           collapsible = TRUE,
           title = tagList(shiny::icon("gear"), title),
           fluidRow(
-          column(3, selectizeInput(
+          column(2, selectizeInput(
             inputId = inputId,
             label = paste0(label, ':'),
             multiple = TRUE,

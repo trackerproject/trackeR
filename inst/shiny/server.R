@@ -80,10 +80,14 @@ observeEvent(input$uploadButton, {
     })
 ##############################
     # load data for sport classification
-    data(sport_classification)
-    data$summary <- changeUnits(data$summary, variable = c("distance", 'pace'),
-                                                     unit = c("km", 'min_per_km'))
-    data$classification <- class::knn(sport_classification[,c(1,2)], cbind(data$summary$distance, data$summary$avgPaceMoving), sport_classification[,3], k=3)
+    data(sport_classification_train)
+    data$summary <- trackeR::changeUnits(data$summary, variable = c("distance", 'pace', 'duration'),
+                                unit = c("km", 'min_per_km', 'h'))
+    scaled_df <- scale(sport_classification_train[,c('avgPaceMoving','distance')], center=FALSE, scale=TRUE)
+    distance_parameter <- attr(scaled_df, 'scaled:scale')['distance']
+    pace_parameter <- attr(scaled_df, 'scaled:scale')['avgPaceMoving']
+    test_df <- data.frame(distance = data$summary$distance / distance_parameter, avgPaceMoving = data$summary$avgPaceMoving / pace_parameter)
+    data$classification <- class::knn(scaled_df, test_df, sport_classification_train[,'sport'], k=5)
 
 ##########################
     update_metrics_to_plot_workouts(session, choices, data$hasData)
@@ -188,13 +192,14 @@ observeEvent(input$plotSelectedWorkouts, {
   })
   })
 
-  for (i in c("pace", "heart.rate")) {
-    create_selected_workout_plot(id = i, collapsed = FALSE)
+
+  for (i in c(metrics[have_data_metrics_selected()])) {
+    create_selected_workout_plot(id = i, collapsed = if(i == 'speed') FALSE else TRUE)
   }
-  for (i in c("altitude", "work_capacity","speed")) {
-    create_selected_workout_plot(id = i, collapsed = TRUE)
-  }
-  lapply(c("pace", "heart.rate", "altitude", "speed", "work_capacity"), function(i) {
+
+  create_work_capacity_plot(id = 'work_capacity', collapsed = FALSE)
+
+  lapply(c(metrics[have_data_metrics_selected()], 'work_capacity'), function(i) {
     ## Render UI for time in zones plot
     output[[paste0(i, "_plot")]] <- renderUI({
       shinycssloaders::withSpinner(plotly::plotlyOutput(paste0(i, "Plot"), width = if (length(data$selectedSessions) > 2) {
@@ -206,7 +211,14 @@ observeEvent(input$plotSelectedWorkouts, {
 
     if(i != 'work_capacity'){
       output[[paste0(i, "Plot")]] <- plotly::renderPlotly({
-        plot_selectedWorkouts(x=data$object, session=data$selectedSessions, what=i, sumX=data$summary)
+        if(!is.null(input[[paste0('detect_changepoints', i)]])){
+          fit_changepoint <- input[[paste0('detect_changepoints', i)]] > 0
+        }
+        plot_selectedWorkouts(x=data$object, session=data$selectedSessions, what=i, sumX=data$summary,
+                              changepoints = fit_changepoint,
+                              n_changepoints = as.numeric(input[[paste0('n_changepoints', i)]]))
+      # as.numeric(input[[paste0('n_changepoints', i)]]
+
       })
     } else {
       output$work_capacityPlot <- plotly::renderPlotly({
@@ -255,6 +267,7 @@ observeEvent(input$plotSelectedWorkouts, {
   output$conc_profiles_plots <- plotly::renderPlotly({
 
     plot_concentration_profiles(x = data$object, session = data$selectedSessions, what = input$profileMetricsPlot)
+
   })
 }, once=TRUE)
 

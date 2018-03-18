@@ -9,9 +9,11 @@
 #' @param trend Logical. Should a smooth trend be plotted?
 #' @param dates Logical. Should the date of the session be used in the panel header?
 #' @param plotly Logical. Whether return plotly plots or standard TrackeR plot.
+#' @param changepoints Logical. Whether changepoints should be identified and plotted.
+#' @param Q Numeric. The maximum number of changepoints to be considered (when changepoints = TRUE).
 
 plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smooth = FALSE, trend = TRUE, dates = TRUE,
-                                  plotly=TRUE, ...) {
+                                  plotly = TRUE, changepoints = FALSE, n_changepoints = 6, ...) {
 
   if (plotly) {
     var_name_units <- lab_sum(feature = what, data = sumX,
@@ -110,9 +112,15 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
 
     plot_stored <- list()
     smoothed_values <- list(maximum=numeric(), minimum=numeric())
+    n_plot <- 0
+    shapes <- list()
+    changepoint_y_values <- c()
     for (i in unique(df$id)) {
+      n_plot <- n_plot + 1
       df_subset <- df[df$id == i, ]
       has_values <- !all(is.na(df_subset[df_subset$Series == what, "Value"]))
+      df_subset <- if(has_values) df_subset[!is.na(df_subset$Value),] else df_subset
+
       annotations_list <- list(
         text = paste("Session:", i),
         xref = "paper",
@@ -126,8 +134,37 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
       )
       axis_list <- list(zeroline = FALSE, fixedrange = TRUE)
       if (has_values) {
-        smoothed_model <- mgcv::gam(Value ~ s(numericDate, bs = "cs"), data = df_subset)
 
+        if(changepoints) {
+
+          # m.binseg <- changepoint::cpt.mean(df_subset$Value, method = "BinSeg",
+          #                      penalty = 'Manual', pen.value = '700 * log(n)',
+          #                      minseglen = length(df_subset$Value) / 100, Q = n_changepoints)
+          m.binseg <- changepoint::cpt.mean(df_subset$Value, method = "BinSeg",
+                               penalty = 'BIC',
+                               minseglen = length(df_subset$Value) / 100, Q = n_changepoints)
+          x_values <- c(1, changepoint::cpts(m.binseg), length(df_subset$Value))
+          y_values <- changepoint::coef(m.binseg)$mean
+
+          # initiate a line shape object
+          line <- list(
+            type = "line",
+            line = list(color = "darkred"),
+            xref = paste0("x", n_plot),
+            yref = paste0("y", n_plot)
+          )
+
+
+          for (k in c(1:(length(x_values) - 1))) {
+            line[["x0"]] <- df_subset$Index[x_values[k]]
+            line[["x1"]] <- df_subset$Index[x_values[k + 1]]
+            line[c("y0", "y1")] <- y_values[k]
+            changepoint_y_values <- c(changepoint_y_values, y_values[k])
+            shapes[[length(shapes) + 1]] <- line
+
+          }
+        }
+        smoothed_model <- mgcv::gam(Value ~ s(numericDate, bs = "cs"), data = df_subset)
         smoothed_data <- mgcv::predict.gam(smoothed_model, newdata = df_subset)
         smoothed_values$minimum <- c(smoothed_values$minimum, min(smoothed_data))
         smoothed_values$maximum <- c(smoothed_values$maximum, max(smoothed_data))
@@ -141,12 +178,11 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
             text = paste(round(smoothed_data, 2), var_units),
             color = I("deepskyblue3"),
             showlegend = FALSE, alpha = 1
-          ) %>%
-          plotly::layout(
-            annotations = annotations_list,
-            xaxis = axis_list, yaxis = c(axis_list, list(range = c(min(smoothed_data) * 0.9, max(smoothed_data) * 1.1)))
-            # xaxis = axis_list, yaxis = c(axis_list, list(range = maximal_range * 1.02))
           )
+          a <- a %>% plotly::layout(
+            annotations = annotations_list,
+            xaxis = axis_list, yaxis = c(axis_list, list(range = c(0, max(smoothed_data) * 1.1))))
+            # xaxis = axis_list, yaxis = c(axis_list, list(range = maximal_range * 1.02))
       }
       else {
         df_subset$Value <- if (na_ranges) 0 else mean(maximal_range)
@@ -168,13 +204,14 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
       }
       plot_stored[[as.character(i)]] <- a
     }
-    y_axis_range <- if(what == 'heart.rate') {c(80, 200)} else {c(min(smoothed_values$minimum) * 0.9, max(smoothed_values$maximum) * 1.1)}
+    y_axis_range <- if(what == 'heart.rate') {c(80, 200)} else {c(0.9 * min(c(changepoint_y_values, smoothed_values$minimum)),
+                                                                            max(c(changepoint_y_values, smoothed_values$maximum)) * 1.1)}
     y <- list(title = var_name_units, fixedrange = TRUE, range=y_axis_range)
     x <- list(title = "Time", fixedrange = TRUE)
 
     return(plotly::subplot(plot_stored, nrows = 1, shareY = TRUE, margin = 0.003) %>%
       plotly::config(displayModeBar = FALSE) %>%
-      plotly::layout(showlegend = FALSE, yaxis = y, xaxis = x, hovermode = "closest"))
+      plotly::layout(showlegend = FALSE, yaxis = y, xaxis = x, hovermode = "closest", shapes=shapes))
   } else {
     plot(x, session = session, what = what)
   }
