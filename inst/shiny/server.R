@@ -197,10 +197,10 @@ observeEvent(input$plotSelectedWorkouts, {
 
 
   for (i in c(metrics[have_data_metrics_selected()])) {
-    trackeR:::create_selected_workout_plot(id = i, collapsed = if(i == 'speed') FALSE else TRUE)
+    trackeR:::create_selected_workout_plot(id = i, collapsed = if(i %in% c('speed','heart.rate','altitude')) FALSE else TRUE)
   }
 
-  trackeR:::create_work_capacity_plot(id = 'work_capacity', collapsed = FALSE)
+  trackeR:::create_work_capacity_plot(id = 'work_capacity', collapsed = TRUE)
 
   lapply(c(metrics[have_data_metrics_selected()], 'work_capacity'), function(i) {
     ## Render UI for time in zones plot
@@ -251,7 +251,7 @@ observeEvent(input$plotSelectedWorkouts, {
   output$zonesPlotUi <- renderUI({
     shiny::req(input$zonesMetricsPlot)
     shinycssloaders::withSpinner(plotly::plotlyOutput("zones_plot", width = "100%",
-                                                      height = calculate_plot_height(input$zonesMetricsPlot)), size = 2)
+                                                      height = trackeR:::calculate_plot_height(input$zonesMetricsPlot)), size = 2)
   })
   ## Render actual plot
   output$zones_plot <- plotly::renderPlotly({
@@ -263,7 +263,7 @@ observeEvent(input$plotSelectedWorkouts, {
   output$concentration_profiles <- renderUI({
     shiny::req(input$profileMetricsPlot)
     shinycssloaders::withSpinner(plotly::plotlyOutput("conc_profiles_plots", width = "auto",
-                                                      height = calculate_plot_height(input$profileMetricsPlot)), size = 2)
+                                                      height = trackeR:::calculate_plot_height(input$profileMetricsPlot)), size = 2)
   })
 
   ## Render actual plot
