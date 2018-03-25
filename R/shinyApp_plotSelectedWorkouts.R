@@ -156,7 +156,7 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
           # initiate a line shape object
           line <- list(
             type = "line",
-            line = list(color = "darkred"),
+            line = list(color = "darkred", dash = 'dash'),
             xref = paste0("x", n_plot),
             yref = paste0("y", n_plot)
           )

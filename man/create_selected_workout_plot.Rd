@@ -4,7 +4,7 @@
 \alias{create_selected_workout_plot}
 \title{Create selected_workouts plot}
 \usage{
-create_selected_workout_plot(id, data)
+create_selected_workout_plot(id, collapsed = FALSE)
 }
 \description{
 Create selected_workouts plot

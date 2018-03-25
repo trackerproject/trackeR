@@ -4,7 +4,7 @@
 \alias{render_summary_table}
 \title{Render summary table}
 \usage{
-render_summary_table(data)
+render_summary_table(data, input)
 }
 \description{
 Render summary table

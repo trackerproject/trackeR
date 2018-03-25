@@ -4,7 +4,7 @@
 \alias{plot_zones}
 \title{Plot training zones.}
 \usage{
-plot_zones(x, session, what = c("heart.rate"))
+plot_zones(x, session, what = c("heart.rate"), n_zones)
 }
 \arguments{
 \item{x}{An object of class \code{trackeRdata}.}
