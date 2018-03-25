@@ -203,4 +203,33 @@ get_javascript <- function() {
   "
 }
 
+#' Classify sessions by sport using the KNN model and 'sport_classification_train' dataset as a training set
+classify_sessions_by_sport <- function(data) {
+  data(sport_classification_train)
+  n_train <- nrow(sport_classification_train)
+  merged_df <- rbind(sport_classification_train[,c('avgPaceMoving','distance')],
+                     data.frame(avgPaceMoving = data$summary$avgPaceMoving,
+                                distance = data$summary$distance))
+  merged_df <- scale(merged_df)
+  data$classification <- class::knn(
+    merged_df[1:n_train,], merged_df[(n_train + 1):nrow(merged_df),], sport_classification_train[,'sport'], k=5)
+}
+
+
+#' Process \code{trackeRdata} object by: setting thresholds to remove wrong values, change units, set a moving threshold and test which variables contain data
+process_dataset <- function(data){
+  data$object <- threshold(data$object)
+  data$object <- threshold(data$object, variable = 'distance', lower = 0, upper = 500000)
+  data$object <- changeUnits(data$object, variable = c("distance", 'pace'),
+                              unit = c("km", 'min_per_km'))
+  # Create trackeRdataSummary object
+  data$summary <- summary(data$object, movingThreshold = 0.4)
+  data$summary <- changeUnits(data$summary, variable = c('duration'),
+                              unit = c('h'))
+  # Test if data in each element of trackeRdataSummary object
+  data$hasData <- lapply(data$summary, function(session_summaries) {
+    !all(is.na(session_summaries) | session_summaries == 0)
+  })
+}
+
 
