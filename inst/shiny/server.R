@@ -65,7 +65,7 @@ observeEvent(input$uploadButton, {
         module = trackeR:::readDirectory_shiny,
         id = "datafile",
         directory = raw_data_path(),
-        timezone = "GMT", cycling = input$sportSelected == "cycling",
+        timezone = "GMT", cycling = TRUE, # Change in the future to automatically update based on sport
         correctDistances = FALSE
       )
     }
@@ -141,10 +141,9 @@ observeEvent({input$plotButton}, {
     })
     # Re-render all plots
     removeUI(selector = ".main_plots", immediate = TRUE, multiple = TRUE)
-    sports_options <- c("Running" = "running",
-                        "Cycling" = "cycling",
-                        "Swimming" = "swimming",
-                        "Triathlon" = 'triathlon')
+    sports_options <- c("Running" = "Run",
+                        "Cycling" = "Ride",
+                        "Swimming" = "Swim")
     trackeR:::create_option_box(sport_options = sports_options[sapply(sports_options, function(x)
       { x %in% unique(data$classification) })])
 
@@ -225,7 +224,7 @@ observeEvent(input$plotSelectedWorkouts, {
       })
     } else {
       output$work_capacityPlot <- plotly::renderPlotly({
-        if (input$sportSelected == "cycling" & all(is.na(data$summary$avgPower)) == TRUE) {
+        if (all(is.na(data$summary$avgPower)) == TRUE) {
           removeUI(selector = "#work_capacity_plot")
         } else {
           trackeR:::plot_work_capacity(x=data$object, session=data$selectedSessions)

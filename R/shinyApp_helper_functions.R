@@ -166,7 +166,7 @@ update_metrics_to_plot_selected_workouts <- function(id, session, metrics, has_d
 download_handler <- function(data) {
   downloadHandler(
       filename = function() {
-        paste0("data-", Sys.Date(), ".RData")
+        paste0("trackeR-dashboard-data", Sys.Date(), ".RData")
       },
       content = function(file) {
         saveRDS(data$object, file)
@@ -210,6 +210,7 @@ classify_sessions_by_sport <- function(data) {
   merged_df <- rbind(sport_classification_train[,c('avgPaceMoving','distance')],
                      data.frame(avgPaceMoving = data$summary$avgPaceMoving,
                                 distance = data$summary$distance))
+  merged_df[is.na(merged_df)] <- 0
   merged_df <- scale(merged_df)
   data$classification <- class::knn(
     merged_df[1:n_train,], merged_df[(n_train + 1):nrow(merged_df),], sport_classification_train[,'sport'], k=5)

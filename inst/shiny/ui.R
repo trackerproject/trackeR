@@ -16,13 +16,13 @@ ui <- shinydashboard::dashboardPage(
                           }
                          ")),
     shinydashboard::sidebarMenu(
-      div(selectInput(
-        "sportSelected", "Select sport", multiple = FALSE,
-        c(
-          "Running" = "running",
-          "Cycling" = "cycling"
-        )
-      )),
+      # div(selectInput(
+      #   "sportSelected", "Select sport", multiple = FALSE,
+      #   c(
+      #     "Running" = "running",
+      #     "Cycling" = "cycling"
+      #   )
+      # )),
       div(
         class = "form-group shiny-input-container", id = "processed_path",
         tags$label("Processed data file"),
