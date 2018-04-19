@@ -88,8 +88,10 @@ observeEvent(input$uploadButton, {
 
 observeEvent(input$uploadSampleDataset, {
   removeModal()
-  data(runs)
-  data$object <- runs
+  # data(runs)
+  # data$object <- runs
+  data(presentation) # saved as df
+  data$object <- presentation
   # See helper functions file
   trackeR:::process_dataset(data)
   # See helper functions file
@@ -224,11 +226,11 @@ observeEvent(input$plotSelectedWorkouts, {
       })
     } else {
       output$work_capacityPlot <- plotly::renderPlotly({
-        if (all(is.na(data$summary$avgPower)) == TRUE) {
-          removeUI(selector = "#work_capacity_plot")
-        } else {
+        # if (all(is.na(data$summary$avgPower)) == TRUE) {
+        #   removeUI(selector = "#work_capacity_plot")
+        # } else {
           trackeR:::plot_work_capacity(x=data$object, session=data$selectedSessions)
-        }
+        # }
       })
     }
   })
