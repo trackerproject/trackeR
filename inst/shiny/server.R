@@ -1,47 +1,28 @@
+live_version <- FALSE
+
+if(live_version == TRUE){
+  library(shiny)
+  library(shinyjs)
+  library(leaflet)
+  library(plotly)
+  library(shinycssloaders)
+  library(trackeR)
+  options(shiny.maxRequestSize=30*1024^3)
+}
+
 server <- function(input, output, session) {
 # Main object where all data is stored
 data <- reactiveValues(summary=NULL, object=NULL, selectedSessions=NULL, hasData=NULL)
 choices <- trackeR:::choices()
 metrics <- trackeR:::metrics()
 ##################################################################################
-# Get path to files
-## Directory
-shinyFiles::shinyDirChoose(
-  input, "rawDataDirectory", roots = c(home = "~"),
-  filetypes = c("gpx", "tcx", "db3", "json")
-)
-rawDataDirectory <- reactive({
-  input$rawDataDirectory
-})
-raw_data_path <- reactive({
-  home <- normalizePath("~")
-  file.path(home, paste(
-    unlist(rawDataDirectory()$path[-1]),
-    collapse = .Platform$file.sep
-  ))
-})
-## Processed data
-shinyFiles::shinyFileChoose(
-  input, "processedDataPath", roots = c(home = "~"),
-  filetypes = c("rds", "rdata", "rda")
-)
-processed_data_file <- reactive({
-  input$processedDataPath
-})
-processedDataPath <- reactive({
-  home <- normalizePath("~")
-  file.path(home, paste(
-    unlist(processed_data_file()$files)[-1],
-    collapse = .Platform$file.sep
-  ))
-})
 ## Home
 home <- paste0(normalizePath("~"), "/")
 ##################################################################################
 # Upload and process data
 observeEvent(input$uploadButton, {
   # data$isCycling <- input$sportSelected == "cycling"
-  if ((raw_data_path() == home) & (processedDataPath() == home)) {
+  if ((is.null(input$rawDataDirectory$datapath)) & (is.null(input$processedDataPath$datapath))) {
     showModal(modalDialog(
       title = "trackeR dashboard message",
       div(tags$b(
@@ -50,22 +31,27 @@ observeEvent(input$uploadButton, {
       )),
       size = "s",
       footer = tagList(
-                modalButton("Cancel"),
-                actionButton("uploadSampleDataset", "Upload sample dataset")
-                       )
+        modalButton("Cancel"),
+        actionButton("uploadSampleDataset", "Upload sample dataset")
+      )
     ))
-  }
-  else {
+  } else {
     processed_data <- raw_data <- NULL
-    if (processedDataPath() != home) {
-      processed_data <- readRDS(processedDataPath())
+    # if (processedDataPath() != home) {
+    if (!is.null(input$processedDataPath$datapath)) {
+      processed_data <- readRDS(input$processedDataPath$datapath)
     }
-    if (raw_data_path() != home) {
+    if (!is.null(input$rawDataDirectory$datapath)) {
+      file <- input$rawDataDirectory$datapath
+      directory <- paste0(do.call(paste,
+                                  c(as.list(c(Reduce(intersect, strsplit(file, '/')))),
+                                    list(sep='/'))), '/')
+      
       raw_data <- callModule(
         module = trackeR:::readDirectory_shiny,
         id = "datafile",
-        directory = raw_data_path(),
-        timezone = "GMT", cycling = TRUE, # Change in the future to automatically update based on sport
+        directory = directory,
+        timezone = "GMT", cycling = TRUE,
         correctDistances = FALSE
       )
     }

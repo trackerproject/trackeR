@@ -16,22 +16,15 @@ ui <- shinydashboard::dashboardPage(
                           }
                          ")),
     shinydashboard::sidebarMenu(
-      # div(selectInput(
-      #   "sportSelected", "Select sport", multiple = FALSE,
-      #   c(
-      #     "Running" = "running",
-      #     "Cycling" = "cycling"
-      #   )
-      # )),
       div(
-        class = "form-group shiny-input-container", id = "processed_path",
-        tags$label("Processed data file"),
-        div(class = "input-group", shinyFiles::shinyFilesButton("processedDataPath", "Select file...", "Select processed data file", multiple = FALSE))
+        fileInput("processedDataPath", "Choose processed file",
+                  multiple = FALSE,
+                  accept = c(".rds", ".rdata", ".rda"))
       ),
       div(
-        class = "form-group shiny-input-container", id = "raw_directory",
-        tags$label("New raw data directory"),
-        div(class = "input-group", shinyFiles::shinyDirButton("rawDataDirectory", "Select directory...", "Select new raw data directory"))
+        fileInput("rawDataDirectory", "Choose directory with raw data",
+                  multiple = TRUE,
+                  accept = c(".gpx", ".tcx", ".db3", ".json"))
       ),
       actionButton("uploadButton", "Load data", icon("upload"), style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"),
       hr(),
