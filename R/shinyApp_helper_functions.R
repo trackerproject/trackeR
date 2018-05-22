@@ -166,7 +166,7 @@ update_metrics_to_plot_selected_workouts <- function(id, session, metrics, has_d
 download_handler <- function(data) {
   downloadHandler(
       filename = function() {
-        paste0("trackeR-dashboard-data", Sys.Date(), ".RData")
+        paste0("trackeR-dashboard-data", Sys.Date(), ".rds")
       },
       content = function(file) {
         saveRDS(data$object, file)
