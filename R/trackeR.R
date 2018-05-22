@@ -46,6 +46,8 @@
 #' @importFrom ggplot2 fortify
 #' @importFrom stats quantile
 #' @importFrom plotly "%>%"
+#' @importFrom graphics plot
+#' @importFrom stats na.omit start
 NULL
 # > NULL
 
