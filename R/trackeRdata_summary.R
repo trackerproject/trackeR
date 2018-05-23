@@ -87,68 +87,45 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
     ## average pace moving
     avgPaceMoving <- as.numeric(durationMoving, units = "mins")/dist4pace
 
-    ## function for weighted total to produce averages
-    weightedMean <- function(x, which, th, resting = FALSE) {
-        z <- coredata(x[, which])[-length(x[, which])]
-        if (all(is.na(z)))
-            return(NA)
-
+    weightedMean2 <- function(x, th, which) {
+        n <- nrow(x)
+        z <- coredata(x)[-n, c(which, "speed")]
+        p <- ncol(z)
+        nams <- colnames(z)
         dt <- as.numeric(diff(index(x)))
-        i <- as.numeric(!is.na(z))
-        m <- as.numeric(x$speed[-nrow(x)] > th)
-        if (resting)
-            m <- 1 - m
-
-        w <- dt * i * m/sum(dt * i * m, na.rm = TRUE)
-        ret <- sum(z * w, na.rm = TRUE)
-        return(ret)
+        i <- 1 - is.na(z)
+        m <- as.numeric(z[, "speed"] > th)
+        w <- dt * i
+        w_moving <- w * m
+        w_resting <- w * (1 - m)
+        overall <- .colSums(z * w, n - 1, p, na.rm = TRUE) / .colSums(w, n - 1, p, na.rm = TRUE)
+        moving <- .colSums(z * w_moving, n - 1, p, na.rm = TRUE) / .colSums(w_moving, n - 1, p, na.rm = TRUE)
+        resting <- .colSums(z * w_resting, n - 1, p, na.rm = TRUE) / .colSums(w_resting, n - 1, p, na.rm = TRUE)
+        names(overall) <- nams
+        names(moving) <- paste0(nams, "_moving")
+        names(resting) <- paste0(nams, "_resting")
+        ret <- c(overall, moving, resting)
+        ret[is.na(ret)] <- NA
+        ret
     }
 
-    ## ## average speed avgSpeed <- sapply(object, weightedMean, which = 'speed', th = -1)
-
-    ## ## average speed moving avgSpeedMoving <- sapply(object, weightedMean, which =
-    ## 'speed', th = movingThreshold)
-
-    ## ## average pace avgPace <- sapply(object, weightedMean, which = 'pace', th = -1)
-
-    ## ## average pace moving avgPaceMoving <- sapply(object, weightedMean, which = 'pace',
-    ## th = movingThreshold)
-
-    ## average cadence
-    avgCadence <- sapply(object, weightedMean, which = "cadence", th = -1)
-
-    ## average cadence moving
-    avgCadenceMoving <- sapply(object, weightedMean, which = "cadence", th = movingThreshold)
-
-    ## average power
-    avgPower <- sapply(object, weightedMean, which = "power", th = -1)
-
-    ## average power moving
-    avgPowerMoving <- sapply(object, weightedMean, which = "power", th = movingThreshold)
-
-    ## average heart rate
-    avgHeartRate <- sapply(object, weightedMean, which = "heart.rate", th = -1)
-
-    ## average heart rate moving
-    avgHeartRateMoving <- sapply(object, weightedMean, which = "heart.rate", th = movingThreshold)
-
-    ## average heart rate resting
-    avgHeartRateResting <- sapply(object, weightedMean, which = "heart.rate", th = movingThreshold,
-        resting = TRUE)
-
+    summaries <- sapply(object, weightedMean2, which = c("cadence", "power", "heart.rate"), th = movingThreshold)
     ## work to rest ratio
     wrRatio <- as.numeric(durationMoving)/as.numeric(duration - durationMoving)
 
-
     ## maxima in addition to averages?  calories?  splits per km?
-
 
     ret <- data.frame(session = session, sessionStart = sessionStart, sessionEnd = sessionEnd,
         distance = distance, duration = duration, durationMoving = durationMoving, avgSpeed = avgSpeed,
         avgSpeedMoving = avgSpeedMoving, avgPace = avgPace, avgPaceMoving = avgPaceMoving,
-        avgCadence = avgCadence, avgCadenceMoving = avgCadenceMoving, avgPower = avgPower,
-        avgPowerMoving = avgPowerMoving, avgHeartRate = avgHeartRate, avgHeartRateMoving = avgHeartRateMoving,
-        avgHeartRateResting = avgHeartRateResting, wrRatio = wrRatio)
+        avgCadence = summaries["cadence", ],
+        avgCadenceMoving = summaries["cadence_moving", ],
+        avgPower = summaries["power", ],
+        avgPowerMoving = summaries["power_moving", ],
+        avgHeartRate = summaries["heart.rate", ],
+        avgHeartRateMoving = summaries["heart.rate_moving", ],
+        avgHeartRateResting = summaries["heart.rate_resting", ],
+        wrRatio = wrRatio)
 
     attr(ret, "units") <- units
     attr(ret, "movingThreshold") <- movingThreshold
