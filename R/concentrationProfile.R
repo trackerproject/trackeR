@@ -49,6 +49,40 @@ concentrationProfile <- function(object, session = NULL, what = c("speed", "hear
 }
 
 
+cp <- function(object, session = NULL, what = c("speed", "heart.rate"),
+               limits = list(speed = c(0, 12.5), heart.rate = c(0, 250)),
+               parallel = FALSE, cores = NULL, auto_grid = TRUE) {
+
+    units <- getUnits(object)
+    if (is.null(session))
+        session <- 1:length(object)
+    object <- object[session]
+
+    CP <- NULL
+    for (i in what) {
+        dc <- parallel::detectCores()
+        if (is.null(cores)) {
+            cores <- getOption("mc.cores", max(floor(dc/2), 1L))
+        }
+        times <- parallel::mclapply(object, function(sess) {
+
+                               density(sess[, what], na.rm = TRUE, from = limits[[i]][1], to = limits[[i]][2], n = 512)$y
+                           }, mc.cores = cores)
+        times <- zoo(matrix(unlist(times), nrow = 512), order.by = seq(from = limits[[i]][1], to = limits[[i]][2], length.out = 512))
+        names(times) <- paste0("Session", session)
+        CP[[i]] <- times
+    }
+
+    ## class and return
+    operations <- list(smooth = TRUE)
+    attr(CP, "operations") <- operations
+    attr(CP, "units") <- units
+    class(CP) <- "conProfile"
+    return(CP)
+}
+
+
+
 #' Fortify a conProfile object for plotting with ggplot2.
 #'
 #' @param model The \code{conProfile} object.
