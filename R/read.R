@@ -438,7 +438,8 @@ readDB3 <- function(file, timezone = "", table = "gps_data",
 #' @details Reading Golden Cheetah's JSON files is experimental.
 #' @export
 #' @rdname readX
-readJSON <- function(file, timezone = "", speedunit = "km_per_h", distanceunit = "km"){
+readJSON <- function(file, timezone = "", speedunit = "km_per_h", distanceunit = "km",
+                     parallel = FALSE, cores = getOption("mc.cores", 2L), ...) {
     ## get all data
     jslist <- jsonlite::fromJSON(file)$RIDE
 
