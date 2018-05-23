@@ -11,7 +11,7 @@ plot_timeline(sumX, lims = NULL, shiny = TRUE, plotly = TRUE)
 
 \item{shiny}{Logical. Whether plots are in a shiny environment.}
 
-\item{plotly}{Logical. Return plotly plots or standard TrackeR plots}
+\item{plotly}{Logical. Return plotly plots or standard trackeR plots}
 }
 \description{
 A timeline plot for workouts.

@@ -392,8 +392,8 @@ nsessions.conProfile <- function(object, ...) {
 #' @examples
 #' \dontrun{
 #'
-#' data("runs", package = "trackeR")
-#' dProfile <- distributionProfile(runs, what = c("speed", "heart.rate"), auto_grid = TRUE)
+#' data('runs', package = 'trackeR')
+#' dProfile <- distributionProfile(runs, what = c('speed', 'heart.rate'), auto_grid = TRUE)
 #' cProfile <- concentrationProfile(dProfile)
 #' ridges(cProfile, what = "speed")
 #' ridges(cProfile, what = "heart.rate")

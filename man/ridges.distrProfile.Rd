@@ -24,7 +24,7 @@ Ridgeline plots for \code{distrProfile} objects
 \examples{
 \dontrun{
 
-data("runs", package = "trackeR")
+data('runs', package = 'trackeR')
 dProfile <- distributionProfile(runs, what = c("speed", "heart.rate"), auto_grid = TRUE)
 ridges(dProfile)
 

@@ -1,7 +1,7 @@
 #' A timeline plot for workouts.
 #'
 #' @param sumX An object of class \code{trackeRdataSummary}.
-#' @param plotly Logical. Return plotly plots or standard TrackeR plots
+#' @param plotly Logical. Return plotly plots or standard trackeR plots
 #' @param shiny Logical. Whether plots are in a shiny environment.
 
 plot_timeline <- function(sumX, lims=NULL, shiny=TRUE, plotly=TRUE) {

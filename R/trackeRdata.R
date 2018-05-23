@@ -557,3 +557,21 @@ print.trackeRdata <- function(x, ..., digits = 2) {
     colnames(o) <- NULL
     print(o, row.names = FALSE, right = FALSE)
 }
+
+#' @rdname session_times
+#' @export
+session_times.trackeRdata <- function(object, ...) {
+    data.frame(sessionStart = as.POSIXct(sapply(object, function(x) min(index(x))), origin = "1970-01-01"),
+               sessionEnd = as.POSIXct(sapply(object, function(x) max(index(x))), origin = "1970-01-01"))
+}
+
+#' @rdname session_duration
+#' @export
+session_duration.trackeRdata <- function(object, ...) {
+    units0 <- getUnits(object)
+    durUnit <- switch(units0$unit[units0$variable == "duration"],
+                      "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days")
+    with(session_times(object), {
+        as.numeric(difftime(sessionEnd, sessionStart, units = durUnit))
+    })
+}

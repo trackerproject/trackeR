@@ -15,7 +15,7 @@
 #'     Elastic Net. \emph{ArXiv e-print} arXiv:1506.01388.
 #' Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal of Statistical Software}, \bold{82}(7), 1--29. doi:10.18637/jss.v082.i07
 #' @examples
-#' data("run", package = "trackeR")
+#' data('run', package = 'trackeR')
 #' dProfile <- distributionProfile(run, what = "speed", grid = seq(0, 12.5, by = 0.05))
 #' plot(dProfile, smooth = FALSE)
 #' @export
@@ -269,7 +269,7 @@ fortify.distrProfile <- function(model, data, melt = FALSE, ...){
 #' @param smooth Logical. Should unsmoothed profiles be smoothed before plotting?
 #' @param ... Further arguments to be passed to \code{\link{smootherControl.distrProfile}}.
 #' @examples
-#' data("runs", package = "trackeR")
+#' data('runs', package = 'trackeR')
 #' dProfile <- distributionProfile(runs, session = 1:2,
 #'     what = "speed", grid = seq(0, 12.5, by = 0.05))
 #' plot(dProfile, smooth = FALSE)
@@ -664,7 +664,7 @@ nsessions.distrProfile <- function(object, ...) {
 #' @examples
 #' \dontrun{
 #'
-#' data("runs", package = "trackeR")
+#' data('runs', package = 'trackeR')
 #' dProfile <- distributionProfile(runs, what = c("speed", "heart.rate"), auto_grid = TRUE)
 #' ridges(dProfile)
 #'

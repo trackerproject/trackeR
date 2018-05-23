@@ -47,7 +47,7 @@
 #' @importFrom stats quantile
 #' @importFrom plotly "%>%"
 #' @importFrom graphics plot
-#' @importFrom stats na.omit start
+#' @importFrom stats na.omit start density
 NULL
 # > NULL
 
@@ -116,6 +116,25 @@ getOperations <- function(object, ...) UseMethod("getOperations")
 #' @export
 nsessions <- function(object, ...) UseMethod("nsessions")
 
+#' Generic function for calculating session times.
+#'
+#' @param object The object for which to calculate session start and end times.
+#' @param ... Arguments to be passed to methods.
+#' @export
+session_times <- function(object, ...) UseMethod("session_times")
+
+#' Generic function for calculating session durations.
+#'
+#' @param object The object for which to calculate session durations.
+#' @param ... Arguments to be passed to methods.
+#'
+#' @details
+#' The times units will be inherited from \code{object}.
+#'
+#' @export
+session_duration <- function(object, ...) UseMethod("session_times")
+
+
 #' Generic function for visualising the sessions on a time versus date plot.
 #'
 #' @param object An object of class trackeRdata or trackeRdataSummary
@@ -150,3 +169,4 @@ funPCA <- function(object, ...) UseMethod("funPCA")
 #' @param x An object of class \code{distrProfile} or \code{conProfile}.
 #' @param ... Arguments to be passed to methods.
 ridges <- function(x, ...) UseMethod("ridges")
+
