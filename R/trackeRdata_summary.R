@@ -87,7 +87,7 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
     ## average pace moving
     avgPaceMoving <- as.numeric(durationMoving, units = "mins")/dist4pace
 
-    weightedMean2 <- function(x, th, which) {
+    weightedMeans <- function(x, th, which) {
         n <- nrow(x)
         z <- coredata(x)[-n, c(which, "speed")]
         p <- ncol(z)
@@ -109,7 +109,7 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
         ret
     }
 
-    summaries <- sapply(object, weightedMean2, which = c("cadence", "power", "heart.rate"), th = movingThreshold)
+    summaries <- sapply(object, weightedMeans, which = c("cadence", "power", "heart.rate"), th = movingThreshold)
     ## work to rest ratio
     wrRatio <- as.numeric(durationMoving)/as.numeric(duration - durationMoving)
 
