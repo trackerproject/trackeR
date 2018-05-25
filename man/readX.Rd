@@ -17,7 +17,8 @@ readGPX(file, timezone = "", speedunit = "km_per_h", distanceunit = "km",
 readDB3(file, timezone = "", table = "gps_data", speedunit = "km_per_h",
   distanceunit = "km")
 
-readJSON(file, timezone = "", speedunit = "km_per_h", distanceunit = "km")
+readJSON(file, timezone = "", speedunit = "km_per_h", distanceunit = "km",
+  parallel = FALSE, cores = getOption("mc.cores", 2L), ...)
 }
 \arguments{
 \item{file}{The path to the file.}
