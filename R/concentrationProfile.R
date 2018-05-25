@@ -5,10 +5,16 @@
 #' @inheritParams distributionProfile
 #' @param ... Currently not used.
 #' @return An object of class \code{conProfile}.
-#' @references Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
-#'     Endurance Runners to Training and Physiological Effects via Multi-Resolution
-#'     Elastic Net. \emph{ArXiv e-print} arXiv:1506.01388.
-#' Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal of Statistical Software}, \bold{82}(7), 1--29. doi:10.18637/jss.v082.i07
+#' @references
+#' Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
+#' Endurance Runners to Training and Physiological Effects via Multi-Resolution
+#' Elastic Net. \emph{ArXiv e-print} arXiv:1506.01388.
+#'
+#' Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running
+#' and Cycling Data from GPS-Enabled Tracking Devices in
+#' R. \emph{Journal of Statistical Software}, \bold{82}(7),
+#' 1--29. doi:10.18637/jss.v082.i07
+#'
 #' @examples
 #' data('run', package = 'trackeR')
 #' dProfile <- distributionProfile(run, what = 'speed', grid = seq(0, 12.5, by = 0.05))
@@ -47,6 +53,40 @@ concentrationProfile <- function(object, session = NULL, what = c("speed", "hear
     class(CP) <- "conProfile"
     return(CP)
 }
+
+
+cp <- function(object, session = NULL, what = c("speed", "heart.rate"),
+               limits = list(speed = c(0, 12.5), heart.rate = c(0, 250)),
+               parallel = FALSE, cores = NULL, auto_grid = TRUE) {
+
+    units <- getUnits(object)
+    if (is.null(session))
+        session <- 1:length(object)
+    object <- object[session]
+
+    CP <- NULL
+    for (i in what) {
+        dc <- parallel::detectCores()
+        if (is.null(cores)) {
+            cores <- getOption("mc.cores", max(floor(dc/2), 1L))
+        }
+        times <- parallel::mclapply(object, function(sess) {
+
+                               density(sess[, what], na.rm = TRUE, from = limits[[i]][1], to = limits[[i]][2], n = 512)$y
+                           }, mc.cores = cores)
+        times <- zoo(matrix(unlist(times), nrow = 512), order.by = seq(from = limits[[i]][1], to = limits[[i]][2], length.out = 512))
+        names(times) <- paste0("Session", session)
+        CP[[i]] <- times
+    }
+
+    ## class and return
+    operations <- list(smooth = TRUE)
+    attr(CP, "operations") <- operations
+    attr(CP, "units") <- units
+    class(CP) <- "conProfile"
+    return(CP)
+}
+
 
 
 #' Fortify a conProfile object for plotting with ggplot2.
@@ -358,8 +398,8 @@ nsessions.conProfile <- function(object, ...) {
 #' @examples
 #' \dontrun{
 #'
-#' data("runs", package = "trackeR")
-#' dProfile <- distributionProfile(runs, what = c("speed", "heart.rate"), auto_grid = TRUE)
+#' data('runs', package = 'trackeR')
+#' dProfile <- distributionProfile(runs, what = c('speed', 'heart.rate'), auto_grid = TRUE)
 #' cProfile <- concentrationProfile(dProfile)
 #' ridges(cProfile, what = "speed")
 #' ridges(cProfile, what = "heart.rate")

@@ -1,13 +1,12 @@
 Package: trackeR
 Version: 1.0.9.900
-Date: 2017-01-11
 Title: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices
-Authors@R: c(person(given = "Hannah", family = "Frick",
-	   	    role = c("aut", "cre"), email = "hannah.frick@gmail.com",
-	            comment = c(ORCID = "0000-0002-6049-5258")),
-             person(given = "Ioannis", family = "Kosmidis",
-	            role = "aut", email = "ioannis.kosmidis@warwick.ac.uk",
+Authors@R: c(person(given = "Ioannis", family = "Kosmidis",
+	            role = c("aut", "cre"), email = "ioannis.kosmidis@warwick.ac.uk",
 		    comment = c(ORCID = "0000-0003-1556-0302")),
+             person(given = "Hannah", family = "Frick",
+	   	    role = "aut", email = "hannah.frick@gmail.com",
+	            comment = c(ORCID = "0000-0002-6049-5258")),
 	     person(given = "Robin", family = "Hornak",
 	            role = "ctb", email = "robin.hornak.14@ucl.ac.uk"))
 Description: The aim of this package is to provide infrastructure for
@@ -45,13 +44,16 @@ Imports:
     shinyjs,
     shinycssloaders,
     shinydashboard,
-    sp
+    sp,
+    V8,
+    class,
+    changepoint
 Suggests:
     testthat,
     knitr,
     rmarkdown
 VignetteBuilder: knitr
-License: GPL-2 | GPL-3
-URL: https://github.com/hfrick/trackeR
-BugReports: https://github.com/hfrick/trackeR/issues
+License: GPL-3
+URL: https://github.com/trackerproject/trackeR
+BugReports: https://github.com/trackerproject/trackeR/issues
 RoxygenNote: 6.0.1

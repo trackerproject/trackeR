@@ -155,18 +155,18 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), 
     ps <- ifelse(cycling, "power", "speed")
     if (cycling) {
         if (units$unit[units$variable == "power"] != "W") {
-            changeUnits(object, variable = "power", unit = "W")
+            object <- changeUnits(object, variable = "power", unit = "W")
+            units <- getUnits(object)
             conversion <- match.fun(paste(units$unit[units$variable == "power"], "W", sep = "2"))
             cp <- conversion(cp)
-            units$unit[units$variable == "power"] <- "W"
         }
     } else {
         if (units$unit[units$variable == "speed"] != "m_per_s") {
-            changeUnits(object, variable = "speed", unit = "m_per_s")
+            object <- changeUnits(object, variable = "speed", unit = "m_per_s")
+            units <- getUnits(object)
             conversion <- match.fun(paste(units$unit[units$variable == "speed"], "m_per_s",
                 sep = "2"))
             cp <- conversion(cp)
-            units$unit[units$variable == "speed"] <- "m_per_s"
         }
     }
 

@@ -24,7 +24,7 @@ Ridgeline plots for \code{trackeRdata} objects
 \examples{
 
 \dontrun{
-data("runs", package = "trackeR")
+data('runs', package = 'trackeR')
 ridges(runs)
 }
 

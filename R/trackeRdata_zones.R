@@ -7,6 +7,7 @@
 #' @param parallel Logical. Should computation be carried out in parallel?
 #' @param cores Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options('corese')} (on Windows) or \code{options('mc.cores')} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.
 #' @param auto_breaks Logical. Should breaks be selected automatically? Default is \code{FALSE} and \code{breaks} will be ignored if \code{TRUE}.
+#' @param n_zones A numeric. If auto_breaks=TRUE, select number of zones for data to be split into.
 #' @param ... Currently not used.
 #' @return An object of class \code{trackeRdataZones}.
 #' @seealso \code{\link{plot.trackeRdataZones}}
@@ -20,7 +21,15 @@
 #' plot(runZones)
 #' @export
 zones <- function(object, session = NULL, what = c("speed", "heart.rate"), breaks = list(speed = 0:10,
-    heart.rate = c(0, seq(75, 225, by = 50), 250)), parallel = FALSE, cores = NULL, auto_breaks = TRUE, ...) {
+    heart.rate = c(0, seq(75, 225, by = 50), 250)), parallel = FALSE, cores = NULL, auto_breaks = TRUE,
+    n_zones = 9, ...) {
+
+    ## select sessions
+    if (is.null(session)) {
+        session <- seq_along(object)
+    }
+    object <- object[session]
+
 
     if (auto_breaks) {
         breaks <- list()
@@ -33,8 +42,8 @@ zones <- function(object, session = NULL, what = c("speed", "heart.rate"), break
             round_table <- list('1' = 5, '2' = 5, '3' = 10, '4' = 100,
                                 '5' = 10000, '6' = 100000)
             maximum <- ceiling(maximum/round_table[[range_size]]) * round_table[[range_size]]
-            step_size <- (maximum - minimum) / 10
-            break_points <- seq(minimum, maximum, by = step_size)
+            step_size <- round((maximum - minimum) / (n_zones), 1)
+            break_points <- seq(minimum, minimum + n_zones * step_size, by = step_size)
             break_points
         }
 
@@ -45,17 +54,11 @@ zones <- function(object, session = NULL, what = c("speed", "heart.rate"), break
             }
         }
         for (feature in what) {
-            maximum <- ceiling(quantile(df[feature], 0.999, na.rm = TRUE))
-            minimum <- if (feature == 'heart.rate') 35 else 0
+            maximum <- ceiling(quantile(df[feature], 0.98, na.rm = TRUE))
+            minimum <- if (feature == 'heart.rate') 60 else floor(quantile(df[feature], 0.01, na.rm = TRUE))
             breaks[[feature]] <- find_step_size(maximum, minimum)
         }
     }
-
-    ## select sessions
-    if (is.null(session)) {
-        session <- seq_along(object)
-    }
-    object <- object[session]
 
     ## process zone definitions
     if (!missing(what) && length(what) == 1 & !is.list(breaks)) {

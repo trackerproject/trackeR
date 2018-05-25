@@ -436,7 +436,8 @@ readDB3 <- function(file, timezone = "", table = "gps_data",
 #' @details Reading Golden Cheetah's JSON files is experimental.
 #' @export
 #' @rdname readX
-readJSON <- function(file, timezone = "", speedunit = "km_per_h", distanceunit = "km"){
+readJSON <- function(file, timezone = "", speedunit = "km_per_h", distanceunit = "km",
+                     parallel = FALSE, cores = getOption("mc.cores", 2L), ...) {
     ## get all data
     jslist <- jsonlite::fromJSON(file)$RIDE
 
@@ -608,7 +609,7 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
 #'     measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min} and power is
 #'     imputed with \code{0}, else with \code{NA}.
 #' @param verbose Logical. Should progress reports be printed?
-#' @param make_reactive Logical. Should the output of readDirectory be made \code{\link[shiny]{reactive}}? For use in the shiny interface. Default is \code{FALSE}.
+#' @param shiny Logical. Should the output of readDirectory be made \code{\link[shiny]{reactive}}? For use in the shiny interface. Default is \code{FALSE}.
 #' @inheritParams readX
 #' @inheritParams restingPeriods
 #' @inheritParams imputeSpeeds
@@ -638,7 +639,7 @@ readDirectory <- function(directory,
                           cycling = FALSE,
                           lgap = 30, lskip = 5, m = 11,
                           silent = FALSE,
-                          make_reactive = FALSE, ## only relevant for shiny interfaces
+                          shiny = FALSE, ## only relevant for shiny interfaces
                           parallel = FALSE, cores = getOption("mc.cores", 2L),
                           verbose = TRUE) {
 
@@ -669,7 +670,7 @@ readDirectory <- function(directory,
             in_expression <- quote({
                 for (j in seq.int(lall)) {
                     currentType <- fileType[j]
-                    if (make_reactive) {
+                    if (shiny) {
                         incProgress(1/lall, detail = paste(j, "out of", lall,
                                                            paste0("(", currentType, ")")))
                     }
@@ -685,7 +686,7 @@ readDirectory <- function(directory,
                                                             cores = cores)))
                 }
             })
-            if (make_reactive) {
+            if (shiny) {
                 withProgress(expr = in_expression, message = 'Loading data', value = 0, quoted = TRUE)
             }
             else {
@@ -715,7 +716,7 @@ readDirectory <- function(directory,
             in_expression <- quote({
                 for (j in seq.int(lall)) {
                     currentType <- fileType[j]
-                    if (make_reactive) {
+                    if (shiny) {
                         incProgress(1/lall, detail = paste(j, "out of", lall,
                                                            paste0("(", currentType, ")")))
                     }
@@ -742,7 +743,7 @@ readDirectory <- function(directory,
                                                       cores = cores))
                 }
             })
-            if (make_reactive) {
+            if (shiny) {
                 withProgress(expr = in_expression, message = 'Loading data', value = 0, quoted = TRUE)
             }
             else {
@@ -762,7 +763,7 @@ readDirectory <- function(directory,
         allData
     })
 
-    if (make_reactive) {
+    if (shiny) {
         out <- reactive(read_expression, quoted = TRUE)
         return(out())
     }
@@ -772,11 +773,11 @@ readDirectory <- function(directory,
 
 }
 
-readDirectory_reactive <- function(input,
+readDirectory_shiny <- function(input,
                                    output,
                                    session,
                                    ...) {
-    readDirectory(..., make_reactive = TRUE)
+    readDirectory(..., shiny = TRUE)
 }
 
 
