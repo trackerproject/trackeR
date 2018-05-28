@@ -1,14 +1,14 @@
-<<<<<<< HEAD
-Changes in Version 1.0.1
+Changes in Version 1.2.0
 
+  o trackeRdata objects now have a print method with basic summaries
   o trackeRdata objects now have a print method with basic summaries
 
   o Various bug fixes
-=======
+
+
 Changes in Version 1.0.0
 
   o Added citation for JSS paper.
->>>>>>> upstream/master
 
 Changes in Version 0.0.5
 
