@@ -30,6 +30,7 @@ Imports:
     mgcv,
     parallel,
     XML,
+    xml2,
     RSQLite,
     jsonlite,
     raster,

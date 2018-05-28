@@ -73,4 +73,5 @@ run <- trackeRdata(run, units = data.frame(variable = c("latitude", "longitude",
 ## alternatively
 run <- readContainer(filepath, type = "tcx", timezone = "GMT")
 }
+
 }

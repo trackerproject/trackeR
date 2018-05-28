@@ -43,6 +43,7 @@
 #' @name trackeR
 #' @import zoo
 #' @import shiny
+#' @import xml2
 #' @importFrom ggplot2 fortify
 #' @importFrom stats quantile
 #' @importFrom plotly "%>%"

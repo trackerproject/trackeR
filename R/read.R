@@ -16,7 +16,22 @@ generateVariableNames <- function() {
     ## https://en.wikipedia.org/wiki/Training_Center_XML
     ## http://www8.garmin.com/xmlschemas/index.jsp#/web/docs/xmlschemas
     ## http://www.garmindeveloper.com/schemas/tcx/v2/
-    tcxNames <- c("time",
+    tcxNames <- c("Time",
+                  "LatitudeDegrees",
+                  "LongitudeDegrees",
+                  "AltitudeMeters",
+                   "DistanceMeters",
+                  "HeartRateBpm",
+                  "Speed",
+                  "Cadence",
+                  "Watts")
+
+
+    ## resources for tcx:
+    ## https://en.wikipedia.org/wiki/Training_Center_XML
+    ## http://www8.garmin.com/xmlschemas/index.jsp#/web/docs/xmlschemas
+    ## http://www.garmindeveloper.com/schemas/tcx/v2/
+    gpxNames <- c("time",
                   "latitude",
                   "longitude",
                   "altitude",
@@ -49,8 +64,8 @@ generateVariableNames <- function() {
                    "WATTS")
 
     list(humanNames = humanNames,
-         gpxNames = tcxNames,
-         tcxNames = tcxNames,
+         gpxNames = gpxNames,
+         tcx2Names = tcxNames,
          db3Names = db3Names,
          jsonNames = jsonNames)
 }
@@ -96,146 +111,119 @@ generateVariableNames <- function() {
 #' ## alternatively
 #' run <- readContainer(filepath, type = "tcx", timezone = "GMT")
 #' }
+#'
+#' @export
 readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "m",
-                    parallel = FALSE, cores = getOption("mc.cores", 2L),...){
+                    parallel = FALSE, cores = getOption("mc.cores", 2L),...) {
 
-    ## relevant resource: http://gastonsanchez.com/work/webdata/getting_web_data_r4_parsing_xml_html.pdf
+    doc <- read_xml(file)
+    ns <- xml_ns(doc)
 
-    ## read XML file
-    doc <- XML::xmlParse(file)
-    nodes <- XML::getNodeSet(doc, "//ns:Trackpoint", "ns")
-
-    ## parallelisation
-    papply <- if (parallel) function(...) parallel::mclapply(..., mc.cores = cores) else lapply
-
-    mydf <- do.call("rbind", papply(nodes, function(node) {
-        ## Avoid memory leaks
-        nodeDoc <- XML::xmlDoc(node)
-        extnode <- XML::getNodeSet(nodeDoc, "//s:Extensions", "s")
-            if (length(extnode)) {
-                extnodeDoc <- XML::xmlDoc(extnode[[1]])
-            ## What if speed is not in an extensions node?
-            speed <- XML::xpathApply(extnodeDoc, "//ns3:Speed", XML::xmlValue)
-            ## Check if there is cadence in nodeDoc or in an Extensions tag with distinct namespace
-            cadence2 <- XML::xpathApply(extnodeDoc, "//ns3:RunCadence", XML::xmlValue)
-            watts <- XML::xpathApply(extnodeDoc, "//ns3:Watts", XML::xmlValue)
-        }
-        else {
-            speed <- cadence2 <- watts <- list()
-        }
-        ## Avoid memory leaks
-        cadence1 <- XML::xpathApply(nodeDoc, "//o:Cadence", namespaces = "o", XML::xmlValue)
-        Len1 <- length(cadence1)
-        Len2 <- length(cadence2)
-        if ((!Len1 & !Len2) | (Len1 & !Len2)) cadence <- cadence1
-        if ((!Len1 & Len2) | (Len1 & Len2)) cadence <- cadence2
-        ## Cadence for cycling and running
-        longitude <- XML::xpathApply(nodeDoc, "//o:LongitudeDegrees", namespaces = "o", XML::xmlValue)
-        latitude <- XML::xpathApply(nodeDoc, "//o:LatitudeDegrees", namespaces = "o", XML::xmlValue)
-        time <- XML::xpathApply(nodeDoc, "//o:Time", namespaces = "o", XML::xmlValue)
-        altitude <- XML::xpathApply(nodeDoc, "//o:AltitudeMeters", namespaces = "o", XML::xmlValue)
-        distance <- XML::xpathApply(nodeDoc, "//o:DistanceMeters", namespaces = "o", XML::xmlValue)
-        ## What if hr is defined differently?
-        hr <- XML::xpathApply(nodeDoc, "//o:HeartRateBpm", namespaces = "o", XML::xmlValue)
-        nullout <- function(z) if (length(z)) z[[1]] else NA
-        c(time = time[[1]],
-          longitude = nullout(longitude),
-          latitude = nullout(latitude),
-          altitude = nullout(altitude),
-          distance = nullout(distance),
-          hr = nullout(hr),
-          speed = nullout(speed),
-          cadence = nullout(cadence),
-                  watts = nullout(watts))
-    })) ## , mc.cores = mc.cores
-
-    fac2num <- function(z) {
-        as.numeric(levels(z))[z]
+    children_names <- function(x, xpath, ns) {
+        unique(xml_name(xml_children(xml_find_all(x, xpath, ns))))
     }
 
-    ## Test for useable data in container file
-    if (is.null(mydf)) {
-        warning(paste("no useable data in", file))
-        return(NULL)
+    ## Core namespaces
+    activity_ns <- names(which(ns == "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2")[1])
+    extensions_ns <- names(which(ns == "http://www.garmin.com/xmlschemas/ActivityExtension/v2")[1])
+
+
+    ## Sport
+    sport <- xml_attr(xml_find_all(doc, paste0("//", activity_ns, ":", "Activity")), "Sport")
+
+    ## Tp
+    tp_xpath <- paste0("//", activity_ns, ":", "Trackpoint")
+    tp_vars <- data.frame(name = children_names(doc, tp_xpath, ns),
+                          ns = activity_ns)
+
+    ## Position
+    position_xpath <- paste0("//", activity_ns, ":", "Position")
+    ## Add any nested fields here
+    is_position <- tp_vars$name == "Position"
+    if (any(is_position)) {
+        ## remove position
+        tp_vars <- tp_vars[!is_position, ]
+        ## Add longitude/latitude
+        children <- data.frame(name = children_names(doc, position_xpath, ns[activity_ns]),
+                               ns = activity_ns)
+        tp_vars <- rbind(tp_vars, children)
     }
 
-    mydf <- within(as.data.frame(mydf), {
-        longitude = fac2num(longitude)
-        latitude = fac2num(latitude)
-        altitude = fac2num(altitude)
-        distance = fac2num(distance)
-        hr = fac2num(hr)
-        speed = fac2num(speed)
-        cadence = fac2num(cadence)
-        watts = fac2num(watts)
+    ## Extensions
+    extensions_xpath <- paste0("//", extensions_ns, ":", "TPX")
+    is_extensions <- tp_vars$name == "Extensions"
+    if (any(is_extensions)) {
+        ## remove position
+        tp_vars <- tp_vars[!is_extensions, ]
+        ## Add any extensions
+        children <- data.frame(name = children_names(doc, extensions_xpath, ns[extensions_ns]),
+                               ns = extensions_ns)
+        tp_vars <- rbind(tp_vars, children)
+    }
+
+    is_time <- tp_vars$name == "Time"
+
+    tps <- xml_find_all(doc, tp_xpath, ns[activity_ns])
+    ## Double loop to extract obs
+    observations <- apply(tp_vars, 1, function(var) {
+        c_xpath <- paste0(".", "//", var["ns"], ":", var["name"])
+        c_ns <- ns[var["ns"]]
+        sapply(tps, function(x) {
+            xml_text(xml_find_first(x, c_xpath, c_ns))
+        })
     })
 
-    ## perpare names
-    allnames <- generateVariableNames()
-    namesOfInterest <- allnames$tcxNames
-    namesToBeUsed <- allnames$humanNames
+    observations <- as.data.frame(observations, stringsAsFactors = FALSE)
+    ## Rename RunCadence to Cadence
 
-    ## ## handle alternative names for heart rate and speed
-    ## if (!("value.HeartRateBpm.Value" %in% names(mydf)) & ("value.Value" %in% names(mydf))) {
-    ##     mydf[["value.HeartRateBpm.Value"]] <- mydf[["value.Value"]]
-    ## }
-    ## if (!("value.Extensions.TPX.Speed" %in% names(mydf)) & ("value.Speed" %in% names(mydf))) {
-    ##     mydf[["value.Extensions.TPX.Speed"]] <- mydf[["value.Speed"]]
-    ## }
-
-    ## extract the interesting variables
-    inds <- match(namesOfInterest, names(mydf), nomatch = 0)
-    newdat <- mydf[inds]
-    names(newdat) <- namesToBeUsed[inds!=0]
-
-    ## START hack: this is a hack for instances where only the time was
-    ## recorded because if the node had only Time recordings then the
-    ## record goes to the Time variable of mydf instead of the
-    ## value.Time
-    if ("time" %in% names(newdat)) {
-        newdat$time <- as.character(newdat$time)
-        newdat$time[is.na(newdat$time)] <- as.character(mydf$Time[is.na(newdat$time)])
+    names(observations) <- tp_vars$name
+    run_cadence <- tp_vars$name == "RunCadence"
+    if (any(run_cadence)) {
+        names(observations)[run_cadence] <- "Cadence"
     }
-    ## END hack
+    observations[!is_time] <- apply(observations[!is_time], 2, as.numeric)
+
+    ## human names
+    allnames <- trackeR:::generateVariableNames()
+    namesOfInterest <- allnames$tcx2Names
+    namesToBeUsed <- allnames$humanNames
+    inds <- match(namesOfInterest, names(observations), nomatch = 0)
+    observations <- observations[inds]
+    names(observations) <- namesToBeUsed[inds!=0]
 
     ## coerce time into POSIXct
-    newdat$time <- gsub("[\t\n]", "", newdat$time)
-    newdat$time <- convertTCXTimes2POSIXct(newdat$time, timezone = timezone)
-    ## newdat$time <- as.POSIXct(newdat$time, format = "%Y-%m-%dT%H:%M:%OSZ",
-    ##                           tz = timezone)
+    observations$time <- gsub("[\t\n]", "", observations$time)
+    observations$time <- trackeR:::convertTCXTimes2POSIXct(observations$time, timezone = timezone)
 
-
-    ## coerce the numeric variables into the correct class
-    numVars <- which(names(newdat) != "time")
-    for (i in numVars){
-        newdat[,i] <- as.numeric(as.character(newdat[, i]))
-    }
-
-    ## add missing variables as NA
-    missingVars <- namesToBeUsed[match(namesToBeUsed, names(newdat), nomatch = 0) == 0]
-    if (nrow(newdat) > 0) {
+    ## Add missing varibles
+    missingVars <- namesToBeUsed[match(namesToBeUsed, names(observations), nomatch = 0) == 0]
+    if (nrow(observations) > 0) {
         for (nn in missingVars) {
-            newdat[[nn]] <- NA
+            observations[[nn]] <- NA
         }
     }
 
     ## convert speed from speedunit to m/s
-    if (speedunit != "m_per_s"){
+    if (speedunit != "m_per_s") {
         speedConversion <- match.fun(paste(speedunit, "m_per_s", sep = "2"))
-        newdat$speed <- speedConversion(newdat$speed)
+        observations$speed <- speedConversion(observations$speed)
     }
 
     ## convert distance from distanceunit to m
-    if (distanceunit != "m"){
+    if (distanceunit != "m") {
         distanceConversion <- match.fun(paste(distanceunit, "m", sep = "2"))
-        newdat$distance <- distanceConversion(newdat$distance)
+        observations$distance <- distanceConversion(observations$distance)
     }
 
     ## use variable order for trackeRdata
-    if (any(names(newdat) != allnames$humanNames))
-        newdat <- newdat[, allnames$humanNames]
+    if (any(names(observations) != allnames$humanNames)) {
+        observations <- observations[, allnames$humanNames]
+    }
 
-    return(newdat)
+    attr(observations, "sport") <- sport
+
+    return(observations)
+
 }
 
 #' @inheritParams readX
