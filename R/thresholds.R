@@ -1,6 +1,6 @@
 ## README: include example for variable as a data frame?
 #' Thresholding for variables in \code{trackeRdata} objects.
-#' 
+#'
 #' @param object An object of class \code{\link{trackeRdata}}.
 #' @param variable A vector containing the names of the variables to which thresholding is applied. See Details.
 #' @param lower A vector containing the corresponding lower thresholds. See Details.
@@ -22,7 +22,7 @@ threshold <- function(object, variable, lower, upper, ...) {
         attr(object, "operations") <- operations
         return(object)
     }
-    
+
     ## prep default thresholds if nothing is specified
     if (missing(variable) & missing(lower) & missing(upper)) {
         units <- getUnits(object)
@@ -37,7 +37,7 @@ threshold <- function(object, variable, lower, upper, ...) {
             th <- data.frame(variable = variable, lower = lower, upper = upper)
         }
     }
-    
+
     ## compare with existing thresholds
     operations <- getOperations(object)
     if (!is.null(operations$threshold)) {
@@ -45,7 +45,7 @@ threshold <- function(object, variable, lower, upper, ...) {
         th$lower <- apply(th[, c("lower.x", "lower.y")], 1, max, na.rm = TRUE)
         th$upper <- apply(th[, c("upper.x", "upper.y")], 1, min, na.rm = TRUE)
     }
-    
+
     ## apply thresholds
     for (i in 1:nrow(th)) {
         v <- as.character(th$variable[i])
@@ -58,11 +58,11 @@ threshold <- function(object, variable, lower, upper, ...) {
             }
         }
     }
-    
+
     ## update attribute
     operations$threshold <- th[, c("variable", "lower", "upper")]
     attr(object, "operations") <- operations
-    
+
     return(object)
 }
 
@@ -71,12 +71,12 @@ generateDefaultThresholds <- function(cycling = FALSE, ...) {
     th <- generateBaseUnits(cycling)
     ## FIXME: tighter limits?
     if (cycling) {
-        th$lower <- c(-90, -180, -500, 0, 0, 0, 0, 0, 0, 0)
-        th$upper <- c(90, 180, 9000, Inf, 250, 100, Inf, Inf, Inf, Inf)
+        th$lower <- c(-90, -180, -500, 0, 0, 0, 0, 0, -30, 0, 0)
+        th$upper <- c(90, 180, 9000, Inf, 250, 100, Inf, Inf, 60, Inf, Inf)
     } else {
-        th$lower <- c(-90, -180, -500, 0, 0, 0, 0, 0, 0, 0)
+        th$lower <- c(-90, -180, -500, 0, 0, 0, 0, 0, -30, 0, 0)
         ## th$upper <- c(90, 180, 9000, Inf, 250, 20, Inf, Inf)
-        th$upper <- c(90, 180, 9000, Inf, 250, 12.5, Inf, Inf, Inf, Inf)
+        th$upper <- c(90, 180, 9000, Inf, 250, 12.5, Inf, Inf, 60, Inf, Inf)
     }
     class(th) <- c("trackeRthresholds", class(th))
     return(th)

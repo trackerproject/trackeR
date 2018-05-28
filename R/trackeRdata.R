@@ -56,7 +56,8 @@
 #' }
 #' @export
 trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2, correctDistances = FALSE,
-    country = NULL, mask = TRUE, fromDistances = TRUE, lgap = 30, lskip = 5, m = 11, silent = FALSE) {
+                        country = NULL, mask = TRUE, fromDistances = TRUE, lgap = 30, lskip = 5, m = 11, silent = FALSE) {
+
     ## prep units
     if (is.null(units)) {
         units <- generateBaseUnits(cycling)
@@ -79,6 +80,7 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2
             units[, i] <- as.character(units[, i])
     }
 
+
     ## basic edits on time stamps
     dat <- sanityChecks(dat = dat, silent = silent)
 
@@ -93,9 +95,12 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2
     if (correctDistances)
         trackerdat <- lapply(trackerdat, distanceCorrection, country = country, mask = mask)
 
+
     ## impute speeds in each session
     trackerdat <- lapply(trackerdat, imputeSpeeds, fromDistances = fromDistances, lgap = lgap,
         lskip = lskip, m = m, cycling = cycling, units = units)
+
+
 
     ## add pace (if unspecified: in min per 1 km if speed unit refers to km or m, and in min
     ## per 1 mile if speed unit refers to ft or mi)
@@ -207,6 +212,7 @@ getSessions <- function(dat, sessionThreshold = 2) {
     ## get session IDs
     dat$sessionID <- NA
     resting <- restingPeriods(dat$time, sessionThreshold)
+
     nSessions <- nrow(resting$sessions)
     for (i in seq.int(nSessions)) {
         session <- resting$sessions[i, 1:2]

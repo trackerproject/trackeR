@@ -38,7 +38,6 @@ imputeSpeeds <- function(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5
     distUnitSpeed <- speedUnits[1]
     timeUnitSpeed <- switch(speedUnits[2], "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days") ## README: can be avoided if we use the same names...
 
-
     ## Calculate speeds
     if (fromDistances){
         if (all(is.na(sessionData$distance))) {
@@ -51,6 +50,7 @@ imputeSpeeds <- function(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5
             sessionData <- sessionData[!is.na(sessionData$distance)]
             if (distUnit != distUnitSpeed){
                 conversion <- match.fun(paste(distUnit, distUnitSpeed, sep = "2"))
+
                 dist <- conversion(coredata(sessionData$distance))
             } else {
                 dist <- coredata(sessionData$distance)

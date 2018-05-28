@@ -330,10 +330,10 @@ generateBaseUnits <- function(cycling = FALSE, ...) {
     varnames <- c(varnames, c("pace", "duration"))
 
     if (cycling) {
-        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "rev_per_min", "W",
+        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "rev_per_min", "W", "C",
             "min_per_km", "s")
     } else {
-        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "W",
+        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "W", "C",
             "min_per_km", "s")
     }
 
@@ -963,4 +963,9 @@ steps_per_min2rev_per_min <- function(variable) {
 rev_per_min2steps_per_min <- function(variable) {
     ## step defined as half a revolution
     variable * 2
+}
+
+C2F <- function(variable) {
+    ## FIXME: Define here!!!
+    variable
 }
