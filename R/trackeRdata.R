@@ -117,7 +117,6 @@ trackeRdata <- function(dat, units = NULL, sport = NULL, sessionThreshold = 2, c
         lskip = lskip, m = m, cycling = is_cycling, units = units)
 
 
-
     ## add pace (if unspecified: in min per 1 km if speed unit refers to km or m, and in min
     ## per 1 mile if speed unit refers to ft or mi)
     if (!("pace" %in% units$variable)) {
@@ -139,11 +138,11 @@ trackeRdata <- function(dat, units = NULL, sport = NULL, sessionThreshold = 2, c
         return(x)
     })
 
-
     ## Set attributes
     attr(trackerdat, "operations") <- list(smooth = NULL, threshold = NULL)
     attr(trackerdat, "units") <- units
     attr(trackerdat, "sport") <- rep(sport, length(trackerdat))
+    attr(trackerdat, "file") <- attr(dat, "file")
 
     ## class and return
     class(trackerdat) <- c("trackeRdata", class(trackerdat))
@@ -353,6 +352,7 @@ c.trackeRdata <- function(..., recursive = FALSE) {
     class(ret) <- c("trackeRdata", "list")
     attr(ret, "units") <- units1
     attr(ret, "sport") <- unlist(sapply(input, attr, which = "sport"))
+    attr(ret, "file") <- unlist(sapply(input, attr, which = "file"))
     ## operations$smooth
     attr(ret, "operations") <- operations
 
@@ -405,6 +405,7 @@ unique.trackeRdata <- function(x, incomparables = FALSE, ...) {
     units <- getUnits(x)
     operations <- getOperations(x)
     sport <- attr(x, "sport")
+    files <- attr(x, "file")
 
     ## ret <- x[i]
     ret <- NextMethod()
@@ -453,6 +454,7 @@ unique.trackeRdata <- function(x, incomparables = FALSE, ...) {
     attr(ret, "units") <- units
     attr(ret, "operations") <- operations
     attr(ret, "sport") <- sport[i]
+    attr(ret, "file") <- files[i]
 
     return(ret)
 }
@@ -613,3 +615,4 @@ session_duration.trackeRdata <- function(object, ...) {
 sport.trackeRdata <- function(object, ...) {
     attr(object, "sport")
 }
+

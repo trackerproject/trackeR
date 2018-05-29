@@ -26,6 +26,7 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
     ## threshold defining 'moving'
     units <- getUnits(object)
     sports <- sport(object)
+    files <- attr(object, "file")
     if (is.null(movingThreshold)) {
         ## set to a speed (somewhat) below the preferred walking speed of ~1.4 m/s (Bohannon,
         ## 1997)
