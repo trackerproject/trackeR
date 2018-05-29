@@ -78,7 +78,7 @@ generateVariableNames <- function() {
 ##' Guess sport for internal use in readX functions.
 guess_sport <- function(sport) {
     keyword <- c("run", "cycl", "swim", "bik")
-    sports <- c("Running", "Cycling", "Swimming", "Cycling")
+    sports <- c("running", "cycling", "wwimming", "cycling")
     sport <- sports[sapply(keyword, function(key) grepl(key, sport, ignore.case = TRUE))]
     if (length(sport) == 0) {
         NA
@@ -87,8 +87,6 @@ guess_sport <- function(sport) {
         sport
     }
 }
-
-
 
 #' Read a training file in tcx, gpx, db3 or Golden Cheetah's JSON format.
 #'
@@ -503,8 +501,7 @@ readJSON <- function(file, timezone = "", speedunit = "km_per_h", distanceunit =
 #' @param distanceunit Character string indicating the measurement unit of the distance in the container
 #'     file to be converted into meters. Default is \code{m} when \code{type} is
 #'     \code{tcx} and \code{km} when \code{type} is \code{db3} or \code{json}. See Details.
-#' @param cycling Logical. Do the data stem from cycling instead of running? If so, the unit of
-#'     measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min}.
+#' @param sport What sport does \code{file} contain data from? Either \code{'cycling'}, \code{'running'}, \code{'swimming'} or \code{NULL} (default), in which case the sport is directly obtained from the \code{\link{readX}} extractors.
 #' @inheritParams readX
 #' @inheritParams restingPeriods
 #' @inheritParams imputeSpeeds
@@ -531,10 +528,10 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
                           country = NULL, mask = TRUE,
                           fromDistances = NULL,
                           speedunit = NULL, distanceunit = NULL,
-                          cycling = FALSE,
+                          sport = NULL,
                           lgap = 30, lskip = 5, m = 11,
                           silent = FALSE,
-                          parallel = FALSE, cores = getOption("mc.cores", 2L)){
+                          parallel = FALSE, cores = getOption("mc.cores", 2L)) {
     ## prepare args
     type <- match.arg(tolower(type), choices = c("tcx", "gpx", "db3", "json"))
     if (is.null(fromDistances)){
@@ -566,13 +563,12 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
                   "json" = readJSON(file = file, timezone = timezone, speedunit = speedunit,
                       distanceunit = distanceunit)
                   )
-    ## units of measurement
-    units <- generateBaseUnits(cycling) ## readX returns default units
-    #units <- units[-which(units$variable == "duration"), ]
 
+    ## units of measurement
+    units <- generateBaseUnits(is_cycling) ## readX returns default units
 
     ## make trackeRdata object (with all necessary data handling)
-    trackerdat <- trackeRdata(dat, units = units, cycling = cycling,
+    trackerdat <- trackeRdata(dat, units = units, cycling = is_cycling,
                               correctDistances = correctDistances, country = country, mask = mask,
                               sessionThreshold = sessionThreshold,
                               fromDistances = fromDistances,
@@ -600,9 +596,7 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
 #'     file to be converted into meters per second. Default is \code{m_per_s} for tcx files and \code{km_per_h} for db3 and Golden Cheetah's json files. See Details.
 #' @param distanceunit Character string indicating the measurement unit of the distance in the container
 #'     file to be converted into meters. Default is \code{m} for tcx files and \code{km} for db3 and Golden Cheetah's json files. See Details.
-#' @param cycling Logical. Do the data stem from cycling instead of running? If so, the default unit of
-#'     measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min} and power is
-#'     imputed with \code{0}, else with \code{NA}.
+#' @param sport What sport do the files in \code{directory} correspond to? Either \code{'cycling'}, \code{'running'}, \code{'swimming'} or \code{NULL} (default), in which case the sport is directly obtained from the \code{\link{readX}} extractors.
 #' @param verbose Logical. Should progress reports be printed?
 #' @param shiny Logical. Should the output of readDirectory be made \code{\link[shiny]{reactive}}? For use in the shiny interface. Default is \code{FALSE}.
 #' @inheritParams readX
@@ -631,7 +625,7 @@ readDirectory <- function(directory,
                           fromDistances = NULL,
                           speedunit = list(tcx = "m_per_s", gpx = "km_per_h", db3 = "km_per_h", json = "km_per_h"),
                           distanceunit = list(tcx = "m", gpx = "km", db3 = "km", json = "km"),
-                          cycling = FALSE,
+                          sport = NULL,
                           lgap = 30, lskip = 5, m = 11,
                           silent = FALSE,
                           shiny = FALSE, ## only relevant for shiny interfaces
@@ -729,7 +723,7 @@ readDirectory <- function(directory,
                                                       fromDistances = fromDistances,
                                                       speedunit = speedunit[[currentType]],
                                                       distanceunit = distanceunit[[currentType]],
-                                                      cycling = cycling,
+                                                      sport = sport,
                                                       lgap = lgap,
                                                       lskip = lskip,
                                                       m = m,
