@@ -2,14 +2,14 @@
 % Please edit documentation in R/read.R
 \name{generateVariableNames}
 \alias{generateVariableNames}
-\title{Generate variables names for internal use in readX functions. the
+\title{Generate variables names for internal use in readX functions. The
 variables vecotrs need to correspond one by on interms of variable
 type}
 \usage{
 generateVariableNames()
 }
 \description{
-Generate variables names for internal use in readX functions. the
+Generate variables names for internal use in readX functions. The
 variables vecotrs need to correspond one by on interms of variable
 type
 }

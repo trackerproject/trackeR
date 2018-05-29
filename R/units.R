@@ -242,7 +242,6 @@ changeUnits.trackeRWprime <- function(object, variable, unit, ...) {
 
 ## not to be exported
 changeUnits.trackeRthresholds <- function(object, variable, unit, ...) {
-
     for (v in variable) {
         i <- which(object$variable == v)
         currentUnit <- object$unit[i]

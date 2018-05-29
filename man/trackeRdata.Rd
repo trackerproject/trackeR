@@ -4,7 +4,7 @@
 \alias{trackeRdata}
 \title{Create a trackeRdata object.}
 \usage{
-trackeRdata(dat, units = NULL, cycling = FALSE, sessionThreshold = 2,
+trackeRdata(dat, units = NULL, sport = NULL, sessionThreshold = 2,
   correctDistances = FALSE, country = NULL, mask = TRUE,
   fromDistances = TRUE, lgap = 30, lskip = 5, m = 11, silent = FALSE)
 }
@@ -13,9 +13,7 @@ trackeRdata(dat, units = NULL, cycling = FALSE, sessionThreshold = 2,
 
 \item{units}{A data frame containing the unit of measurement for all variables. See Details.}
 
-\item{cycling}{Logical. Do the data stem from cycling instead of running? If so, the default unit of
-measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min} and power is
-imputed with \code{0}, else with \code{NA}.}
+\item{sport}{What sport does \code{dat} contain data of? Either \code{'cycling'}, \code{'running'}, \code{'swimming'} or \code{NULL} (default), in which case the sport is directly extracted from the \code{dat}. See Details.}
 
 \item{sessionThreshold}{The threshold in hours for the time
 difference between consecutive timestamps above which they are
@@ -68,6 +66,11 @@ The \code{units} argument takes a data frame with two variables named \code{vari
     0 for speed, last known position for latitude, longitude and altitude,
     NA or 0 power for running or cycling session, respectively, and NA for all other
     variables. Distances are (re-)calculated based on speeds after imputation.
+
+    \code{trackeRdata} assumes that all observations in \code{dat}
+    are from the same \code{sport}, even if \code{dat} ends up
+    having observations from different sessions (also depending on
+    the value of \code{sessionThreshold}.
 }
 \examples{
 \dontrun{
