@@ -126,6 +126,14 @@ nsessions <- function(object, ...) UseMethod("nsessions")
 #' @export
 session_times <- function(object, ...) UseMethod("session_times")
 
+#' Generic function for extracting sports
+#'
+#' @param object The object from which to extract sports.
+#' @param ... Arguments to be passed to methods.
+#' @export
+sport <- function(object, ...) UseMethod("sport")
+
+
 #' Generic function for calculating session durations.
 #'
 #' @param object The object for which to calculate session durations.

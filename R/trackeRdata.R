@@ -607,3 +607,9 @@ session_duration.trackeRdata <- function(object, ...) {
         as.numeric(difftime(sessionEnd, sessionStart, units = durUnit))
     })
 }
+
+#' @rdname sport
+#' @export
+sport.trackeRdata <- function(object, ...) {
+    attr(object, "sport")
+}

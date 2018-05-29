@@ -25,6 +25,7 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
 
     ## threshold defining 'moving'
     units <- getUnits(object)
+    sports <- sport(object)
     if (is.null(movingThreshold)) {
         ## set to a speed (somewhat) below the preferred walking speed of ~1.4 m/s (Bohannon,
         ## 1997)
@@ -109,7 +110,7 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
         ret
     }
 
-    summaries <- sapply(object, weightedMeans, which = c("cadence", "power", "heart.rate"), th = movingThreshold)
+    summaries <- sapply(object, weightedMeans, which = c("cadence", "power", "heart.rate", "altitude"), th = movingThreshold)
     ## work to rest ratio
     wrRatio <- as.numeric(durationMoving)/as.numeric(duration - durationMoving)
 
@@ -119,13 +120,16 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
         distance = distance, duration = duration, durationMoving = durationMoving, avgSpeed = avgSpeed,
         avgSpeedMoving = avgSpeedMoving, avgPace = avgPace, avgPaceMoving = avgPaceMoving,
         avgCadence = summaries["cadence", ],
+        avgAltitude = summaries["altitude", ],
+        avgAltitudeMoving = summaries["altitude_moving", ],
         avgCadenceMoving = summaries["cadence_moving", ],
         avgPower = summaries["power", ],
         avgPowerMoving = summaries["power_moving", ],
         avgHeartRate = summaries["heart.rate", ],
         avgHeartRateMoving = summaries["heart.rate_moving", ],
         avgHeartRateResting = summaries["heart.rate_resting", ],
-        wrRatio = wrRatio)
+        wrRatio = wrRatio,
+        sport = sports)
 
     attr(ret, "units") <- units
     attr(ret, "movingThreshold") <- movingThreshold
