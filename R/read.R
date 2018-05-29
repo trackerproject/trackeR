@@ -77,8 +77,8 @@ generateVariableNames <- function() {
 
 ##' Guess sport for internal use in readX functions.
 guess_sport <- function(sport) {
-    keyword <- c("run", "cycl", "swim", "bik")
-    sports <- c("running", "cycling", "wwimming", "cycling")
+    keyword <- c("run", "cycl", "swim", "bik", "rid")
+    sports <- c("running", "cycling", "swimming", "cycling", "cycling")
     sport <- sports[sapply(keyword, function(key) grepl(key, sport, ignore.case = TRUE))]
     if (length(sport) == 0) {
         NA
@@ -564,11 +564,11 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
                       distanceunit = distanceunit)
                   )
 
-    ## units of measurement
-    units <- generateBaseUnits(is_cycling) ## readX returns default units
+    ## ## units of measurement
+    ## units <- generateBaseUnits(is_cycling) ## readX returns default units
 
     ## make trackeRdata object (with all necessary data handling)
-    trackerdat <- trackeRdata(dat, units = units, cycling = is_cycling,
+    trackerdat <- trackeRdata(dat, units = NULL, sport = sport,
                               correctDistances = correctDistances, country = country, mask = mask,
                               sessionThreshold = sessionThreshold,
                               fromDistances = fromDistances,
@@ -596,7 +596,7 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
 #'     file to be converted into meters per second. Default is \code{m_per_s} for tcx files and \code{km_per_h} for db3 and Golden Cheetah's json files. See Details.
 #' @param distanceunit Character string indicating the measurement unit of the distance in the container
 #'     file to be converted into meters. Default is \code{m} for tcx files and \code{km} for db3 and Golden Cheetah's json files. See Details.
-#' @param sport What sport do the files in \code{directory} correspond to? Either \code{'cycling'}, \code{'running'}, \code{'swimming'} or \code{NULL} (default), in which case the sport is directly obtained from the \code{\link{readX}} extractors.
+#' @param sport What sport do the files in \code{directory} correspond to? Either \code{'cycling'}, \code{'running'}, \code{'swimming'} or \code{NULL} (default), in which case an attempt is made to extract the sport from each file in \code{directory}.
 #' @param verbose Logical. Should progress reports be printed?
 #' @param shiny Logical. Should the output of readDirectory be made \code{\link[shiny]{reactive}}? For use in the shiny interface. Default is \code{FALSE}.
 #' @inheritParams readX
@@ -610,6 +610,12 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
 #'     \code{ft}.
 #'
 #'     Reading Golden Cheetah's JSON files is experimental.
+#'
+#'     If \code{aggregate = TRUE}, then if \code{sport = NULL} the
+#'     sport in all sessions is determined by the first file read with
+#'     a sport specification; else if \code{sport} is one of the other
+#'     valid options it determines the sport for all sessions.
+#'
 #' @return An object of class \code{\link{trackeRdata}}.
 #' @seealso \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}, \code{\link{readJSON}}
 #'
@@ -684,6 +690,12 @@ readDirectory <- function(directory,
             if (verbose) {
                 cat("Cleaning up...")
             }
+            sports <- sapply(allData, attr, which = "sport")
+            sport_to_use <- na.omit(sports)[1]
+            if (length(unique(sports)) > 1) {
+                warning(directory, "has files from multiple sports and aggregate = TRUE. Assumming that all files are ", sport_to_use)
+            }
+
             allData <- do.call("rbind", allData[!sapply(allData, inherits, what = "try-error")])
             fromDistances <- if (is.null(fromDistances)) TRUE else fromDistances
             allData <- trackeRdata(allData,
@@ -692,7 +704,7 @@ readDirectory <- function(directory,
                                    country = country,
                                    mask = mask,
                                    fromDistances = fromDistances,
-                                   cycling = cycling,
+                                   sport = sport,
                                    lgap = lgap,
                                    lskip = lskip,
                                    m = m,

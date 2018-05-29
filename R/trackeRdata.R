@@ -304,7 +304,8 @@ c.trackeRdata <- function(..., recursive = FALSE) {
             operations$smooth$width <- widths
             operations$smooth$what <- whats
             operations$smooth$nsessions <- nsessions
-        } else {
+        }
+        else {
             nsessions <- lapply(input, function(x) getOperations(x)$smooth$nsessions)
             nsessions[sapply(nsessions, is.null)] <- nsessionsInput[sapply(nsessions, is.null)]
             operations$smooth$nsessions <- sum(do.call("c", nsessions))
@@ -351,6 +352,7 @@ c.trackeRdata <- function(..., recursive = FALSE) {
     ## class and other attributes
     class(ret) <- c("trackeRdata", "list")
     attr(ret, "units") <- units1
+    attr(ret, "sport") <- unlist(sapply(input, attr, which = "sport"))
     ## operations$smooth
     attr(ret, "operations") <- operations
 
@@ -371,11 +373,12 @@ c.trackeRdata <- function(..., recursive = FALSE) {
 sort.trackeRdata <- function(x, decreasing = FALSE, ...) {
     oo <- order(sapply(x, function(session) index(session)[1]))
     if (decreasing) {
-        x[rev(oo)]
+        ret <- x[rev(oo)]
     }
     else {
-        x[oo]
+        ret <- x[oo]
     }
+    ret
 }
 
 #' Exrtact unique sessions in a \code{trackerRdata} object.
@@ -390,7 +393,9 @@ sort.trackeRdata <- function(x, decreasing = FALSE, ...) {
 #' @export
 unique.trackeRdata <- function(x, incomparables = FALSE, ...) {
     start <- sapply(x, function(session) index(session)[1])
-    x[!duplicated(start, incomparables = FALSE)]
+    inds <- !duplicated(start, incomparables = FALSE)
+    ret <- x[inds]
+    ret
 }
 
 
@@ -399,6 +404,7 @@ unique.trackeRdata <- function(x, incomparables = FALSE, ...) {
 
     units <- getUnits(x)
     operations <- getOperations(x)
+    sport <- attr(x, "sport")
 
     ## ret <- x[i]
     ret <- NextMethod()
@@ -413,7 +419,8 @@ unique.trackeRdata <- function(x, incomparables = FALSE, ...) {
         if (length(j) < 2) {
             k <- j
             nsessions <- length(j)
-        } else {
+        }
+        else {
             ## to avoid duplicating unnecessary information, aggregate j to k and keep track of
             ## number of sessions NOTE: k <- unique(j) ; smooth$nsessions <- as.numeric(table(j))
             ## does not allow to split sessions from one block - but x[i] does allow it.  Thus the
@@ -445,6 +452,7 @@ unique.trackeRdata <- function(x, incomparables = FALSE, ...) {
     class(ret) <- c("trackeRdata", "list")
     attr(ret, "units") <- units
     attr(ret, "operations") <- operations
+    attr(ret, "sport") <- sport[i]
 
     return(ret)
 }
