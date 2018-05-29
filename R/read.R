@@ -246,6 +246,7 @@ readTCX <- function(file, timezone = "",
     }
 
     attr(observations, "sport") <- sport
+    attr(observations, "file") <- file
 
     return(observations)
 
@@ -366,6 +367,7 @@ readGPX <- function(file, timezone = "",
     }
 
     attr(observations, "sport") <- sport
+    attr(observations, "file") <- file
 
     return(observations)
 
@@ -423,6 +425,9 @@ readDB3 <- function(file, timezone = "", table = "gps_data",
     ## use variable order for trackeRdata
     if (any(names(newdat) != allnames$humanNames))
         newdat <- newdat[, allnames$humanNames]
+
+    attr(newdata, "sport") <- NA
+    attr(file, "file") <- file
 
     return(newdat)
 }
@@ -488,6 +493,7 @@ readJSON <- function(file, timezone = "",
         newdat <- newdat[, allnames$humanNames]
 
     attr(newdat, "sport") <- sport
+    attr(file, "file") <- file
 
     return(newdat)
 
@@ -585,12 +591,6 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
     return(trackerdat)
 }
 
-
-
-## Reads supported container files from a supplied directory
-## CYCLING applied to all files!
-## directory should end with "/"?
-
 #' Read all supported container files from a supplied directory.
 #'
 #' @param directory The path to the directory.
@@ -604,6 +604,8 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
 #' @param distanceunit Character string indicating the measurement unit of the distance in the container
 #'     file to be converted into meters. Default is \code{m} for tcx files and \code{km} for db3 and Golden Cheetah's json files. See Details.
 #' @param sport What sport do the files in \code{directory} correspond to? Either \code{'cycling'}, \code{'running'}, \code{'swimming'} or \code{NULL} (default), in which case an attempt is made to extract the sport from each file in \code{directory}.
+#' @param parallel Logical. Should reading be carried out in parallel?
+#' @param cores Number of cores for parallel computing.
 #' @param verbose Logical. Should progress reports be printed?
 #' @param shiny Logical. Should the output of readDirectory be made \code{\link[shiny]{reactive}}? For use in the shiny interface. Default is \code{FALSE}.
 #' @inheritParams readX
@@ -778,9 +780,9 @@ readDirectory <- function(directory,
 }
 
 readDirectory_shiny <- function(input,
-                                   output,
-                                   session,
-                                   ...) {
+                                output,
+                                session,
+                                ...) {
     readDirectory(..., shiny = TRUE)
 }
 
@@ -802,7 +804,8 @@ convertTCXTimes2POSIXct <- function(x, timezone = ""){
     if (nchar(formatSample) <= 19L) {
         ## just 2 characters for the seconds, nothing else
         frm <- paste0(frm, "%S")
-    } else {
+    }
+    else {
 
         rest <- substr(formatSample, start = 20, stop = nchar(formatSample))
 
@@ -824,7 +827,8 @@ convertTCXTimes2POSIXct <- function(x, timezone = ""){
             ## get remainder beyond seconds for timezone specification
             rest <- substr(rest, ndigits + 1, nchar(rest))
 
-        } else {
+        }
+        else {
             ## add seconds to format
             frm <- paste0(frm, "%S")
             ndigits <- 0
