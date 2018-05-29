@@ -260,10 +260,17 @@ readGPX <- function(file, timezone = "", speedunit = "km_per_h", distanceunit = 
     extensions_ns <- na.omit(sapply(extensions_ns, function(e) names(which(ns == e)[1])))
 
 
-    ## Sport
-    sport <- xml_attr(xml_find_all(doc, paste0("//", activity_ns, ":", "Activity")), "Sport")
+    ## Sport extraction
+    sport <- xml_text(xml_find_first(doc, paste0("//", activity_ns, ":", "name")))
+    keyword <- c("run", "cycl", "swim", "bik")
+    sports <- c("Running", "Cycling", "Swimming", "Cycling")
+    sport <- sports[sapply(keyword, function(key) grepl(key, sport, ignore.case = TRUE))]
 
-    ## Tp
+    if (length(sport) == 0) {
+        sport <- NA
+    }
+
+    ## Trackpoint
     tp_xpath <- paste0("//", activity_ns, ":", "trkpt")
     tp_vars <- data.frame(name = children_names(doc, tp_xpath, ns),
                           ns = activity_ns)
