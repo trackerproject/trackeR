@@ -1,4 +1,4 @@
-##' Generate variables names for internal use in readX functions. the
+##' Generate variables names for internal use in readX functions. The
 ##' variables vecotrs need to correspond one by on interms of variable
 ##' type
 generateVariableNames <- function() {
@@ -75,6 +75,20 @@ generateVariableNames <- function() {
          jsonNames = jsonNames)
 }
 
+##' Guess sport for internal use in readX functions.
+guess_sport <- function(sport) {
+    keyword <- c("run", "cycl", "swim", "bik")
+    sports <- c("Running", "Cycling", "Swimming", "Cycling")
+    sport <- sports[sapply(keyword, function(key) grepl(key, sport, ignore.case = TRUE))]
+    if (length(sport) == 0) {
+        NA
+    }
+    else {
+        sport
+    }
+}
+
+
 
 #' Read a training file in tcx, gpx, db3 or Golden Cheetah's JSON format.
 #'
@@ -137,10 +151,7 @@ readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "
     extensions_ns <- na.omit(sapply(extensions_ns, function(e) names(which(ns == e)[1])))
 
     ## Sport
-    sport <- xml_attr(xml_find_first(doc, paste0("//", activity_ns, ":", "Activity")), "Sport")
-    keyword <- c("run", "cycl", "swim", "bik")
-    sports <- c("Running", "Cycling", "Swimming", "Cycling")
-    sport <- sports[sapply(keyword, function(key) grepl(key, sport, ignore.case = TRUE))]
+    sport <- guess_sport(xml_attr(xml_find_first(doc, paste0("//", activity_ns, ":", "Activity")), "Sport"))
 
     ## Tp
     tp_xpath <- paste0("//", activity_ns, ":", "Trackpoint")
@@ -264,14 +275,7 @@ readGPX <- function(file, timezone = "", speedunit = "km_per_h", distanceunit = 
 
 
     ## Sport extraction
-    sport <- xml_text(xml_find_first(doc, paste0("//", activity_ns, ":", "name")))
-    keyword <- c("run", "cycl", "swim", "bik")
-    sports <- c("Running", "Cycling", "Swimming", "Cycling")
-    sport <- sports[sapply(keyword, function(key) grepl(key, sport, ignore.case = TRUE))]
-
-    if (length(sport) == 0) {
-        sport <- NA
-    }
+    sport <- guess_sport(xml_text(xml_find_first(doc, paste0("//", activity_ns, ":", "name"))))
 
     ## Trackpoint
     tp_xpath <- paste0("//", activity_ns, ":", "trkpt")
@@ -433,6 +437,9 @@ readJSON <- function(file, timezone = "", speedunit = "km_per_h", distanceunit =
     stime <- as.POSIXct(strptime(paste(stime[1:2], collapse = "T"),
                                  format = "%Y/%m/%dT%H:%M:%S"), tz = timezone)
 
+    ## sport
+    sport <- guess_sport(jslist$TAGS$Sport)
+
     ## tracking data
     if (!("SAMPLES" %in% names(jslist))) stop("No tracking data available.")
     mydf <- jslist$SAMPLES
@@ -473,6 +480,8 @@ readJSON <- function(file, timezone = "", speedunit = "km_per_h", distanceunit =
     ## use variable order for trackeRdata
     if (any(names(newdat) != allnames$humanNames))
         newdat <- newdat[, allnames$humanNames]
+
+    attr(newdat, "sport") <- sport
 
     return(newdat)
 
