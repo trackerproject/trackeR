@@ -315,9 +315,11 @@ readGPX <- function(file, timezone = "", speedunit = "km_per_h", distanceunit = 
         })
     })
 
-    observations <- as.data.frame(observations, stringsAsFactors = FALSE)
+
+    observations <- as.data.frame(matrix(observations, ncol = nrow(tp_vars)), stringsAsFactors = FALSE)
 
     names(observations) <- tp_vars$name
+
 
     observations[!is_time] <- apply(observations[!is_time], 2, as.numeric)
 
@@ -326,7 +328,8 @@ readGPX <- function(file, timezone = "", speedunit = "km_per_h", distanceunit = 
     observations$lon <- as.numeric(xml_attr(tps, "lon", ns[activity_ns]))
 
     ## Compute distance
-    observations$distance <- cumsum(c(0, sp::spDists(observations[, c("lon", "lat")], longlat = TRUE, segments = TRUE)))
+    dists <- sp::spDists(observations[, c("lon", "lat")], longlat = TRUE, segments = TRUE)
+    observations$distance <- if (length(dists) == 1) 0 else cumsum(c(0, dists))
 
     ## human names
     allnames <- generateVariableNames()
@@ -629,7 +632,7 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
 #'
 #' @export
 readDirectory <- function(directory,
-                          aggregate = TRUE, ## aggregate data from all files or keep data from different files in different sessions?
+                          aggregate = FALSE, ## aggregate data from all files or keep data from different files in different sessions?
                           table = "gps_data",
                           timezone = "",
                           sessionThreshold = 2,
