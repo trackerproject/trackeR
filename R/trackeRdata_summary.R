@@ -130,7 +130,8 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
         avgHeartRateMoving = summaries["heart.rate_moving", ],
         avgHeartRateResting = summaries["heart.rate_resting", ],
         wrRatio = wrRatio,
-        sport = sports)
+        sport = sports,
+        file = files)
 
     attr(ret, "units") <- units
     attr(ret, "movingThreshold") <- movingThreshold
