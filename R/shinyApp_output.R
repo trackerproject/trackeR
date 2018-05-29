@@ -41,7 +41,8 @@ render_summary_table <- function(data, input) {
         }
         else {
           # data$selectedSessions <- data$summary$session[na.omit(as.numeric(data$hover$key))]
-          data$selectedSessions <- intersect(na.omit(as.numeric(data$hover$key)), sessions_by_sport)
+          data$selectedSessions <- intersect(unique(na.omit(as.numeric(data$hover$key))),
+                                             sessions_by_sport)
         }
         dataSelected <- data.frame(
           "Session" = data$summary[data$selectedSessions][["session"]],

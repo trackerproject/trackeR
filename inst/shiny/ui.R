@@ -19,7 +19,7 @@ ui <- shinydashboard::dashboardPage(
       div(
         fileInput("processedDataPath", "Choose processed file",
                   multiple = FALSE,
-                  accept = c(".rds", ".rdata", ".rda"))
+                  accept = c(".rds"))
       ),
       div(
         fileInput("rawDataDirectory", "Choose directory with raw data",

@@ -7,9 +7,10 @@ if (live_version == TRUE) {
     library(plotly)
     library(shinycssloaders)
     library(trackeR)
-    options(shiny.maxRequestSize=30*1024^3)
 }
 
+Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoicnVnZWVyIiwiYSI6ImNqOTduN2phMTBmYXkyd29yNjR1amU2cjUifQ.IhNRZRmy1mlbLloz-p6vbw')
+options(shiny.maxRequestSize=30*1024^3)
 server <- function(input, output, session) {
                                         # Main object where all data is stored
     data <- reactiveValues(summary = NULL, object = NULL, selectedSessions = NULL, hasData = NULL)
@@ -124,7 +125,7 @@ server <- function(input, output, session) {
         else {
             output$timeline_plot <- plotly::renderPlotly({
                                                 if (!is.null(data$summary)) {
-                                                    trackeR:::plot_timeline(data$summary[data$selectedSessions])
+                                                    trackeR:::plot_timeline(data$summary, session = data$selectedSessions)
                                                 }
                                             })
             ## Re-render all plots
@@ -140,9 +141,16 @@ server <- function(input, output, session) {
             ## DT
             output$summary <- trackeR:::render_summary_table(data, input)
             trackeR:::create_map()
-            output$map <- leaflet::renderLeaflet({
-                                       trackeR:::plot_map(x = data$object, session = data$selectedSessions, sumX = data$summary)
-                                   })
+            # output$map <- leaflet::renderLeaflet({
+            #                            trackeR:::plot_map(x = data$object, session = data$selectedSessions, sumX = data$summary)
+            #                        })
+            preped_route_map <- reactive({
+              session <- seq_along(data$object)
+              prepRoute(data$object, session = session, threshold = TRUE)
+            })
+            output$map <- plotly::renderPlotly({
+              trackeR:::plot_map(x = data$object, preped_route = preped_route_map(), session = data$selectedSessions, sumX = data$summary)
+            })
             trackeR:::create_summary_boxes()
             output$avgDistance_box <- trackeR:::render_summary_box('distance', 'Average distance', data)
             output$avgDuration_box <- trackeR:::render_summary_box('duration', 'Average duration', data)
@@ -153,15 +161,15 @@ server <- function(input, output, session) {
                 trackeR:::create_workout_plots(i)
             }
             lapply(input$metricsSelected, function(i) {
-                output[[paste0(i, '_plot')]] <- plotly::renderPlotly({
-                                                            if(!is.null(input$sports)){
-                                                                selected_sports <- data$summary$session[data$classification %in% input$sports]
-                                                            } else {
-                                                                selected_sports <- data$summary$session
-                                                            }
-
-                                                            trackeR:::plot_workouts(sumX = data$summary[selected_sports], what = i)
-                                                        })
+              output[[paste0(i, "_plot")]] <- plotly::renderPlotly({
+                if (!is.null(input$sports)) {
+                  selected_sports <- data$summary$session[data$classification %in% input$sports]
+                } else {
+                  selected_sports <- data$summary$session
+                }
+            
+                trackeR:::plot_workouts(sumX = data$summary[selected_sports], what = i)
+              })
             })
             output$cond <- reactive({
                 TRUE

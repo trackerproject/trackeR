@@ -11,7 +11,7 @@ create_map <- function() {
         collapsible = TRUE,
         collapsed = TRUE,
         title = tagList(icon("map"), "Map"),
-        shinycssloaders::withSpinner(leaflet::leafletOutput("map", width = "auto", height = "430px"), size = 2)
+        shinycssloaders::withSpinner(plotly::plotlyOutput("map", width = "auto", height = "430px"), size = 2)
       )))
     )
   )

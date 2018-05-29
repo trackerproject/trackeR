@@ -1,3 +1,85 @@
+#' #' Plot all selected workouts on an interactive leaflet map.
+#' #'
+#' #' @param x An object of class \code{\link{trackeRdata}}.
+#' #' @param sumX An object of class \code{\link{trackeRdataSummary}}.
+#' #' @param session A numeric vector of the sessions to be plotted. Defaults to
+#' #'     all sessions.
+#' #' @param threshold Logical. Should thresholds be applied?
+#' #' @param shiny_version Logical. Whether plot shiny version of map or TrackeR version.
+#' #'
+#' plot_map <- function(x, sumX, session = NULL, threshold = TRUE, shiny_version = TRUE, ...){
+#'     if (is.null(session)) session <- seq_along(x)
+#'     ## get prepared data.frame
+#'     df <- prepRoute(x, session = session, threshold = threshold, ...)
+#'     ## prepare popups
+#'     units <- getUnits(x)
+#'     popupText <- function(session, start = TRUE){
+#'         w <- which(sumX$session == session)
+#'         unitDist4pace <- strsplit(units$unit[units$variable == "pace"],
+#'                                   split = "_per_")[[1]][2]
+#'         avgPace <- floor(sumX$avgPace[w] * 100) / 100
+#' 
+#'         paste(
+#'             paste("<b>", ifelse(start, "Start", "End"), "of session", session, "</b>"),
+#'             paste(sumX$sessionStart[w], "-", sumX$sessionEnd[w]),
+#'             paste("Distance:", round(sumX$distance[w], 2), units$unit[units$variable == "distance"]),
+#'             paste("Duration:", round(as.numeric(sumX$duration[w]), 2), units(sumX$duration[w])),
+#'             paste(paste0("Avg. pace (per 1 ", unitDist4pace, "):"),
+#'                   paste(floor(avgPace), round(avgPace %% 1 * 60, 0), sep = ":"), "min:sec"),
+#'             sep = "<br/>"
+#'         )
+#'     }
+#'     if (shiny_version) {
+#'         # create icons
+#'         startIcon <- leaflet::makeIcon(
+#'         iconUrl = system.file("icons", "green_marker.png", package = "trackeR"),
+#'         iconWidth = 32, iconHeight = 37, iconAnchorX = 16, iconAnchorY = 37
+#'         )
+#'         finishIcon <- leaflet::makeIcon(
+#'         iconUrl = system.file("icons", "red_marker.png", package = "trackeR"),
+#'         iconWidth = 32, iconHeight = 37, iconAnchorX = 16, iconAnchorY = 37
+#'         )
+#'         p <- leaflet::leaflet() %>% leaflet::addProviderTiles(leaflet::providers$CartoDB.Positron)
+#'     } else {
+#' 
+#'         ## prepare markers
+#'         startIcon <- leaflet::makeIcon(
+#'             iconUrl = system.file("icons", "start.png", package = "trackeR"),
+#'             iconWidth = 32, iconHeight = 37, iconAnchorX = 16, iconAnchorY = 37
+#'         )
+#'         finishIcon <- leaflet::makeIcon(
+#'             iconUrl = system.file("icons", "finish.png", package = "trackeR"),
+#'             iconWidth = 32, iconHeight = 37, iconAnchorX = 16, iconAnchorY = 37
+#'         )
+#'         ## get map
+#'         p <- leaflet::leaflet()
+#'         p <- leaflet::addTiles(p, group = "OSM (default)")
+#'         p <- leaflet::addProviderTiles(p, "Stamen.Toner", group = "Toner")
+#'         p <- leaflet::addProviderTiles(p, "Stamen.TonerLite", group = "Toner Lite")
+#'         ## add control panel
+#'         p <- leaflet::addLayersControl(p, baseGroups = c("OSM (default)", "Toner", "Toner Lite"),
+#'                               overlayGroups = paste("Session:", session),
+#'                               options = leaflet::layersControlOptions(collapsed = FALSE))
+#'     }
+#'     ## add trace + markers + popups
+#'     for (i in session){
+#'         dfi <- df[df$SessionID == which(i == session), , drop = FALSE]
+#'         p <- leaflet::addPolylines(p, group = paste("Session:", i),
+#'                                    lng = dfi$longitude, lat = dfi$latitude)
+#' 
+#'         p <- leaflet::addMarkers(p, group = paste("Session:", i),
+#'                                  lng = dfi$longitude[1], lat = dfi$latitude[1],
+#'                                  #popup = htmltools::htmlEscape(popupText(session = i)))
+#'                                  popup = popupText(session = i, start = TRUE), icon = startIcon)
+#'         p <- leaflet::addMarkers(p, group = paste("Session:", i),
+#'                                  lng = dfi$longitude[nrow(dfi)], lat = dfi$latitude[nrow(dfi)],
+#'                                  popup = popupText(session = i, start = FALSE), icon = finishIcon)
+#'     }
+#' 
+#'     return(p)
+#' }
+
+
 #' Plot all selected workouts on an interactive leaflet map.
 #'
 #' @param x An object of class \code{\link{trackeRdata}}.
@@ -5,78 +87,126 @@
 #' @param session A numeric vector of the sessions to be plotted. Defaults to
 #'     all sessions.
 #' @param threshold Logical. Should thresholds be applied?
-#' @param shiny_version Logical. Whether plot shiny version of map or TrackeR version.
-#'
-plot_map <- function(x, sumX, session = NULL, threshold = TRUE, shiny_version = TRUE, ...){
-    if (is.null(session)) session <- seq_along(x)
+#' @param preped_route A dataframe (optional). A user can provide a dataframe generated by \code{\link{prepRoute()}}. 
+plot_map <- function(x, sumX, preped_route = NULL, session = NULL, threshold = TRUE, ...) {
+  if (is.null(session)) session <- seq_along(x)
+  all_sessions <- seq_along(x)
+  if (is.null(preped_route)) {
     ## get prepared data.frame
     df <- prepRoute(x, session = session, threshold = threshold, ...)
-    ## prepare popups
-    units <- getUnits(x)
-    popupText <- function(session, start = TRUE){
-        w <- which(sumX$session == session)
-        unitDist4pace <- strsplit(units$unit[units$variable == "pace"],
-                                  split = "_per_")[[1]][2]
-        avgPace <- floor(sumX$avgPace[w] * 100) / 100
+  } else {
+    df <- preped_route
+  }
+  ## prepare popups
+  units <- getUnits(x)
+  popupText <- function(session, start = TRUE, speed) {
+    session <- unique(session)
+    w <- which(sumX$session == session)
+    unitDist4pace <- strsplit(
+      units$unit[units$variable == "pace"],
+      split = "_per_"
+    )[[1]][2]
+    avgPace <- floor(sumX$avgPace[w] * 100) / 100
 
-        paste(
-            paste("<b>", ifelse(start, "Start", "End"), "of session", session, "</b>"),
-            paste(sumX$sessionStart[w], "-", sumX$sessionEnd[w]),
-            paste("Distance:", round(sumX$distance[w], 2), units$unit[units$variable == "distance"]),
-            paste("Duration:", round(as.numeric(sumX$duration[w]), 2), units(sumX$duration[w])),
-            paste(paste0("Avg. pace (per 1 ", unitDist4pace, "):"),
-                  paste(floor(avgPace), round(avgPace %% 1 * 60, 0), sep = ":"), "min:sec"),
-            sep = "<br/>"
-        )
+    paste(
+      paste("Session:", session),
+      # paste(sumX$sessionStart[w], "-", sumX$sessionEnd[w]),
+      paste("Distance:", round(sumX$distance[w], 2), units$unit[units$variable == "distance"]),
+      paste("Duration:", round(as.numeric(sumX$duration[w]), 2), units(sumX$duration[w])),
+      paste(
+        paste0("Avg. pace (per 1 ", unitDist4pace, "):"),
+        paste(floor(avgPace), round(avgPace %% 1 * 60, 0), sep = ":"), "min:sec"
+      ),
+      paste("Current speed:", round(speed, 1), lab_sum(feature = "avgSpeed", data = sumX, whole_text = FALSE)),
+      sep = "\n"
+    )
+  }
+  p <- plotly::plot_mapbox()
+  for (i in all_sessions) {
+    plot_df <- df[which(df$SessionID == i), ]
+    df_markers <- plot_df[seq(1, nrow(plot_df), round(nrow(plot_df) / 10, 0)), ]
+    df_markers$true_session_id <- i
+
+    p <- plotly::add_markers(
+      p, data = df_markers, x = ~longitude, y = ~latitude,
+      size = I(2), key = ~true_session_id, color = I("deepskyblue3")
+    )
+
+    p <- plotly::add_paths(
+      p, data = plot_df, x = ~longitude, y = ~latitude,
+      size = I(2), color = I("deepskyblue3"),
+      text = ~popupText(session = SessionID, speed = speed)
+    )
+  }
+  ## add trace + markers + popups
+  if (!(identical(all_sessions, session))) {
+    for (i in session) {
+      plot_df <- df[which(df$SessionID == i), ]
+      df_markers <- plot_df[seq(1, nrow(plot_df), round(nrow(plot_df) / 10, 0)), ]
+      df_markers$true_session_id <- i
+      p <- plotly::add_markers(
+        p, data = df_markers, x = ~longitude, y = ~latitude,
+        size = I(2), key = ~true_session_id, color = I("darkorange3")
+      )
+      p <- plotly::add_paths(
+        p, data = plot_df, x = ~longitude, y = ~latitude,
+        size = I(2), color = I("darkorange3"),
+        text = ~popupText(session = SessionID, speed = speed)
+      )
     }
-    if (shiny_version) {
-        # create icons
-        startIcon <- leaflet::makeIcon(
-        iconUrl = system.file("icons", "green_marker.png", package = "trackeR"),
-        iconWidth = 32, iconHeight = 37, iconAnchorX = 16, iconAnchorY = 37
-        )
-        finishIcon <- leaflet::makeIcon(
-        iconUrl = system.file("icons", "red_marker.png", package = "trackeR"),
-        iconWidth = 32, iconHeight = 37, iconAnchorX = 16, iconAnchorY = 37
-        )
-        p <- leaflet::leaflet() %>% leaflet::addProviderTiles(leaflet::providers$CartoDB.Positron)
-    } else {
+  }
+  center_lat <- median(df$latitude[which(df$SessionID %in% session)])
+  center_lon <- median(df$longitude[which(df$SessionID %in% session)])
 
-        ## prepare markers
-        startIcon <- leaflet::makeIcon(
-            iconUrl = system.file("icons", "start.png", package = "trackeR"),
-            iconWidth = 32, iconHeight = 37, iconAnchorX = 16, iconAnchorY = 37
-        )
-        finishIcon <- leaflet::makeIcon(
-            iconUrl = system.file("icons", "finish.png", package = "trackeR"),
-            iconWidth = 32, iconHeight = 37, iconAnchorX = 16, iconAnchorY = 37
-        )
-        ## get map
-        p <- leaflet::leaflet()
-        p <- leaflet::addTiles(p, group = "OSM (default)")
-        p <- leaflet::addProviderTiles(p, "Stamen.Toner", group = "Toner")
-        p <- leaflet::addProviderTiles(p, "Stamen.TonerLite", group = "Toner Lite")
-        ## add control panel
-        p <- leaflet::addLayersControl(p, baseGroups = c("OSM (default)", "Toner", "Toner Lite"),
-                              overlayGroups = paste("Session:", session),
-                              options = leaflet::layersControlOptions(collapsed = FALSE))
-    }
-    ## add trace + markers + popups
-    for (i in session){
-        dfi <- df[df$SessionID == which(i == session), , drop = FALSE]
-        p <- leaflet::addPolylines(p, group = paste("Session:", i),
-                                   lng = dfi$longitude, lat = dfi$latitude)
+  # map style buttons
+  basic <- list(
+    method = "relayout",
+    args = list(list(mapbox.style = "basic")),
+    label = "Basic"
+  )
 
-        p <- leaflet::addMarkers(p, group = paste("Session:", i),
-                                 lng = dfi$longitude[1], lat = dfi$latitude[1],
-                                 #popup = htmltools::htmlEscape(popupText(session = i)))
-                                 popup = popupText(session = i, start = TRUE), icon = startIcon)
-        p <- leaflet::addMarkers(p, group = paste("Session:", i),
-                                 lng = dfi$longitude[nrow(dfi)], lat = dfi$latitude[nrow(dfi)],
-                                 popup = popupText(session = i, start = FALSE), icon = finishIcon)
-    }
+  dark <- list(
+    method = "relayout",
+    args = list(list(mapbox.style = "dark")),
+    label = "Dark"
+  )
 
-    return(p)
+  button <- function(map_type, label) {
+    list(
+      method = "relayout",
+      args = list(list(mapbox.style = map_type)),
+      label = label
+    )
+  }
+
+  updatemenus <- list(
+    list(
+      type = "buttons",
+      direction = "right",
+      yanchor = "bottom",
+      pad = list("r" = 10, "t" = 10, "b" = 10),
+      x = 1,
+      y = 0,
+      buttons = list(
+        button("basic", "Basic"), button("streets", "Streets"),
+        button("outdoors", "Outdoors"), button("light", "Light"),
+        button("dark", "Dark"), button("satellite", "Satellite"),
+        button("satellite-streets", "Satellite streets")
+      )
+    )
+  )
+
+  diff_lon <- abs(max(df$longitude[which(df$SessionID %in% session)]) - min(df$longitude[which(df$SessionID %in% session)]))
+
+  p <- plotly::layout(
+    p, mapbox = list(
+      zoom = min(10, max(1.5 / diff_lon, 7)),
+      center = list(lat = center_lat, lon = center_lon),
+      style = "basic"
+    ), dragmode = "select", showlegend = FALSE, updatemenus = updatemenus,
+    margin = list(l = 0, r = 0, t = 0, b = 0)
+  )
+  return(p)
 }
 
 

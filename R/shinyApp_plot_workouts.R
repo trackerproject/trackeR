@@ -79,19 +79,21 @@ plot_workouts <- function(sumX, what, plotly=TRUE, shiny=TRUE, date = TRUE, grou
       )
     ) %>%
       plotly::add_markers(key = dat$session, color = I("deepskyblue3")) %>%
-      plotly::add_lines(color = I("deepskyblue2"))
+      plotly::add_lines(color = I("deepskyblue3"))
     if (shiny){
-      if (length(d[["key"]]) > 0) {
-        m <- dat[dat$session %in% d[["key"]], ]
-        p <- plotly::add_markers(p, data = m, color = I("darkorange3"))
-          # plotly::add_lines(data = m, color = I("darkorange2"))
+      if (length(unique(d[["key"]])) > 0) {
+        m <- dat[dat$session %in% unique(d[["key"]]), ]
+        p <- plotly::add_markers(p, data = m, color = I("darkorange3"),
+                                 size = I(8)) 
+            # plotly::add_paths(data = m, color = I("darkorange3"))
       }
     }
 
     y <- list(title = feature)
     x <- list(title = "Date")
 
-    plotly::layout(p, dragmode = "select", showlegend = FALSE, yaxis = y, xaxis = x, margin = list(l = 80, b = 50, pad = 0))
+    plotly::layout(p, dragmode = "select", showlegend = FALSE, yaxis = y, 
+                   xaxis = x, margin = list(l = 80, b = 50, pad = 0))
   } else {
     plot(sumX, what = what)
   }
