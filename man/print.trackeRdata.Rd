@@ -4,7 +4,7 @@
 \alias{print.trackeRdata}
 \title{print method for \code{\link{trackeRdata}} objects}
 \usage{
-\method{print}{trackeRdata}(x, ..., digits = 2)
+\method{print}{trackeRdata}(x, duration = "h", ..., digits = 2)
 }
 \arguments{
 \item{x}{An object of class \code{\link{trackeRdata}}.}

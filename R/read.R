@@ -153,7 +153,11 @@ readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "
 
     ## Tp
     tp_xpath <- paste0("//", activity_ns, ":", "Trackpoint")
-    tp_vars <- data.frame(name = children_names(doc, tp_xpath, ns),
+    ch_names <- children_names(doc, tp_xpath, ns)
+    if (length(ch_names) == 0) {
+        stop("No usable data have been found in", file)
+    }
+    tp_vars <- data.frame(name = ch_names,
                           ns = activity_ns)
 
     ## Position
@@ -277,7 +281,11 @@ readGPX <- function(file, timezone = "", speedunit = "km_per_h", distanceunit = 
 
     ## Trackpoint
     tp_xpath <- paste0("//", activity_ns, ":", "trkpt")
-    tp_vars <- data.frame(name = children_names(doc, tp_xpath, ns),
+    ch_names <- children_names(doc, tp_xpath, ns)
+    if (length(ch_names) == 0) {
+        stop("No usable data have been found in", file)
+    }
+    tp_vars <- data.frame(name = ch_names,
                           ns = activity_ns)
 
     is_extensions <- tp_vars$name == "extensions"

@@ -573,8 +573,9 @@ as.data.frame.trackeRdata <- function(x, ...) {
 #' \code{\link{trackeRdata}} object
 #'
 #' @export
-print.trackeRdata <- function(x, ..., digits = 2) {
+print.trackeRdata <- function(x, duration = "h", ..., digits = 2) {
     x <- summary(x)
+    x <- changeUnits(x, "duration", "h")
     units <- getUnits(x)
     cat("A trackeRdata object\n\n")
     cat("Training coverage:",
