@@ -5,9 +5,7 @@
 #'
 #' @param dat A data frame.
 #' @param units A data frame containing the unit of measurement for all variables. See Details.
-#' @param cycling Logical. Do the data stem from cycling instead of running? If so, the default unit of
-#'     measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min} and power is
-#'     imputed with \code{0}, else with \code{NA}.
+#' @param sport What sport does \code{dat} contain data of? Either \code{'cycling'}, \code{'running'}, \code{'swimming'} or \code{NULL} (default), in which case the sport is directly extracted from the \code{dat}. See Details.
 #' @param correctDistances Logical. Should the distances be corrected for elevation?
 #' @param country ISO3 country code for downloading altitude data. If \code{NULL}, country is derived from
 #'     longitude and latitude.
@@ -37,6 +35,12 @@
 #'     0 for speed, last known position for latitude, longitude and altitude,
 #'     NA or 0 power for running or cycling session, respectively, and NA for all other
 #'     variables. Distances are (re-)calculated based on speeds after imputation.
+#'
+#'     \code{trackeRdata} assumes that all observations in \code{dat}
+#'     are from the same \code{sport}, even if \code{dat} ends up
+#'     having observations from different sessions (also depending on
+#'     the value of \code{sessionThreshold}.
+#'
 #' @seealso \code{\link{readContainer}} for reading .tcx and .db3 files directly into \code{trackeRdata} objects.
 #' @references Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal of Statistical Software}, \bold{82}(7), 1--29. doi:10.18637/jss.v082.i07
 #' @examples
@@ -55,21 +59,33 @@
 #' run <- readContainer(filepath, type = 'tcx', timezone = 'GMT')
 #' }
 #' @export
-trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2, correctDistances = FALSE,
+trackeRdata <- function(dat, units = NULL, sport = NULL, sessionThreshold = 2, correctDistances = FALSE,
                         country = NULL, mask = TRUE, fromDistances = TRUE, lgap = 30, lskip = 5, m = 11, silent = FALSE) {
+
+    ## sport
+    if (is.null(sport)) {
+        sport <- attr(dat, "sport")
+    }
+    else {
+        sport <- match.arg(sport, c("cycling", "swimming", "running"))
+    }
+    is_cycling <- "cycling" %in% sport
+
 
     ## prep units
     if (is.null(units)) {
-        units <- generateBaseUnits(cycling)
+        units <- generateBaseUnits(is_cycling)
     }
-    if (cycling) {
+
+    if (is_cycling) {
         if (units$unit[units$variable == "cadence"] != "rev_per_min") {
-            warning("Unit for cadence is set to 'rev_per_min' due to cycling = TRUE.")
+            warning("Unit for cadence is set to 'rev_per_min' due to sport = 'cycling'.")
             units$unit[units$variable == "cadence"] <- "rev_per_min"
         }
-    } else {
+    }
+    else {
         if (units$unit[units$variable == "cadence"] != "steps_per_min") {
-            warning("Unit for cadence is set to 'steps_per_min' due to cycling = FALSE.")
+            warning("Unit for cadence is set to 'steps_per_min' due to sport = 'cycling'.")
             units$unit[units$variable == "cadence"] <- "steps_per_min"
         }
     }
@@ -98,7 +114,7 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2
 
     ## impute speeds in each session
     trackerdat <- lapply(trackerdat, imputeSpeeds, fromDistances = fromDistances, lgap = lgap,
-        lskip = lskip, m = m, cycling = cycling, units = units)
+        lskip = lskip, m = m, cycling = is_cycling, units = units)
 
 
 
@@ -127,6 +143,7 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2
     ## Set attributes
     attr(trackerdat, "operations") <- list(smooth = NULL, threshold = NULL)
     attr(trackerdat, "units") <- units
+    attr(trackerdat, "sport") <- rep(sport, length(trackerdat))
 
     ## class and return
     class(trackerdat) <- c("trackeRdata", class(trackerdat))
