@@ -99,9 +99,6 @@ guess_sport <- function(sport) {
 #' @param distanceunit Character string indicating the measurement
 #'     unit of the distance in the container file to be converted into
 #'     meters. See Details.
-#' @param parallel Logical. Should computation be carried out in
-#'     parallel? (Not supported on Windows.)
-#' @param cores Number of cores for parallel computing.
 #' @param ... Currently not used.
 #' @details Available options for \code{speedunit} currently are
 #'     \code{km_per_h}, \code{m_per_s}, \code{mi_per_h},
@@ -130,8 +127,8 @@ guess_sport <- function(sport) {
 #' }
 #'
 #' @export
-readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "m",
-                    parallel = FALSE, cores = getOption("mc.cores", 2L),...) {
+readTCX <- function(file, timezone = "",
+                    speedunit = "m_per_s", distanceunit = "m", ...) {
 
     doc <- read_xml(file)
     ns <- xml_ns(doc)
@@ -257,8 +254,8 @@ readTCX <- function(file, timezone = "", speedunit = "m_per_s", distanceunit = "
 #' @inheritParams readX
 #' @export
 #' @rdname readX
-readGPX <- function(file, timezone = "", speedunit = "km_per_h", distanceunit = "km",
-                     parallel = FALSE, cores = getOption("mc.cores", 2L),...) {
+readGPX <- function(file, timezone = "",
+                    speedunit = "km_per_h", distanceunit = "km", ...) {
 
     doc <- read_xml(file)
     ns <- xml_ns(doc)
@@ -379,7 +376,7 @@ readGPX <- function(file, timezone = "", speedunit = "km_per_h", distanceunit = 
 #' @export
 #' @rdname readX
 readDB3 <- function(file, timezone = "", table = "gps_data",
-                    speedunit = "km_per_h", distanceunit = "km"){
+                    speedunit = "km_per_h", distanceunit = "km") {
 
     db <- RSQLite::dbConnect(RSQLite::SQLite(), file)
     mydf <- RSQLite::dbReadTable(conn = db, name = table)
@@ -435,8 +432,8 @@ readDB3 <- function(file, timezone = "", table = "gps_data",
 #' @details Reading Golden Cheetah's JSON files is experimental.
 #' @export
 #' @rdname readX
-readJSON <- function(file, timezone = "", speedunit = "km_per_h", distanceunit = "km",
-                     parallel = FALSE, cores = getOption("mc.cores", 2L), ...) {
+readJSON <- function(file, timezone = "",
+                     speedunit = "km_per_h", distanceunit = "km", ...) {
     ## get all data
     jslist <- jsonlite::fromJSON(file)$RIDE
 
@@ -541,8 +538,7 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
                           speedunit = NULL, distanceunit = NULL,
                           sport = NULL,
                           lgap = 30, lskip = 5, m = 11,
-                          silent = FALSE,
-                          parallel = FALSE, cores = getOption("mc.cores", 2L)) {
+                          silent = FALSE) {
     ## prepare args
     type <- match.arg(tolower(type), choices = c("tcx", "gpx", "db3", "json"))
     if (is.null(fromDistances)){
@@ -566,9 +562,9 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
     ## read gps data
     dat <- switch(type,
                   "tcx" = readTCX(file = file, timezone = timezone, speedunit = speedunit,
-                                  distanceunit = distanceunit, parallel = parallel, cores = cores),
+                                  distanceunit = distanceunit),
                   "gpx" = readGPX(file = file, timezone = timezone, speedunit = speedunit,
-                                  distanceunit = distanceunit, parallel = parallel, cores = cores),
+                                  distanceunit = distanceunit),
                   "db3" = readDB3(file = file, table = table, timezone = timezone,
                                   speedunit = speedunit, distanceunit = distanceunit),
                   "json" = readJSON(file = file, timezone = timezone, speedunit = speedunit,
@@ -687,9 +683,7 @@ readDirectory <- function(directory,
                                                 args = list(file = allFiles[j],
                                                             timezone = timezone,
                                                             speedunit = speedunit[[currentType]],
-                                                            distanceunit = distanceunit[[currentType]],
-                                                            parallel = parallel,
-                                                            cores = cores)))
+                                                            distanceunit = distanceunit[[currentType]])))
                 }
             })
             if (shiny) {
@@ -750,9 +744,7 @@ readDirectory <- function(directory,
                                                       lgap = lgap,
                                                       lskip = lskip,
                                                       m = m,
-                                                      silent = silent,
-                                                      parallel = parallel,
-                                                      cores = cores))
+                                                      silent = silent))
                 }
             })
             if (shiny) {
