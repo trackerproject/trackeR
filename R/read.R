@@ -1,5 +1,5 @@
 ##' Generate variables names for internal use in readX functions. The
-##' variables vecotrs need to correspond one by on interms of variable
+##' variables vectors need to correspond one by on interms of variable
 ##' type
 generateVariableNames <- function() {
     humanNames <- c("time",
