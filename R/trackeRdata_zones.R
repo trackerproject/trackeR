@@ -1,13 +1,20 @@
 #' Time spent in training zones.
 #'
 #' @param object An object of class \code{\link{trackeRdata}}.
-#' @param session A numeric vector of the sessions to be plotted, defaults to all sessions.
+#' @param session A numeric vector of the sessions to be plotted,
+#'     defaults to all sessions.
 #' @param what A vector of variable names.
-#' @param breaks A list of breakpoints between zones, corresponding to the variables in \code{what}.
-#' @param parallel Logical. Should computation be carried out in parallel?
-#' @param cores Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options('corese')} (on Windows) or \code{options('mc.cores')} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.
-#' @param auto_breaks Logical. Should breaks be selected automatically? Default is \code{FALSE} and \code{breaks} will be ignored if \code{TRUE}.
-#' @param n_zones A numeric. If auto_breaks=TRUE, select number of zones for data to be split into.
+#' @param breaks A list of breakpoints between zones, corresponding to
+#'     the variables in \code{what}.
+#' @param parallel Logical. Should computation be carried out in
+#'     parallel? If \code{TRUE} computation is performed in parallel
+#'     using the backend provided to \code{\link{foreach}}. Default is
+#'     \code{FALSE}.
+#' @param auto_breaks Logical. Should breaks be selected
+#'     automatically? Default is \code{FALSE} and \code{breaks} will
+#'     be ignored if \code{TRUE}.
+#' @param n_zones A numeric. If auto_breaks=TRUE, select number of
+#'     zones for data to be split into.
 #' @param ... Currently not used.
 #' @return An object of class \code{trackeRdataZones}.
 #' @seealso \code{\link{plot.trackeRdataZones}}
