@@ -18,6 +18,8 @@
 * Code improvements in `readDirectory`
 * `c` improvements for `trackeRdata` objects
 * `readDirectory` can be perfromed in parallel usign foreach
+* sane multi-platform parallelization across methods using `foreach`. The parallel backend and its details needs to be set by the user
+* Wprime has been adapted for a multisport environment
 * Enhancements to the definition of the `trackeRdata` object and the associated methods; the object now carries file and sport information
 
 ### Bug fixes
