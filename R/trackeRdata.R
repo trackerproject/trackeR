@@ -587,7 +587,9 @@ print.trackeRdata <- function(x, duration = "h", ..., digits = 2) {
     x <- summary(x)
     x <- changeUnits(x, "duration", "h")
     units <- getUnits(x)
-    cat("A trackeRdata object\n\n")
+    sports <- as.character(na.omit(unique(sport(x))))
+    cat("A trackeRdata object\n")
+    cat("Sports:", sports, "\n\n")
     cat("Training coverage:",
         "from", format(min(x$sessionStart), format = "%Y-%m-%d %H:%M:%S"),
         "to", format(max(x$sessionEnd), format = "%Y-%m-%d %H:%M:%S"), "\n")
