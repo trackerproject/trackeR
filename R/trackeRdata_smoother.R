@@ -13,9 +13,9 @@
 #' ## unsmoothed speeds
 #' plot(run, smooth = FALSE)
 #' ## default smoothing
-#' plot(run, smooth = TRUE, cores = 2)
+#' plot(run, smooth = TRUE)
 #' ## smoothed with some non-default options
-#' runS <- smoother(run, fun = 'median', width = 20, what = 'speed', cores = 2)
+#' runS <- smoother(run, fun = 'median', width = 20, what = 'speed')
 #' plot(runS, smooth = FALSE)
 #' @export
 smoother.trackeRdata <- function(object, session = NULL, control = list(...), ...) {
@@ -80,18 +80,23 @@ smoother.trackeRdata <- function(object, session = NULL, control = list(...), ..
 #' Auxiliary function for \code{\link{smoother.trackeRdata}}. Typically used to construct
 #' a control argument for \code{\link{smoother.trackeRdata}}.
 #'
-#' @param fun The name of the function to be matched and used to aggregate/smooth the data.
+#' @param fun The name of the function to be matched and used to
+#'     aggregate/smooth the data.
 #' @param width The width of the window in which the raw observations
 #'     get aggregated via function \code{fun}.
-#' @param parallel Logical. Should computation be carried out in parallel?
-#' @param cores Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options('corese')} (on Windows) or \code{options('mc.cores')} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.
-#' @param what Vector of the names of the variables which should be smoothed.
-#' @param nsessions Vector containing the number of session. Default corresponds to all sessions
-#'     belonging to the same group. Used only internally.
+#' @param parallel Logical. Should computation be carried out in
+#'     parallel? If \code{TRUE} computation is performed in parallel
+#'     using the backend provided to \code{\link{foreach}}. Default is
+#'     \code{FALSE}.
+#' @param what Vector of the names of the variables which should be
+#'     smoothed.
+#' @param nsessions Vector containing the number of session. Default
+#'     corresponds to all sessions belonging to the same group. Used
+#'     only internally.
 #' @param ... Currently not used.
 #' @seealso \code{\link{smoother.trackeRdata}}
 #' @export
-smootherControl.trackeRdata <- function(fun = "mean", width = 10, parallel = FALSE, cores = NULL,
+smootherControl.trackeRdata <- function(fun = "mean", width = 10, parallel = FALSE,
     what = c("speed", "heart.rate"), nsessions = NA, ...) {
     # Basic checks for the arguments
     if (!is.character(fun)) {
@@ -102,15 +107,6 @@ smootherControl.trackeRdata <- function(fun = "mean", width = 10, parallel = FAL
     if (is.vector(what)) {
         what <- list(what)
     }
-    if (is.null(cores)) {
-        dc <- parallel::detectCores()
-        if (.Platform$OS.type != "windows") {
-            cores <- getOption("mc.cores", max(floor(dc/2), 1L))
-        } else {
-            cores <- getOption("cores", max(floor(dc/2), 1L))
-        }
-    }
-
-    list(fun = fun, width = width, parallel = parallel, cores = cores, what = what, nsessions = nsessions)
+    list(fun = fun, width = width, parallel = parallel, what = what, nsessions = nsessions)
 }
 

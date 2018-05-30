@@ -29,9 +29,9 @@ data('run', package = 'trackeR')
 ## unsmoothed speeds
 plot(run, smooth = FALSE)
 ## default smoothing
-plot(run, smooth = TRUE, cores = 2)
+plot(run, smooth = TRUE)
 ## smoothed with some non-default options
-runS <- smoother(run, fun = 'median', width = 20, what = 'speed', cores = 2)
+runS <- smoother(run, fun = 'median', width = 20, what = 'speed')
 plot(runS, smooth = FALSE)
 }
 \seealso{
