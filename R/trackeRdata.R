@@ -416,8 +416,11 @@ unique.trackeRdata <- function(x, incomparables = FALSE, ...) {
     sport <- attr(x, "sport")
     files <- attr(x, "file")
 
-    ## ret <- x[i]
     ret <- NextMethod()
+    is_null <- sapply(ret, is.null)
+    if (any(is_null)) {
+        stop("Subsetting failed; non-existing sessions: ", paste(i[is_null], collapse = ", "))
+    }
 
     if (!is.null(operations$smooth)) {
         smooth <- operations$smooth
