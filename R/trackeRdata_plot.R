@@ -109,10 +109,11 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     singleSession <- FALSE #length(session) == 1L
 
     facets <- if (singleVariable) {
-        if (singleSession) NULL else ". ~ SessionID"
-    } else {
-        if(singleSession) "Series ~ ." else "Series ~ SessionID"
-    }
+                  if (singleSession) NULL else ". ~ SessionID"
+              }
+              else {
+                  if(singleSession) "Series ~ ." else "Series ~ SessionID"
+              }
     ## lab <- function(variable, value){
     ##     if (variable == "Series"){
     ##         ret <- paste0(value, " [", units$unit[units$variable == value], "]")
