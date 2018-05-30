@@ -91,45 +91,28 @@ zones <- function(object, session = NULL, what = c("speed", "heart.rate"), break
     }
 
     ## get time in zones
+    zones_fun <- function(j, w) {
+        sess <- object[[j]]
+        zones_for_single_variable(sess, what = i, breaks = breaks[[w]])
+    }
     ret <- list()
-    if (parallel) {
-        dc <- parallel::detectCores()
-        if (.Platform$OS.type != "windows") {
-            if (is.null(cores))
-                cores <- getOption("mc.cores", max(floor(dc/2), 1L))
-            for (i in what) {
-                zonesForVar <- parallel::mclapply(object, zones_for_single_variable, what = i,
-                  breaks = breaks[[i]], mc.cores = cores)
-                zonesForVar <- do.call("rbind", zonesForVar)
-                ret[[i]] <- data.frame(session = rep(session, each = length(breaks[[i]]) -
-                  1), zonesForVar)
-                rownames(ret[[i]]) <- NULL
-            }
-        } else {
-            if (is.null(cores))
-                cores <- getOption("cores", max(floor(dc/2), 1L))
-            cl <- parallel::makePSOCKcluster(rep("localhost", cores))
-            for (i in what) {
-                zonesForVar <- parallel::parLapply(cl, object, zones_for_single_variable,
-                  what = i, breaks = breaks[[i]])
-                zonesForVar <- do.call("rbind", zonesForVar)
-                ret[[i]] <- data.frame(session = rep(session, each = length(breaks[[i]]) -
-                  1), zonesForVar)
-                rownames(ret[[i]]) <- NULL
-            }
-            parallel::stopCluster(cl)
+    for (i in what) {
+        foreach_object <- eval(as.call(c(list(quote(foreach::foreach),
+                                              j = seq.int(nsessions(object)),
+                                              .combine = "rbind"))))
+        if (parallel) {
+            setup_parallel()
+            zonesForVar <- foreach::`%dopar%`(foreach_object, zones_fun(j, i))
         }
-    } else {
-        for (i in what) {
-            zonesForVar <- lapply(object, zones_for_single_variable, what = i, breaks = breaks[[i]])
-            zonesForVar <- do.call("rbind", zonesForVar)
-            ret[[i]] <- data.frame(session = rep(session, each = length(breaks[[i]]) -
-                1), zonesForVar)
-            rownames(ret[[i]]) <- NULL
+        else {
+            zonesForVar <- foreach::`%do%`(foreach_object, zones_fun(j, i))
         }
+        ret[[i]] <- data.frame(session = rep(session,
+                                             each = length(breaks[[i]]) - 1),
+                               zonesForVar)
+        rownames(ret[[i]]) <- NULL
     }
 
-    ## ret <- do.call('rbind', ret); rownames(ret) <- NULL
     attr(ret, "units") <- getUnits(object)
     class(ret) <- c("trackeRdataZones", class(ret))
     return(ret)
