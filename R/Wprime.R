@@ -1,7 +1,7 @@
 #' W' expended.
 #'
-#' Calculate W' expended, i.e., the work capacity above critical power
-#' which has been depleted and not yet been replenished.
+#' Calculate W' expended, i.e., the work capacity above critical
+#' power/speed which has been depleted and not yet been replenished.
 #'
 #' @param object Univariate \code{\link[zoo]{zoo}} object containing
 #'     the time stamped power output or speed values. (Power should be
@@ -122,7 +122,7 @@ Wexp <- function(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower 
     return(ret)
 }
 
-#' W': work capacity above critical power.
+#' W': work capacity above critical power/speed.
 #'
 #' Based on the critical power model for cycling (Monod and Scherrer,
 #' 1965), W' (read W prime) describes the finite work capacity above

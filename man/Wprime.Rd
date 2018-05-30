@@ -2,7 +2,7 @@
 % Please edit documentation in R/Wprime.R
 \name{Wprime}
 \alias{Wprime}
-\title{W': work capacity above critical power.}
+\title{W': work capacity above critical power/speed.}
 \usage{
 Wprime(object, session = NULL, quantity = c("expended", "balance"), w0, cp,
   version = c("2015", "2012"), meanRecoveryPower = FALSE,

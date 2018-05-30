@@ -26,8 +26,8 @@ Details.}
 critical power be used as recovery power? See Details.}
 }
 \description{
-Calculate W' expended, i.e., the work capacity above critical power
-which has been depleted and not yet been replenished.
+Calculate W' expended, i.e., the work capacity above critical
+power/speed which has been depleted and not yet been replenished.
 }
 \details{
 Skiba et al. (2015) and Skiba et al. (2012) both describe an
