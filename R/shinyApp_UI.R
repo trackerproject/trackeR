@@ -132,7 +132,7 @@ create_selected_workout_plot <- function(id, collapsed = FALSE) {
 }
 
 #' Create work capacity plot
-create_work_capacity_plot <- function(id, collapsed = FALSE) {
+create_work_capacity_plot <- function(id, cycling, collapsed = FALSE) {
   insertUI(
     selector = ".content",
     where = "beforeEnd",
@@ -154,6 +154,18 @@ create_work_capacity_plot <- function(id, collapsed = FALSE) {
               "speed" = paste0("Speed")
             )
           ),
+          fluidRow(
+            column(2,
+                   selectInput(
+                     inputId = 'critical_power',
+                     label = switch(as.character(cycling),
+                                    'TRUE' = 'Critical power [J]',
+                                    'FALSE' = 'Critical speed [m/s]'),
+                     multiple = FALSE,
+                     choices = setNames(as.list(seq(1, 7, 0.1)), seq(1, 7, 0.1)),
+                     selected = '4'
+                   ))
+            ),
           div(
             style = "overflow-x: scroll",
             uiOutput(paste0(id, "_plot"))

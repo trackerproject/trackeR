@@ -6,21 +6,24 @@
 #' @param dates Logical. Should the date of the session be used in the panel header?
 #' @param scaled Logical. Should the W' be scaled to the movement variable (power or speed)
 #'     which is then plotted in the background?
-#'
-plot_work_capacity <- function(x, session, plotly=TRUE, dates = TRUE, scaled = TRUE) {
+#' @param cp A numeric. Critical power/speed, i.e., the power/speed which can be maintained for longer period of time.
+plot_work_capacity <- function(x, session, plotly=TRUE, dates = TRUE, scaled = TRUE, cp = 4) {
+  units <- getUnits(x)
   x <- Wprime(
     object = x, session = session, quantity = "expended",
-    cp = 4, version = "2012"
+    cp = cp, version = "2012"
   )
-
+  
   if (plotly) {
     Series <- NULL
 
     quantity <- attr(x, "quantity")
     cp <- attr(x, "cp")
-    cycling <- attr(x, "cycling")
+    # Temporary
+    cycling <- units$unit[units$variable == "cadence"] == "rev_per_min"
+    # cycling <- attr(x, "cycling")
     Wunit <- if (cycling)
-        "[J]" else "[m]"
+        "[J]" else "[m/s]"
     mylabels <- c(paste0(ifelse(cycling, "Power", "Speed"), " [", prettifyUnits(attr(x,
         "unit")$unit), "]"), paste("W'", quantity, "[scaled]"))
 

@@ -186,7 +186,7 @@ server <- function(input, output, session) {
         shinyjs::addClass(selector = "body", class = "sidebar-collapse")
                                         # Test which metrics have data for selected sessions
         have_data_metrics_selected <- reactive({ !sapply(metrics, function(metric) {
-                                                      all(sapply(data$object[data$selectedSessions], function(x) all(is.na(x[, metric]))))
+                                                      all(sapply(data$object[data$selectedSessions], function(x) all((is.na(x[, metric])) | (x[, metric] == 0))))
                                                   })
         })
 
@@ -194,10 +194,24 @@ server <- function(input, output, session) {
         for (i in c(metrics[have_data_metrics_selected()])) {
             trackeR:::create_selected_workout_plot(id = i, collapsed = if(i %in% c('speed','heart.rate','altitude')) FALSE else TRUE)
         }
+        cycling <- reactive({
+          units <- getUnits(data$object)
+          units$unit[units$variable == "cadence"] == "rev_per_min"
+        })
+        is_work_capacity <- reactive({ 
+          
+          if((cycling()) & (all(sapply(data$object[data$selectedSessions], function(x) all((is.na(x[, 'power'])) | (x[, 'power'] == 0)))))) {
+            NULL
+          } else {
+            'work_capacity'
+          }
+        })
+        if(!is.null(is_work_capacity())){
+          # Need to change 'cycling' once attribute fixed
+          trackeR:::create_work_capacity_plot(id = 'work_capacity', collapsed = TRUE, cycling = cycling())  
+        }
 
-        trackeR:::create_work_capacity_plot(id = 'work_capacity', collapsed = TRUE)
-
-        lapply(c(metrics[have_data_metrics_selected()], 'work_capacity'), function(i) {
+        lapply(c(metrics[have_data_metrics_selected()], is_work_capacity()), function(i) {
             ## Render UI for time in zones plot
             output[[paste0(i, "_plot")]] <- renderUI({
                 shinycssloaders::withSpinner(plotly::plotlyOutput(paste0(i, "Plot"), width = if (length(data$selectedSessions) > 2) {
@@ -223,7 +237,8 @@ server <- function(input, output, session) {
                                                         ## if (all(is.na(data$summary$avgPower)) == TRUE) {
                                                         ##   removeUI(selector = "#work_capacity_plot")
                                                         ## } else {
-                                                        trackeR:::plot_work_capacity(x=data$object, session=data$selectedSessions)
+                                                        trackeR:::plot_work_capacity(x=data$object, session=data$selectedSessions,
+                                                                                     cp=as.numeric(input$critical_power))
                                                         ## }
                                                     })
             }
