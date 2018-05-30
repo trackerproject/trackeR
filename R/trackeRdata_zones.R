@@ -161,14 +161,16 @@ plot.trackeRdataZones <- function(x, percent = TRUE, ...) {
     lab_data <- function(series) {
         thisunit <- units$unit[units$variable == series]
         prettyUnit <- prettifyUnits(thisunit)
-        paste0(series, " [", prettyUnit, "]")
+        paste0(series, "\n[", prettyUnit, "]")
     }
     lab_data <- Vectorize(lab_data)
 
     p <- p + ggplot2::facet_grid(. ~ variable, scales = "free_x", labeller = ggplot2::labeller(variable = lab_data))
 
     ## theme
-    p <- p + ggplot2::theme_bw()  ##+ ggplot2::theme(legend.position = 'top')
+    p <- p + ggplot2::theme_bw()  +
+        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1),
+                       panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
     return(p)
 }
