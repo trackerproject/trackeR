@@ -87,7 +87,7 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     if (dates) {
         df$SessionID <- format(session[df$SessionID])
         df$SessionID <- gsub(" ", "0", df$SessionID)
-        df$SessionID <- paste(df$SessionID, format(df$Index, "%Y-%m-%d"), sep = ": ")
+        df$SessionID <- paste0(paste(df$SessionID, df$Sport, sep = ": "), "\n", format(df$Index, "%Y-%m-%d"))
     }
     else {
         df$SessionID <- factor(df$SessionID, levels = seq_along(session), labels = session)
@@ -126,7 +126,7 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     lab_data <- function(series){
         thisunit <- units$unit[units$variable == series]
         prettyUnit <- prettifyUnits(thisunit)
-        paste0(series, " [", prettyUnit,"]")
+        paste0(series, "\n[", prettyUnit,"]")
     }
     lab_data <- Vectorize(lab_data)
 
@@ -210,10 +210,12 @@ prettifyUnits <- Vectorize(prettifyUnit)
 #' @export
 fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
     ret <- list()
+    sports <- sport(model)
     for (i in seq_along(model)){
 
         ret[[i]] <- zoo::fortify.zoo(model[[i]], melt = melt)
         ret[[i]]$SessionID <- i
+        ret[[i]]$Sport <- sports[i]
         ## FIXME: add date identifier?
     }
     ret <- do.call("rbind", ret)
