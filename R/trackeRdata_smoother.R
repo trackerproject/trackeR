@@ -43,19 +43,19 @@ smoother.trackeRdata <- function(object, session = NULL, control = list(...), ..
         stop("At least one of 'what' is not available.")
     }
 
-    ## apply rolling window
+    smooth_fun <- function(j) {
+        zoo::rollapply(object[[j]], width = control$width,  match.fun(control$fun))
+    }
+
+    foreach_object <- eval(as.call(c(list(quote(foreach::foreach),
+                                              j = seq.int(nsessions(object))))))
+
     if (control$parallel) {
-        if (.Platform$OS.type != "windows") {
-            objectNew <- parallel::mclapply(object, zoo::rollapply, width = control$width,
-                match.fun(control$fun), mc.cores = control$cores)
-        } else {
-            cl <- parallel::makePSOCKcluster(rep("localhost", control$cores))
-            objectNew <- parallel::parLapply(cl, object, zoo::rollapply, width = control$width,
-                match.fun(control$fun))
-            parallel::stopCluster(cl)
-        }
-    } else {
-        objectNew <- lapply(object, zoo::rollapply, width = control$width, match.fun(control$fun))
+        setup_parallel()
+        objectNew <- foreach::`%dopar%`(foreach_object, smooth_fun(j))
+    }
+    else {
+        objectNew <- foreach::`%do%`(foreach_object, smooth_fun(j))
     }
 
     ## replace variables not in control$what with the corresponding original data
@@ -72,6 +72,7 @@ smoother.trackeRdata <- function(object, session = NULL, control = list(...), ..
     attr(objectNew, "operations") <- operations
     attr(objectNew, "units") <- getUnits(object)
     attr(objectNew, "sport") <- sport(object)
+    attr(objectNew, "file") <- attr(object, "file")
     return(objectNew)
 
 }
