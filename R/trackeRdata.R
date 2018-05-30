@@ -202,12 +202,19 @@ sanityChecks <- function(dat, silent) {
 
     ## handle NAs
     natime <- is.na(dat$time)
-    if (all(natime))
+    if (all(natime)) {
         stop("The are no useable timestamps.")
+    }
     if (any(natime)) {
         if (!silent)
             warning("Observations with missing time stamps have been removed.")
         dat <- dat[!natime, ]
+    }
+
+    ## handle missing data
+    nadat <- is.na(dat[, -which(names(dat) == "time")])
+    if (all(nadat)) {
+        stop("The is no useable data.")
     }
 
     ## remove duplicates
@@ -345,6 +352,7 @@ c.trackeRdata <- function(..., recursive = FALSE) {
     ret <- vector("list", sum(nsessionsInput))
     starti <- c(1, cumsum(nsessionsInput)[-length(nsessionsInput)] + 1)
     endi <- cumsum(nsessionsInput)
+
     for (i in seq_len(ninput)) {
         ret[starti[i]:endi[i]] <- input[[i]]
     }

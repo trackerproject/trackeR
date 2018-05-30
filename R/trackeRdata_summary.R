@@ -41,6 +41,7 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
     ## select sessions
     if (is.null(session))
         session <- 1:length(object)
+
     object <- object[session]
 
     ## session times

@@ -799,6 +799,7 @@ readDirectory <- function(directory,
             if (verbose) {
                 cat("Cleaning up...")
             }
+
             allData <- do.call("c", allData[!sapply(allData, inherits, what = "try-error")])
             if (verbose) {
                 cat("Done\n")
