@@ -124,7 +124,7 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     ## }
     ## lab <- Vectorize(lab)
     ## new (todo: make units an argument and move outside of plotting function
-    lab_data <- function(series){
+    lab_data <- function(series) {
         thisunit <- units$unit[units$variable == series]
         prettyUnit <- prettifyUnits(thisunit)
         paste0(series, "\n[", prettyUnit,"]")

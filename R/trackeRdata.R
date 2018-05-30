@@ -400,6 +400,7 @@ sort.trackeRdata <- function(x, decreasing = FALSE, ...) {
 #'
 #' @export
 unique.trackeRdata <- function(x, incomparables = FALSE, ...) {
+    ## NOTE: Consider determining uniqueness according to file name?
     start <- sapply(x, function(session) index(session)[1])
     inds <- !duplicated(start, incomparables = FALSE)
     ret <- x[inds]
