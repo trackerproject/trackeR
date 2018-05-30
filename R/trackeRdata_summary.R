@@ -392,7 +392,28 @@ timeline.trackeRdataSummary <- function(object, lims = NULL, ...) {
     return(ret)
 }
 
+#' @rdname nsessions
 #' @export
 nsessions.trackeRdataSummary <- function(object, ...) {
     nrow(object)
+}
+
+
+#' @rdname sport
+#' @export
+sport.trackeRdataSummary <- function(object, ...) {
+    object$sport
+}
+
+
+#' @rdname session_times
+#' @export
+session_times.trackeRdataSummary <- function(object, ...) {
+    as.data.frame(object)[c("sessionStart", "sessionEnd")]
+}
+
+#' @rdname session_duration
+#' @export
+session_duration.trackeRdataSummary <- function(object, ...) {
+    object$duration
 }

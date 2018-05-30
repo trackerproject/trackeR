@@ -143,7 +143,7 @@ sport <- function(object, ...) UseMethod("sport")
 #' The times units will be inherited from \code{object}.
 #'
 #' @export
-session_duration <- function(object, ...) UseMethod("session_times")
+session_duration <- function(object, ...) UseMethod("session_duration")
 
 
 #' Generic function for visualising the sessions on a time versus date plot.

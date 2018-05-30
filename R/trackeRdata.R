@@ -206,7 +206,7 @@ sanityChecks <- function(dat, silent) {
         stop("The are no useable timestamps.")
     if (any(natime)) {
         if (!silent)
-            warning("Observations with missing time stamps are removed.")
+            warning("Observations with missing time stamps have been removed.")
         dat <- dat[!natime, ]
     }
 
@@ -214,7 +214,7 @@ sanityChecks <- function(dat, silent) {
     duptime <- duplicated(dat$time)
     if (any(duptime)) {
         if (!silent)
-            warning("Observations with duplicated time stamps are removed.")
+            warning("Observations with duplicated time stamps have been removed.")
         dat <- dat[!duptime, ]
     }
 
@@ -607,7 +607,7 @@ session_duration.trackeRdata <- function(object, ...) {
     durUnit <- switch(units0$unit[units0$variable == "duration"],
                       "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days")
     with(session_times(object), {
-        as.numeric(difftime(sessionEnd, sessionStart, units = durUnit))
+        difftime(sessionEnd, sessionStart, units = durUnit)
     })
 }
 
