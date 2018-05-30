@@ -66,32 +66,30 @@ cp <- function(object, session = NULL, what = c("speed", "heart.rate"),
 
     CP <- NULL
 
-    for (i in what) {
-        cp_fun <- function(j) {
-            sess <- object[[j]]
-            values <- sess[, i]
-            if (all(is.na(values))) {
-                rep(NA, 512)
-            }
-            else {
-                density(values, na.rm = TRUE, from = limits[[i]][1], to = limits[[i]][2], n = 512)$y
-            }
+    cp_fun <- function(j, w) {
+        sess <- object[[j]]
+        values <- sess[, w]
+        if (all(is.na(values))) {
+            rep(NA, 512)
         }
+        else {
+            density(values, na.rm = TRUE, from = limits[[w]][1], to = limits[[w]][2], n = 512)$y
+        }
+    }
 
+    for (i in what) {
         foreach_object <- eval(as.call(c(list(quote(foreach::foreach),
                                               j = seq.int(nsessions(object)),
                                               .combine = "cbind"))))
         if (parallel) {
             setup_parallel()
-            times <- foreach::`%dopar%`(foreach_object, cp_fun(j))
+            times <- foreach::`%dopar%`(foreach_object, cp_fun(j, i))
         }
         else {
-            times <- foreach::`%do%`(foreach_object, cp_fun(j))
+            times <- foreach::`%do%`(foreach_object, cp_fun(j, i))
         }
 
         times <- zoo(times, order.by = seq(from = limits[[i]][1], to = limits[[i]][2], length.out = 512))
-
-        times <- zoo(matrix(unlist(times), nrow = 512), )
         names(times) <- paste0("Session", session)
         CP[[i]] <- times
     }
