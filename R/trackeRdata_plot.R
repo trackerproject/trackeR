@@ -132,31 +132,32 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
 
     ## basic plot
     p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
-        ggplot2::geom_line(color = if (smooth) "gray" else "black", na.rm = TRUE) +
+        ggplot2::geom_line(color = gray(0.9), na.rm = TRUE) +
         ggplot2::ylab(if(singleVariable) lab_data(levels(df$Series)) else "") + ggplot2::xlab("Time")
     if (trend & !smooth){
         p <- p + ggplot2::geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"),
-                                      ## mapping = ggplot2::aes_(alpha = 0.5),
-                                      ## aes should understand alpha but doesn't?
-                                      alpha = 0.5,
-                                      se = FALSE, na.rm = TRUE)
+                                      se = FALSE, na.rm = TRUE, lwd = 0.5, col = "black")
     }
     ## add facet if necessary
     if (!is.null(facets)){
         p <- p + ggplot2::facet_grid(facets, scales = "free", labeller = ggplot2::labeller("Series" = lab_data))
     }
     ## add bw theme
-    p <- p + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1))
+    p <- p + ggplot2::theme_bw() +
+        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1),
+                       panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
 
     ## if plot did smoothing add smoothed data on top of plot
     if (smooth){
         ## data prep
         dfs <- fortify(x, melt = TRUE)
+
         if (dates) {
             dfs$SessionID <- format(session[dfs$SessionID])
             dfs$SessionID <- gsub(" ", "0", dfs$SessionID)
-            dfs$SessionID <- paste(dfs$SessionID, format(dfs$Index, "%Y-%m-%d"), sep = ": ")
+            dfs$SessionID <- paste0(paste(dfs$SessionID, dfs$Sport, sep = ": "), "\n", format(dfs$Index, "%Y-%m-%d"))
+            ## dfs$SessionID <- paste(dfs$SessionID, format(dfs$Index, "%Y-%m-%d"), sep = ": ")
         }
         else {
             dfs$SessionID <- factor(dfs$SessionID, levels = seq_along(session), labels = session)
@@ -169,12 +170,10 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
         }
         ## add plot layers
         p <- p + ggplot2::geom_line(ggplot2::aes_(x = quote(Index), y = quote(Value)),
-                                    data = dfs, col = "black", na.rm = TRUE)
+                                    data = dfs, col = gray(0.75), na.rm = TRUE)
         if (trend){
             p <- p + ggplot2::geom_smooth(data = dfs, method = "gam", formula = y ~ s(x, bs = "cs"),
-                                          ## mapping = ggplot2::aes_(alpha = 0.5),
-                                          ## aes should understand alpha but doesn't?
-                                          alpha = 0.5, se = FALSE, na.rm = TRUE)
+                                          se = FALSE, na.rm = TRUE, lwd = 0.5, col = "black")
         }
     }
 
@@ -287,10 +286,10 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
                                        y = quote(latitude0), yend = quote(latitude1),
                                        color = quote(speed)),
                          data = dfs, lwd = 1, alpha = 0.8, na.rm = TRUE) +
-                ##ggplot2::guides(color = ggplot2::guide_colorbar(title = "Speed"))
                 ggplot2::scale_color_gradient(limits = speedRange,
                                               guide = ggplot2::guide_colorbar(title = "Speed"))
-        } else {
+        }
+        else {
             p <- p + ggplot2::geom_segment(
                          ggplot2::aes_(x = quote(longitude0), xend = quote(longitude1),
                                        y = quote(latitude0), yend = quote(latitude1)),
