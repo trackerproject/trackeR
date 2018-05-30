@@ -35,6 +35,7 @@ Imports:
     jsonlite,
     raster,
     scam,
+    foreach,
     fda,
     leaflet,
     ggmap,

@@ -594,29 +594,48 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
 #' Read all supported container files from a supplied directory.
 #'
 #' @param directory The path to the directory.
-#' @param aggregate Logical. Aggregate data from different files to the same session if observations are less then \code{sessionThreshold} hours apart? Alternatively, data from different files is stored in different sessions.
+#' @param aggregate Logical. Aggregate data from different files to
+#'     the same session if observations are less then
+#'     \code{sessionThreshold} hours apart? Alternatively, data from
+#'     different files is stored in different sessions.
 #' @param table The name of the table in the database for db3 files.
-#' @param fromDistances Logical. Should the speeds be calculated from the distance recordings
-#'     instead of taken from the speed recordings directly. Defaults to \code{TRUE} for tcx and
-#'     Golden Cheetah's json files and to \code{FALSE} for db3 files.
-#' @param speedunit Character string indicating the measurement unit of the speeds in the container
-#'     file to be converted into meters per second. Default is \code{m_per_s} for tcx files and \code{km_per_h} for db3 and Golden Cheetah's json files. See Details.
-#' @param distanceunit Character string indicating the measurement unit of the distance in the container
-#'     file to be converted into meters. Default is \code{m} for tcx files and \code{km} for db3 and Golden Cheetah's json files. See Details.
-#' @param sport What sport do the files in \code{directory} correspond to? Either \code{'cycling'}, \code{'running'}, \code{'swimming'} or \code{NULL} (default), in which case an attempt is made to extract the sport from each file in \code{directory}.
+#' @param fromDistances Logical. Should the speeds be calculated from
+#'     the distance recordings instead of taken from the speed
+#'     recordings directly. Defaults to \code{TRUE} for tcx and Golden
+#'     Cheetah's json files and to \code{FALSE} for db3 files.
+#' @param speedunit Character string indicating the measurement unit
+#'     of the speeds in the container file to be converted into meters
+#'     per second. Default is \code{m_per_s} for tcx files and
+#'     \code{km_per_h} for db3 and Golden Cheetah's json files. See
+#'     Details.
+#' @param distanceunit Character string indicating the measurement
+#'     unit of the distance in the container file to be converted into
+#'     meters. Default is \code{m} for tcx files and \code{km} for db3
+#'     and Golden Cheetah's json files. See Details.
+#' @param sport What sport do the files in \code{directory} correspond
+#'     to? Either \code{'cycling'}, \code{'running'},
+#'     \code{'swimming'} or \code{NULL} (default), in which case an
+#'     attempt is made to extract the sport from each file in
+#'     \code{directory}.
 #' @param parallel Logical. Should reading be carried out in parallel?
+#'     If \code{TRUE} reading is performed in parallel using the
+#'     backend provided to \code{\link{foreach}}. Default is
+#'     \code{FALSE}.
 #' @param cores Number of cores for parallel computing.
 #' @param verbose Logical. Should progress reports be printed?
-#' @param shiny Logical. Should the output of readDirectory be made \code{\link[shiny]{reactive}}? For use in the shiny interface. Default is \code{FALSE}.
+#' @param shiny Logical. Should the output of \code{readDirectory} be
+#'     made \code{\link[shiny]{reactive}}? For use in the shiny
+#'     interface. Default is \code{FALSE}.
 #' @inheritParams readX
 #' @inheritParams restingPeriods
 #' @inheritParams imputeSpeeds
 #' @inheritParams trackeRdata
 #' @inheritParams sanityChecks
-#' @details Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_per_s},
-#'     \code{mi_per_h}, \code{ft_per_min} and \code{ft_per_s}.
-#'     Available options for \code{distanceunit} currently are \code{km}, \code{m}, \code{mi} and
-#'     \code{ft}.
+#' @details Available options for \code{speedunit} currently are
+#'     \code{km_per_h}, \code{m_per_s}, \code{mi_per_h},
+#'     \code{ft_per_min} and \code{ft_per_s}.  Available options for
+#'     \code{distanceunit} currently are \code{km}, \code{m},
+#'     \code{mi} and \code{ft}.
 #'
 #'     Reading Golden Cheetah's JSON files is experimental.
 #'
@@ -672,7 +691,8 @@ readDirectory <- function(directory,
 
         if (aggregate) {
             in_expression <- quote({
-                for (j in seq.int(lall)) {
+
+                read_fun <- function(j) {
                     currentType <- fileType[j]
                     if (shiny) {
                         incProgress(1/lall, detail = paste(j, "out of", lall,
@@ -681,12 +701,23 @@ readDirectory <- function(directory,
                     if (verbose) {
                         cat("Reading file", allFiles[j], paste0("(file ", j, " out of ", lall, ")"), "...\n")
                     }
-                    allData[[j]] <- try(do.call(what = paste0("read", toupper(currentType)),
-                                                args = list(file = allFiles[j],
-                                                            timezone = timezone,
-                                                            speedunit = speedunit[[currentType]],
-                                                            distanceunit = distanceunit[[currentType]])))
+                    try(do.call(what = paste0("read", toupper(currentType)),
+                                args = list(file = allFiles[j],
+                                            timezone = timezone,
+                                            speedunit = speedunit[[currentType]],
+                                            distanceunit = distanceunit[[currentType]])))
                 }
+
+                foreach_object <- eval(as.call(c(list(quote(foreach::foreach), j = seq.int(lall)))))
+                if (parallel) {
+                    setup_parallel()
+                    allData <- foreach::`%dopar%`(foreach_object, read_fun(j))
+                }
+                else {
+                    allData <- foreach::`%do%`(foreach_object, read_fun(j))
+                }
+
+
             })
             if (shiny) {
                 withProgress(expr = in_expression, message = 'Loading data', value = 0, quoted = TRUE)
@@ -722,7 +753,8 @@ readDirectory <- function(directory,
         }
         else {
             in_expression <- quote({
-                for (j in seq.int(lall)) {
+
+                read_fun <- function(j) {
                     currentType <- fileType[j]
                     if (shiny) {
                         incProgress(1/lall, detail = paste(j, "out of", lall,
@@ -731,22 +763,31 @@ readDirectory <- function(directory,
                     if (verbose) {
                         cat("Reading file", allFiles[j], paste0("(file ", j, " out of ", lall, ")"), "...\n")
                     }
-                    allData[[j]] <- try(readContainer(file = allFiles[j],
-                                                      type = currentType,
-                                                      table = table,
-                                                      timezone = timezone,
-                                                      sessionThreshold = sessionThreshold,
-                                                      correctDistances = correctDistances,
-                                                      country = country,
-                                                      mask = mask,
-                                                      fromDistances = fromDistances,
-                                                      speedunit = speedunit[[currentType]],
-                                                      distanceunit = distanceunit[[currentType]],
-                                                      sport = sport,
-                                                      lgap = lgap,
-                                                      lskip = lskip,
-                                                      m = m,
-                                                      silent = silent))
+                    try(readContainer(file = allFiles[j],
+                                      type = currentType,
+                                      table = table,
+                                      timezone = timezone,
+                                      sessionThreshold = sessionThreshold,
+                                      correctDistances = correctDistances,
+                                      country = country,
+                                      mask = mask,
+                                      fromDistances = fromDistances,
+                                      speedunit = speedunit[[currentType]],
+                                      distanceunit = distanceunit[[currentType]],
+                                      sport = sport,
+                                      lgap = lgap,
+                                      lskip = lskip,
+                                      m = m,
+                                      silent = silent))
+                }
+
+                foreach_object <- eval(as.call(c(list(quote(foreach::foreach), j = seq.int(lall)))))
+                if (parallel) {
+                    setup_parallel()
+                    allData <- foreach::`%dopar%`(foreach_object, read_fun(j))
+                }
+                else {
+                    allData <- foreach::`%do%`(foreach_object, read_fun(j))
                 }
             })
             if (shiny) {
