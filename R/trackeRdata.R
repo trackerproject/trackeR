@@ -24,6 +24,7 @@
 #'           \code{ft_per_s} or \code{mi_per_h}
 #'     \item variable \code{cadence} with unit \code{steps_per_min} or \code{rev_per_min}
 #'     \item variable \code{power} with unit \code{W} or \code{kW}.
+#'     \item variable \code{temperature} with unit \code{C} (Celsius) or \code{F}.
 #'     }
 #'     If the argument \code{units} is \code{NULL}, the default units are used. These are the first options, i.e.,
 #'     \code{m} for variables \code{altitude} and \code{distance}, \code{m_per_s} for variable \code{speed} as well

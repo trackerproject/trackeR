@@ -8,8 +8,7 @@ readContainer(file, type = c("tcx", "gpx", "db3", "json"),
   table = "gps_data", timezone = "", sessionThreshold = 2,
   correctDistances = FALSE, country = NULL, mask = TRUE,
   fromDistances = NULL, speedunit = NULL, distanceunit = NULL,
-  sport = NULL, lgap = 30, lskip = 5, m = 11, silent = FALSE,
-  parallel = FALSE, cores = getOption("mc.cores", 2L))
+  sport = NULL, lgap = 30, lskip = 5, m = 11, silent = FALSE)
 }
 \arguments{
 \item{file}{The path to the file.}
@@ -57,11 +56,6 @@ observation after a small break.}
 \item{m}{Number of imputed observations in each small break.}
 
 \item{silent}{Logical. Should warnings be generated if any of the sanity checks on the data are triggered?}
-
-\item{parallel}{Logical. Should computation be carried out in
-parallel? (Not supported on Windows.)}
-
-\item{cores}{Number of cores for parallel computing.}
 }
 \value{
 An object of class \code{\link{trackeRdata}}.

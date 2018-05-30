@@ -4,7 +4,7 @@
 \alias{readDirectory}
 \title{Read all supported container files from a supplied directory.}
 \usage{
-readDirectory(directory, aggregate = TRUE, table = "gps_data",
+readDirectory(directory, aggregate = FALSE, table = "gps_data",
   timezone = "", sessionThreshold = 2, correctDistances = FALSE,
   country = NULL, mask = TRUE, fromDistances = NULL,
   speedunit = list(tcx = "m_per_s", gpx = "km_per_h", db3 = "km_per_h", json =
@@ -59,8 +59,7 @@ observation after a small break.}
 
 \item{shiny}{Logical. Should the output of readDirectory be made \code{\link[shiny]{reactive}}? For use in the shiny interface. Default is \code{FALSE}.}
 
-\item{parallel}{Logical. Should computation be carried out in
-parallel? (Not supported on Windows.)}
+\item{parallel}{Logical. Should reading be carried out in parallel?}
 
 \item{cores}{Number of cores for parallel computing.}
 

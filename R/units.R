@@ -343,7 +343,7 @@ generateBaseUnits <- function(cycling = FALSE, ...) {
 ## conversion functions: distance
 #' Auxiliary conversion functions.
 #'
-#' Conversion functions for distance, duration, speed, pace, power, and cadence.
+#' Conversion functions for distance, duration, speed, pace, power, cadence and temperature.
 #'
 #' @param variable Variable to be converted.
 #' @name conversions
@@ -964,7 +964,17 @@ rev_per_min2steps_per_min <- function(variable) {
     variable * 2
 }
 
+## conversion functions: temperature
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
 C2F <- function(variable) {
-    ## FIXME: Define here!!!
-    variable
+    variable * 9 / 5 + 32
+}
+
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+F2C <- function(variable) {
+    (variable - 32) * 5 / 9
 }
