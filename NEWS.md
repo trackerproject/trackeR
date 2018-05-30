@@ -18,6 +18,7 @@
 * Code improvements in `readDirectory`
 * `c` improvements for `trackeRdata` objects
 * `readDirectory` can be perfromed in parallel usign foreach
+* Enhancements to the definition of the `trackeRdata` object and the associated methods; the object now carries file and sport information
 
 ### Bug fixes
 * Various bug fixes in `trackeRdata`
