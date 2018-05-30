@@ -150,9 +150,10 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
 #' @export
 print.trackeRdataSummary <- function(x, ..., digits = 2) {
     units <- getUnits(x)
+    sports <- as.character(sport(x))
 
     for (i in seq_len(length(x$session))) {
-        cat("\n *** Session", x$session[i], "***\n")
+        cat("\n *** Session", x$session[i], ":", sports[i], "***\n")
 
         cat("\n Session times:", format(x$sessionStart[i], format = "%Y-%m-%d %H:%M:%S"),
             "-", format(x$sessionEnd[i], format = "%Y-%m-%d %H:%M:%S"), "\n ")
