@@ -131,8 +131,12 @@ Wexp <- function(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower 
 #' \code{meanRecoveryPower} to \code{TRUE}. Note that this employes information from the all observations
 #' with a power output below critical power, not just those prior to the current time point.
 #'
-#' @references Monod H, Scherrer J (1965). 'The Work Capacity of a Synergic Muscular Group.' Ergonomics, 8(3), 329--338.
+#' @references
+#'
+#' Monod H, Scherrer J (1965). 'The Work Capacity of a Synergic Muscular Group.' Ergonomics, 8(3), 329--338.
+#'
 #' Skiba PF, Chidnok W, Vanhatalo A, Jones AM (2012). 'Modeling the Expenditure and Reconstitution of Work Capacity above Critical Power.' Medicine & Science in Sports & Exercise, 44(8), 1526--1532.
+#'
 #' Skiba PF, Fulford J, Clarke DC, Vanhatalo A, Jones AM (2015). 'Intramuscular Determinants of the Abilility to Recover Work Capacity above Critical Power.' European Journal of Applied Physiology, 115(4), 703--713.
 #'
 #' @export
