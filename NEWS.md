@@ -17,6 +17,7 @@
 * Refactored code for `summary` method for `trackeRdata` objects, making it faster (circa 10x faster)
 * Code improvements in `readDirectory`
 * `c` improvements for `trackeRdata` objects
+* `readDirectory` can be perfromed in parallel usign foreach
 
 ### Bug fixes
 * Various bug fixes in `trackeRdata`
@@ -27,8 +28,9 @@
 * `trackeR_app()` launches a shiny dashboard that provides an interface to a workflow for the analysis of activity data
 
 ### Other changes
-* Maintainer change from Hannah Frick to Ioannis Kosmidis
+* Maintainer changed from Hannah Frick to Ioannis Kosmidis
 * Robin Hornak joined developer team as author
+
 
 ## trackeR 1.0.0
 * Added citation for JSS paper.
