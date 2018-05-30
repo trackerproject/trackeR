@@ -90,7 +90,8 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
         df$SessionID <- paste0(paste(df$SessionID, df$Sport, sep = ": "), "\n", format(df$Index, "%Y-%m-%d"))
     }
     else {
-        df$SessionID <- factor(df$SessionID, levels = seq_along(session), labels = session)
+        df$SessionID <- paste0(paste(df$SessionID, df$Sport, sep = ": "))
+        ## factor(df$SessionID, levels = seq_along(session), labels = session)
     }
     df <- subset(df, Series %in% what)
     df$Series <- factor(df$Series)
@@ -211,7 +212,7 @@ prettifyUnits <- Vectorize(prettifyUnit)
 fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
     ret <- list()
     sports <- sport(model)
-    for (i in seq_along(model)){
+    for (i in seq_along(model)) {
 
         ret[[i]] <- zoo::fortify.zoo(model[[i]], melt = melt)
         ret[[i]]$SessionID <- i

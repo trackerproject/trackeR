@@ -7,37 +7,59 @@
 Wexp(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower = FALSE)
 }
 \arguments{
-\item{object}{Univariate \code{\link[zoo]{zoo}} object containing the time stamped power output or speed values. (Power should be in Watts, speed in meters per second.)}
+\item{object}{Univariate \code{\link[zoo]{zoo}} object containing
+the time stamped power output or speed values. (Power should be
+in Watts, speed in meters per second.)}
 
-\item{w0}{Inital capacity of W', as calculated based on the critical
-power model by Monod and Scherrer (1965).}
+\item{w0}{Inital capacity of W', as calculated based on the
+critical power model by Monod and Scherrer (1965).}
 
-\item{cp}{Critical power/speed, i.e., the power/speed which can be maintained for
-longer period of time.}
+\item{cp}{Critical power/speed, i.e., the power/speed which can be
+maintained for longer period of time.}
 
-\item{version}{How should W' be replenished? Options include \code{'2015'}
-and \code{'2012'} for the versions presented in Skiba et al. (2015) and
-Skiba et al. (2012), respectively. See Details.}
+\item{version}{How should W' be replenished? Options include
+\code{'2015'} and \code{'2012'} for the versions presented in
+Skiba et al. (2015) and Skiba et al. (2012), respectively. See
+Details.}
 
-\item{meanRecoveryPower}{Should the mean of all power outputs below critical
-power be used as recovery power? See Details.}
+\item{meanRecoveryPower}{Should the mean of all power outputs below
+critical power be used as recovery power? See Details.}
 }
 \description{
 Calculate W' expended, i.e., the work capacity above critical power
 which has been depleted and not yet been replenished.
 }
 \details{
-Skiba et al. (2015) and Skiba et al. (2012) both describe an exponential decay of W' expended over an interval [t_{i-1}, t_i) if the power output during this interval is below critical power:
-W_exp (t_i) = W_exp(t_{i-1}) * exp(nu * (t_i - t_{i-1})).
-However, the factor nu differs: Skiba et al. (2012) describe it as 1/tau with tau estimated as
-tau = 546 * exp( -0.01 * (CP - P_i) + 316.
-Skiba et al. (2015) use (P_i - CP) / W'_0.
-Skiba et al. (2012) and Skiba et al. (2015) employ a constant recovery power (calculated as the mean over all power outputs below critical power). This rational can be applied by setting the argument \code{meanRecoveryPower} to \code{TRUE}. Note that this employes information from the all observations with a power output below critical power, not just those prior to the current time point.
+Skiba et al. (2015) and Skiba et al. (2012) both describe an
+exponential decay of \eqn{W'} expended over an interval
+\eqn{[t_{i-1}, t_i)} if the power output during this interval is
+below critical power:
+
+\deqn{W_exp (t_i) = W_exp(t_{i-1}) * exp(nu * (t_i - t_{i-1}))}
+
+However, the factor nu differs: Skiba et al. (2012) describe it as
+\eqn{1/\tau} with \eqn{\tau} estimated as
+
+\deqn{tau = 546 * exp(-0.01 * (CP - P_i)) + 316}
+
+Skiba et al. (2015) use \eqn{(P_i - CP) / W'_0}.  Skiba et
+al. (2012) and Skiba et al. (2015) employ a constant recovery power
+(calculated as the mean over all power outputs below critical
+power). This rationale can be applied by setting the argument
+\code{meanRecoveryPower} to \code{TRUE}. Note that this uses
+information from all observations with a power output below
+critical power, not just those prior to the current time point.
 }
 \references{
-Monod H, Scherrer J (1965). 'The Work Capacity of a Synergic Muscular Group.' Ergonomics, 8(3), 329--338.
+Monod H, Scherrer J (1965). 'The Work Capacity of a Synergic
+Muscular Group.' Ergonomics, 8(3), 329--338.
 
-Skiba PF, Chidnok W, Vanhatalo A, Jones AM (2012). 'Modeling the Expenditure and Reconstitution of Work Capacity above Critical Power.' Medicine & Science in Sports & Exercise, 44(8), 1526--1532.
+Skiba PF, Chidnok W, Vanhatalo A, Jones AM (2012). 'Modeling the
+Expenditure and Reconstitution of Work Capacity above Critical
+Power.' Medicine & Science in Sports & Exercise, 44(8), 1526--1532.
 
-Skiba PF, Fulford J, Clarke DC, Vanhatalo A, Jones AM (2015). 'Intramuscular Determinants of the Abilility to Recover Work Capacity above Critical Power.' European Journal of Applied Physiology, 115(4), 703--713.
+Skiba PF, Fulford J, Clarke DC, Vanhatalo A, Jones AM
+(2015). 'Intramuscular Determinants of the Abilility to Recover
+Work Capacity above Critical Power.' European Journal of Applied
+Physiology, 115(4), 703--713.
 }

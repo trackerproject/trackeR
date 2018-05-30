@@ -17,18 +17,19 @@ defaults to all sessions.}
 \item{quantity}{Should W' \code{'expended'} or W' \code{'balance'}
 be returned?}
 
-\item{w0}{Inital capacity of W', as calculated based on the critical
-power model by Monod and Scherrer (1965).}
+\item{w0}{Inital capacity of W', as calculated based on the
+critical power model by Monod and Scherrer (1965).}
 
-\item{cp}{Critical power/speed, i.e., the power/speed which can be maintained for
-longer period of time.}
+\item{cp}{Critical power/speed, i.e., the power/speed which can be
+maintained for longer period of time.}
 
-\item{version}{How should W' be replenished? Options include \code{'2015'}
-and \code{'2012'} for the versions presented in Skiba et al. (2015) and
-Skiba et al. (2012), respectively. See Details.}
+\item{version}{How should W' be replenished? Options include
+\code{'2015'} and \code{'2012'} for the versions presented in
+Skiba et al. (2015) and Skiba et al. (2012), respectively. See
+Details.}
 
-\item{meanRecoveryPower}{Should the mean of all power outputs below critical
-power be used as recovery power? See Details.}
+\item{meanRecoveryPower}{Should the mean of all power outputs below
+critical power be used as recovery power? See Details.}
 
 \item{parallel}{Logical. Should computation be carried out in
 parallel? If \code{TRUE} computation is performed in parallel
@@ -41,26 +42,37 @@ using the backend provided to \code{\link{foreach}}. Default is
 An object of class \code{trackeRWprime}.
 }
 \description{
-Based on the critical power model for cycling (Monod and Scherrer, 1965),
-W' (read W prime) describes the finite work capacity above critical power (Skiba et al., 2012).
-While W' is depleted during exercise above critical power, it is replenished
-during exercise below critical power. Thus, it is of interest how much of this
-work capacity has been depleted and not yet been replinished again, named
-W' expended, or how much of this work capacity is still available, named W' balance.
-This principal is applied to runners by subsituting power and critical power with
-speed and critical speed, respectively (Skiba et al., 2012).
+Based on the critical power model for cycling (Monod and Scherrer,
+1965), W' (read W prime) describes the finite work capacity above
+critical power (Skiba et al., 2012).  While W' is depleted during
+exercise above critical power, it is replenished during exercise
+below critical power. Thus, it is of interest how much of this work
+capacity has been depleted and not yet been replinished again,
+named W' expended, or how much of this work capacity is still
+available, named W' balance.  This principal is applied to runners
+by subsituting power and critical power with speed and critical
+speed, respectively (Skiba et al., 2012).
 }
 \details{
-Skiba et al. (2015) and Skiba et al. (2012) both describe an exponential decay of
-W' expended over an interval [t_{i-1}, t_i) if the power output during this interval is below critical power:
-W_exp (t_i) = W_exp(t_{i-1}) * exp(nu * (t_i - t_{i-1})).
-However, the factor nu differs: Skiba et al. (2012) describe it as 1/tau with tau estimated as
-tau = 546 * exp( -0.01 * (CP - P_i) + 316.
-Skiba et al. (2015) use (P_i - CP) / W'_0.
-Skiba et al. (2012) and Skiba et al. (2015) employ a constant recovery power (calculated as the mean
-over all power outputs below critical power). This rational can be applied by setting the argument
-\code{meanRecoveryPower} to \code{TRUE}. Note that this employes information from the all observations
-with a power output below critical power, not just those prior to the current time point.
+#' Skiba et al. (2015) and Skiba et al. (2012) both describe an
+exponential decay of \eqn{W'} expended over an interval
+\eqn{[t_{i-1}, t_i)} if the power output during this interval is
+below critical power:
+
+\deqn{W_exp (t_i) = W_exp(t_{i-1}) * exp(nu * (t_i - t_{i-1}))}
+
+However, the factor nu differs: Skiba et al. (2012) describe it as
+\eqn{1/\tau} with \eqn{\tau} estimated as
+
+\deqn{tau = 546 * exp(-0.01 * (CP - P_i)) + 316}
+
+Skiba et al. (2015) use \eqn{(P_i - CP) / W'_0}.  Skiba et
+al. (2012) and Skiba et al. (2015) employ a constant recovery power
+(calculated as the mean over all power outputs below critical
+power). This rationale can be applied by setting the argument
+\code{meanRecoveryPower} to \code{TRUE}. Note that this uses
+information from all observations with a power output below
+critical power, not just those prior to the current time point.
 }
 \examples{
 data('runs', package = 'trackeR')
@@ -68,9 +80,15 @@ wexp <- Wprime(runs, session = c(11,13), cp = 4, version = '2012')
 plot(wexp)
 }
 \references{
-Monod H, Scherrer J (1965). 'The Work Capacity of a Synergic Muscular Group.' Ergonomics, 8(3), 329--338.
+Monod H, Scherrer J (1965). 'The Work Capacity of a Synergic
+Muscular Group.' Ergonomics, 8(3), 329--338.
 
-Skiba PF, Chidnok W, Vanhatalo A, Jones AM (2012). 'Modeling the Expenditure and Reconstitution of Work Capacity above Critical Power.' Medicine & Science in Sports & Exercise, 44(8), 1526--1532.
+Skiba PF, Chidnok W, Vanhatalo A, Jones AM (2012). 'Modeling the
+Expenditure and Reconstitution of Work Capacity above Critical
+Power.' Medicine & Science in Sports & Exercise, 44(8), 1526--1532.
 
-Skiba PF, Fulford J, Clarke DC, Vanhatalo A, Jones AM (2015). 'Intramuscular Determinants of the Abilility to Recover Work Capacity above Critical Power.' European Journal of Applied Physiology, 115(4), 703--713.
+Skiba PF, Fulford J, Clarke DC, Vanhatalo A, Jones AM
+(2015). 'Intramuscular Determinants of the Abilility to Recover
+Work Capacity above Critical Power.' European Journal of Applied
+Physiology, 115(4), 703--713.
 }
