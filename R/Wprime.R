@@ -107,11 +107,15 @@ Wexp <- function(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower 
 #' speed and critical speed, respectively (Skiba et al., 2012).
 #'
 #' @param object A \code{\link{trackeRdata}} object.
-#' @param session A numeric vector of the sessions to be used, defaults to all sessions.
-#' @param quantity Should W' \code{'expended'} or W' \code{'balance'} be returned?
+#' @param session A numeric vector of the sessions to be used,
+#'     defaults to all sessions.
+#' @param quantity Should W' \code{'expended'} or W' \code{'balance'}
+#'     be returned?
 #' @inheritParams Wexp
-#' @param parallel Logical. Should computation be carried out in parallel?
-#' @param cores Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options('corese')} (on Windows) or \code{options('mc.cores')} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.
+#' @param parallel Logical. Should computation be carried out in
+#'     parallel? If \code{TRUE} computation is performed in parallel
+#'     using the backend provided to \code{\link{foreach}}. Default is
+#'     \code{FALSE}.
 #' @param ... Currently not used.
 #'
 #' @return An object of class \code{trackeRWprime}.
@@ -137,7 +141,7 @@ Wexp <- function(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower 
 #' wexp <- Wprime(runs, session = c(11,13), cp = 4, version = '2012')
 #' plot(wexp)
 Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), w0, cp,
-    version = c("2015", "2012"), meanRecoveryPower = FALSE, parallel = FALSE, cores = NULL,
+    version = c("2015", "2012"), meanRecoveryPower = FALSE, parallel = FALSE,
     ...) {
     ## prep args
     quantity <- match.arg(quantity, c("expended", "balance"))
@@ -176,31 +180,23 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), 
     object <- object[session]
 
     ## get W'
-    getW <- function(x) {
-        W <- Wexp(x[, ps], w0 = w0, cp = cp, version = version, meanRecoveryPower = meanRecoveryPower)
+    getW <- function(j) {
+        sess <- object[[j]]
+        W <- Wexp(sess[, ps], w0 = w0, cp = cp, version = version, meanRecoveryPower = meanRecoveryPower)
         if (quantity == "balance")
             W$wprime <- w0 - W$wprime
         return(W)
     }
 
+    foreach_object <- eval(as.call(c(list(quote(foreach::foreach),
+                                          j = seq.int(nsessions(object))))))
+
     if (parallel) {
-        dc <- parallel::detectCores()
-        if (.Platform$OS.type != "windows") {
-            if (is.null(cores))
-                cores <- getOption("mc.cores", max(floor(dc/2), 1L))
-            ## parallel::mclapply(..., mc.cores = cores)
-            ret <- parallel::mclapply(object, getW, mc.cores = cores)
-        } else {
-            if (is.null(cores))
-                cores <- getOption("cores", max(floor(dc/2), 1L))
-            cl <- parallel::makePSOCKcluster(rep("localhost", cores))
-            ## parallel::parLapply(cl, ...)
-            ret <- parallel::parLapply(cl, object, getW)
-            parallel::stopCluster(cl)
-        }
-    } else {
-        ## lapply(...)
-        ret <- lapply(object, getW)
+        setup_parallel()
+        ret <- foreach::`%dopar%`(foreach_object, getW(j))
+    }
+    else {
+        ret <- foreach::`%do%`(foreach_object, getW(j))
     }
 
     ## class and return

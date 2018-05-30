@@ -6,14 +6,16 @@
 \usage{
 Wprime(object, session = NULL, quantity = c("expended", "balance"), w0, cp,
   version = c("2015", "2012"), meanRecoveryPower = FALSE,
-  parallel = FALSE, cores = NULL, ...)
+  parallel = FALSE, ...)
 }
 \arguments{
 \item{object}{A \code{\link{trackeRdata}} object.}
 
-\item{session}{A numeric vector of the sessions to be used, defaults to all sessions.}
+\item{session}{A numeric vector of the sessions to be used,
+defaults to all sessions.}
 
-\item{quantity}{Should W' \code{'expended'} or W' \code{'balance'} be returned?}
+\item{quantity}{Should W' \code{'expended'} or W' \code{'balance'}
+be returned?}
 
 \item{w0}{Inital capacity of W', as calculated based on the critical
 power model by Monod and Scherrer (1965).}
@@ -28,9 +30,10 @@ Skiba et al. (2012), respectively. See Details.}
 \item{meanRecoveryPower}{Should the mean of all power outputs below critical
 power be used as recovery power? See Details.}
 
-\item{parallel}{Logical. Should computation be carried out in parallel?}
-
-\item{cores}{Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options('corese')} (on Windows) or \code{options('mc.cores')} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.}
+\item{parallel}{Logical. Should computation be carried out in
+parallel? If \code{TRUE} computation is performed in parallel
+using the backend provided to \code{\link{foreach}}. Default is
+\code{FALSE}.}
 
 \item{...}{Currently not used.}
 }
