@@ -86,7 +86,7 @@ trackeRdata <- function(dat, units = NULL, sport = NULL, sessionThreshold = 2, c
     }
     else {
         if (units$unit[units$variable == "cadence"] != "steps_per_min") {
-            warning("Unit for cadence is set to 'steps_per_min' due to sport = 'cycling'.")
+            warning("Unit for cadence is set to 'steps_per_min' due to sport != 'cycling'.")
             units$unit[units$variable == "cadence"] <- "steps_per_min"
         }
     }
@@ -96,7 +96,6 @@ trackeRdata <- function(dat, units = NULL, sport = NULL, sessionThreshold = 2, c
         if (is.factor(units[, i]))
             units[, i] <- as.character(units[, i])
     }
-
 
     ## basic edits on time stamps
     dat <- sanityChecks(dat = dat, silent = silent)
@@ -112,7 +111,6 @@ trackeRdata <- function(dat, units = NULL, sport = NULL, sessionThreshold = 2, c
     if (correctDistances)
         trackerdat <- lapply(trackerdat, distanceCorrection, country = country, mask = mask)
 
-
     ## impute speeds in each session
     trackerdat <- lapply(trackerdat, imputeSpeeds, fromDistances = fromDistances, lgap = lgap,
         lskip = lskip, m = m, cycling = is_cycling, units = units)
@@ -127,7 +125,8 @@ trackeRdata <- function(dat, units = NULL, sport = NULL, sessionThreshold = 2, c
             "min", sep = "_per_"), sep = "2"))
         units <- rbind(units, c("pace", paste0("min_per_", distUnit4pace)))
 
-    } else {
+    }
+    else {
         paceInv <- strsplit(units$unit[units$variable == "pace"], split = "_per_")[[1]][2:1]
         paceInv <- paste(paceInv, collapse = "_per_")
         conversion <- match.fun(paste(units$unit[units$variable == "speed"], paceInv, sep = "2"))

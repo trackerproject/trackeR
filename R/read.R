@@ -577,9 +577,6 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
                       distanceunit = distanceunit)
                   )
 
-    ## ## units of measurement
-    ## units <- generateBaseUnits(is_cycling) ## readX returns default units
-
     ## make trackeRdata object (with all necessary data handling)
     trackerdat <- trackeRdata(dat, units = NULL, sport = sport,
                               correctDistances = correctDistances, country = country, mask = mask,
