@@ -21,6 +21,15 @@ Cycling Data", which can be accessed by typing
 vignette("trackeR", package = "trackeR")
 ```
 
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 7
+)
+```
+
 
 ## Reading data
 
@@ -31,7 +40,7 @@ for JSON files from [Golden Cheetah](http://www.goldencheetah.org/) via *readJSO
 
 ```{r, runDF, message = FALSE}
 library("trackeR")
-filepath <- system.file("extdata", "2013-06-08-090442.TCX", package = "trackeR")
+filepath <- system.file("extdata", "2013-05-16-120907.TCX", package = "trackeR")
 runDF <- readTCX(file = filepath, timezone = "GMT")
 ```
 
@@ -73,27 +82,27 @@ data("runs", package = "trackeR")
 The default behaviour of the *plot* method for *trackeRdata* objects
 is to show how heart rate and pace evolve over the session.
 
-```{r, plot_runs, fig.width = 7.5, fig.height = 4}
+```{r, plot_runs, fig.width = 7, fig.height = 5}
 plot(runs, session = 1:7)
 ```
 
 The elevation profile of a training session is also accessible, here along with the pace.
 
-```{r, plot_runs_2, fig.width = 7.2, fig.height = 4}
-plot(runs, session = 27, what = c("altitude", "pace"))
+```{r, plot_runs_2, fig.width = 7, fig.height = 5}
+plot(runs, session = 8, what = c("altitude", "pace"))
 ```
 
 The route taken during a training session can also be plotted on maps from various sources
 e.g., from Google or OpenStreetMap. This can be done either on a static map
 
-```{r, plotRoute, message = FALSE, warning = FALSE, fig.width = 6, fig.height = 6}
-plotRoute(runs, session = 4, zoom = 13, source = "google")
+```{r, plotRoute, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 7}
+plotRoute(runs, session = 1, source = "google")
 ```
 
 or on an interactive map.
 
-```{r, leafletRoute, fig.width = 7, fig.height = 5}
-leafletRoute(runs, session = 8:13)
+```{r, leafletRoute, fig.width = 7, fig.height = 7}
+leafletRoute(runs, session = c(1, 6, 12))
 ```
 
 
@@ -112,7 +121,7 @@ It is usually desirable to visualise summaries from multiple sessions. This can 
 using the *plot* method for summary objects. Below, we produce such a plot for average
 heart rate, average speed, distance, and duration.
 
-```{r, plot_summary, fig.width = 7, fig.height = 6.3}
+```{r, plot_summary, fig.width = 7, fig.height = 7}
 runsSummary <- summary(runs)
 plot(runsSummary, group = c("total", "moving"),
   what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
@@ -121,7 +130,7 @@ plot(runsSummary, group = c("total", "moving"),
 The timeline plot is useful to visualise the date and time that the sessions took place and
 provide information of their relative duration.
 
-```{r, timeline, fig.width = 7, fig.height = 6.3}
+```{r, timeline, fig.width = 7, fig.height = 7}
 timeline(runsSummary)
 ```
 
@@ -132,7 +141,7 @@ timeline(runsSummary)
 The time spent training in certain zones, e.g., speed zones, can also be calculated and
 visualised.
 
-```{r, plot_zones, fig.width = 7, fig.height = 4}
+```{r, plot_zones, fig.width = 7, fig.height = 5}
 runZones <- zones(runs[1:4], what = "speed", breaks = c(0, 2:6, 12.5))
 plot(runZones)
 ```
@@ -145,7 +154,7 @@ plot(runZones)
 as `W prime`). The comprehensive vignette "Infrastructure for Running and Cycling Data"
 provides the definition of work capacity and details on the *version* and *quantity* arguments.
 
-```{r, plot_Wprime, fig.width = 7, fig.height = 4}
+```{r, plot_Wprime, fig.width = 7, fig.height = 5}
 wexp <- Wprime(runs, session = 11, quantity = "expended", cp = 4, version = "2012")
 plot(wexp, scaled = TRUE)
 ```
@@ -194,7 +203,7 @@ vignette "Infrastructure for Running and Cycling Data".
 The distribution and concentration can be used for further analysis such as a functional
 principal components analysis (PCA) to describe the differences between the profiles.
 
-The concentration profiles for all session 
+The concentration profiles for all session
 
 ```{r, prep_profiles, fig.width = 7, fig.height = 5}
 runsT <- threshold(runs)
@@ -213,7 +222,7 @@ cpPCA <- funPCA(cpRuns, what = "speed", nharm = 4)
 ```
 
 For the speed concentration profiles here, the first two components cover
-`r round(sum(cpPCA$varprop[1:2]*100))`% of the variability in the profiles. 
+`r round(sum(cpPCA$varprop[1:2]*100))`% of the variability in the profiles.
 
 ```{r, plot_fPCA, fig.width = 7, fig.height = 7}
 round(cpPCA$varprop, 2)
@@ -223,9 +232,9 @@ plot(cpPCA, harm = 1:2)
 A plot of the first two principal components reveals that the profiles here differ mostly
 in the general height of the curves and the location. These two aspects of the profiles
 can be captured by two univariate measures of the sessions, the time spent moving and the
-average speed moving. 
+average speed moving.
 
-```{r, plot_scores, fig.show = 'hold', fig.width = 7, fig.height = 3.5}
+```{r, plot_scores, fig.show = 'hold', fig.width = 7, fig.height = 5}
 ## plot scores vs summary statistics
 scoresSP <- data.frame(cpPCA$scores)
 names(scoresSP) <- paste0("speed_pc", 1:4)
