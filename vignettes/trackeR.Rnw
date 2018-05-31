@@ -34,17 +34,17 @@
 
 \Abstract{This introduction to the \proglang{R} package \pkg{trackeR} is a (slightly)
   modified version of \cite{trackeR:Frick+Kosmidis:2017}, published in the
-  \emph{Journal of Statistical Software}.  
-  
+  \emph{Journal of Statistical Software}.
+
   The use of GPS-enabled tracking devices and heart rate
   monitors is becoming increasingly common in sports and fitness
   activities. The \pkg{trackeR} package aims to fill the gap
   between the routine collection of data from such devices and their
-  analyses in \proglang{R}. 
-  The package provides methods to import tracking data into data structures 
+  analyses in \proglang{R}.
+  The package provides methods to import tracking data into data structures
   which preserve units of measurement and are organised in sessions.
   The package implements core infrastructure for
-  relevant summaries and visualisations, as well as support for handling units 
+  relevant summaries and visualisations, as well as support for handling units
   of measurement. There are also methods for relevant analytic tools such
   as time spent in zones, work capacity above critical power (known as
   $W'$), and distribution and concentration profiles. A case study
@@ -91,16 +91,16 @@ sport. The focus of this paper is on data collected by GPS-enabled tracking
 devices and heart rate monitors. Such devices are routinely used in fitness
 activities such as running and cycling, and also during training in sports like
 field hockey and football. Basic questions associated with tracking data include
-how often, much, or hard an individual or a group trains, and a more advanced 
-outlook tries to explain the impact of training on athlete physiology or 
+how often, much, or hard an individual or a group trains, and a more advanced
+outlook tries to explain the impact of training on athlete physiology or
 performance.
 
 %% tools: commercial, GC
 Tools for basic analytics are usually offered by the manufacturers of the
 tracking devices, such as Garmin, Polar, and Catapult, and through a wide range
-of applications for devices 
+of applications for devices
 such as smartphones and smartwatches, e.g., Strava Running and Cycling GPS,
-Endomondo -- Running \& Walking, and Runtastic Running GPS Tracker. 
+Endomondo -- Running \& Walking, and Runtastic Running GPS Tracker.
 A notable open-source effort is Golden Cheetah
 (\url{http://www.goldencheetah.org}), which has now, perhaps, become
 the gold standard in terms of facilities for importing tracking data
@@ -111,74 +111,57 @@ analysis of such sports tracking data.
 %% tools: R in general
 The \proglang{R} system for statistical computing \citep{trackeR:R}
 with its ecosystem of add-on packages provides a wide range of
-possibilities for the handling and analysis of tracking data. 
-% For example, mixed
-% effects regression modelling \citep[e.g.,
-% \pkg{lme4},][]{trackeR:Bates+Maechler+Bolker:2015}, clustering \citep[e.g.,
-% \pkg{mclust},][]{trackeR:Fraley+Raftery+Murphy:2012, trackeR:Fraley+Raftery:2002}, 
-% time series and changepoint analysis \citep[e.g., \pkg{forecast} and
-% \pkg{strucchange},][respectively]{trackeR:Hyndman+Khandakar:2008,
-%   trackeR:Zeileis+Leisch+Hornik:2002}, methods for spatial statistics
-% \citep[e.g., \pkg{sp},][]{trackeR:Pebesma+Bivand:2005}, and functional data
-% analysis \citep[e.g., \pkg{fda},][]{trackeR:pkg:fda} are all relevant to data
-% analytic tasks in the context of sport and are supported by comprehensive and
-% actively developed packages in the \proglang{R} ecosystem. 
-% % elastic net \cite{trackeR:Kosmidis+Passfield:2015} \citep[e.g.,][]{}
+possibilities for the handling and analysis of tracking data.
 
-%% other packages for trajectory data 
-GPS-enabled tracking devices typically record irregularly sampled 
-spatio-temporal data. Infrastructure for such data is provided in the 
+%% other packages for trajectory data
+GPS-enabled tracking devices typically record irregularly sampled
+spatio-temporal data. Infrastructure for such data is provided in the
 \pkg{trajectories} package \citep{trackeR:pkg:trajectories},
 which is developed around the \class{STIDF} class of the \pkg{spacetime} package
-\citep{trackeR:Pebesma:2012}. However, the \class{STIDF} class does not 
+\citep{trackeR:Pebesma:2012}. However, the \class{STIDF} class does not
 accommodate missing values in positional or temporal information. Since this is
 commonly the case in data from GPS-enabled tracking devices (e.g., sequences of
 missing values in the positional data because the GPS signal is temporarily
-lost), a different approach is taken in \pkg{trackeR} 
+lost), a different approach is taken in \pkg{trackeR}
 (see Section~\ref{sec:trackeRdata}).
-% 
+%
 Other packages that offer tools for spatio-temporal data include
 \pkg{adehabtitatLT} \citep{trackeR:Calenge:2006}, \pkg{trip}
 \citep{trackeR:pkg:trip} and \pkg{move} \citep{trackeR:pkg:move}. The main focus
 of those packages is on animal tracking, e.g., estimation of habitat choices,
-and they are not directly suitable for tracking the various aspects of athlete 
-activity. 
+and they are not directly suitable for tracking the various aspects of athlete
+activity.
 
 
 %% Sports-related packages in \proglang{R}
 Despite the wide range of \proglang{R} packages available, there is
-only a handful of packages specific to sport data and their analysis. 
+only a handful of packages specific to sport data and their analysis.
 The available packages focus on topics such as sports management
 \citep[\pkg{RcmdrPlugin.SM},][]{trackeR:pkg:RcmdrPlugin.SM}, ranking
 sports teams \citep[\pkg{mvglmmRank},][]{trackeR:pkg:mvglmmRank}, and
 accessing betting odds
 \citep[\pkg{pinnacle.API},][]{trackeR:pkg:pinnacle.API}. \linebreak \pkg{SportsAnalytics}
 is a package that focuses on the analysis of performance data, and currently
- offers only ``a selection of data sets, functions to fetch sports data, 
- examples, and demos'' \citep{trackeR:pkg:SportsAnalytics}. 
+ offers only ``a selection of data sets, functions to fetch sports data,
+ examples, and demos'' \citep{trackeR:pkg:SportsAnalytics}.
 %
 The \pkg{cycleRtools} package \citep{trackeR:pkg:cycleRtools} provides
 functionality to import cycling data into \proglang{R} as well as
 tools for cycling-specific, descriptive analyses.
-%% Additionally, it provides access to the API of Golden Cheetah.
-%% %% Note: the successor of cycleRtools, elpatron, is currently not on CRAN
-%% %% anymore due to license issues.
-
-
 
 %% trackeR
 The \pkg{trackeR} package aims to fill the gap between the routine
 collection of data from GPS-enabled tracking devices and the analyses
 of such data within the \proglang{R} ecosystem. The package provides utilities
 to import sports data from GPS-enabled devices, and, after careful processing,
-organises them in data objects which are organised in separate sessions/workouts 
-and carry information about the units of measurement (e.g., distance and speed 
+organises them in data objects which are organised in separate sessions/workouts
+and carry information about the units of measurement (e.g., distance and speed
 units) as well as of any data operations that have been carried out (e.g., smoothing).
 The package also implements core infrastructure for the handling of measurement units
-and for summarising and visualising tracking data. It also provides functionality 
-for calculating time in zones \citep[e.g.,][]{trackeR:Seiler+Kjerland:2006}, 
-work capacity $W'$ \citep{trackeR:Skiba+Chidnok+Vanhatalo:2012}, and distribution 
-and concentration profiles \citep{trackeR:Kosmidis+Passfield:2015}, including 
+and for summarising and visualising tracking data. It also provides functionality
+for calculating time in zones \citep[e.g.,][]{trackeR:Seiler+Kjerland:2006},
+work capacity $W'$ \citep{trackeR:Skiba+Chidnok+Vanhatalo:2012}, and distribution
+and concentration profiles \citep{trackeR:Kosmidis+Passfield:2015}, including
 a few methods for the analysis of these profiles.
 
 %% paper structure
@@ -196,16 +179,15 @@ thresholding. The case study in Section~\ref{sec:casestudy}
 investigates the key features in \Sexpr{nsessions(runs)} sessions through a
 functional principal components analysis
 \citep[e.g.,][]{trackeR:Ramsay+Silverman:2005} on the concentration profiles for
-speed. % Finally, Section~\ref{sec:outro} gives some concluding remarks and
-% directions for further development.
+speed.
 
 
 \section{Package structure}\label{sec:pkgstructure}
 
-Figures~\ref{fig:pkgstructure:read} and~\ref{fig:pkgstructure:rest} show a 
+Figures~\ref{fig:pkgstructure:read} and~\ref{fig:pkgstructure:rest} show a
 schematic overview of the package structure, split into two parts for reading
-data and further operations. Squared boxes indicate objects of a particular 
-class, diamonds indicate files of a particular format, 
+data and further operations. Squared boxes indicate objects of a particular
+class, diamonds indicate files of a particular format,
 and boxes with rounded corners represent methods that apply to those
 objects. The respective class and method names are given in the boxes.
 An arrow from an object/file type to a method indicates that the method
@@ -713,7 +695,7 @@ applies to objects of classes \class{trackeRdataZones},
 \pgfsetstrokecolor{dialinecolor}
 \node at (29.875265\du,2.448669\du){};
 \end{tikzpicture}
-        
+
   }
   \caption{Package structure - Functionality to read tracking data.}
   \label{fig:pkgstructure:read}
@@ -1715,7 +1697,7 @@ applies to objects of classes \class{trackeRdataZones},
 \draw (8.273050\du,25.773979\du)--(8.274519\du,19.112905\du);
 }
 \end{tikzpicture}
-        
+
   }
   \caption{Package structure - Functionality to analyse tracking data.}
   \label{fig:pkgstructure:rest}
@@ -1725,10 +1707,8 @@ applies to objects of classes \class{trackeRdataZones},
 Data in various formats are imported and stored in the central data object of \linebreak
 class~\class{trackeRdata} from which summaries for descriptive purposes or
 further analyses can be derived. Methods for visualisation and data handling are
-available for data objects and summary objects. 
+available for data objects and summary objects.
 A list of all functionality is provided in Tables~\ref{tab:pkg:functions:1} and~\ref{tab:pkg:functions:2}.
-
-% \clearpage
 
 \begin{table}[p]
   \centering
@@ -1743,7 +1723,7 @@ A list of all functionality is provided in Tables~\ref{tab:pkg:functions:1} and~
     \fct{readDirectory} & TCX/DB3/JSON files & read all TCX/DB3/JSON files in a
     \linebreak directory \\
     \fct{trackeRdata} & \class{data.frame} & construct a \class{trackeRdata}
-    object \\    
+    object \\
     %
     \fct{c} & \class{trackeRdata} & combine sessions \\
     \code{[]} & \class{trackeRdata} & subset sessions \\
@@ -1791,8 +1771,6 @@ A list of all functionality is provided in Tables~\ref{tab:pkg:functions:1} and~
   \label{tab:pkg:functions:1}
 \end{table}
 
-%\clearpage
-
 \begin{table}[t]
   \centering
   \begin{tabular}{l l p{7cm}}
@@ -1832,10 +1810,6 @@ A list of all functionality is provided in Tables~\ref{tab:pkg:functions:1} and~
 \end{table}
 
 
-%% \clearpage
-%% \pagebreak
-
-
 \section{Import utilities}\label{sec:import}
 
 \pkg{trackeR} provides utilities for data in common
@@ -1852,7 +1826,7 @@ name and type of variables that are present in the resulting data
 frame.
 %
 <<eval = TRUE>>=
-filepath <- system.file("extdata", "2013-06-08-090442.TCX", 
+filepath <- system.file("extdata", "2013-05-16-120907.TCX",
   package = "trackeR")
 runDF <- readTCX(file = filepath, timezone = "GMT")
 str(runDF)
@@ -1866,21 +1840,15 @@ default for argument \code{timezone} is \code{""} and is system-specific, see
 \pkg{trackeR} can accommodate the addition of extra formats by simply
 authoring appropriate import functions. Such functions should take as
 input the path of the file to be read and return a data frame with the
-same structure as in the above example. 
-%% Measurements should preferably be in
-%% units supported by \pkg{trackeR} or conversion functions for un-supported units
-%% should be provided, see Section~\ref{sec:units} for details.
-
-%\clearpage
-%% \pagebreak
+same structure as in the above example.
 
 \section[trackeRdata class]{\class{trackeRdata} class}\label{sec:trackeRdata}
 
 \subsection{Object structure}
-The core object of \pkg{trackeR} has class \class{trackeRdata}. 
+The core object of \pkg{trackeR} has class \class{trackeRdata}.
 The \class{trackeRdata} objects are
 session-based, unit-aware and operation-aware structures, which
-organise the data in a list of multivariate \code{zoo} objects 
+organise the data in a list of multivariate \code{zoo} objects
 \citep{trackeR:Zeileis+Grothendieck:2005} with one element per session.
 The observations within each session are ordered according to
 the time stamps as these are read from the GPS-enabled tracking
@@ -1990,9 +1958,9 @@ observations in the same session, sometimes of the order of several
 minutes. This can happen, for example, if the device is intentionally
 paused by the athlete or if the proprietary algorithm controlling the
 operating sampling rate of the device detects no significant change in
-position. For example, in the manual of a GPS device, 
-the Forerunner$^{\copyright}$ 310XT, it is stated that 
- \emph{``The Forerunner uses smart recording. It records key points where 
+position. For example, in the manual of a GPS device,
+the Forerunner$^{\copyright}$ 310XT, it is stated that
+ \emph{``The Forerunner uses smart recording. It records key points where
    you change direction, speed, or heart rate''} \citep{trackeR:forerunner310XT}.
 In both cases, interpolating directly to get the speed or power will lead to
 overestimation of the total workload within those intervals.
@@ -2460,7 +2428,7 @@ speed (for running) or zero speed and power (for cycling).
 \pgfsetstrokecolor{dialinecolor}
 \node[anchor=center] at (25.639400\du,12.579800\du){$t_{i+1}^{*}$};
 \end{tikzpicture}
-  
+
   \caption{Illustration of the imputation process for speed with $m = 11$.}
   \label{fig:imputation}
 \end{figure}
@@ -2500,7 +2468,7 @@ consecutive observations, according to
   d_{i+1} = d_{i} + s_i (t_{i+1} - t_i)
 \end{equation*}
 where $s_i$ and $d_i$ denote the speed and cumulative distance at time
-point $t_i$, respectively. 
+point $t_i$, respectively.
 
 The following code chunk takes as input the raw data in the data frame
 \code{runDF} and constructs the corresponding \class{trackeRdata} object.
@@ -2534,8 +2502,8 @@ data("run", package = "trackeR")
 data("runs", package = "trackeR")
 @
 %
-\pkg{trackeR} ships with two \class{trackeRdata} objects containing 
-\Sexpr{nsessions(run)} and \Sexpr{nsessions(runs)} running sessions, respectively, 
+\pkg{trackeR} ships with two \class{trackeRdata} objects containing
+\Sexpr{nsessions(run)} and \Sexpr{nsessions(runs)} running sessions, respectively,
 and which can be loaded via
 %
 <<dataLoad0, eval = FALSE>>=
@@ -2552,7 +2520,7 @@ We will use those objects for the illustrations throughout the paper.
 
 \pkg{trackeR} provides methods for summarising sessions in terms of scalar
 summaries, the time spent exercising in specified zones, the concept of work
-capacity, and distribution and concentration profiles. 
+capacity, and distribution and concentration profiles.
 
 
 \subsection{Visualisation}
@@ -2586,8 +2554,8 @@ via the \fct{plotRoute} method. The \fct{plotRoute} method uses the
 \pkg{ggmap} package \citep{trackeR:Kahle+Wickham:2013} and, hence, can
 work with the sources and maps supported by \pkg{ggmap}. For example,
 Figure~\ref{fig:routePlot} shows the route covered during session~4 in
-\code{runs} using a map downloaded from Google. 
-Interactive maps can be produced with \fct{leafletPlot}, using the 
+\code{runs} using a map downloaded from Google.
+Interactive maps can be produced with \fct{leafletPlot}, using the
 \pkg{leaflet} package \citep{trackeR:pkg:leaflet}.
 %
 <<eval = FALSE, echo = TRUE>>=
@@ -2613,7 +2581,7 @@ Each session can be summarised through common summary statistics using the
 \fct{summary} method. Such a session summary includes estimates of the total
 distance covered, the total duration, the time spent moving, and work to rest
 ratio. It also includes averages of speed, pace, cadence, power, and heart rate,
-calculated based on total duration or the time spent moving. 
+calculated based on total duration or the time spent moving.
 
 An athlete is considered to be moving
 if the speed is larger than some threshold $s^*$. This threshold can be set via
@@ -2628,7 +2596,7 @@ time moving while ``average speed'' is calculated as total distance divided by
 total duration. The average pace~(moving) is calculated
 as the inverse of the average speed~(moving). The work to rest ratio
 is calculated as time moving divided by (total duration - time
-moving). 
+moving).
 The averages for cadence, power, and heart rate (total and moving) are weighted
 averages with weights depending on the time difference to the next
 observation. These averages also need to take into account missingness in the
@@ -2649,11 +2617,11 @@ is available, i.e., not missing, and 0 otherwise, $I(\cdot)$ denotes
 the indicator function, and $\Delta_i = t_i - t_{i-1}$ the time difference
 between observations at $t_i$ and $t_{i-1}$.
 
-The \fct{summary} method for \class{trackeRdata} objects returns a data 
+The \fct{summary} method for \class{trackeRdata} objects returns a data
 frame which can be used for further analysis. The return object is classed as
-\class{trackeRdataSummary} for which several methods are available. With the 
-\fct{print} method, one can set the number of digits printed for the scalar 
-summary statistics. The following example shows the summaries for sessions~1--2 
+\class{trackeRdataSummary} for which several methods are available. With the
+\fct{print} method, one can set the number of digits printed for the scalar
+summary statistics. The following example shows the summaries for sessions~1--2
 with the default number of digits of 2 and then the summary of session~1 with
 3~digits for comparison.
 %
@@ -2692,8 +2660,8 @@ plot(runSummaryFull, group = c("total", "moving"),
 
 
 \subsection{Times in zones}\label{subsec:zones}
-A common way to summarise and characterise a session is to calculate 
-how much time was spent exercising in certain zones, e.g., heart rate zones. 
+A common way to summarise and characterise a session is to calculate
+how much time was spent exercising in certain zones, e.g., heart rate zones.
 
 The \fct{zones} method for sessions returns an object of class
 \class{trackeRdataZones} for which methods \fct{changeUnits} and \fct{plot}
@@ -2709,7 +2677,7 @@ argument \code{what} can be left unspecified and 3) if only a single variable is
 to be evaluated, \code{breaks} can also be a vector.
 %
 <<zones, eval = FALSE>>=
-runZones <- zones(runs[1:4], what = "speed", 
+runZones <- zones(runs[1:4], what = "speed",
   breaks = list(speed = c(0, 2:6, 12.5)))
 runZones <- zones(runs[1:4], breaks = list(speed = c(0, 2:6, 12.5)))
 runZones <- zones(runs[1:4], what = "speed", breaks = c(0, 2:6, 12.5))
@@ -2722,7 +2690,7 @@ plot(runZones)
   \centering
 %
 <<zonesPlot, echo = FALSE, fig = TRUE, width = 7, height = 4>>=
-runZones <- zones(runs[1:4], what = "speed", 
+runZones <- zones(runs[1:4], what = "speed",
   breaks = list(speed = c(0, 2:6, 12.5)))
 runZones <- zones(runs[1:4], breaks = list(speed = c(0, 2:6, 12.5)))
 runZones <- zones(runs[1:4], what = "speed", breaks = c(0, 2:6, 12.5))
@@ -2754,9 +2722,9 @@ that could \emph{theoretically} be maintained indefinitely on the basis of
 principally 'aerobic' metabolism.'' $W'$ (read W~prime) represents a finite
 work capacity above CP. \citet{trackeR:Skiba+Chidnok+Vanhatalo:2012} assume that
 $W'$ gets depleted during exercise with a power output above CP but also
-replenished during exercise with a power output of or below CP. 
+replenished during exercise with a power output of or below CP.
 We denote as $W'$ the general concept of work capacity above CP, and $W'(t)$ is
-the state of $W'$ at time $t$. The latter is also sometimes referred to as 
+the state of $W'$ at time $t$. The latter is also sometimes referred to as
 \emph{$W'$~balance} at time $t$.  Additionally, the initial state of $W'$ at the start
 of an exercise $t = t_0$ is $W'_0 = W'(t_0)$, which is one of the parameters in
 the critical power model (Equation~\ref{eq:CPmodel}). Total depletion of $W'_0$
@@ -2771,7 +2739,7 @@ speed and critical speed, respectively.
 For running, the model postulates that each runner has a finite capacity in
 terms of distance covered above the critical speed.
 Depending on how much the runner exceeds this critical speed, the finite
-capacity $W'_0$ is being exhausted in shorter times. 
+capacity $W'_0$ is being exhausted in shorter times.
 Below we describe the models for depletion and replenishment of work capacity
 and how they are combined in \pkg{trackeR}.
 
@@ -2813,7 +2781,7 @@ expressed as
 \cite{trackeR:Skiba+Fulford+Clarke:2015} assume that the periods with a
 power output at or below CP are periods of recovery during which $W'$ is
 replenished with a rate that depends on the difference between CP and the power
-output, and the amount of $W'_0$ remaining, as follows: 
+output, and the amount of $W'_0$ remaining, as follows:
 %
 \begin{equation}
   \label{eq:recharge:rate}
@@ -2879,8 +2847,8 @@ interval $[t_{i-1}, t_i)$ can be described through
 \subsubsection{Work capacity at time $t_j$}
 Equation~\ref{eq:discharge:interval} describes the depletion of $W'$ (when $P_i
 > CP$) and Equation~\ref{eq:recharge:interval} describes replenishment of $W'$
-(when $P_i \le CP$) over an interval $[t_{i-1}, t_i)$. These two aspects can be 
-combined to describe the change over the interval as 
+(when $P_i \le CP$) over an interval $[t_{i-1}, t_i)$. These two aspects can be
+combined to describe the change over the interval as
 %
 \begin{align}
    W'(t_i) - W'(t_{i-1}) = {} & -(P_i - CP) \Delta_i I(P_i > CP) \, + \nonumber \\
@@ -2928,7 +2896,7 @@ argument \code{quantity} to \code{"expended"}. If \code{quantity} is set to
 (Equation~\ref{eq:Wbalance}). \fct{Wprime} contains implementations for
 \cite{trackeR:Skiba+Chidnok+Vanhatalo:2012} and
 \cite{trackeR:Skiba+Fulford+Clarke:2015}, which can be selected via the
-\code{version} argument. 
+\code{version} argument.
 For example, session~11 of the example data is an interval training with a
 warm-up and cool-down phase. Assuming a critical speed of 4~meters per second,
 the following code chunk produces Figure~\ref{fig:WprimePlots}, which shows
@@ -2966,13 +2934,13 @@ plot(wexp, scaled = TRUE)
 \subsection{Distribution and concentration profiles}\label{subsec:profiles}
 \cite{trackeR:Kosmidis+Passfield:2015} introduce the concept of distribution
 profiles for which the \pkg{trackeR} package provides an implementation. These
-profiles are motivated by the need to compare sessions 
+profiles are motivated by the need to compare sessions
 %% in terms of quantities such as heart rate and speed
 and use information on such variables as heart rate or speed during a session
-for further modelling. 
+for further modelling.
 
 For a session lasting $t_n$ seconds, the distribution profile is defined as the
-curve $\{ v, \Pi(v) | v \geq 0\}$ where 
+curve $\{ v, \Pi(v) | v \geq 0\}$ where
 %
 \begin{equation*}
   %%\label{eq:distributionProfile}
@@ -3002,11 +2970,11 @@ consideration.
 
 Distribution profiles can be calculated using the \fct{distributionProfile}
 function which returns an object of class \class{distrProfile}.
-Concentration profiles can be derived from distribution profiles using 
+Concentration profiles can be derived from distribution profiles using
 \fct{concentrationProfile}, which returns an object of class
 \class{conProfile}. Table~\ref{tab:pkg:functions:2} includes an overview of
 constructor functions and available methods for distribution and concentration
-profiles. 
+profiles.
 
 By default, distribution profiles are calculated for speed and heart rate on
 grids covering the ranges of $[0, 12.5]$ meters per second and $[0, 250]$ beats
@@ -3060,7 +3028,7 @@ The \code{multiple} argument of the \fct{plot} method determines whether to plot
 the profiles in separate panels (\code{FALSE}) or overlay them in a common
 panel (\code{TRUE}), as in Figure~\ref{fig:dprofile:smooth}. The different
 session lengths are clearly visible in the height of the curves at 0. Amongst
-the distribution profiles for speed, the descent of the profile 
+the distribution profiles for speed, the descent of the profile
 for session~3 is slower than for the other sessions. This difference is most
 apparent in the concentration profiles, which are shown in
 Figure~\ref{fig:cprofile:smooth} and are produced by the following code chunk.
@@ -3127,7 +3095,7 @@ units that are currently supported in \pkg{trackeR}.
     speed & meters per second~(\code{m_per_s}, default), kilometres per
     hour~(\code{km_per_h}), feet per minute~(\code{ft_per_min}), feet per
     second~(\code{ft_per_s}), miles per hour~(\code{mi_per_h}) \\
-    cadence & steps per minute (\code{steps_per_min}, default for running), 
+    cadence & steps per minute (\code{steps_per_min}, default for running),
     revolutions per minute (\code{rev_per_min}, default for cycling) \\
     power & Watts~(\code{W}, default), kilowatts~(\code{kW}) \\
     heart rate & beats per minute~(\code{bpm}, default) \\
@@ -3144,12 +3112,12 @@ units that are currently supported in \pkg{trackeR}.
   \label{tab:units}
 \end{table}
 
-If objects with different units are \fct{c}ombined in one object, 
+If objects with different units are \fct{c}ombined in one object,
 the units of the first session are applied to all other sessions.
 Furthermore, the \fct{changeUnits} method uses name matching to figure
 out which conversion needs to be done. This allows the user to easily
 add support for converting from \code{unitOld} to \code{unitNew} by
-authoring a function named \code{unitOld2unitNew}. 
+authoring a function named \code{unitOld2unitNew}.
 
 If we wish to report the speed summaries for session~1 in \code{runSummary} in
 feet per hour (not currently supported) instead of meters per second, we need to
@@ -3175,7 +3143,7 @@ can be specified through the arguments \code{variable}, \code{lower}, and
 \code{upper}, respectively. An example is given in \code{?threshold}. The
 default thresholds are listed in Table~\ref{tab:defaultThresholds} and, if
 necessary, are converted to the units of measurement used for the
-\class{trackeRdata} object. 
+\class{trackeRdata} object.
 
 \begin{table}[t]
   \centering
@@ -3220,11 +3188,11 @@ Figure~\ref{fig:thresholdPlots}.
 <<thresholdPlots, eval = FALSE>>=
 plot(runs, session = 4, what = "speed", threshold = FALSE)
 plot(runs, session = 4, what = "speed")
-plot(runs, session = 4, what = "speed", smooth = TRUE, fun = "median", 
+plot(runs, session = 4, what = "speed", smooth = TRUE, fun = "median",
   width = 20)
 run4 <- threshold(runs[4])
 run4S <- smoother(run4, what = "speed", fun = "median", width = 20)
-plot(run4S, what = "speed", smooth = FALSE) 
+plot(run4S, what = "speed", smooth = FALSE)
 @
 %
 
@@ -3303,10 +3271,10 @@ visualisation of scalar summaries for the sessions can be found in
 Figure~\ref{fig:summaryPlot}. The distance covered in those sessions ranges from
 \Sexpr{round(min(runsSummary$distance) / 1000, 2)} km to
 \Sexpr{round(max(runsSummary$distance) / 1000, 2)} km, and most sessions were
-spent moving almost the entire time. 
+spent moving almost the entire time.
 
 The code chunk below loads the data, applies thresholds, and calculates the
-smoothed distribution profiles for the \Sexpr{nsessions(runs)}~sessions. The 
+smoothed distribution profiles for the \Sexpr{nsessions(runs)}~sessions. The
 corresponding concentration profiles are shown in Figure~\ref{fig:app:cpsmooth}.
 %
 <<casestudyData, eval = FALSE, echo = TRUE>>=
@@ -3357,14 +3325,14 @@ plot(cpRuns, multiple = TRUE, smooth = FALSE) #+ theme(legend.position = "none")
 
 The majority of the profiles for speed concentrate around 4~meters per
 second. However, the curves differ in their shape (unimodal or multimodal),
-height, and location (revealing concentrations at higher or lower speeds). 
+height, and location (revealing concentrations at higher or lower speeds).
 Functional PCA \citep[e.g.,][]{trackeR:Ramsay+Silverman:2005} can be used to
 explain those differences ensuring that the profiles are treated directly as
 functions.
-\pkg{trackeR} contains a convenience function \fct{funPCA} which converts 
-concentration/distribution profiles to the required functional data format 
+\pkg{trackeR} contains a convenience function \fct{funPCA} which converts
+concentration/distribution profiles to the required functional data format
 and performs a functional PCA. \pkg{trackeR} can also be viewed as a stepping
-stone to further analysis of tracking data with other 
+stone to further analysis of tracking data with other
 \proglang{R}~packages. For example, it contains a conversion
 function, \fct{profile2fd}, that transforms concentration and
 distribution profiles to class \class{fd} so that users have direct access to
@@ -3408,7 +3376,7 @@ plot(sppca, harm = 1:2, pointplot = pp)
 Figure~\ref{fig:app:harmonics:speed} shows the mean function (solid line) and
 the variation captured in the two harmonics (between the dashed and dotted
 lines). %(between the $+$ and $-$ signs).
-The first harmonic (top panel) illustrates that the most important 
+The first harmonic (top panel) illustrates that the most important
 characteristic of the concentration profiles is the relative value, which is
 closely related to the overall session duration. The left panel of
 Figure~\ref{fig:app:score:speed} shows the score on the first harmonic versus
@@ -3474,7 +3442,7 @@ ggplot(d) + geom_point(aes(x = avgSpeedMoving, y = speed_pc2)) + theme_bw() + la
 % used for further statistical analyses. An example of such analysis is presented
 % in Section~\ref{sec:casestudy}, where functional principal components analysis
 % is used to characterise the apparent variability between speed concentration
-% profiles. 
+% profiles.
 
 % Infrastructure for irregularly sampled spatio-temporal data in general is also
 % provided in the \pkg{trajectories} package \citep{trackeR:pkg:trajectories},
@@ -3482,7 +3450,7 @@ ggplot(d) + geom_point(aes(x = avgSpeedMoving, y = speed_pc2)) + theme_bw() + la
 % \citep{trackeR:Pebesma:2012}. In order to provide users with access to an as
 % wide range of data-analytic methods as is possible, we aim to provide a sensible
 % coercion function from \class{trackeRdata} to \class{STIDF}. One of the
-% challenges we are facing is that the \class{STIDF} class does not 
+% challenges we are facing is that the \class{STIDF} class does not
 % accommodate missing values in positional or temporal information, which is
 % commonly the case in data from GPS-enabled tracking devices (e.g., sequences of
 % missing values in the positional data because the GPS signal is temporarily
@@ -3490,13 +3458,13 @@ ggplot(d) + geom_point(aes(x = avgSpeedMoving, y = speed_pc2)) + theme_bw() + la
 % \pkg{adehabtitatLT} \citep{trackeR:Calenge:2006}, \pkg{trip}
 % \citep{trackeR:pkg:trip} and \pkg{move} \citep{trackeR:pkg:move}. The main focus
 % of those packages is on animal tracking (e.g., estimation of habitat choices)
-% and they are not directly suitable for tracking the various aspects of athlete activity. 
+% and they are not directly suitable for tracking the various aspects of athlete activity.
 
 % Areas for further development include the extension of the reading capabilities
 % to more file formats and the implementation of more analytic tools, such as
 % record power profiles \citep{trackeR:Pinot+Grappe:2011}. The case study in
 % Section~\ref{sec:casestudy} draws some links to functional data analysis which
-% is another area of further exploration for analytic tools for the package. 
+% is another area of further exploration for analytic tools for the package.
 
 
 
@@ -3508,7 +3476,7 @@ ggplot(d) + geom_point(aes(x = avgSpeedMoving, y = speed_pc2)) + theme_bw() + la
 
 We are thankful to Victoria Downie, Andy Hudson, Louis Passfield, Ben
 Rosenblatt, and Achim Zeileis for helpful feedback and discussions as well as
-providing the data that are used for the illustrations and examples in the package. 
+providing the data that are used for the illustrations and examples in the package.
 
 \pagebreak
 \clearpage
@@ -3551,7 +3519,7 @@ power gives
   1 - \frac{W'(t_i)}{W'_0} = \exp \left( \frac{P_i - CP}{W'_0}  (t_i -
     t_{i-1}) \right) \left( 1 - \frac{W'(t_{i-1})}{W'_0} \right) \, .
 \end{equation*}
-% 
+%
 Hence, $W'(t_i)$ can be expressed in terms of $W'(t_{i-1})$ as
 %
 \begin{equation*}
