@@ -177,7 +177,8 @@ plot.trackeRdataZones <- function(x, percent = TRUE, ...) {
     ## theme
     p <- p + ggplot2::theme_bw()  +
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1),
-                       panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+                       panel.grid.major = ggplot2::element_blank(),
+                       panel.grid.minor = ggplot2::element_blank())
 
     return(p)
 }
