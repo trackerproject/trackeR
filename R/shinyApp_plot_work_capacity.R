@@ -14,7 +14,6 @@ plot_work_capacity <- function(x, session, plotly=TRUE, dates = TRUE, scaled = T
   )
 
   if (plotly) {
-    Series <- NULL
 
     quantity <- attr(x, "quantity")
     cp <- attr(x, "cp")

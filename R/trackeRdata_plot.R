@@ -29,9 +29,6 @@
 #' @export
 plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
                              threshold = TRUE, smooth = FALSE, trend = TRUE, dates = TRUE, ...){
-    ## the following line is just intended to prevent R CMD check to produce the NOTE
-    ## "no visible binding for global variable 'Series'" because that variable is used in subset()
-    Series <- NULL
 
     ## code inspired by autoplot.zoo
     if (is.null(session)) session <- seq_along(x)
@@ -134,7 +131,7 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
 
     ## basic plot
     p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
-        ggplot2::geom_line(color = gray(0.9), na.rm = TRUE) +
+        ggplot2::geom_line(color = grDevices::gray(0.9), na.rm = TRUE) +
         ggplot2::ylab(if(singleVariable) lab_data(levels(df$Series)) else "") + ggplot2::xlab("Time")
     if (trend & !smooth){
         p <- p + ggplot2::geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"),
@@ -173,7 +170,7 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
         }
         ## add plot layers
         p <- p + ggplot2::geom_line(ggplot2::aes_(x = quote(Index), y = quote(Value)),
-                                    data = dfs, col = gray(0.75), na.rm = TRUE)
+                                    data = dfs, col = grDevices::gray(0.75), na.rm = TRUE)
         if (trend){
             p <- p + ggplot2::geom_smooth(data = dfs, method = "gam", formula = y ~ s(x, bs = "cs"),
                                           se = FALSE, na.rm = TRUE, lwd = 0.5, col = "black")

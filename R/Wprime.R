@@ -288,11 +288,6 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), 
 #' wexp <- Wprime(runs, session = 1:3, cp = 4, version = '2012')
 #' plot(wexp, session = 1:2)
 plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, ...) {
-    ## the following line is just intended to prevent R CMD check to produce the NOTE 'no
-    ## visible binding for global variable 'Series'' because that variable is used in
-    ## subset()
-    Series <- NULL
-
     quantity <- attr(x, "quantity")
     sports <- attr(x, "sport")
     cp <- attr(x, "cp")

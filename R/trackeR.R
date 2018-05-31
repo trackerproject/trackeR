@@ -54,15 +54,12 @@
 NULL
 # > NULL
 
-## ## Define global variables (IK: some can be avoided)
-## if (getRversion() >= "2.15.1") {
-##     utils::globalVariables(c("Profile", # plot_profiles
-##                              "Series", # plot_selectedWorkouts, ridges.trackeRdata
-##                              "variable", # plot_zones
-##                              "Value", # ridges.trackeRdata
-##                              "Index", # ridges.trackeRdata
-##                              "id")) # plot_work_capacity
-## }
+## Define global variables
+if (getRversion() >= "2.15.1") {
+    utils::globalVariables(c("Series", # plot_selectedWorkouts, ridges.trackeRdata
+                             "j")) # parallelization
+
+}
 
 ## register S3 methods (need a name which doesn't conflict with e.g. the smooth function
 ## from the stats package)
