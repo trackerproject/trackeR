@@ -46,7 +46,7 @@
 #' @import zoo
 #' @import shiny
 #' @import xml2
-#' @importFrom ggplot2 fortify
+#' @import ggplot2
 #' @importFrom stats quantile
 #' @importFrom plotly "%>%"
 #' @importFrom graphics plot

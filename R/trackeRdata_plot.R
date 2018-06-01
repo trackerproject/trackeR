@@ -130,22 +130,22 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     lab_data <- Vectorize(lab_data)
 
     ## basic plot
-    p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
-        ggplot2::geom_line(color = grDevices::gray(0.9), na.rm = TRUE) +
-        ggplot2::ylab(if(singleVariable) lab_data(levels(df$Series)) else "") + ggplot2::xlab("Time")
+    p <- ggplot(data = df, mapping = aes_(x = quote(Index), y = quote(Value))) +
+        geom_line(color = grDevices::gray(0.9), na.rm = TRUE) +
+        ylab(if(singleVariable) lab_data(levels(df$Series)) else "") + xlab("Time")
     if (trend & !smooth){
-        p <- p + ggplot2::geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"),
+        p <- p + geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"),
                                       se = FALSE, na.rm = TRUE, lwd = 0.5, col = "black")
     }
     ## add facet if necessary
     if (!is.null(facets)){
-        p <- p + ggplot2::facet_grid(facets, scales = "free", labeller = ggplot2::labeller("Series" = lab_data))
+        p <- p + facet_grid(facets, scales = "free", labeller = labeller("Series" = lab_data))
     }
     ## add bw theme
-    p <- p + ggplot2::theme_bw() +
-        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1),
-                       panel.grid.major = ggplot2::element_blank(),
-                       panel.grid.minor = ggplot2::element_blank())
+    p <- p + theme_bw() +
+        theme(axis.text.x = element_text(angle = 50, hjust = 1),
+                       panel.grid.major = element_blank(),
+                       panel.grid.minor = element_blank())
 
 
     ## if plot did smoothing add smoothed data on top of plot
@@ -169,10 +169,10 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
                 dfs <- dfs[!(dfs$Series == l), ]
         }
         ## add plot layers
-        p <- p + ggplot2::geom_line(ggplot2::aes_(x = quote(Index), y = quote(Value)),
+        p <- p + geom_line(aes_(x = quote(Index), y = quote(Value)),
                                     data = dfs, col = grDevices::gray(0.75), na.rm = TRUE)
         if (trend){
-            p <- p + ggplot2::geom_smooth(data = dfs, method = "gam", formula = y ~ s(x, bs = "cs"),
+            p <- p + geom_smooth(data = dfs, method = "gam", formula = y ~ s(x, bs = "cs"),
                                           se = FALSE, na.rm = TRUE, lwd = 0.5, col = "black")
         }
     }
@@ -281,17 +281,17 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
 
         ## add trace
         if (speed){
-            p <- p + ggplot2::geom_segment(
-                         ggplot2::aes_(x = quote(longitude0), xend = quote(longitude1),
+            p <- p + geom_segment(
+                         aes_(x = quote(longitude0), xend = quote(longitude1),
                                        y = quote(latitude0), yend = quote(latitude1),
                                        color = quote(speed)),
                          data = dfs, lwd = 1, alpha = 0.8, na.rm = TRUE) +
-                ggplot2::scale_color_gradient(limits = speedRange,
-                                              guide = ggplot2::guide_colorbar(title = "Speed"))
+                scale_color_gradient(limits = speedRange,
+                                              guide = guide_colorbar(title = "Speed"))
         }
         else {
-            p <- p + ggplot2::geom_segment(
-                         ggplot2::aes_(x = quote(longitude0), xend = quote(longitude1),
+            p <- p + geom_segment(
+                         aes_(x = quote(longitude0), xend = quote(longitude1),
                                        y = quote(latitude0), yend = quote(latitude1)),
                          data = dfs, lwd = 1, alpha = 0.8, na.rm = TRUE)
         }
@@ -299,14 +299,14 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
 
         ## Extract legend from the first plot
         if (ses == session[1] & speed) {
-            legend <- gtable::gtable_filter(ggplot2::ggplot_gtable(ggplot2::ggplot_build(p)), "guide-box")
+            legend <- gtable::gtable_filter(ggplot_gtable(ggplot_build(p)), "guide-box")
         }
 
-        p <- p + ggplot2::labs(title = paste("Session:", ses))
+        p <- p + labs(title = paste("Session:", ses))
                                ## x = "Longitude", y = "Latitude")
-        plotList[[as.character(ses)]] <- p +  ggplot2::theme(legend.position = "none",
-                                                             axis.title.x = ggplot2::element_blank(),
-                                                             axis.title.y = ggplot2::element_blank())
+        plotList[[as.character(ses)]] <- p +  theme(legend.position = "none",
+                                                             axis.title.x = element_blank(),
+                                                             axis.title.y = element_blank())
     }
 
     ## arrange separate plots

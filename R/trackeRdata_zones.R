@@ -145,23 +145,23 @@ plot.trackeRdataZones <- function(x, percent = TRUE, ...) {
     dat$timeN <- as.numeric(dat$time)
 
     ## basic plot
-    p <- ggplot2::ggplot(dat) + ggplot2::xlab("Zones")
+    p <- ggplot(dat) + xlab("Zones")
 
     ## y: time or percent
     if (percent) {
-        p <- p + ggplot2::geom_bar(ggplot2::aes_(x = quote(zoneF), y = quote(percent),
-            fill = quote(Session), group = quote(Session)), stat = "identity", position = ggplot2::position_dodge()) +
-            ggplot2::ylab("Percent")  ## +
-        ## ggplot2::guides(fill = ggplot2::guide_legend(title = 'Session'))
+        p <- p + geom_bar(aes_(x = quote(zoneF), y = quote(percent),
+            fill = quote(Session), group = quote(Session)), stat = "identity", position = position_dodge()) +
+            ylab("Percent")  ## +
+        ## guides(fill = guide_legend(title = 'Session'))
     } else {
-        p <- p + ggplot2::geom_bar(ggplot2::aes_(x = quote(zoneF), y = quote(timeN), fill = quote(Session),
-            group = quote(Session)), stat = "identity", position = ggplot2::position_dodge()) +
-            ggplot2::ylab(paste0("Time [", units(dat$time), "]"))  ## +
-        ## ggplot2::guides(fill = ggplot2::guide_legend(title = 'Session'))
+        p <- p + geom_bar(aes_(x = quote(zoneF), y = quote(timeN), fill = quote(Session),
+            group = quote(Session)), stat = "identity", position = position_dodge()) +
+            ylab(paste0("Time [", units(dat$time), "]"))  ## +
+        ## guides(fill = guide_legend(title = 'Session'))
     }
 
     ## set colors hclpal <- colorspace::rainbow_hcl(n = nl  evels(dat$session), c = 60) p <- p
-    ## + ggplot2::scale_fill_manual(values = hclpal)
+    ## + scale_fill_manual(values = hclpal)
 
     ## facets
     units <- getUnits(x)
@@ -172,13 +172,13 @@ plot.trackeRdataZones <- function(x, percent = TRUE, ...) {
     }
     lab_data <- Vectorize(lab_data)
 
-    p <- p + ggplot2::facet_grid(. ~ variable, scales = "free_x", labeller = ggplot2::labeller(variable = lab_data))
+    p <- p + facet_grid(. ~ variable, scales = "free_x", labeller = labeller(variable = lab_data))
 
     ## theme
-    p <- p + ggplot2::theme_bw()  +
-        ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1),
-                       panel.grid.major = ggplot2::element_blank(),
-                       panel.grid.minor = ggplot2::element_blank())
+    p <- p + theme_bw()  +
+        theme(axis.text.x = element_text(angle = 50, hjust = 1),
+                       panel.grid.major = element_blank(),
+                       panel.grid.minor = element_blank())
 
     return(p)
 }

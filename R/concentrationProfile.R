@@ -200,15 +200,15 @@ plot.conProfile <- function(x, session = NULL, what = c("speed", "heart.rate"), 
     lab_data <- Vectorize(lab_data)
 
     if (multiple) {
-        p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value),
-            group = quote(Series), color = quote(Series))) + ggplot2::geom_line(na.rm = TRUE) +
-            ggplot2::ylab("dtime") + ggplot2::xlab(if (singleVariable)
+        p <- ggplot(data = df, mapping = aes_(x = quote(Index), y = quote(Value),
+            group = quote(Series), color = quote(Series))) + geom_line(na.rm = TRUE) +
+            ylab("dtime") + xlab(if (singleVariable)
             lab_data(levels(df$Profile)) else "")
         facets <- if (singleVariable)
             NULL else ". ~ Profile"
     } else {
-        p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
-            ggplot2::geom_line(na.rm = TRUE) + ggplot2::ylab("dtime") + ggplot2::xlab(if (singleVariable)
+        p <- ggplot(data = df, mapping = aes_(x = quote(Index), y = quote(Value))) +
+            geom_line(na.rm = TRUE) + ylab("dtime") + xlab(if (singleVariable)
             lab_data(levels(df$Profile)) else "")
 
         facets <- if (singleVariable) {
@@ -222,11 +222,11 @@ plot.conProfile <- function(x, session = NULL, what = c("speed", "heart.rate"), 
 
     ## add facets if necessary
     if (!is.null(facets)) {
-        p <- p + ggplot2::facet_grid(facets, scales = "free_x", labeller = ggplot2::labeller(Profile = lab_data))
+        p <- p + facet_grid(facets, scales = "free_x", labeller = labeller(Profile = lab_data))
     }
 
     ## add bw theme
-    p <- p + ggplot2::theme_bw() + ggplot2::scale_colour_continuous(name = "Session")
+    p <- p + theme_bw() + scale_colour_continuous(name = "Session")
 
     return(p)
 }
@@ -480,10 +480,10 @@ ridges.conProfile <- function(x, session = NULL, what = c("speed"),
     lab_data <- Vectorize(lab_data)
 
     sc <- 2/max(df$Value)
-    ggplot2::ggplot(df) +
-        ggridges::geom_ridgeline(ggplot2::aes_(x = quote(Index), y = quote(Series), height = quote(Value), group = quote(Series), scale = sc), alpha = 0.5) +
+    ggplot(df) +
+        ggridges::geom_ridgeline(aes_(x = quote(Index), y = quote(Series), height = quote(Value), group = quote(Series), scale = sc), alpha = 0.5) +
             ggridges::theme_ridges() +
-            ggplot2::labs(x = lab_data(what), y = "Session")
+            labs(x = lab_data(what), y = "Session")
 
 }
 

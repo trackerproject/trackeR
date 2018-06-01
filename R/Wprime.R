@@ -352,28 +352,28 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, .
 
     if (scaled) {
         ## basic plot
-        p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
-            ggplot2::ylab("") + ggplot2::xlab("Time")
+        p <- ggplot(data = df, mapping = aes_(x = quote(Index), y = quote(Value))) +
+            ylab("") + xlab("Time")
         ## lines for power/speed and W'
-        p <- p + ggplot2::geom_line(ggplot2::aes_(group = quote(Series), col = quote(Series)),
-            na.rm = TRUE) + ggplot2::scale_colour_manual(name = "", labels = mylabels,
+        p <- p + geom_line(aes_(group = quote(Series), col = quote(Series)),
+            na.rm = TRUE) + scale_colour_manual(name = "", labels = mylabels,
             values = c("gray", "blue"))
         ## add line for cp
-        p <- p + ggplot2::geom_hline(data = data.frame(cp = cp), ggplot2::aes(yintercept = cp),
+        p <- p + geom_hline(data = data.frame(cp = cp), aes(yintercept = cp),
             col = "black")
     } else {
         ## basic plot
-        p <- ggplot2::ggplot(data = subset(df, Series == "wprime"), mapping = ggplot2::aes_(x = quote(Index),
-            y = quote(Value))) + ggplot2::ylab(paste("W'", quantity, Wunit)) + ggplot2::xlab("Time")
+        p <- ggplot(data = subset(df, Series == "wprime"), mapping = aes_(x = quote(Index),
+            y = quote(Value))) + ylab(paste("W'", quantity, Wunit)) + xlab("Time")
         ## lines for W'
-        p <- p + ggplot2::geom_line(na.rm = TRUE)
+        p <- p + geom_line(na.rm = TRUE)
     }
     ## add facet if necessary
     if (!is.null(facets)) {
-        p <- p + ggplot2::facet_grid(facets, scales = "free")
+        p <- p + facet_grid(facets, scales = "free")
     }
     ## add bw theme
-    p <- p + ggplot2::theme_bw() + ggplot2::theme(legend.position = "top", axis.text.x = ggplot2::element_text(angle = 50,
+    p <- p + theme_bw() + theme(legend.position = "top", axis.text.x = element_text(angle = 50,
         hjust = 1))
 
     return(p)

@@ -158,21 +158,21 @@ plot.trackeRfpca <- function(x, harm = NULL, expand = NULL, pointplot = TRUE, ..
     # lab_data <- Vectorize(lab_data)
 
     ## base layer
-    p <- ggplot2::ggplot(data = df) + ggplot2::labs(x = lab_data(attr(x, "what")), y = if (attr(x,
+    p <- ggplot(data = df) + labs(x = lab_data(attr(x, "what")), y = if (attr(x,
         "profile") == "distrProfile")
         "time above threshold" else "d time")
 
     ## mean function
-    p <- p + ggplot2::geom_line(ggplot2::aes_(x = quote(argval), y = quote(meanval)))
+    p <- p + geom_line(aes_(x = quote(argval), y = quote(meanval)))
 
     ## multiples of harmonics added/subtracted
     if (pointplot) {
-        p <- p + ggplot2::geom_point(ggplot2::aes_(x = quote(argval), y = quote(meanPlusPC)),
-            pch = "+") + ggplot2::geom_point(ggplot2::aes_(x = quote(argval), y = quote(meanMinusPC)),
+        p <- p + geom_point(aes_(x = quote(argval), y = quote(meanPlusPC)),
+            pch = "+") + geom_point(aes_(x = quote(argval), y = quote(meanMinusPC)),
             pch = "-")
     } else {
-        p <- p + ggplot2::geom_line(ggplot2::aes_(x = quote(argval), y = quote(meanPlusPC)),
-            lty = 2) + ggplot2::geom_line(ggplot2::aes_(x = quote(argval), y = quote(meanMinusPC)),
+        p <- p + geom_line(aes_(x = quote(argval), y = quote(meanPlusPC)),
+            lty = 2) + geom_line(aes_(x = quote(argval), y = quote(meanMinusPC)),
             lty = 3)
     }
 
@@ -185,9 +185,9 @@ plot.trackeRfpca <- function(x, harm = NULL, expand = NULL, pointplot = TRUE, ..
     lab_pc <- lab_pc(harm)
 
     mfrow <- grDevices::n2mfrow(length(harm))
-    p <- p + ggplot2::facet_wrap("pc", ncol = mfrow[2], labeller = ggplot2::as_labeller(lab_pc))
+    p <- p + facet_wrap("pc", ncol = mfrow[2], labeller = as_labeller(lab_pc))
 
-    p <- p + ggplot2::theme_bw()
+    p <- p + theme_bw()
     return(p)
 
 }

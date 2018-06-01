@@ -22,9 +22,9 @@ plot_timeline <- function(sumX, lims=NULL, shiny=TRUE, plotly=TRUE) {
     }
 
     key <- df$session
-    p <- ggplot2::ggplot(df, ggplot2::aes(key=key)) +
-      ggplot2::geom_point(ggplot2::aes(x = start, y = sday), alpha=0) +
-      ggplot2::geom_segment(ggplot2::aes_(x = quote(start), xend = quote(end), y = quote(sday),
+    p <- ggplot(df, aes(key=key)) +
+      geom_point(aes(x = start, y = sday), alpha=0) +
+      geom_segment(aes_(x = quote(start), xend = quote(end), y = quote(sday),
                                           yend = quote(eday),
                                           text=sprintf("Session: %s<br>Start: %s <br>End: %s",
                                                        df$session, sumX$sessionStart, sumX$sessionEnd)), color = '#428bca', size=1)
@@ -34,7 +34,7 @@ plot_timeline <- function(sumX, lims=NULL, shiny=TRUE, plotly=TRUE) {
     #     m <- df[df$session %in% d[["key"]], ]
 
     #     for(i in c(1:nrow(m))) {
-    #       p <- p + ggplot2::geom_segment(aes(x = m[i,'start'], y = m[i,'sday'], xend = m[i,'end'], yend = m[i,'eday']),
+    #       p <- p + geom_segment(aes(x = m[i,'start'], y = m[i,'sday'], xend = m[i,'end'], yend = m[i,'eday']),
     #                                      color = "darkorange3", size=2)
     #     }
 
@@ -42,11 +42,11 @@ plot_timeline <- function(sumX, lims=NULL, shiny=TRUE, plotly=TRUE) {
     # }
     date_breaks <- if((max(startdates) - min(startdates) > 15)) round((max(startdates) - min(startdates))/15, 0) else 1
     ## take care of breaks, limits on the time axes and style of breakpoints
-    p <- p + ggplot2::scale_x_datetime(date_labels = "%H", date_breaks = "1 hour")
-    p <- p + ggplot2::scale_y_datetime(date_labels = "%d %b", date_breaks = paste(date_breaks, 'days'))
-    p <- p + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1)) +
-          ggplot2::xlab("Time") + ggplot2::ylab("")
-    p <- p + ggplot2::theme_bw()
+    p <- p + scale_x_datetime(date_labels = "%H", date_breaks = "1 hour")
+    p <- p + scale_y_datetime(date_labels = "%d %b", date_breaks = paste(date_breaks, 'days'))
+    p <- p + theme(axis.text.x = element_text(angle = 50, hjust = 1)) +
+          xlab("Time") + ylab("")
+    p <- p + theme_bw()
     p <- plotly::ggplotly(p, tooltip = c("text"))
     p <- plotly::layout(p, dragmode = "select")
     p
