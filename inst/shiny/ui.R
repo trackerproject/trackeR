@@ -17,14 +17,18 @@ ui <- shinydashboard::dashboardPage(
                          ")),
     shinydashboard::sidebarMenu(
       div(
-        fileInput("processedDataPath", "Choose processed file",
-                  multiple = FALSE,
-                  accept = c(".rds"))
+        fileInput(
+          "processedDataPath", "Choose processed file",
+          multiple = FALSE,
+          accept = c(".rds")
+        )
       ),
       div(
-        fileInput("rawDataDirectory", "Choose directory with raw data",
-                  multiple = TRUE,
-                  accept = c(".gpx", ".tcx", ".db3", ".json"))
+        fileInput(
+          "rawDataDirectory", "Choose directory with raw data",
+          multiple = TRUE,
+          accept = c(".gpx", ".tcx", ".db3", ".json")
+        )
       ),
       actionButton("uploadButton", "Load data", icon("upload"), style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"),
       hr(),
@@ -41,7 +45,7 @@ ui <- shinydashboard::dashboardPage(
             "Average heart rate" = "avgHeartRate",
             "Work to rest ratio" = "wrRatio"
           ),
-          selected = c('avgSpeed', 'distance')
+          selected = c("avgSpeed", "distance")
         ),
         ## In color: qualitative, set 2 form choose_palette(gui = "shiny")
         ## Out color: qualitative, even darker form choose_palette(gui = "shiny")

@@ -191,6 +191,7 @@ create_profiles_box <- function(title, inputId, label, plotId, choices) {
           status = "primary",
           width = 12,
           collapsible = TRUE,
+          collapsed = FALSE,
           title = tagList(shiny::icon("gear"), title),
           fluidRow(
           column(3,
@@ -222,6 +223,7 @@ create_zones_box <- function(title, inputId, label, plotId, choices) {
           status = "primary",
           width = 12,
           collapsible = TRUE,
+          collapsed = FALSE,
           title = tagList(shiny::icon("gear"), title),
           fluidRow(
           column(2, selectizeInput(
