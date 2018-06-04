@@ -234,15 +234,27 @@ server <- function(input, output, session) {
           ## if (all(is.na(data$summary$avgPower)) == TRUE) {
           ##   removeUI(selector = "#work_capacity_plot")
           ## } else {
+          change_power$value
           trackeR:::plot_work_capacity(
             x = data$object, session = data$selectedSessions,
-            cp = as.numeric(input$critical_power)
+            cp = isolate(as.numeric(input$critical_power))
           )
           ## }
         })
       }
     })
-
+    change_power <- reactiveValues(value=0)
+    observeEvent(input$update_power, {
+      # When the button is clicked, wrap the code in a call to `withBusyIndicatorServer()`
+      withBusyIndicatorServer("update_power", {
+        Sys.sleep(1)
+        if (!is.numeric(input$critical_power) | input$critical_power <= 0) {
+          stop("Invalid input. Input has to be a positive numeric value.")
+        } else {
+          change_power$value <- change_power$value + 1
+        }
+      })
+    })
 
     trackeR:::create_zones_box(
       title = "Time in Zones", inputId = "zonesMetricsPlot",

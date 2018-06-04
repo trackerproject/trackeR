@@ -96,7 +96,7 @@ create_selected_workout_plot <- function(id, collapsed = FALSE) {
             class = "form-group shiny-input-container", id = "processed_path",
             tags$label("Press button to detect changepoints:"),
             div(class = "input-group", actionButton(paste0('detect_changepoints', id),
-                       label = 'Detect changepoints'))
+                       label = 'Detect changepoints', style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"))
           )
           ), column(3,
           selectizeInput(
@@ -155,17 +155,28 @@ create_work_capacity_plot <- function(id, cycling, collapsed = FALSE) {
             )
           ),
           fluidRow(
-            column(2,
-                   selectInput(
-                     inputId = 'critical_power',
-                     label = switch(as.character(cycling),
-                                    'TRUE' = 'Critical power [J]',
-                                    'FALSE' = 'Critical speed [m/s]'),
-                     multiple = FALSE,
-                     choices = setNames(as.list(seq(1, 7, 0.1)), seq(1, 7, 0.1)),
-                     selected = '4'
-                   ))
+            column(
+              2,
+              # Wrap the button in the function `withBusyIndicatorUI()`
+              div(
+                tags$label("Press button to update:"),
+                div(withBusyIndicatorUI(actionButton(
+                  "update_power",
+                  "Update power",
+                  class = "btn-primary",
+                  style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"
+                )))
+              )
             ),
+            column(
+              2,
+              numericInput(min = 0.01, max = 6.5,
+                inputId = "critical_power", 
+                label = "Critical power [J]", value = 4
+              )
+            )
+          ),
+
           div(
             style = "overflow-x: scroll",
             uiOutput(paste0(id, "_plot"))

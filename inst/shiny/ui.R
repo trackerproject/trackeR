@@ -5,16 +5,7 @@ ui <- shinydashboard::dashboardPage(
   skin = "black",
   shinydashboard::dashboardHeader(title = span(tagList(icon("dashboard"), "trackeR dashboard"))),
   shinydashboard::dashboardSidebar(
-    tags$head(tags$style(".warningMessage {
-                          font-size: 20px;
-                         }
-                         hr {
-                         border-top: 1px solid;
-                         }
-                          a#download_data {
-                            color: #333;
-                          }
-                         ")),
+    tags$head(tags$style(appCSS)),
     shinydashboard::sidebarMenu(
       div(
         fileInput(
