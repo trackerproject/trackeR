@@ -4,7 +4,8 @@
 \alias{plot_work_capacity}
 \title{Plot the work capacity W' (w prime).}
 \usage{
-plot_work_capacity(x, session, plotly = TRUE, dates = TRUE, scaled = TRUE)
+plot_work_capacity(x, session, plotly = TRUE, dates = TRUE, scaled = TRUE,
+  cp = 4)
 }
 \arguments{
 \item{x}{An object of class \code{\link{trackeRdata}}.}
@@ -17,6 +18,8 @@ plot_work_capacity(x, session, plotly = TRUE, dates = TRUE, scaled = TRUE)
 
 \item{scaled}{Logical. Should the W' be scaled to the movement variable (power or speed)
 which is then plotted in the background?}
+
+\item{cp}{A numeric. Critical power/speed, i.e., the power/speed which can be maintained for longer period of time.}
 }
 \description{
 Plot the work capacity W' (w prime).

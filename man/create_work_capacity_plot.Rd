@@ -4,7 +4,7 @@
 \alias{create_work_capacity_plot}
 \title{Create work capacity plot}
 \usage{
-create_work_capacity_plot(id, collapsed = FALSE)
+create_work_capacity_plot(id, cycling, collapsed = FALSE)
 }
 \description{
 Create work capacity plot

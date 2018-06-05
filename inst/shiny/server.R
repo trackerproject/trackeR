@@ -166,27 +166,27 @@ server <- function(input, output, session) {
         #                                       lat = as.vector(plot_df$latitude),
         #                                       type = 'scattermapbox',
         #                                       mode = 'lines'))
-        plotlyProxy("map", session) %>% plotlyProxyInvoke(
+        plotly::plotlyProxy("map", session) %>% plotly::plotlyProxyInvoke(
           "restyle",
           list(line.color = "rgba(238, 118, 0, 1)"), as.list(which(data$sessions_map %in% data$selectedSessions) - 1)
         )
-        plotlyProxy("map", session) %>% plotlyProxyInvoke(
+        plotly::plotlyProxy("map", session) %>% plotly::plotlyProxyInvoke(
           "restyle",
           list(line.fillcolor = "rgba(238, 118, 0, 1)"), as.list(which(data$sessions_map %in% data$selectedSessions) - 1)
         )
-        plotlyProxy("map", session) %>% plotlyProxyInvoke(
+        plotly::plotlyProxy("map", session) %>% plotly::plotlyProxyInvoke(
           "restyle",
           list(line.color = "rgba(0, 154, 205, 1)"), as.list(which(!(data$sessions_map %in% data$selectedSessions)) - 1)
         )
-        plotlyProxy("map", session) %>% plotlyProxyInvoke(
+        plotly::plotlyProxy("map", session) %>% plotly::plotlyProxyInvoke(
           "restyle",
           list(line.fillcolor = "rgba(0, 154, 205, 1)"), as.list(which(!(data$sessions_map %in% data$selectedSessions)) - 1)
         )
-        plotlyProxy("map", session) %>% plotlyProxyInvoke(
+        plotly::plotlyProxy("map", session) %>% plotly::plotlyProxyInvoke(
           "relayout",
           list(mapbox.zoom = 5)
         )
-        plotlyProxy("map", session) %>% plotlyProxyInvoke(
+        plotly::plotlyProxy("map", session) %>% plotly::plotlyProxyInvoke(
           "relayout",
           list(mapbox.center = list(
             lat = median(plot_df$latitude),

@@ -4,10 +4,12 @@
 \alias{plot_timeline}
 \title{A timeline plot for workouts.}
 \usage{
-plot_timeline(sumX, lims = NULL, shiny = TRUE, plotly = TRUE)
+plot_timeline(sumX, session, lims = NULL, shiny = TRUE, plotly = TRUE)
 }
 \arguments{
 \item{sumX}{An object of class \code{trackeRdataSummary}.}
+
+\item{session}{A vector. Selected session numbers.}
 
 \item{shiny}{Logical. Whether plots are in a shiny environment.}
 
