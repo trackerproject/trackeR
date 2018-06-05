@@ -9,6 +9,8 @@
 #' @param cp A numeric. Critical power/speed, i.e., the power/speed which can be maintained for longer period of time.
 plot_work_capacity <- function(x, session, plotly=TRUE, dates = TRUE, scaled = TRUE, cp = 4) {
   units <- getUnits(x)
+  sports <- sport(x)[session]
+  
   x <- Wprime(
     object = x, session = session, quantity = "expended",
     cp = cp, version = "2012"
@@ -19,12 +21,11 @@ plot_work_capacity <- function(x, session, plotly=TRUE, dates = TRUE, scaled = T
     quantity <- attr(x, "quantity")
     cp <- attr(x, "cp")
     # Temporary
-    cycling <- units$unit[units$variable == "cadence"] == "rev_per_min"
+    cycling <- unique(sports) == 'cycling'
     # cycling <- attr(x, "cycling")
-    Wunit <- if (cycling)
-        "[J]" else "[m/s]"
-    mylabels <- c(paste0(ifelse(cycling, "Power", "Speed"), " [", prettifyUnits(attr(x,
-        "unit")$unit), "]"), paste("W'", quantity, "[scaled]"))
+    Wunit <- if (cycling) "[J]" else "[m/s]"
+    
+    mylabels <- c(paste0(ifelse(cycling, "Power ", "Speed "),  Wunit), paste("W'", quantity, "[scaled]"))
 
     ## select sessions
     if (is.null(session)) session <- seq_along(x)
@@ -100,7 +101,7 @@ plot_work_capacity <- function(x, session, plotly=TRUE, dates = TRUE, scaled = T
       df_subset <- df[(df$id == i) & (df$Series == "movement"), ]
       has_values <- !all(is.na(df_subset[, "Value"]) | df_subset[, "Value"] == 0)
       annotations_list <- list(
-        text = paste("Sessions:", session_names[i]),
+        text = paste0("Session: ", session_names[i], " (", sports[i], ")"),
         xref = "paper",
         yref = "paper",
         yanchor = "bottom",

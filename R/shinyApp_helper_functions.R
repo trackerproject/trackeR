@@ -205,6 +205,7 @@ get_javascript <- function() {
 
 #' Classify sessions by sport using the KNN model and 'sport_classification_train' dataset as a training set
 classify_sessions_by_sport <- function(data) {
+  
   data(sport_classification_train)
   n_train <- nrow(sport_classification_train)
   merged_df <- rbind(sport_classification_train[,c('avgPaceMoving','distance')],
@@ -212,8 +213,21 @@ classify_sessions_by_sport <- function(data) {
                                 distance = data$summary$distance))
   merged_df[is.na(merged_df)] <- 0
   merged_df <- scale(merged_df)
-  data$classification <- class::knn(
-    merged_df[1:n_train,], merged_df[(n_train + 1):nrow(merged_df),], sport_classification_train[,'sport'], k=5)
+  classified_sports <- class::knn(
+    merged_df[1:n_train,], merged_df[(n_train + 1):nrow(merged_df),], 
+    sport_classification_train[,'sport'], k=5
+    )
+
+  sports <- sport(data$object)
+  for(i in c(1:length(sports))){
+    if(is.na(sports[i])){
+      sports[i] <- switch(as.vector(classified_sports)[i],
+                          'Swim' = 'swimming',
+                          'Ride' = 'cycling',
+                          'Run' = 'running')
+    }
+  }
+  attr(data$object, 'sport') <- sports
 }
 
 
@@ -231,6 +245,7 @@ process_dataset <- function(data){
   data$hasData <- lapply(data$summary, function(session_summaries) {
     !all(is.na(session_summaries) | session_summaries == 0)
   })
+  
 }
 
 

@@ -46,8 +46,8 @@ plot_map <- function(x, sumX, preped_route = NULL, session = NULL, threshold = T
     df_markers$true_session_id <- i
 
     p <- plotly::add_markers(
-      p, data = df_markers, x = ~longitude, y = ~latitude,
-      size = I(2), key = ~true_session_id, color = I("deepskyblue3")
+      p, data = df_markers, x = ~longitude, y = ~latitude, alpha = 0,
+      size = I(0.1), key = ~true_session_id, color = I("deepskyblue3")
     )
 
     p <- plotly::add_paths(
@@ -56,23 +56,23 @@ plot_map <- function(x, sumX, preped_route = NULL, session = NULL, threshold = T
       text = ~popupText(session = SessionID, speed = speed)
     )
   }
-  ## add trace + markers + popups
-  if (!(identical(all_sessions, session))) {
-    for (i in session) {
-      plot_df <- df[which(df$SessionID == i), ]
-      df_markers <- plot_df[seq(1, nrow(plot_df), round(nrow(plot_df) / 10, 0)), ]
-      df_markers$true_session_id <- i
-      p <- plotly::add_markers(
-        p, data = df_markers, x = ~longitude, y = ~latitude,
-        size = I(2), key = ~true_session_id, color = I("darkorange3")
-      )
-      p <- plotly::add_paths(
-        p, data = plot_df, x = ~longitude, y = ~latitude,
-        size = I(2), color = I("darkorange3"),
-        text = ~popupText(session = SessionID, speed = speed)
-      )
-    }
-  }
+  # ## add trace + markers + popups
+  # if (!(identical(all_sessions, session))) {
+  #   for (i in session) {
+  #     plot_df <- df[which(df$SessionID == i), ]
+  #     df_markers <- plot_df[seq(1, nrow(plot_df), round(nrow(plot_df) / 10, 0)), ]
+  #     df_markers$true_session_id <- i
+  #     p <- plotly::add_markers( 
+  #       p, data = df_markers, x = ~longitude, y = ~latitude,
+  #       size = I(2), key = ~true_session_id, color = I("darkorange3")
+  #     )
+  #     p <- plotly::add_paths(
+  #       p, data = plot_df, x = ~longitude, y = ~latitude,
+  #       size = I(2), color = I("darkorange3"),
+  #       text = ~popupText(session = SessionID, speed = speed)
+  #     )
+  #   }
+  # }
   center_lat <- median(df$latitude[which(df$SessionID %in% session)])
   center_lon <- median(df$longitude[which(df$SessionID %in% session)])
 
@@ -118,9 +118,9 @@ plot_map <- function(x, sumX, preped_route = NULL, session = NULL, threshold = T
 
   p <- plotly::layout(
     p, mapbox = list(
-      zoom = min(10, max(1.5 / diff_lon, 7)),
+      zoom = 2.3,
       center = list(lat = center_lat, lon = center_lon),
-      style = "basic"
+      style = "dark"
     ), dragmode = "select", showlegend = FALSE, updatemenus = updatemenus,
     margin = list(l = 0, r = 0, t = 0, b = 0)
   )

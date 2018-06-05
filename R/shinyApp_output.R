@@ -29,7 +29,7 @@ render_summary_box <- function(short_name, long_name, data) {
 render_summary_table <- function(data, input) {
   DT::renderDataTable({
       if(!is.null(input$sports)){
-        sessions_by_sport <- data$summary$session[data$classification %in% input$sports]
+        sessions_by_sport <- data$summary$session[sport(data$object) %in% input$sports]
       } else {
         sessions_by_sport <- data$summary$session
       }
