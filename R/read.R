@@ -152,7 +152,7 @@ readTCX <- function(file, timezone = "",
     tp_xpath <- paste0("//", activity_ns, ":", "Trackpoint")
     ch_names <- children_names(doc, tp_xpath, ns)
     if (length(ch_names) == 0) {
-        stop("No usable data have been found in", file)
+        stop("No usable data have been found in ", file)
     }
     tp_vars <- data.frame(name = ch_names,
                           ns = activity_ns)
