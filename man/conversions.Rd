@@ -93,6 +93,8 @@
 \alias{rev_per_min2rev_per_min}
 \alias{steps_per_min2rev_per_min}
 \alias{rev_per_min2steps_per_min}
+\alias{C2F}
+\alias{F2C}
 \title{Auxiliary conversion functions.}
 \usage{
 m2km(variable)
@@ -276,10 +278,14 @@ rev_per_min2rev_per_min(variable)
 steps_per_min2rev_per_min(variable)
 
 rev_per_min2steps_per_min(variable)
+
+C2F(variable)
+
+F2C(variable)
 }
 \arguments{
 \item{variable}{Variable to be converted.}
 }
 \description{
-Conversion functions for distance, duration, speed, pace, power, and cadence.
+Conversion functions for distance, duration, speed, pace, power, cadence and temperature.
 }

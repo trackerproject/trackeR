@@ -6,24 +6,30 @@
 \usage{
 zones(object, session = NULL, what = c("speed", "heart.rate"),
   breaks = list(speed = 0:10, heart.rate = c(0, seq(75, 225, by = 50), 250)),
-  parallel = FALSE, cores = NULL, auto_breaks = TRUE, n_zones = 9, ...)
+  parallel = FALSE, auto_breaks = TRUE, n_zones = 9, ...)
 }
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}
 
-\item{session}{A numeric vector of the sessions to be plotted, defaults to all sessions.}
+\item{session}{A numeric vector of the sessions to be plotted,
+defaults to all sessions.}
 
 \item{what}{A vector of variable names.}
 
-\item{breaks}{A list of breakpoints between zones, corresponding to the variables in \code{what}.}
+\item{breaks}{A list of breakpoints between zones, corresponding to
+the variables in \code{what}.}
 
-\item{parallel}{Logical. Should computation be carried out in parallel?}
+\item{parallel}{Logical. Should computation be carried out in
+parallel? If \code{TRUE} computation is performed in parallel
+using the backend provided to \code{\link{foreach}}. Default is
+\code{FALSE}.}
 
-\item{cores}{Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options('corese')} (on Windows) or \code{options('mc.cores')} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.}
+\item{auto_breaks}{Logical. Should breaks be selected
+automatically? Default is \code{FALSE} and \code{breaks} will
+be ignored if \code{TRUE}.}
 
-\item{auto_breaks}{Logical. Should breaks be selected automatically? Default is \code{FALSE} and \code{breaks} will be ignored if \code{TRUE}.}
-
-\item{n_zones}{A numeric. If auto_breaks=TRUE, select number of zones for data to be split into.}
+\item{n_zones}{A numeric. If auto_breaks=TRUE, select number of
+zones for data to be split into.}
 
 \item{...}{Currently not used.}
 }

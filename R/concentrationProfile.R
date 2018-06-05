@@ -54,7 +54,7 @@ concentrationProfile <- function(object, session = NULL, what = c("speed", "hear
     return(CP)
 }
 
-
+## Experimental concentration profile
 cp <- function(object, session = NULL, what = c("speed", "heart.rate"),
                limits = list(speed = c(0, 12.5), heart.rate = c(0, 250)),
                parallel = FALSE, cores = NULL, auto_grid = TRUE) {
@@ -65,16 +65,31 @@ cp <- function(object, session = NULL, what = c("speed", "heart.rate"),
     object <- object[session]
 
     CP <- NULL
-    for (i in what) {
-        dc <- parallel::detectCores()
-        if (is.null(cores)) {
-            cores <- getOption("mc.cores", max(floor(dc/2), 1L))
-        }
-        times <- parallel::mclapply(object, function(sess) {
 
-                               density(sess[, what], na.rm = TRUE, from = limits[[i]][1], to = limits[[i]][2], n = 512)$y
-                           }, mc.cores = cores)
-        times <- zoo(matrix(unlist(times), nrow = 512), order.by = seq(from = limits[[i]][1], to = limits[[i]][2], length.out = 512))
+    cp_fun <- function(j, w) {
+        sess <- object[[j]]
+        values <- sess[, w]
+        if (all(is.na(values))) {
+            rep(NA, 512)
+        }
+        else {
+            density(values, na.rm = TRUE, from = limits[[w]][1], to = limits[[w]][2], n = 512)$y
+        }
+    }
+
+    for (i in what) {
+        foreach_object <- eval(as.call(c(list(quote(foreach::foreach),
+                                              j = seq.int(nsessions(object)),
+                                              .combine = "cbind"))))
+        if (parallel) {
+            setup_parallel()
+            times <- foreach::`%dopar%`(foreach_object, cp_fun(j, i))
+        }
+        else {
+            times <- foreach::`%do%`(foreach_object, cp_fun(j, i))
+        }
+
+        times <- zoo(times, order.by = seq(from = limits[[i]][1], to = limits[[i]][2], length.out = 512))
         names(times) <- paste0("Session", session)
         CP[[i]] <- times
     }
@@ -185,15 +200,15 @@ plot.conProfile <- function(x, session = NULL, what = c("speed", "heart.rate"), 
     lab_data <- Vectorize(lab_data)
 
     if (multiple) {
-        p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value),
-            group = quote(Series), color = quote(Series))) + ggplot2::geom_line(na.rm = TRUE) +
-            ggplot2::ylab("dtime") + ggplot2::xlab(if (singleVariable)
+        p <- ggplot(data = df, mapping = aes_(x = quote(Index), y = quote(Value),
+            group = quote(Series), color = quote(Series))) + geom_line(na.rm = TRUE) +
+            ylab("dtime") + xlab(if (singleVariable)
             lab_data(levels(df$Profile)) else "")
         facets <- if (singleVariable)
             NULL else ". ~ Profile"
     } else {
-        p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
-            ggplot2::geom_line(na.rm = TRUE) + ggplot2::ylab("dtime") + ggplot2::xlab(if (singleVariable)
+        p <- ggplot(data = df, mapping = aes_(x = quote(Index), y = quote(Value))) +
+            geom_line(na.rm = TRUE) + ylab("dtime") + xlab(if (singleVariable)
             lab_data(levels(df$Profile)) else "")
 
         facets <- if (singleVariable) {
@@ -207,11 +222,11 @@ plot.conProfile <- function(x, session = NULL, what = c("speed", "heart.rate"), 
 
     ## add facets if necessary
     if (!is.null(facets)) {
-        p <- p + ggplot2::facet_grid(facets, scales = "free_x", labeller = ggplot2::labeller(Profile = lab_data))
+        p <- p + facet_grid(facets, scales = "free_x", labeller = labeller(Profile = lab_data))
     }
 
     ## add bw theme
-    p <- p + ggplot2::theme_bw() + ggplot2::scale_colour_continuous(name = "Session")
+    p <- p + theme_bw() + scale_colour_continuous(name = "Session")
 
     return(p)
 }
@@ -465,10 +480,10 @@ ridges.conProfile <- function(x, session = NULL, what = c("speed"),
     lab_data <- Vectorize(lab_data)
 
     sc <- 2/max(df$Value)
-    ggplot2::ggplot(df) +
-        ggridges::geom_ridgeline(ggplot2::aes_(x = quote(Index), y = quote(Series), height = quote(Value), group = quote(Series), scale = sc), alpha = 0.5) +
+    ggplot(df) +
+        ggridges::geom_ridgeline(aes_(x = quote(Index), y = quote(Series), height = quote(Value), group = quote(Series), scale = sc), alpha = 0.5) +
             ggridges::theme_ridges() +
-            ggplot2::labs(x = lab_data(what), y = "Session")
+            labs(x = lab_data(what), y = "Session")
 
 }
 

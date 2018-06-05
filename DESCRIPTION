@@ -8,7 +8,7 @@ Authors@R: c(person(given = "Ioannis", family = "Kosmidis",
 	   	    role = "aut", email = "hannah.frick@gmail.com",
 	            comment = c(ORCID = "0000-0002-6049-5258")),
 	     person(given = "Robin", family = "Hornak",
-	            role = "ctb", email = "robin.hornak.14@ucl.ac.uk"))
+	            role = "ctb", email = "robinhornak@gmail.com"))
 Description: The aim of this package is to provide infrastructure for
     handling running and cycling data from GPS-enabled tracking
     devices. After extraction and appropriate manipulation of the
@@ -30,10 +30,12 @@ Imports:
     mgcv,
     parallel,
     XML,
+    xml2,
     RSQLite,
     jsonlite,
     raster,
     scam,
+    foreach,
     fda,
     leaflet,
     ggmap,

@@ -1,13 +1,20 @@
 #' Time spent in training zones.
 #'
 #' @param object An object of class \code{\link{trackeRdata}}.
-#' @param session A numeric vector of the sessions to be plotted, defaults to all sessions.
+#' @param session A numeric vector of the sessions to be plotted,
+#'     defaults to all sessions.
 #' @param what A vector of variable names.
-#' @param breaks A list of breakpoints between zones, corresponding to the variables in \code{what}.
-#' @param parallel Logical. Should computation be carried out in parallel?
-#' @param cores Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options('corese')} (on Windows) or \code{options('mc.cores')} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.
-#' @param auto_breaks Logical. Should breaks be selected automatically? Default is \code{FALSE} and \code{breaks} will be ignored if \code{TRUE}.
-#' @param n_zones A numeric. If auto_breaks=TRUE, select number of zones for data to be split into.
+#' @param breaks A list of breakpoints between zones, corresponding to
+#'     the variables in \code{what}.
+#' @param parallel Logical. Should computation be carried out in
+#'     parallel? If \code{TRUE} computation is performed in parallel
+#'     using the backend provided to \code{\link{foreach}}. Default is
+#'     \code{FALSE}.
+#' @param auto_breaks Logical. Should breaks be selected
+#'     automatically? Default is \code{FALSE} and \code{breaks} will
+#'     be ignored if \code{TRUE}.
+#' @param n_zones A numeric. If auto_breaks=TRUE, select number of
+#'     zones for data to be split into.
 #' @param ... Currently not used.
 #' @return An object of class \code{trackeRdataZones}.
 #' @seealso \code{\link{plot.trackeRdataZones}}
@@ -21,7 +28,7 @@
 #' plot(runZones)
 #' @export
 zones <- function(object, session = NULL, what = c("speed", "heart.rate"), breaks = list(speed = 0:10,
-    heart.rate = c(0, seq(75, 225, by = 50), 250)), parallel = FALSE, cores = NULL, auto_breaks = TRUE,
+    heart.rate = c(0, seq(75, 225, by = 50), 250)), parallel = FALSE, auto_breaks = TRUE,
     n_zones = 9, ...) {
 
     ## select sessions
@@ -91,45 +98,28 @@ zones <- function(object, session = NULL, what = c("speed", "heart.rate"), break
     }
 
     ## get time in zones
+    zones_fun <- function(j, w) {
+        sess <- object[[j]]
+        zones_for_single_variable(sess, what = i, breaks = breaks[[w]])
+    }
     ret <- list()
-    if (parallel) {
-        dc <- parallel::detectCores()
-        if (.Platform$OS.type != "windows") {
-            if (is.null(cores))
-                cores <- getOption("mc.cores", max(floor(dc/2), 1L))
-            for (i in what) {
-                zonesForVar <- parallel::mclapply(object, zones_for_single_variable, what = i,
-                  breaks = breaks[[i]], mc.cores = cores)
-                zonesForVar <- do.call("rbind", zonesForVar)
-                ret[[i]] <- data.frame(session = rep(session, each = length(breaks[[i]]) -
-                  1), zonesForVar)
-                rownames(ret[[i]]) <- NULL
-            }
-        } else {
-            if (is.null(cores))
-                cores <- getOption("cores", max(floor(dc/2), 1L))
-            cl <- parallel::makePSOCKcluster(rep("localhost", cores))
-            for (i in what) {
-                zonesForVar <- parallel::parLapply(cl, object, zones_for_single_variable,
-                  what = i, breaks = breaks[[i]])
-                zonesForVar <- do.call("rbind", zonesForVar)
-                ret[[i]] <- data.frame(session = rep(session, each = length(breaks[[i]]) -
-                  1), zonesForVar)
-                rownames(ret[[i]]) <- NULL
-            }
-            parallel::stopCluster(cl)
+    for (i in what) {
+        foreach_object <- eval(as.call(c(list(quote(foreach::foreach),
+                                              j = seq.int(nsessions(object)),
+                                              .combine = "rbind"))))
+        if (parallel) {
+            setup_parallel()
+            zonesForVar <- foreach::`%dopar%`(foreach_object, zones_fun(j, i))
         }
-    } else {
-        for (i in what) {
-            zonesForVar <- lapply(object, zones_for_single_variable, what = i, breaks = breaks[[i]])
-            zonesForVar <- do.call("rbind", zonesForVar)
-            ret[[i]] <- data.frame(session = rep(session, each = length(breaks[[i]]) -
-                1), zonesForVar)
-            rownames(ret[[i]]) <- NULL
+        else {
+            zonesForVar <- foreach::`%do%`(foreach_object, zones_fun(j, i))
         }
+        ret[[i]] <- data.frame(session = rep(session,
+                                             each = length(breaks[[i]]) - 1),
+                               zonesForVar)
+        rownames(ret[[i]]) <- NULL
     }
 
-    ## ret <- do.call('rbind', ret); rownames(ret) <- NULL
     attr(ret, "units") <- getUnits(object)
     class(ret) <- c("trackeRdataZones", class(ret))
     return(ret)
@@ -155,37 +145,40 @@ plot.trackeRdataZones <- function(x, percent = TRUE, ...) {
     dat$timeN <- as.numeric(dat$time)
 
     ## basic plot
-    p <- ggplot2::ggplot(dat) + ggplot2::xlab("Zones")
+    p <- ggplot(dat) + xlab("Zones")
 
     ## y: time or percent
     if (percent) {
-        p <- p + ggplot2::geom_bar(ggplot2::aes_(x = quote(zoneF), y = quote(percent),
-            fill = quote(Session), group = quote(Session)), stat = "identity", position = ggplot2::position_dodge()) +
-            ggplot2::ylab("Percent")  ## +
-        ## ggplot2::guides(fill = ggplot2::guide_legend(title = 'Session'))
+        p <- p + geom_bar(aes_(x = quote(zoneF), y = quote(percent),
+            fill = quote(Session), group = quote(Session)), stat = "identity", position = position_dodge()) +
+            ylab("Percent")  ## +
+        ## guides(fill = guide_legend(title = 'Session'))
     } else {
-        p <- p + ggplot2::geom_bar(ggplot2::aes_(x = quote(zoneF), y = quote(timeN), fill = quote(Session),
-            group = quote(Session)), stat = "identity", position = ggplot2::position_dodge()) +
-            ggplot2::ylab(paste0("Time [", units(dat$time), "]"))  ## +
-        ## ggplot2::guides(fill = ggplot2::guide_legend(title = 'Session'))
+        p <- p + geom_bar(aes_(x = quote(zoneF), y = quote(timeN), fill = quote(Session),
+            group = quote(Session)), stat = "identity", position = position_dodge()) +
+            ylab(paste0("Time [", units(dat$time), "]"))  ## +
+        ## guides(fill = guide_legend(title = 'Session'))
     }
 
     ## set colors hclpal <- colorspace::rainbow_hcl(n = nl  evels(dat$session), c = 60) p <- p
-    ## + ggplot2::scale_fill_manual(values = hclpal)
+    ## + scale_fill_manual(values = hclpal)
 
     ## facets
     units <- getUnits(x)
     lab_data <- function(series) {
         thisunit <- units$unit[units$variable == series]
         prettyUnit <- prettifyUnits(thisunit)
-        paste0(series, " [", prettyUnit, "]")
+        paste0(series, "\n[", prettyUnit, "]")
     }
     lab_data <- Vectorize(lab_data)
 
-    p <- p + ggplot2::facet_grid(. ~ variable, scales = "free_x", labeller = ggplot2::labeller(variable = lab_data))
+    p <- p + facet_grid(. ~ variable, scales = "free_x", labeller = labeller(variable = lab_data))
 
     ## theme
-    p <- p + ggplot2::theme_bw()  ##+ ggplot2::theme(legend.position = 'top')
+    p <- p + theme_bw()  +
+        theme(axis.text.x = element_text(angle = 50, hjust = 1),
+                       panel.grid.major = element_blank(),
+                       panel.grid.minor = element_blank())
 
     return(p)
 }

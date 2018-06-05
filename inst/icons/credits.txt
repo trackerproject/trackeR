@@ -1,4 +1,12 @@
-Please credit as follows: 
+Please credit as follows:
 Maps Icons Collection https://mapicons.mapsmarker.com
 
 Colour: R 36, G 94, B 255
+
+
+## Icons for graphics
+https://www.flaticon.com/packs/map-icons
+swimming-man.png
+cycling.png
+https://www.flaticon.com/free-icon/man-running_18057
+man-running.png

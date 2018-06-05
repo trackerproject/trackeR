@@ -5,9 +5,7 @@
 #'
 #' @param dat A data frame.
 #' @param units A data frame containing the unit of measurement for all variables. See Details.
-#' @param cycling Logical. Do the data stem from cycling instead of running? If so, the default unit of
-#'     measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min} and power is
-#'     imputed with \code{0}, else with \code{NA}.
+#' @param sport What sport does \code{dat} contain data of? Either \code{'cycling'}, \code{'running'}, \code{'swimming'} or \code{NULL} (default), in which case the sport is directly extracted from the \code{dat}. See Details.
 #' @param correctDistances Logical. Should the distances be corrected for elevation?
 #' @param country ISO3 country code for downloading altitude data. If \code{NULL}, country is derived from
 #'     longitude and latitude.
@@ -26,6 +24,7 @@
 #'           \code{ft_per_s} or \code{mi_per_h}
 #'     \item variable \code{cadence} with unit \code{steps_per_min} or \code{rev_per_min}
 #'     \item variable \code{power} with unit \code{W} or \code{kW}.
+#'     \item variable \code{temperature} with unit \code{C} (Celsius) or \code{F}.
 #'     }
 #'     If the argument \code{units} is \code{NULL}, the default units are used. These are the first options, i.e.,
 #'     \code{m} for variables \code{altitude} and \code{distance}, \code{m_per_s} for variable \code{speed} as well
@@ -37,6 +36,12 @@
 #'     0 for speed, last known position for latitude, longitude and altitude,
 #'     NA or 0 power for running or cycling session, respectively, and NA for all other
 #'     variables. Distances are (re-)calculated based on speeds after imputation.
+#'
+#'     \code{trackeRdata} assumes that all observations in \code{dat}
+#'     are from the same \code{sport}, even if \code{dat} ends up
+#'     having observations from different sessions (also depending on
+#'     the value of \code{sessionThreshold}.
+#'
 #' @seealso \code{\link{readContainer}} for reading .tcx and .db3 files directly into \code{trackeRdata} objects.
 #' @references Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal of Statistical Software}, \bold{82}(7), 1--29. doi:10.18637/jss.v082.i07
 #' @examples
@@ -55,20 +60,33 @@
 #' run <- readContainer(filepath, type = 'tcx', timezone = 'GMT')
 #' }
 #' @export
-trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2, correctDistances = FALSE,
-    country = NULL, mask = TRUE, fromDistances = TRUE, lgap = 30, lskip = 5, m = 11, silent = FALSE) {
+trackeRdata <- function(dat, units = NULL, sport = NULL, sessionThreshold = 2, correctDistances = FALSE,
+                        country = NULL, mask = TRUE, fromDistances = TRUE, lgap = 30, lskip = 5, m = 11, silent = FALSE) {
+
+    ## sport
+    if (is.null(sport)) {
+        sport <- attr(dat, "sport")
+    }
+    else {
+        sport <- match.arg(sport, c("cycling", "swimming", "running"))
+    }
+    is_cycling <- "cycling" %in% sport
+
+
     ## prep units
     if (is.null(units)) {
-        units <- generateBaseUnits(cycling)
+        units <- generateBaseUnits(is_cycling)
     }
-    if (cycling) {
+
+    if (is_cycling) {
         if (units$unit[units$variable == "cadence"] != "rev_per_min") {
-            warning("Unit for cadence is set to 'rev_per_min' due to cycling = TRUE.")
+            warning("Unit for cadence is set to 'rev_per_min' due to sport = 'cycling'.")
             units$unit[units$variable == "cadence"] <- "rev_per_min"
         }
-    } else {
+    }
+    else {
         if (units$unit[units$variable == "cadence"] != "steps_per_min") {
-            warning("Unit for cadence is set to 'steps_per_min' due to cycling = FALSE.")
+            warning("Unit for cadence is set to 'steps_per_min' due to sport != 'cycling'.")
             units$unit[units$variable == "cadence"] <- "steps_per_min"
         }
     }
@@ -95,7 +113,8 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2
 
     ## impute speeds in each session
     trackerdat <- lapply(trackerdat, imputeSpeeds, fromDistances = fromDistances, lgap = lgap,
-        lskip = lskip, m = m, cycling = cycling, units = units)
+        lskip = lskip, m = m, cycling = is_cycling, units = units)
+
 
     ## add pace (if unspecified: in min per 1 km if speed unit refers to km or m, and in min
     ## per 1 mile if speed unit refers to ft or mi)
@@ -106,7 +125,8 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2
             "min", sep = "_per_"), sep = "2"))
         units <- rbind(units, c("pace", paste0("min_per_", distUnit4pace)))
 
-    } else {
+    }
+    else {
         paceInv <- strsplit(units$unit[units$variable == "pace"], split = "_per_")[[1]][2:1]
         paceInv <- paste(paceInv, collapse = "_per_")
         conversion <- match.fun(paste(units$unit[units$variable == "speed"], paceInv, sep = "2"))
@@ -118,10 +138,11 @@ trackeRdata <- function(dat, units = NULL, cycling = FALSE, sessionThreshold = 2
         return(x)
     })
 
-
     ## Set attributes
     attr(trackerdat, "operations") <- list(smooth = NULL, threshold = NULL)
     attr(trackerdat, "units") <- units
+    attr(trackerdat, "sport") <- rep(sport, length(trackerdat))
+    attr(trackerdat, "file") <- attr(dat, "file")
 
     ## class and return
     class(trackerdat) <- c("trackeRdata", class(trackerdat))
@@ -180,19 +201,26 @@ sanityChecks <- function(dat, silent) {
 
     ## handle NAs
     natime <- is.na(dat$time)
-    if (all(natime))
+    if (all(natime)) {
         stop("The are no useable timestamps.")
+    }
     if (any(natime)) {
         if (!silent)
-            warning("Observations with missing time stamps are removed.")
+            warning("Observations with missing time stamps have been removed.")
         dat <- dat[!natime, ]
+    }
+
+    ## handle missing data
+    nadat <- is.na(dat[, -which(names(dat) == "time")])
+    if (all(nadat)) {
+        stop("The is no useable data.")
     }
 
     ## remove duplicates
     duptime <- duplicated(dat$time)
     if (any(duptime)) {
         if (!silent)
-            warning("Observations with duplicated time stamps are removed.")
+            warning("Observations with duplicated time stamps have been removed.")
         dat <- dat[!duptime, ]
     }
 
@@ -207,6 +235,7 @@ getSessions <- function(dat, sessionThreshold = 2) {
     ## get session IDs
     dat$sessionID <- NA
     resting <- restingPeriods(dat$time, sessionThreshold)
+
     nSessions <- nrow(resting$sessions)
     for (i in seq.int(nSessions)) {
         session <- resting$sessions[i, 1:2]
@@ -281,7 +310,8 @@ c.trackeRdata <- function(..., recursive = FALSE) {
             operations$smooth$width <- widths
             operations$smooth$what <- whats
             operations$smooth$nsessions <- nsessions
-        } else {
+        }
+        else {
             nsessions <- lapply(input, function(x) getOperations(x)$smooth$nsessions)
             nsessions[sapply(nsessions, is.null)] <- nsessionsInput[sapply(nsessions, is.null)]
             operations$smooth$nsessions <- sum(do.call("c", nsessions))
@@ -321,6 +351,7 @@ c.trackeRdata <- function(..., recursive = FALSE) {
     ret <- vector("list", sum(nsessionsInput))
     starti <- c(1, cumsum(nsessionsInput)[-length(nsessionsInput)] + 1)
     endi <- cumsum(nsessionsInput)
+
     for (i in seq_len(ninput)) {
         ret[starti[i]:endi[i]] <- input[[i]]
     }
@@ -328,6 +359,8 @@ c.trackeRdata <- function(..., recursive = FALSE) {
     ## class and other attributes
     class(ret) <- c("trackeRdata", "list")
     attr(ret, "units") <- units1
+    attr(ret, "sport") <- unlist(sapply(input, attr, which = "sport"))
+    attr(ret, "file") <- unlist(sapply(input, attr, which = "file"))
     ## operations$smooth
     attr(ret, "operations") <- operations
 
@@ -348,11 +381,12 @@ c.trackeRdata <- function(..., recursive = FALSE) {
 sort.trackeRdata <- function(x, decreasing = FALSE, ...) {
     oo <- order(sapply(x, function(session) index(session)[1]))
     if (decreasing) {
-        x[rev(oo)]
+        ret <- x[rev(oo)]
     }
     else {
-        x[oo]
+        ret <- x[oo]
     }
+    ret
 }
 
 #' Exrtact unique sessions in a \code{trackerRdata} object.
@@ -366,8 +400,11 @@ sort.trackeRdata <- function(x, decreasing = FALSE, ...) {
 #'
 #' @export
 unique.trackeRdata <- function(x, incomparables = FALSE, ...) {
+    ## NOTE: Consider determining uniqueness according to file name?
     start <- sapply(x, function(session) index(session)[1])
-    x[!duplicated(start, incomparables = FALSE)]
+    inds <- !duplicated(start, incomparables = FALSE)
+    ret <- x[inds]
+    ret
 }
 
 
@@ -376,9 +413,14 @@ unique.trackeRdata <- function(x, incomparables = FALSE, ...) {
 
     units <- getUnits(x)
     operations <- getOperations(x)
+    sport <- attr(x, "sport")
+    files <- attr(x, "file")
 
-    ## ret <- x[i]
     ret <- NextMethod()
+    is_null <- sapply(ret, is.null)
+    if (any(is_null)) {
+        stop("Subsetting failed; non-existing sessions: ", paste(i[is_null], collapse = ", "))
+    }
 
     if (!is.null(operations$smooth)) {
         smooth <- operations$smooth
@@ -390,7 +432,8 @@ unique.trackeRdata <- function(x, incomparables = FALSE, ...) {
         if (length(j) < 2) {
             k <- j
             nsessions <- length(j)
-        } else {
+        }
+        else {
             ## to avoid duplicating unnecessary information, aggregate j to k and keep track of
             ## number of sessions NOTE: k <- unique(j) ; smooth$nsessions <- as.numeric(table(j))
             ## does not allow to split sessions from one block - but x[i] does allow it.  Thus the
@@ -422,6 +465,8 @@ unique.trackeRdata <- function(x, incomparables = FALSE, ...) {
     class(ret) <- c("trackeRdata", "list")
     attr(ret, "units") <- units
     attr(ret, "operations") <- operations
+    attr(ret, "sport") <- sport[i]
+    attr(ret, "file") <- files[i]
 
     return(ret)
 }
@@ -542,10 +587,13 @@ as.data.frame.trackeRdata <- function(x, ...) {
 #' \code{\link{trackeRdata}} object
 #'
 #' @export
-print.trackeRdata <- function(x, ..., digits = 2) {
+print.trackeRdata <- function(x, duration = "h", ..., digits = 2) {
     x <- summary(x)
+    x <- changeUnits(x, "duration", "h")
     units <- getUnits(x)
-    cat("A trackeRdata object\n\n")
+    sports <- as.character(na.omit(unique(sport(x))))
+    cat("A trackeRdata object\n")
+    cat("Sports:", sports, "\n\n")
     cat("Training coverage:",
         "from", format(min(x$sessionStart), format = "%Y-%m-%d %H:%M:%S"),
         "to", format(max(x$sessionEnd), format = "%Y-%m-%d %H:%M:%S"), "\n")
@@ -572,6 +620,13 @@ session_duration.trackeRdata <- function(object, ...) {
     durUnit <- switch(units0$unit[units0$variable == "duration"],
                       "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days")
     with(session_times(object), {
-        as.numeric(difftime(sessionEnd, sessionStart, units = durUnit))
+        difftime(sessionEnd, sessionStart, units = durUnit)
     })
 }
+
+#' @rdname sport
+#' @export
+sport.trackeRdata <- function(object, ...) {
+    attr(object, "sport")
+}
+

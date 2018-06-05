@@ -8,8 +8,7 @@ readContainer(file, type = c("tcx", "gpx", "db3", "json"),
   table = "gps_data", timezone = "", sessionThreshold = 2,
   correctDistances = FALSE, country = NULL, mask = TRUE,
   fromDistances = NULL, speedunit = NULL, distanceunit = NULL,
-  cycling = FALSE, lgap = 30, lskip = 5, m = 11, silent = FALSE,
-  parallel = FALSE, cores = getOption("mc.cores", 2L))
+  sport = NULL, lgap = 30, lskip = 5, m = 11, silent = FALSE)
 }
 \arguments{
 \item{file}{The path to the file.}
@@ -46,8 +45,7 @@ file to be converted into meters per second. Default is \code{m_per_s} when \cod
 file to be converted into meters. Default is \code{m} when \code{type} is
 \code{tcx} and \code{km} when \code{type} is \code{db3} or \code{json}. See Details.}
 
-\item{cycling}{Logical. Do the data stem from cycling instead of running? If so, the unit of
-measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min}.}
+\item{sport}{What sport does \code{file} contain data from? Either \code{'cycling'}, \code{'running'}, \code{'swimming'} or \code{NULL} (default), in which case the sport is directly obtained from the \code{\link{readX}} extractors.}
 
 \item{lgap}{Time in seconds corresponding to the minimal sampling rate.}
 
@@ -58,11 +56,6 @@ observation after a small break.}
 \item{m}{Number of imputed observations in each small break.}
 
 \item{silent}{Logical. Should warnings be generated if any of the sanity checks on the data are triggered?}
-
-\item{parallel}{Logical. Should computation be carried out in
-parallel? (Not supported on Windows.)}
-
-\item{cores}{Number of cores for parallel computing.}
 }
 \value{
 An object of class \code{\link{trackeRdata}}.

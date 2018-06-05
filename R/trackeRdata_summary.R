@@ -25,6 +25,8 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
 
     ## threshold defining 'moving'
     units <- getUnits(object)
+    sports <- sport(object)
+    files <- attr(object, "file")
     if (is.null(movingThreshold)) {
         ## set to a speed (somewhat) below the preferred walking speed of ~1.4 m/s (Bohannon,
         ## 1997)
@@ -39,6 +41,7 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
     ## select sessions
     if (is.null(session))
         session <- 1:length(object)
+
     object <- object[session]
 
     ## session times
@@ -109,7 +112,7 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
         ret
     }
 
-    summaries <- sapply(object, weightedMeans, which = c("cadence", "power", "heart.rate"), th = movingThreshold)
+    summaries <- sapply(object, weightedMeans, which = c("cadence", "power", "heart.rate", "altitude"), th = movingThreshold)
     ## work to rest ratio
     wrRatio <- as.numeric(durationMoving)/as.numeric(duration - durationMoving)
 
@@ -119,13 +122,17 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
         distance = distance, duration = duration, durationMoving = durationMoving, avgSpeed = avgSpeed,
         avgSpeedMoving = avgSpeedMoving, avgPace = avgPace, avgPaceMoving = avgPaceMoving,
         avgCadence = summaries["cadence", ],
+        avgAltitude = summaries["altitude", ],
+        avgAltitudeMoving = summaries["altitude_moving", ],
         avgCadenceMoving = summaries["cadence_moving", ],
         avgPower = summaries["power", ],
         avgPowerMoving = summaries["power_moving", ],
         avgHeartRate = summaries["heart.rate", ],
         avgHeartRateMoving = summaries["heart.rate_moving", ],
         avgHeartRateResting = summaries["heart.rate_resting", ],
-        wrRatio = wrRatio)
+        wrRatio = wrRatio,
+        sport = sports[session],
+        file = files[session])
 
     attr(ret, "units") <- units
     attr(ret, "movingThreshold") <- movingThreshold
@@ -143,9 +150,10 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
 #' @export
 print.trackeRdataSummary <- function(x, ..., digits = 2) {
     units <- getUnits(x)
+    sports <- as.character(sport(x))
 
     for (i in seq_len(length(x$session))) {
-        cat("\n *** Session", x$session[i], "***\n")
+        cat("\n *** Session", x$session[i], ":", sports[i], "***\n")
 
         cat("\n Session times:", format(x$sessionStart[i], format = "%Y-%m-%d %H:%M:%S"),
             "-", format(x$sessionEnd[i], format = "%Y-%m-%d %H:%M:%S"), "\n ")
@@ -303,23 +311,23 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, l
     }
 
     ## (basic) plot
-    p <- ggplot2::ggplot(dat)
+    p <- ggplot(dat)
     if (date & ndates < nsessions)
         stop("All sessions must have unique starting times. Try date = FALSE instead.")
-    p <- p + ggplot2::geom_point(ggplot2::aes_(x = quote(xaxis), y = quote(value), color = quote(type)),
-        na.rm = TRUE) + ggplot2::labs(x = xlab, y = "") + ggplot2::guides(color = ggplot2::guide_legend(title = "Type")) +
-        ggplot2::scale_colour_manual(values = c(total = "#76BD58", moving = "#F68BA2",
+    p <- p + geom_point(aes_(x = quote(xaxis), y = quote(value), color = quote(type)),
+        na.rm = TRUE) + labs(x = xlab, y = "") + guides(color = guide_legend(title = "Type")) +
+        scale_colour_manual(values = c(total = "#76BD58", moving = "#F68BA2",
             resting = "#5EB3F0"))
     ## color palette comes from colorspace::rainbow_hcl(3, c = 70)[c(2,1,3)] [1] '#5EB3F0'
     ## '#F68BA2' '#76BD58' an alternative from
     ## http://colorbrewer2.org/#type=qualitative&scheme=Dark2&n=3
-    ## ggplot2::scale_colour_manual(values = c('total' = '#1b9e77', 'moving' = '#d95f02',
+    ## scale_colour_manual(values = c('total' = '#1b9e77', 'moving' = '#d95f02',
     ## 'resting' = '#7570b3'))
 
     ## possibly add lines for 2 or more sessions
     if (nsessions > 1) {
         if (lines) {
-            p <- p + ggplot2::geom_line(ggplot2::aes_(x = quote(xaxis), y = quote(value),
+            p <- p + geom_line(aes_(x = quote(xaxis), y = quote(value),
                 color = quote(type)), na.rm = TRUE)
         }
     }
@@ -340,10 +348,10 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, l
     }
     lab_sum <- Vectorize(lab_sum)
 
-    p <- p + ggplot2::facet_grid(facets = "variable ~ .", scales = "free_y", labeller = ggplot2::labeller(variable = lab_sum))  ## +
+    p <- p + facet_grid(facets = "variable ~ .", scales = "free_y", labeller = labeller(variable = lab_sum))  ## +
 
     ## add bw theme and position of legend
-    p <- p + ggplot2::theme_bw() + ggplot2::theme(legend.position = "top")
+    p <- p + theme_bw() + theme(legend.position = "top")
 
     return(p)
 }
@@ -363,15 +371,15 @@ timeline.trackeRdataSummary <- function(object, lims = NULL, ...) {
     if (!is.null(lims)) {
         lims <- as.POSIXct(paste(Sys.Date(), lims))
     }
-    p <- ggplot2::ggplot(df) + ## geom_point(aes(x = start, y = sday), alpha = 0.5) + geom_point(aes(x = end, y =
+    p <- ggplot(df) + ## geom_point(aes(x = start, y = sday), alpha = 0.5) + geom_point(aes(x = end, y =
     ## eday), alpha = 0.5) +
-    ggplot2::geom_segment(ggplot2::aes_(x = quote(start), xend = quote(end), y = quote(sday),
+    geom_segment(aes_(x = quote(start), xend = quote(end), y = quote(sday),
         yend = quote(eday)), color = '#428bca', size=1)
     ## take care of breaks, limits on the time axes and style of breakpoints
-    p <- p + ggplot2::scale_x_datetime(date_labels = "%H:%m", date_breaks = "4 hour", limits = lims)
-    p <- p + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1)) +
-        ggplot2::xlab("Time") + ggplot2::ylab("Date")
-    p + ggplot2::theme_bw()
+    p <- p + scale_x_datetime(date_labels = "%H:%m", date_breaks = "4 hour", limits = lims)
+    p <- p + theme(axis.text.x = element_text(angle = 50, hjust = 1)) +
+        xlab("Time") + ylab("Date")
+    p + theme_bw()
 }
 
 
@@ -386,7 +394,28 @@ timeline.trackeRdataSummary <- function(object, lims = NULL, ...) {
     return(ret)
 }
 
+#' @rdname nsessions
 #' @export
 nsessions.trackeRdataSummary <- function(object, ...) {
     nrow(object)
+}
+
+
+#' @rdname sport
+#' @export
+sport.trackeRdataSummary <- function(object, ...) {
+    object$sport
+}
+
+
+#' @rdname session_times
+#' @export
+session_times.trackeRdataSummary <- function(object, ...) {
+    as.data.frame(object)[c("sessionStart", "sessionEnd")]
+}
+
+#' @rdname session_duration
+#' @export
+session_duration.trackeRdataSummary <- function(object, ...) {
+    object$duration
 }

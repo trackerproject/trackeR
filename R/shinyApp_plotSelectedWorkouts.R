@@ -24,10 +24,6 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
     var_units <- lab_sum(feature = what, data = sumX,
                          whole_text = FALSE, transform_feature = FALSE)
 
-    ## the following line is just intended to prevent R CMD check to produce the NOTE
-    ## "no visible binding for global variable 'Series'" because that variable is used in subset()
-    Series <- NULL
-
     ## code inspired by autoplot.zoo
     if (is.null(session)) session <- seq_along(x)
     units <- getUnits(x)

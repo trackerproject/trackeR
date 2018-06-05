@@ -6,22 +6,26 @@
 a control argument for \code{\link{smoother.trackeRdata}}.}
 \usage{
 smootherControl.trackeRdata(fun = "mean", width = 10, parallel = FALSE,
-  cores = NULL, what = c("speed", "heart.rate"), nsessions = NA, ...)
+  what = c("speed", "heart.rate"), nsessions = NA, ...)
 }
 \arguments{
-\item{fun}{The name of the function to be matched and used to aggregate/smooth the data.}
+\item{fun}{The name of the function to be matched and used to
+aggregate/smooth the data.}
 
 \item{width}{The width of the window in which the raw observations
 get aggregated via function \code{fun}.}
 
-\item{parallel}{Logical. Should computation be carried out in parallel?}
+\item{parallel}{Logical. Should computation be carried out in
+parallel? If \code{TRUE} computation is performed in parallel
+using the backend provided to \code{\link{foreach}}. Default is
+\code{FALSE}.}
 
-\item{cores}{Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options('corese')} (on Windows) or \code{options('mc.cores')} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.}
+\item{what}{Vector of the names of the variables which should be
+smoothed.}
 
-\item{what}{Vector of the names of the variables which should be smoothed.}
-
-\item{nsessions}{Vector containing the number of session. Default corresponds to all sessions
-belonging to the same group. Used only internally.}
+\item{nsessions}{Vector containing the number of session. Default
+corresponds to all sessions belonging to the same group. Used
+only internally.}
 
 \item{...}{Currently not used.}
 }

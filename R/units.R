@@ -242,7 +242,6 @@ changeUnits.trackeRWprime <- function(object, variable, unit, ...) {
 
 ## not to be exported
 changeUnits.trackeRthresholds <- function(object, variable, unit, ...) {
-
     for (v in variable) {
         i <- which(object$variable == v)
         currentUnit <- object$unit[i]
@@ -330,10 +329,10 @@ generateBaseUnits <- function(cycling = FALSE, ...) {
     varnames <- c(varnames, c("pace", "duration"))
 
     if (cycling) {
-        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "rev_per_min", "W",
+        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "rev_per_min", "W", "C",
             "min_per_km", "s")
     } else {
-        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "W",
+        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "W", "C",
             "min_per_km", "s")
     }
 
@@ -344,7 +343,7 @@ generateBaseUnits <- function(cycling = FALSE, ...) {
 ## conversion functions: distance
 #' Auxiliary conversion functions.
 #'
-#' Conversion functions for distance, duration, speed, pace, power, and cadence.
+#' Conversion functions for distance, duration, speed, pace, power, cadence and temperature.
 #'
 #' @param variable Variable to be converted.
 #' @name conversions
@@ -963,4 +962,19 @@ steps_per_min2rev_per_min <- function(variable) {
 rev_per_min2steps_per_min <- function(variable) {
     ## step defined as half a revolution
     variable * 2
+}
+
+## conversion functions: temperature
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+C2F <- function(variable) {
+    variable * 9 / 5 + 32
+}
+
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+F2C <- function(variable) {
+    (variable - 32) * 5 / 9
 }

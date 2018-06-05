@@ -1,29 +1,59 @@
 #' W' expended.
 #'
-#' Calculate W' expended, i.e., the work capacity above critical power
-#' which has been depleted and not yet been replenished.
+#' Calculate W' expended, i.e., the work capacity above critical
+#' power/speed which has been depleted and not yet been replenished.
 #'
-#' @param object Univariate \code{\link[zoo]{zoo}} object containing the time stamped power output or speed values. (Power should be in Watts, speed in meters per second.)
-#' @param w0 Inital capacity of W', as calculated based on the critical
-#' power model by Monod and Scherrer (1965).
-#' @param cp Critical power/speed, i.e., the power/speed which can be maintained for
-#' longer period of time.
-#' @param version How should W' be replenished? Options include \code{'2015'}
-#' and \code{'2012'} for the versions presented in Skiba et al. (2015) and
-#' Skiba et al. (2012), respectively. See Details.
-#' @param meanRecoveryPower Should the mean of all power outputs below critical
-#' power be used as recovery power? See Details.
+#' @param object Univariate \code{\link[zoo]{zoo}} object containing
+#'     the time stamped power output or speed values. (Power should be
+#'     in Watts, speed in meters per second.)
+#' @param w0 Inital capacity of W', as calculated based on the
+#'     critical power model by Monod and Scherrer (1965).
+#' @param cp Critical power/speed, i.e., the power/speed which can be
+#'     maintained for longer period of time.
+#' @param version How should W' be replenished? Options include
+#'     \code{'2015'} and \code{'2012'} for the versions presented in
+#'     Skiba et al. (2015) and Skiba et al. (2012), respectively. See
+#'     Details.
+#' @param meanRecoveryPower Should the mean of all power outputs below
+#'     critical power be used as recovery power? See Details.
 #'
-#' @details Skiba et al. (2015) and Skiba et al. (2012) both describe an exponential decay of W' expended over an interval [t_{i-1}, t_i) if the power output during this interval is below critical power:
-#' W_exp (t_i) = W_exp(t_{i-1}) * exp(nu * (t_i - t_{i-1})).
-#' However, the factor nu differs: Skiba et al. (2012) describe it as 1/tau with tau estimated as
-#' tau = 546 * exp( -0.01 * (CP - P_i) + 316.
-#' Skiba et al. (2015) use (P_i - CP) / W'_0.
-#' Skiba et al. (2012) and Skiba et al. (2015) employ a constant recovery power (calculated as the mean over all power outputs below critical power). This rational can be applied by setting the argument \code{meanRecoveryPower} to \code{TRUE}. Note that this employes information from the all observations with a power output below critical power, not just those prior to the current time point.
+#' @details
 #'
-#' @references Monod H, Scherrer J (1965). 'The Work Capacity of a Synergic Muscular Group.' Ergonomics, 8(3), 329--338.
-#' Skiba PF, Chidnok W, Vanhatalo A, Jones AM (2012). 'Modeling the Expenditure and Reconstitution of Work Capacity above Critical Power.' Medicine & Science in Sports & Exercise, 44(8), 1526--1532.
-#' Skiba PF, Fulford J, Clarke DC, Vanhatalo A, Jones AM (2015). 'Intramuscular Determinants of the Abilility to Recover Work Capacity above Critical Power.' European Journal of Applied Physiology, 115(4), 703--713.
+#' Skiba et al. (2015) and Skiba et al. (2012) both describe an
+#' exponential decay of \eqn{W'} expended over an interval
+#' \eqn{[t_{i-1}, t_i)} if the power output during this interval is
+#' below critical power:
+#'
+#' \deqn{W_exp (t_i) = W_exp(t_{i-1}) * exp(nu * (t_i - t_{i-1}))}
+#'
+#' However, the factor nu differs: Skiba et al. (2012) describe it as
+#' \eqn{1/\tau} with \eqn{\tau} estimated as
+#'
+#' \deqn{tau = 546 * exp(-0.01 * (CP - P_i)) + 316}
+#'
+#' Skiba et al. (2015) use \eqn{(P_i - CP) / W'_0}.  Skiba et
+#' al. (2012) and Skiba et al. (2015) employ a constant recovery power
+#' (calculated as the mean over all power outputs below critical
+#' power). This rationale can be applied by setting the argument
+#' \code{meanRecoveryPower} to \code{TRUE}. Note that this uses
+#' information from all observations with a power output below
+#' critical power, not just those prior to the current time point.
+#'
+#' @references
+#'
+#' Monod H, Scherrer J (1965). 'The Work Capacity of a Synergic
+#' Muscular Group.' Ergonomics, 8(3), 329--338.
+#'
+#' Skiba PF, Chidnok W, Vanhatalo A, Jones AM (2012). 'Modeling the
+#' Expenditure and Reconstitution of Work Capacity above Critical
+#' Power.' Medicine & Science in Sports & Exercise, 44(8), 1526--1532.
+#'
+#' Skiba PF, Fulford J, Clarke DC, Vanhatalo A, Jones AM
+#' (2015). 'Intramuscular Determinants of the Abilility to Recover
+#' Work Capacity above Critical Power.' European Journal of Applied
+#' Physiology, 115(4), 703--713.
+#'
+#' @export
 Wexp <- function(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower = FALSE) {
     version <- match.arg(version, c("2015", "2012"))
 
@@ -64,7 +94,8 @@ Wexp <- function(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower 
     ## recovery factor
     if (version == "2015") {
         recoveryFactor <- dp/w0
-    } else {
+    }
+    else {
         ## version 2012
         tau <- 546 * exp(0.01 * dp) + 316
         recoveryFactor <- -1/tau
@@ -91,41 +122,68 @@ Wexp <- function(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower 
     return(ret)
 }
 
-#' W': work capacity above critical power.
+#' W': work capacity above critical power/speed.
 #'
-#' Based on the critical power model for cycling (Monod and Scherrer, 1965),
-#' W' (read W prime) describes the finite work capacity above critical power (Skiba et al., 2012).
-#' While W' is depleted during exercise above critical power, it is replenished
-#' during exercise below critical power. Thus, it is of interest how much of this
-#' work capacity has been depleted and not yet been replinished again, named
-#' W' expended, or how much of this work capacity is still available, named W' balance.
-#' This principal is applied to runners by subsituting power and critical power with
-#' speed and critical speed, respectively (Skiba et al., 2012).
+#' Based on the critical power model for cycling (Monod and Scherrer,
+#' 1965), W' (read W prime) describes the finite work capacity above
+#' critical power (Skiba et al., 2012).  While W' is depleted during
+#' exercise above critical power, it is replenished during exercise
+#' below critical power. Thus, it is of interest how much of this work
+#' capacity has been depleted and not yet been replinished again,
+#' named W' expended, or how much of this work capacity is still
+#' available, named W' balance.  This principal is applied to runners
+#' by subsituting power and critical power with speed and critical
+#' speed, respectively (Skiba et al., 2012).
 #'
 #' @param object A \code{\link{trackeRdata}} object.
-#' @param session A numeric vector of the sessions to be used, defaults to all sessions.
-#' @param quantity Should W' \code{'expended'} or W' \code{'balance'} be returned?
+#' @param session A numeric vector of the sessions to be used,
+#'     defaults to all sessions.
+#' @param quantity Should W' \code{'expended'} or W' \code{'balance'}
+#'     be returned?
 #' @inheritParams Wexp
-#' @param parallel Logical. Should computation be carried out in parallel?
-#' @param cores Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options('corese')} (on Windows) or \code{options('mc.cores')} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.
+#' @param parallel Logical. Should computation be carried out in
+#'     parallel? If \code{TRUE} computation is performed in parallel
+#'     using the backend provided to \code{\link{foreach}}. Default is
+#'     \code{FALSE}.
 #' @param ... Currently not used.
 #'
 #' @return An object of class \code{trackeRWprime}.
 #'
-#' @details Skiba et al. (2015) and Skiba et al. (2012) both describe an exponential decay of
-#' W' expended over an interval [t_{i-1}, t_i) if the power output during this interval is below critical power:
-#' W_exp (t_i) = W_exp(t_{i-1}) * exp(nu * (t_i - t_{i-1})).
-#' However, the factor nu differs: Skiba et al. (2012) describe it as 1/tau with tau estimated as
-#' tau = 546 * exp( -0.01 * (CP - P_i) + 316.
-#' Skiba et al. (2015) use (P_i - CP) / W'_0.
-#' Skiba et al. (2012) and Skiba et al. (2015) employ a constant recovery power (calculated as the mean
-#' over all power outputs below critical power). This rational can be applied by setting the argument
-#' \code{meanRecoveryPower} to \code{TRUE}. Note that this employes information from the all observations
-#' with a power output below critical power, not just those prior to the current time point.
+#' @details
 #'
-#' @references Monod H, Scherrer J (1965). 'The Work Capacity of a Synergic Muscular Group.' Ergonomics, 8(3), 329--338.
-#' Skiba PF, Chidnok W, Vanhatalo A, Jones AM (2012). 'Modeling the Expenditure and Reconstitution of Work Capacity above Critical Power.' Medicine & Science in Sports & Exercise, 44(8), 1526--1532.
-#' Skiba PF, Fulford J, Clarke DC, Vanhatalo A, Jones AM (2015). 'Intramuscular Determinants of the Abilility to Recover Work Capacity above Critical Power.' European Journal of Applied Physiology, 115(4), 703--713.
+#' #' Skiba et al. (2015) and Skiba et al. (2012) both describe an
+#' exponential decay of \eqn{W'} expended over an interval
+#' \eqn{[t_{i-1}, t_i)} if the power output during this interval is
+#' below critical power:
+#'
+#' \deqn{W_exp (t_i) = W_exp(t_{i-1}) * exp(nu * (t_i - t_{i-1}))}
+#'
+#' However, the factor nu differs: Skiba et al. (2012) describe it as
+#' \eqn{1/\tau} with \eqn{\tau} estimated as
+#'
+#' \deqn{tau = 546 * exp(-0.01 * (CP - P_i)) + 316}
+#'
+#' Skiba et al. (2015) use \eqn{(P_i - CP) / W'_0}.  Skiba et
+#' al. (2012) and Skiba et al. (2015) employ a constant recovery power
+#' (calculated as the mean over all power outputs below critical
+#' power). This rationale can be applied by setting the argument
+#' \code{meanRecoveryPower} to \code{TRUE}. Note that this uses
+#' information from all observations with a power output below
+#' critical power, not just those prior to the current time point.
+#'
+#' @references
+#'
+#' Monod H, Scherrer J (1965). 'The Work Capacity of a Synergic
+#' Muscular Group.' Ergonomics, 8(3), 329--338.
+#'
+#' Skiba PF, Chidnok W, Vanhatalo A, Jones AM (2012). 'Modeling the
+#' Expenditure and Reconstitution of Work Capacity above Critical
+#' Power.' Medicine & Science in Sports & Exercise, 44(8), 1526--1532.
+#'
+#' Skiba PF, Fulford J, Clarke DC, Vanhatalo A, Jones AM
+#' (2015). 'Intramuscular Determinants of the Abilility to Recover
+#' Work Capacity above Critical Power.' European Journal of Applied
+#' Physiology, 115(4), 703--713.
 #'
 #' @export
 #' @examples
@@ -133,7 +191,7 @@ Wexp <- function(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower 
 #' wexp <- Wprime(runs, session = c(11,13), cp = 4, version = '2012')
 #' plot(wexp)
 Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), w0, cp,
-    version = c("2015", "2012"), meanRecoveryPower = FALSE, parallel = FALSE, cores = NULL,
+    version = c("2015", "2012"), meanRecoveryPower = FALSE, parallel = FALSE,
     ...) {
     ## prep args
     quantity <- match.arg(quantity, c("expended", "balance"))
@@ -147,6 +205,20 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), 
 
     ## units
     units <- getUnits(object)
+
+    ## select sessions
+    if (is.null(session))
+        session <- 1:length(object)
+    object <- object[session]
+    sports <- sport(object)
+
+    ## FIXME: change here to accommodate multisport environment for
+    ## now, do not allow computation of Wprime if user does not
+    ## understand what they are trying to do
+    if (sum(c("running", "cycling") %in% na.omit(unique(sports))) != 1) {
+        stop("Wprime applies only for running or only for cycling sessions")
+    }
+
     cycling <- units$unit[units$variable == "cadence"] == "rev_per_min"
     ps <- ifelse(cycling, "power", "speed")
     if (cycling) {
@@ -156,7 +228,8 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), 
             conversion <- match.fun(paste(units$unit[units$variable == "power"], "W", sep = "2"))
             cp <- conversion(cp)
         }
-    } else {
+    }
+    else {
         if (units$unit[units$variable == "speed"] != "m_per_s") {
             object <- changeUnits(object, variable = "speed", unit = "m_per_s")
             units <- getUnits(object)
@@ -166,37 +239,25 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), 
         }
     }
 
-    ## select sessions
-    if (is.null(session))
-        session <- 1:length(object)
-    object <- object[session]
 
     ## get W'
-    getW <- function(x) {
-        W <- Wexp(x[, ps], w0 = w0, cp = cp, version = version, meanRecoveryPower = meanRecoveryPower)
+    getW <- function(j) {
+        sess <- object[[j]]
+        W <- Wexp(sess[, ps], w0 = w0, cp = cp, version = version, meanRecoveryPower = meanRecoveryPower)
         if (quantity == "balance")
             W$wprime <- w0 - W$wprime
         return(W)
     }
 
+    foreach_object <- eval(as.call(c(list(quote(foreach::foreach),
+                                          j = seq.int(nsessions(object))))))
+
     if (parallel) {
-        dc <- parallel::detectCores()
-        if (.Platform$OS.type != "windows") {
-            if (is.null(cores))
-                cores <- getOption("mc.cores", max(floor(dc/2), 1L))
-            ## parallel::mclapply(..., mc.cores = cores)
-            ret <- parallel::mclapply(object, getW, mc.cores = cores)
-        } else {
-            if (is.null(cores))
-                cores <- getOption("cores", max(floor(dc/2), 1L))
-            cl <- parallel::makePSOCKcluster(rep("localhost", cores))
-            ## parallel::parLapply(cl, ...)
-            ret <- parallel::parLapply(cl, object, getW)
-            parallel::stopCluster(cl)
-        }
-    } else {
-        ## lapply(...)
-        ret <- lapply(object, getW)
+        setup_parallel()
+        ret <- foreach::`%dopar%`(foreach_object, getW(j))
+    }
+    else {
+        ret <- foreach::`%do%`(foreach_object, getW(j))
     }
 
     ## class and return
@@ -204,7 +265,10 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), 
     attr(ret, "w0") <- if (missing(w0))
         NA else w0
     attr(ret, "cp") <- cp
+
+    ## FIXME: fixme here to accommodate for multi-sport environment
     attr(ret, "cycling") <- cycling
+    attr(ret, "sport") <- sports
     attr(ret, "unit") <- units[units$variable == ps, ]
     class(ret) <- "trackeRWprime"
     return(ret)
@@ -224,22 +288,20 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), 
 #' wexp <- Wprime(runs, session = 1:3, cp = 4, version = '2012')
 #' plot(wexp, session = 1:2)
 plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, ...) {
-    ## the following line is just intended to prevent R CMD check to produce the NOTE 'no
-    ## visible binding for global variable 'Series'' because that variable is used in
-    ## subset()
-    Series <- NULL
-
     quantity <- attr(x, "quantity")
+    sports <- attr(x, "sport")
     cp <- attr(x, "cp")
     cycling <- attr(x, "cycling")
-    Wunit <- if (cycling)
-        "[J]" else "[m]"
-    mylabels <- c(paste0(ifelse(cycling, "Power", "Speed"), " [", prettifyUnits(attr(x,
-        "unit")$unit), "]"), paste("W'", quantity, "[scaled]"))
+    Wunit <- if (cycling) "[J]" else "[m]"
+    mylabels <- c(paste0(ifelse(cycling, "Power", "Speed"),
+                         " [",
+                         prettifyUnits(attr(x, "unit")$unit), "]"),
+                  paste("W'", quantity, "[scaled]"))
 
     ## select sessions
     if (is.null(session))
         session <- seq_along(x)
+
     x <- x[session]
 
     ## transform W' to match power/speed scale
@@ -258,17 +320,22 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, .
         })
     }
 
-    ## get data
+    ## class and get data
+    attr(x, "sport") <- sports[session]
     class(x) <- "trackeRWprime"
     df <- fortify(x, melt = TRUE)
+
+
 
     ## prepare session id for panel header
     if (dates) {
         df$SessionID <- format(session[df$SessionID])
         df$SessionID <- gsub(" ", "0", df$SessionID)
-        df$SessionID <- paste(df$SessionID, format(df$Index, "%Y-%m-%d"), sep = ": ")
-    } else {
-        df$SessionID <- factor(df$SessionID, levels = seq_along(session), labels = session)
+        df$SessionID <- paste0(paste(df$SessionID, df$Sport, sep = ": "), "\n", format(df$Index, "%Y-%m-%d"))
+    }
+    else {
+        df$SessionID <- paste0(paste(df$SessionID, df$Sport, sep = ": "))
+        ## factor(df$SessionID, levels = seq_along(session), labels = session)
     }
     df$Series <- factor(df$Series)
 
@@ -285,28 +352,28 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, .
 
     if (scaled) {
         ## basic plot
-        p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
-            ggplot2::ylab("") + ggplot2::xlab("Time")
+        p <- ggplot(data = df, mapping = aes_(x = quote(Index), y = quote(Value))) +
+            ylab("") + xlab("Time")
         ## lines for power/speed and W'
-        p <- p + ggplot2::geom_line(ggplot2::aes_(group = quote(Series), col = quote(Series)),
-            na.rm = TRUE) + ggplot2::scale_colour_manual(name = "", labels = mylabels,
+        p <- p + geom_line(aes_(group = quote(Series), col = quote(Series)),
+            na.rm = TRUE) + scale_colour_manual(name = "", labels = mylabels,
             values = c("gray", "blue"))
         ## add line for cp
-        p <- p + ggplot2::geom_hline(data = data.frame(cp = cp), ggplot2::aes(yintercept = cp),
+        p <- p + geom_hline(data = data.frame(cp = cp), aes(yintercept = cp),
             col = "black")
     } else {
         ## basic plot
-        p <- ggplot2::ggplot(data = subset(df, Series == "wprime"), mapping = ggplot2::aes_(x = quote(Index),
-            y = quote(Value))) + ggplot2::ylab(paste("W'", quantity, Wunit)) + ggplot2::xlab("Time")
+        p <- ggplot(data = subset(df, Series == "wprime"), mapping = aes_(x = quote(Index),
+            y = quote(Value))) + ylab(paste("W'", quantity, Wunit)) + xlab("Time")
         ## lines for W'
-        p <- p + ggplot2::geom_line(na.rm = TRUE)
+        p <- p + geom_line(na.rm = TRUE)
     }
     ## add facet if necessary
     if (!is.null(facets)) {
-        p <- p + ggplot2::facet_grid(facets, scales = "free")
+        p <- p + facet_grid(facets, scales = "free")
     }
     ## add bw theme
-    p <- p + ggplot2::theme_bw() + ggplot2::theme(legend.position = "top", axis.text.x = ggplot2::element_text(angle = 50,
+    p <- p + theme_bw() + theme(legend.position = "top", axis.text.x = element_text(angle = 50,
         hjust = 1))
 
     return(p)
@@ -323,15 +390,25 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, .
 #' @export
 fortify.trackeRWprime <- function(model, data, melt = FALSE, ...) {
     ret <- list()
+    sports <- sport(model)
     for (i in seq_along(model)) {
         ret[[i]] <- zoo::fortify.zoo(model[[i]], melt = melt)
         ret[[i]]$SessionID <- i
+        ret[[i]]$Sport <- sports[i]
     }
     ret <- do.call("rbind", ret)
     return(ret)
 }
 
+#' @rdname nsessions
 #' @export
 nsessions.trackeRWprime <- function(object, ...) {
     length(object)
+}
+
+
+#' @rdname sport
+#' @export
+sport.trackeRWprime <- function(object, ...) {
+    attr(object, "sport")
 }

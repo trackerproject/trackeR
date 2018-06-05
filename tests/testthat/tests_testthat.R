@@ -1,9 +1,9 @@
 library(testthat)
 context("Tests for tracker")
 
-tcxfile <- system.file("extdata", "2013-06-08-090442.TCX", package = "trackeR")
+tcxfile <- system.file("extdata", "2013-05-16-120907.TCX", package = "trackeR")
 
-DataNonGarmin <- readContainer(tcxfile, cores = 2)
+DataNonGarmin <- readContainer(tcxfile)
 
 ## Test trackeRdata object
 test_that("class of object from readContainer is trackeRdata", {
@@ -11,10 +11,10 @@ test_that("class of object from readContainer is trackeRdata", {
 })
 
 test_that("number of sessions in DataNonGarmin is 1", {
-    expect_equal(length(DataNonGarmin), 1)
+    expect_equal(nsessions(DataNonGarmin), 1)
 })
 
-trackeRdatanames <- c("latitude", "longitude", "altitude", "distance", "heart.rate", "speed", "cadence", "power", "pace")
+trackeRdatanames <- c("latitude", "longitude", "altitude", "distance", "heart.rate", "speed", "cadence", "power", "temperature", "pace")
 test_that("the names of each element of an trackeRdata object are as in trackeRdatanames", {
     expect_named(DataNonGarmin[[1]], trackeRdatanames)
 })
@@ -25,7 +25,7 @@ test_that("class of each element of an trackeRdata object is of class zoo", {
 
 
 ## Smoother
-DataNonGarmin_smoothed <- smoother(DataNonGarmin, width = 20, what = "speed", cores = 2)
+DataNonGarmin_smoothed <- smoother(DataNonGarmin, width = 20, what = "speed")
 
 test_that("class of object from smoother.trackeRdata is trackeRdata", {
     expect_is(DataNonGarmin_smoothed, "trackeRdata")
@@ -41,7 +41,7 @@ test_that("only speed is smoothed in DataNonGarmin_smoothed (test only first ses
 })
 
 test_that("smoother returns error is the trackeRdata object is already smoothed", {
-    expect_warning(smoother(DataNonGarmin_smoothed, cores = 2))
+    expect_warning(smoother(DataNonGarmin_smoothed))
 })
 
 

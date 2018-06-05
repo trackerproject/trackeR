@@ -29,9 +29,6 @@
 #' @export
 plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
                              threshold = TRUE, smooth = FALSE, trend = TRUE, dates = TRUE, ...){
-    ## the following line is just intended to prevent R CMD check to produce the NOTE
-    ## "no visible binding for global variable 'Series'" because that variable is used in subset()
-    Series <- NULL
 
     ## code inspired by autoplot.zoo
     if (is.null(session)) session <- seq_along(x)
@@ -87,10 +84,11 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     if (dates) {
         df$SessionID <- format(session[df$SessionID])
         df$SessionID <- gsub(" ", "0", df$SessionID)
-        df$SessionID <- paste(df$SessionID, format(df$Index, "%Y-%m-%d"), sep = ": ")
+        df$SessionID <- paste0(paste(df$SessionID, df$Sport, sep = ": "), "\n", format(df$Index, "%Y-%m-%d"))
     }
     else {
-        df$SessionID <- factor(df$SessionID, levels = seq_along(session), labels = session)
+        df$SessionID <- paste0(paste(df$SessionID, df$Sport, sep = ": "))
+        ## factor(df$SessionID, levels = seq_along(session), labels = session)
     }
     df <- subset(df, Series %in% what)
     df$Series <- factor(df$Series)
@@ -109,10 +107,11 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     singleSession <- FALSE #length(session) == 1L
 
     facets <- if (singleVariable) {
-        if (singleSession) NULL else ". ~ SessionID"
-    } else {
-        if(singleSession) "Series ~ ." else "Series ~ SessionID"
-    }
+                  if (singleSession) NULL else ". ~ SessionID"
+              }
+              else {
+                  if(singleSession) "Series ~ ." else "Series ~ SessionID"
+              }
     ## lab <- function(variable, value){
     ##     if (variable == "Series"){
     ##         ret <- paste0(value, " [", units$unit[units$variable == value], "]")
@@ -123,40 +122,42 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     ## }
     ## lab <- Vectorize(lab)
     ## new (todo: make units an argument and move outside of plotting function
-    lab_data <- function(series){
+    lab_data <- function(series) {
         thisunit <- units$unit[units$variable == series]
         prettyUnit <- prettifyUnits(thisunit)
-        paste0(series, " [", prettyUnit,"]")
+        paste0(series, "\n[", prettyUnit,"]")
     }
     lab_data <- Vectorize(lab_data)
 
     ## basic plot
-    p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
-        ggplot2::geom_line(color = if (smooth) "gray" else "black", na.rm = TRUE) +
-        ggplot2::ylab(if(singleVariable) lab_data(levels(df$Series)) else "") + ggplot2::xlab("Time")
+    p <- ggplot(data = df, mapping = aes_(x = quote(Index), y = quote(Value))) +
+        geom_line(color = grDevices::gray(0.9), na.rm = TRUE) +
+        ylab(if(singleVariable) lab_data(levels(df$Series)) else "") + xlab("Time")
     if (trend & !smooth){
-        p <- p + ggplot2::geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"),
-                                      ## mapping = ggplot2::aes_(alpha = 0.5),
-                                      ## aes should understand alpha but doesn't?
-                                      alpha = 0.5,
-                                      se = FALSE, na.rm = TRUE)
+        p <- p + geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"),
+                                      se = FALSE, na.rm = TRUE, lwd = 0.5, col = "black")
     }
     ## add facet if necessary
     if (!is.null(facets)){
-        p <- p + ggplot2::facet_grid(facets, scales = "free", labeller = ggplot2::labeller("Series" = lab_data))
+        p <- p + facet_grid(facets, scales = "free", labeller = labeller("Series" = lab_data))
     }
     ## add bw theme
-    p <- p + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1))
+    p <- p + theme_bw() +
+        theme(axis.text.x = element_text(angle = 50, hjust = 1),
+                       panel.grid.major = element_blank(),
+                       panel.grid.minor = element_blank())
 
 
     ## if plot did smoothing add smoothed data on top of plot
     if (smooth){
         ## data prep
         dfs <- fortify(x, melt = TRUE)
+
         if (dates) {
             dfs$SessionID <- format(session[dfs$SessionID])
             dfs$SessionID <- gsub(" ", "0", dfs$SessionID)
-            dfs$SessionID <- paste(dfs$SessionID, format(dfs$Index, "%Y-%m-%d"), sep = ": ")
+            dfs$SessionID <- paste0(paste(dfs$SessionID, dfs$Sport, sep = ": "), "\n", format(dfs$Index, "%Y-%m-%d"))
+            ## dfs$SessionID <- paste(dfs$SessionID, format(dfs$Index, "%Y-%m-%d"), sep = ": ")
         }
         else {
             dfs$SessionID <- factor(dfs$SessionID, levels = seq_along(session), labels = session)
@@ -168,13 +169,11 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
                 dfs <- dfs[!(dfs$Series == l), ]
         }
         ## add plot layers
-        p <- p + ggplot2::geom_line(ggplot2::aes_(x = quote(Index), y = quote(Value)),
-                                    data = dfs, col = "black", na.rm = TRUE)
+        p <- p + geom_line(aes_(x = quote(Index), y = quote(Value)),
+                                    data = dfs, col = grDevices::gray(0.75), na.rm = TRUE)
         if (trend){
-            p <- p + ggplot2::geom_smooth(data = dfs, method = "gam", formula = y ~ s(x, bs = "cs"),
-                                          ## mapping = ggplot2::aes_(alpha = 0.5),
-                                          ## aes should understand alpha but doesn't?
-                                          alpha = 0.5, se = FALSE, na.rm = TRUE)
+            p <- p + geom_smooth(data = dfs, method = "gam", formula = y ~ s(x, bs = "cs"),
+                                          se = FALSE, na.rm = TRUE, lwd = 0.5, col = "black")
         }
     }
 
@@ -210,10 +209,12 @@ prettifyUnits <- Vectorize(prettifyUnit)
 #' @export
 fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
     ret <- list()
-    for (i in seq_along(model)){
+    sports <- sport(model)
+    for (i in seq_along(model)) {
 
         ret[[i]] <- zoo::fortify.zoo(model[[i]], melt = melt)
         ret[[i]]$SessionID <- i
+        ret[[i]]$Sport <- sports[i]
         ## FIXME: add date identifier?
     }
     ret <- do.call("rbind", ret)
@@ -280,17 +281,17 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
 
         ## add trace
         if (speed){
-            p <- p + ggplot2::geom_segment(
-                         ggplot2::aes_(x = quote(longitude0), xend = quote(longitude1),
+            p <- p + geom_segment(
+                         aes_(x = quote(longitude0), xend = quote(longitude1),
                                        y = quote(latitude0), yend = quote(latitude1),
                                        color = quote(speed)),
                          data = dfs, lwd = 1, alpha = 0.8, na.rm = TRUE) +
-                ##ggplot2::guides(color = ggplot2::guide_colorbar(title = "Speed"))
-                ggplot2::scale_color_gradient(limits = speedRange,
-                                              guide = ggplot2::guide_colorbar(title = "Speed"))
-        } else {
-            p <- p + ggplot2::geom_segment(
-                         ggplot2::aes_(x = quote(longitude0), xend = quote(longitude1),
+                scale_color_gradient(limits = speedRange,
+                                              guide = guide_colorbar(title = "Speed"))
+        }
+        else {
+            p <- p + geom_segment(
+                         aes_(x = quote(longitude0), xend = quote(longitude1),
                                        y = quote(latitude0), yend = quote(latitude1)),
                          data = dfs, lwd = 1, alpha = 0.8, na.rm = TRUE)
         }
@@ -298,14 +299,14 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
 
         ## Extract legend from the first plot
         if (ses == session[1] & speed) {
-            legend <- gtable::gtable_filter(ggplot2::ggplot_gtable(ggplot2::ggplot_build(p)), "guide-box")
+            legend <- gtable::gtable_filter(ggplot_gtable(ggplot_build(p)), "guide-box")
         }
 
-        p <- p + ggplot2::labs(title = paste("Session:", ses))
+        p <- p + labs(title = paste("Session:", ses))
                                ## x = "Longitude", y = "Latitude")
-        plotList[[as.character(ses)]] <- p +  ggplot2::theme(legend.position = "none",
-                                                             axis.title.x = ggplot2::element_blank(),
-                                                             axis.title.y = ggplot2::element_blank())
+        plotList[[as.character(ses)]] <- p +  theme(legend.position = "none",
+                                                             axis.title.x = element_blank(),
+                                                             axis.title.y = element_blank())
     }
 
     ## arrange separate plots

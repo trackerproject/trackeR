@@ -34,6 +34,8 @@
 #' Department of Statistical Science, University College London under
 #' the supervision of Ioannis Kosmidis.
 #'
+#' Hannah Frick maintained trackeR from up until version 1.0.0.
+#'
 #'
 #' @references Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal of Statistical Software}, \bold{82}(7), 1--29. doi:10.18637/jss.v082.i07
 #' Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
@@ -43,7 +45,8 @@
 #' @name trackeR
 #' @import zoo
 #' @import shiny
-#' @importFrom ggplot2 fortify
+#' @import xml2
+#' @import ggplot2
 #' @importFrom stats quantile
 #' @importFrom plotly "%>%"
 #' @importFrom graphics plot
@@ -51,15 +54,12 @@
 NULL
 # > NULL
 
-## ## Define global variables (IK: some can be avoided)
-## if (getRversion() >= "2.15.1") {
-##     utils::globalVariables(c("Profile", # plot_profiles
-##                              "Series", # plot_selectedWorkouts, ridges.trackeRdata
-##                              "variable", # plot_zones
-##                              "Value", # ridges.trackeRdata
-##                              "Index", # ridges.trackeRdata
-##                              "id")) # plot_work_capacity
-## }
+## Define global variables
+if (getRversion() >= "2.15.1") {
+    utils::globalVariables(c("Series", # plot_selectedWorkouts, ridges.trackeRdata
+                             "j")) # parallelization
+
+}
 
 ## register S3 methods (need a name which doesn't conflict with e.g. the smooth function
 ## from the stats package)
@@ -123,6 +123,14 @@ nsessions <- function(object, ...) UseMethod("nsessions")
 #' @export
 session_times <- function(object, ...) UseMethod("session_times")
 
+#' Generic function for extracting sports
+#'
+#' @param object The object from which to extract sports.
+#' @param ... Arguments to be passed to methods.
+#' @export
+sport <- function(object, ...) UseMethod("sport")
+
+
 #' Generic function for calculating session durations.
 #'
 #' @param object The object for which to calculate session durations.
@@ -132,7 +140,7 @@ session_times <- function(object, ...) UseMethod("session_times")
 #' The times units will be inherited from \code{object}.
 #'
 #' @export
-session_duration <- function(object, ...) UseMethod("session_times")
+session_duration <- function(object, ...) UseMethod("session_duration")
 
 
 #' Generic function for visualising the sessions on a time versus date plot.

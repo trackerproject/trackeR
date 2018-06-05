@@ -9,16 +9,16 @@
 \title{Read a training file in tcx, gpx, db3 or Golden Cheetah's JSON format.}
 \usage{
 readTCX(file, timezone = "", speedunit = "m_per_s", distanceunit = "m",
-  parallel = FALSE, cores = getOption("mc.cores", 2L), ...)
+  ...)
 
 readGPX(file, timezone = "", speedunit = "km_per_h", distanceunit = "km",
-  parallel = FALSE, cores = getOption("mc.cores", 2L), ...)
+  ...)
 
 readDB3(file, timezone = "", table = "gps_data", speedunit = "km_per_h",
   distanceunit = "km")
 
 readJSON(file, timezone = "", speedunit = "km_per_h", distanceunit = "km",
-  parallel = FALSE, cores = getOption("mc.cores", 2L), ...)
+  ...)
 }
 \arguments{
 \item{file}{The path to the file.}
@@ -33,11 +33,6 @@ per second. See Details.}
 \item{distanceunit}{Character string indicating the measurement
 unit of the distance in the container file to be converted into
 meters. See Details.}
-
-\item{parallel}{Logical. Should computation be carried out in
-parallel? (Not supported on Windows.)}
-
-\item{cores}{Number of cores for parallel computing.}
 
 \item{...}{Currently not used.}
 
@@ -73,4 +68,5 @@ run <- trackeRdata(run, units = data.frame(variable = c("latitude", "longitude",
 ## alternatively
 run <- readContainer(filepath, type = "tcx", timezone = "GMT")
 }
+
 }

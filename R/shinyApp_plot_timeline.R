@@ -3,7 +3,7 @@
 #' @param sumX An object of class \code{trackeRdataSummary}.
 #' @param plotly Logical. Return plotly plots or standard trackeR plots
 #' @param shiny Logical. Whether plots are in a shiny environment.
-#' @param session A vector. Selected session numbers. 
+#' @param session A vector. Selected session numbers.
 
 plot_timeline <- function(sumX, session, lims=NULL, shiny=TRUE, plotly=TRUE) {
 if (plotly) {
@@ -45,7 +45,7 @@ if (plotly) {
       color = I("darkorange3"), hoverinfo = "text",
       text = ~sprintf(
         "Session: %s<br>Start: %s <br>End: %s",
-        df$session[which(df$session %in% session)], 
+        df$session[which(df$session %in% session)],
         sumX$sessionStart[which(df$session %in% session)],
         sumX$sessionEnd[which(df$session %in% session)]
       )

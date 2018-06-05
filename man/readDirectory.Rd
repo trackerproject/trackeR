@@ -4,19 +4,22 @@
 \alias{readDirectory}
 \title{Read all supported container files from a supplied directory.}
 \usage{
-readDirectory(directory, aggregate = TRUE, table = "gps_data",
+readDirectory(directory, aggregate = FALSE, table = "gps_data",
   timezone = "", sessionThreshold = 2, correctDistances = FALSE,
   country = NULL, mask = TRUE, fromDistances = NULL,
   speedunit = list(tcx = "m_per_s", gpx = "km_per_h", db3 = "km_per_h", json =
   "km_per_h"), distanceunit = list(tcx = "m", gpx = "km", db3 = "km", json =
-  "km"), cycling = FALSE, lgap = 30, lskip = 5, m = 11,
-  silent = FALSE, shiny = FALSE, parallel = FALSE,
-  cores = getOption("mc.cores", 2L), verbose = TRUE)
+  "km"), sport = NULL, lgap = 30, lskip = 5, m = 11, silent = FALSE,
+  shiny = FALSE, parallel = FALSE, cores = getOption("mc.cores", 2L),
+  verbose = TRUE)
 }
 \arguments{
 \item{directory}{The path to the directory.}
 
-\item{aggregate}{Logical. Aggregate data from different files to the same session if observations are less then \code{sessionThreshold} hours apart? Alternatively, data from different files is stored in different sessions.}
+\item{aggregate}{Logical. Aggregate data from different files to
+the same session if observations are less then
+\code{sessionThreshold} hours apart? Alternatively, data from
+different files is stored in different sessions.}
 
 \item{table}{The name of the table in the database for db3 files.}
 
@@ -35,19 +38,27 @@ longitude and latitude.}
 \item{mask}{Logical. Passed on to \code{\link[raster]{getData}}. Should only the altitudes for the specified
 \code{country} be extracted (\code{TRUE}) or also those for the neighboring countries (\code{FALSE})?}
 
-\item{fromDistances}{Logical. Should the speeds be calculated from the distance recordings
-instead of taken from the speed recordings directly. Defaults to \code{TRUE} for tcx and
-Golden Cheetah's json files and to \code{FALSE} for db3 files.}
+\item{fromDistances}{Logical. Should the speeds be calculated from
+the distance recordings instead of taken from the speed
+recordings directly. Defaults to \code{TRUE} for tcx and Golden
+Cheetah's json files and to \code{FALSE} for db3 files.}
 
-\item{speedunit}{Character string indicating the measurement unit of the speeds in the container
-file to be converted into meters per second. Default is \code{m_per_s} for tcx files and \code{km_per_h} for db3 and Golden Cheetah's json files. See Details.}
+\item{speedunit}{Character string indicating the measurement unit
+of the speeds in the container file to be converted into meters
+per second. Default is \code{m_per_s} for tcx files and
+\code{km_per_h} for db3 and Golden Cheetah's json files. See
+Details.}
 
-\item{distanceunit}{Character string indicating the measurement unit of the distance in the container
-file to be converted into meters. Default is \code{m} for tcx files and \code{km} for db3 and Golden Cheetah's json files. See Details.}
+\item{distanceunit}{Character string indicating the measurement
+unit of the distance in the container file to be converted into
+meters. Default is \code{m} for tcx files and \code{km} for db3
+and Golden Cheetah's json files. See Details.}
 
-\item{cycling}{Logical. Do the data stem from cycling instead of running? If so, the default unit of
-measurement for cadence is set to \code{rev_per_min} instead of \code{steps_per_min} and power is
-imputed with \code{0}, else with \code{NA}.}
+\item{sport}{What sport do the files in \code{directory} correspond
+to? Either \code{'cycling'}, \code{'running'},
+\code{'swimming'} or \code{NULL} (default), in which case an
+attempt is made to extract the sport from each file in
+\code{directory}.}
 
 \item{lgap}{Time in seconds corresponding to the minimal sampling rate.}
 
@@ -59,10 +70,14 @@ observation after a small break.}
 
 \item{silent}{Logical. Should warnings be generated if any of the sanity checks on the data are triggered?}
 
-\item{shiny}{Logical. Should the output of readDirectory be made \code{\link[shiny]{reactive}}? For use in the shiny interface. Default is \code{FALSE}.}
+\item{shiny}{Logical. Should the output of \code{readDirectory} be
+made \code{\link[shiny]{reactive}}? For use in the shiny
+interface. Default is \code{FALSE}.}
 
-\item{parallel}{Logical. Should computation be carried out in
-parallel? (Not supported on Windows.)}
+\item{parallel}{Logical. Should reading be carried out in parallel?
+If \code{TRUE} reading is performed in parallel using the
+backend provided to \code{\link{foreach}}. Default is
+\code{FALSE}.}
 
 \item{cores}{Number of cores for parallel computing.}
 
@@ -75,12 +90,18 @@ An object of class \code{\link{trackeRdata}}.
 Read all supported container files from a supplied directory.
 }
 \details{
-Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_per_s},
-    \code{mi_per_h}, \code{ft_per_min} and \code{ft_per_s}.
-    Available options for \code{distanceunit} currently are \code{km}, \code{m}, \code{mi} and
-    \code{ft}.
+Available options for \code{speedunit} currently are
+    \code{km_per_h}, \code{m_per_s}, \code{mi_per_h},
+    \code{ft_per_min} and \code{ft_per_s}.  Available options for
+    \code{distanceunit} currently are \code{km}, \code{m},
+    \code{mi} and \code{ft}.
 
     Reading Golden Cheetah's JSON files is experimental.
+
+    If \code{aggregate = TRUE}, then if \code{sport = NULL} the
+    sport in all sessions is determined by the first file read with
+    a sport specification; else if \code{sport} is one of the other
+    valid options it determines the sport for all sessions.
 }
 \seealso{
 \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}, \code{\link{readJSON}}
