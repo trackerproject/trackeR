@@ -36,10 +36,12 @@ plot_work_capacity <- function(x, session, plotly=TRUE, dates = TRUE, scaled = T
         mMov <- mean(unlist(lapply(x, function(z) z$movement)), na.rm = TRUE)
 
         x <- lapply(x, function(z) {
+          if(!all(z$wprime == 0)){
             w <- (coredata(z$wprime) - mean(coredata(z$wprime), na.rm = TRUE))/stats::sd(coredata(z$wprime),
                 na.rm = TRUE)
             w <- w * sdMov  #sd(coredata(z$movement), na.rm = TRUE)
             z$wprime <- w + mMov
+            }
             # max(mMov, abs(min(w, na.rm = TRUE))) max(mean(coredata(z$movement), na.rm = TRUE),
             # abs(min(w, na.rm = TRUE)))
             return(z)
@@ -49,7 +51,6 @@ plot_work_capacity <- function(x, session, plotly=TRUE, dates = TRUE, scaled = T
     class(x) <- "trackeRWprime"
 
     df <- fortify(x, melt = TRUE)
-
     ## prepare session id for panel header
     if (dates) {
         df$SessionID <- format(session[df$SessionID])
@@ -99,6 +100,7 @@ plot_work_capacity <- function(x, session, plotly=TRUE, dates = TRUE, scaled = T
 
     for (i in unique(df$id)) {
       df_subset <- df[(df$id == i) & (df$Series == "movement"), ]
+      df_wprime <- df[(df$id == i) & (df$Series == "wprime"), ]
       has_values <- !all(is.na(df_subset[, "Value"]) | df_subset[, "Value"] == 0)
       annotations_list <- list(
         text = paste0("Session: ", session_names[i], " (", sports[i], ")"),
@@ -121,7 +123,7 @@ plot_work_capacity <- function(x, session, plotly=TRUE, dates = TRUE, scaled = T
         ) %>%
           plotly::add_lines(alpha = 0.4) %>%
           plotly::add_lines(
-            data = na.omit(df[(df$id == i) & (df$Series == "wprime"), ]),
+            data = na.omit(df_wprime),
             x = ~ Index, y = ~ Value, hoverinfo = "text",
             text = ~ paste(round(Value, 2), "W'"),
             color = I("deepskyblue3"), legendgroup = ~Series, name = mylabels[2],
