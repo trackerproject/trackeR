@@ -618,7 +618,6 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
 #'     If \code{TRUE} reading is performed in parallel using the
 #'     backend provided to \code{\link{foreach}}. Default is
 #'     \code{FALSE}.
-#' @param cores Number of cores for parallel computing.
 #' @param verbose Logical. Should progress reports be printed?
 #' @param shiny Logical. Should the output of \code{readDirectory} be
 #'     made \code{\link[shiny]{reactive}}? For use in the shiny
@@ -660,7 +659,7 @@ readDirectory <- function(directory,
                           lgap = 30, lskip = 5, m = 11,
                           silent = FALSE,
                           shiny = FALSE, ## only relevant for shiny interfaces
-                          parallel = FALSE, cores = getOption("mc.cores", 2L),
+                          parallel = FALSE,
                           verbose = TRUE) {
 
     read_expression <- quote({
