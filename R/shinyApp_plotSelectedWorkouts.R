@@ -18,6 +18,7 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
                                   print_changepoints = FALSE, ...) {
 
   if (plotly) {
+    sports <- sport(x)[session]
     var_name_units <- lab_sum(feature = what, data = sumX,
                                transform_feature = FALSE)
 
@@ -109,10 +110,13 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
     }
 
     plot_stored <- list()
+    images <- list()
     smoothed_values <- list(maximum=numeric(), minimum=numeric())
     n_plot <- 0
     shapes <- list()
     changepoint_y_values <- c()
+    step_size <- 1 / length(unique(df$id)) 
+    start <- 0
     for (i in unique(df$id)) {
       n_plot <- n_plot + 1
       df_subset <- df[df$id == i, ]
@@ -206,6 +210,23 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
           )
       }
       plot_stored[[as.character(i)]] <- a
+      sport_image <- switch(sports[which(i == unique(df$id))],
+                            'running' = 'running.png',
+                            'cycling' = 'cycling.png',
+                            'swimming' = 'swimming.png'
+      )
+      
+      images[[which(i == unique(df$id))]] <- list(source = sport_image,
+                          xref = "paper",
+                          yref = "paper",
+                          x = start + step_size / 2,
+                          y = 1,
+                          sizex = 0.1,
+                          sizey = 0.1,
+                          opacity = 0.8
+      )
+      start <- start + step_size
+      
     }
     y_axis_range <- if(what == 'heart.rate') {c(80, 200)} else {c(0.9 * min(c(changepoint_y_values, smoothed_values$minimum)),
                                                                             max(c(changepoint_y_values, smoothed_values$maximum)) * 1.1)}
@@ -214,7 +235,7 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
 
     return(plotly::subplot(plot_stored, nrows = 1, shareY = TRUE, margin = 0.003) %>%
       plotly::config(displayModeBar = FALSE) %>%
-      plotly::layout(showlegend = FALSE, yaxis = y, xaxis = x, hovermode = "closest", shapes=shapes))
+      plotly::layout(showlegend = FALSE, yaxis = y, xaxis = x, images=images, hovermode = "closest", shapes=shapes))
   } else {
     plot(x, session = session, what = what)
   }

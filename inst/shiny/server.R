@@ -77,7 +77,7 @@ server <- function(input, output, session) {
       output$download_data <- trackeR:::download_handler(data)
       shinyjs::disable(selector = "#uploadButton")
       data$selectedSessions <- data$summary$session
-      data$sessions_map <- rep(data$summary$session, times=1, each=2)
+      data$sessions_map <- rep(data$summary$session, times = 1, each = 2)
       shinyjs::click("plotButton")
       trackeR:::update_metrics_to_plot_workouts(session, choices, data$hasData)
     }
@@ -137,7 +137,7 @@ server <- function(input, output, session) {
         "Swimming" = "swimming"
       )
       trackeR:::create_option_box(sport_options = sports_options[sapply(sports_options, function(x) {
-        x %in% unique(sport(data$object))
+        x %in% unique(trackeR::sport(data$object))
       })])
 
       trackeR:::create_summary_timeline_boxes()
@@ -160,39 +160,7 @@ server <- function(input, output, session) {
       # Update map based on current selection
       observeEvent(data$selectedSessions, {
         plot_df <- preped_route_map()[which(preped_route_map()$SessionID %in% data$selectedSessions), ]
-        #
-        # plotlyProxy("map", session) %>%
-        #   plotlyProxyInvoke("addTraces", list(lon = as.vector(plot_df$longitude),
-        #                                       lat = as.vector(plot_df$latitude),
-        #                                       type = 'scattermapbox',
-        #                                       mode = 'lines'))
-        plotly::plotlyProxy("map", session) %>% plotly::plotlyProxyInvoke(
-          "restyle",
-          list(line.color = "rgba(238, 118, 0, 1)"), as.list(which(data$sessions_map %in% data$selectedSessions) - 1)
-        )
-        plotly::plotlyProxy("map", session) %>% plotly::plotlyProxyInvoke(
-          "restyle",
-          list(line.fillcolor = "rgba(238, 118, 0, 1)"), as.list(which(data$sessions_map %in% data$selectedSessions) - 1)
-        )
-        plotly::plotlyProxy("map", session) %>% plotly::plotlyProxyInvoke(
-          "restyle",
-          list(line.color = "rgba(0, 154, 205, 1)"), as.list(which(!(data$sessions_map %in% data$selectedSessions)) - 1)
-        )
-        plotly::plotlyProxy("map", session) %>% plotly::plotlyProxyInvoke(
-          "restyle",
-          list(line.fillcolor = "rgba(0, 154, 205, 1)"), as.list(which(!(data$sessions_map %in% data$selectedSessions)) - 1)
-        )
-        plotly::plotlyProxy("map", session) %>% plotly::plotlyProxyInvoke(
-          "relayout",
-          list(mapbox.zoom = 5)
-        )
-        plotly::plotlyProxy("map", session) %>% plotly::plotlyProxyInvoke(
-          "relayout",
-          list(mapbox.center = list(
-            lat = median(plot_df$latitude),
-            lon = median(plot_df$longitude)
-          ))
-        )
+        trackeR:::update_map(plot_df, session, data)
       })
       trackeR:::create_summary_boxes()
       output$avgDistance_box <- trackeR:::render_summary_box("distance", "Average distance", data)
@@ -278,8 +246,8 @@ server <- function(input, output, session) {
         })
       } else {
         output$work_capacityPlot <- plotly::renderPlotly({
-          label <- if (unique(sport(data$object[data$selectedSessions])) == 'cycling'){
-            "Critical power [J]" } else {"Critical speed [m/s]"}
+          label <- if (unique(sport(data$object[data$selectedSessions])) == 'cycling') {
+            "Critical power [J]"} else {"Critical speed [m/s]"}
           updateNumericInput(session, inputId = "critical_power", label = label)
           change_power$value
           trackeR:::plot_work_capacity(
@@ -289,10 +257,10 @@ server <- function(input, output, session) {
         })
       }
     })
-    change_power <- reactiveValues(value=0)
+    change_power <- reactiveValues(value = 0)
     observeEvent(input$update_power, {
       # When the button is clicked, wrap the code in a call to `withBusyIndicatorServer()`
-      withBusyIndicatorServer("update_power", {
+      trackeR:::withBusyIndicatorServer("update_power", {
         Sys.sleep(1)
         if (!is.numeric(input$critical_power) | input$critical_power <= 0) {
           stop("Invalid input. Input has to be a positive numeric value.")

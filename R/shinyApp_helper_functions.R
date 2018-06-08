@@ -100,7 +100,7 @@ get_selected_units <- function(feature, data) {
 #' @param input An object of class \code{reactivevalues}.
 #' @param object A character of either 'summary' or 'object' to specify which objects' units to change.
 change_units <- function(data, input, object) {
-  unused_variables <- c("latitude", "longitude", "heart.rate", "duration")
+  unused_variables <- c("latitude", "longitude", "heart.rate", "duration", "temperature")
   allUnits <- getUnits(data$object)$variable[!(getUnits(data$object)$variable %in% unused_variables)]
 
   units <- c()
@@ -338,3 +338,70 @@ color: #333;
 }
 "
 
+# Update map based on current selection
+update_map <- function(plot_df, session, data){
+  plotly::plotlyProxy("map", session) %>% plotly::plotlyProxyInvoke(
+    "restyle",
+    list(line.color = "rgba(238, 118, 0, 1)"), as.list(which(data$sessions_map %in% data$selectedSessions) - 1)
+  )
+  plotly::plotlyProxy("map", session) %>% plotly::plotlyProxyInvoke(
+    "restyle",
+    list(line.fillcolor = "rgba(238, 118, 0, 1)"), as.list(which(data$sessions_map %in% data$selectedSessions) - 1)
+  )
+  plotly::plotlyProxy("map", session) %>% plotly::plotlyProxyInvoke(
+    "restyle",
+    list(line.color = "rgba(0, 154, 205, 1)"), as.list(which(!(data$sessions_map %in% data$selectedSessions)) - 1)
+  )
+  plotly::plotlyProxy("map", session) %>% plotly::plotlyProxyInvoke(
+    "restyle",
+    list(line.fillcolor = "rgba(0, 154, 205, 1)"), as.list(which(!(data$sessions_map %in% data$selectedSessions)) - 1)
+  )
+  plotly::plotlyProxy("map", session) %>% plotly::plotlyProxyInvoke(
+    "relayout",
+    list(mapbox.zoom = 7)
+  )
+  plotly::plotlyProxy("map", session) %>% plotly::plotlyProxyInvoke(
+    "relayout",
+    list(mapbox.center = list(
+      lat = median(plot_df$latitude),
+      lon = median(plot_df$longitude)
+    ))
+  )
+}
+
+#' Calculate plot height for work capacity
+calculate_plot_height_work_capacity <- function(name, data) {
+  if (name != 'work_capacity') {
+    "250px"
+  } else {
+    sports <- unique(sport(data$object[data$selectedSessions]))
+    # Work capacity only for running and cycling
+    sports <- intersect(c('running', 'cycling'), sports)
+    paste0(250 * length(sports), "px")
+  }
+}
+
+#' Plot work capacities for each sport
+#' @param x An object of class \code{\link{trackeRdata}}.
+#' @param session A numeric vector of the sessions to be used, defaults to all sessions.
+#' @param cp A numeric. Critical power/speed, i.e., the power/speed which can be maintained for longer period of time.
+plot_work_capacities <- function(x, session, cp) {
+  sports <- unique(sport(x[session]))
+  # Work capacity only for running and cycling
+  sports <- intersect(c('running', 'cycling'), sports)
+  if (length(sports) == 1) {
+    return(trackeR:::plot_work_capacity(x = x, session = session, cp = cp))
+  } else {
+    cycling_sessions <- session[sport(x[session]) == 'cycling']
+    plot_cycling <- trackeR:::plot_work_capacity(x = x, session = c(cycling_sessions, -1),
+                                                 cp = cp)
+    running_sessions <- session[sport(x[session]) == 'running']
+    plot_running <- trackeR:::plot_work_capacity(x = x, session = running_sessions,
+                                                 cp = cp)
+    plots <- do.call(plotly::subplot, c(
+      list(plot_cycling, plot_running), nrows = 2,
+      margin = 0.05, shareY = FALSE, titleX = TRUE, titleY = TRUE
+    ))
+    return(plots)
+  }
+}

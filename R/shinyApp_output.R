@@ -46,16 +46,18 @@ render_summary_table <- function(data, input) {
         }
         dataSelected <- data.frame(
           "Session" = data$summary[data$selectedSessions][["session"]],
-          "sessionStart" =
+          "SessionStart" =
             format(
               data$summary[data$selectedSessions][["sessionStart"]],
               format = "%Y-%m-%d  %H:%M:%S"
             ),
-          "sessionEnd" =
+          "SessionEnd" =
             format(
               data$summary[data$selectedSessions][["sessionEnd"]],
               format = "%Y-%m-%d %H:%M:%S"
-            )
+            ),
+          "Sport" = 
+            sport(data$object[data$selectedSessions])
         )
         DT::datatable(
           dataSelected,
