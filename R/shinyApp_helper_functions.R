@@ -235,8 +235,8 @@ classify_sessions_by_sport <- function(data) {
 process_dataset <- function(data){
   data$object <- threshold(data$object)
   data$object <- threshold(data$object, variable = 'distance', lower = 0, upper = 500000)
-  data$object <- changeUnits(data$object, variable = c("distance", 'pace'),
-                              unit = c("km", 'min_per_km'))
+  data$object <- changeUnits(data$object, variable = c("distance", 'pace', 'speed'),
+                              unit = c("km", 'min_per_km', 'km_per_h'))
   # Create trackeRdataSummary object
   data$summary <- summary(data$object, movingThreshold = 0.4)
   data$summary <- changeUnits(data$summary, variable = c('duration'),
@@ -405,3 +405,41 @@ plot_work_capacities <- function(x, session, cp) {
     return(plots)
   }
 }
+
+#' Show a modal window to inform a user that no data was selected 
+show_warning_no_data_selected <- function() {
+  showModal(modalDialog(
+    title = "trackeR dashboard message",
+    div(tags$b(
+      "Select a processed data image or a directory with raw datafiles",
+      class = "warningMessage"
+    )),
+    size = "s",
+    footer = tagList(
+      modalButton("Cancel"),
+      actionButton("uploadSampleDataset", "Upload sample dataset")
+    )
+  ))
+}
+
+#' Classify sessions by sport, process dataset, generate download handler,
+#' generate selected sessions object, update what metrics are available 
+#' to plot and other minor actions.
+generate_objects <- function(data, output, session, choices) {
+  trackeR:::process_dataset(data)
+  ## Update sport attribute of data$object with classified sports
+  trackeR:::classify_sessions_by_sport(data)
+  output$download_data <- trackeR:::download_handler(data)
+  shinyjs::disable(selector = "#uploadButton")
+  data$selectedSessions <- data$summary$session
+  data$sessions_map <- rep(data$summary$session, times = 1, each = 2)
+  shinyjs::click("plotButton")
+  trackeR:::update_metrics_to_plot_workouts(session, choices, data$hasData)
+}
+
+#' Currently available sports in trackeRdashboard
+sports_options <- c(
+  "Running" = "running",
+  "Cycling" = "cycling",
+  "Swimming" = "swimming"
+)
