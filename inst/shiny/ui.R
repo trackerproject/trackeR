@@ -1,11 +1,19 @@
+#   ____________________________________________________________________________
+#   Interface when trackeRdashboard is first loaded                         ####
+
+
+##  ............................................................................
+##  Javascript code                                                         ####
 jscode <- trackeR:::get_javascript()
 
+##  ............................................................................
+##  User interface                                                          ####
 ui <- shinydashboard::dashboardPage(
   title = "TrackeR",
   skin = "black",
   shinydashboard::dashboardHeader(title = span(tagList(icon("dashboard"), "trackeR dashboard"))),
   shinydashboard::dashboardSidebar(
-    tags$head(tags$style(appCSS)),
+    tags$head(tags$style(trackeR:::appCSS)),
     shinydashboard::sidebarMenu(
       div(
         fileInput(
@@ -21,11 +29,13 @@ ui <- shinydashboard::dashboardPage(
           accept = c(".gpx", ".tcx", ".db3", ".json")
         )
       ),
-      actionButton("uploadButton", "Load data", icon("upload"), style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"),
+      actionButton("uploadButton", "Load data", icon("upload"),
+                   style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"),
       hr(),
       div(
         selectizeInput(
-          "metricsSelected", "Select metrics", multiple = TRUE,
+          "metricsSelected", "Select metrics",
+          multiple = TRUE,
           choices = c(
             "Distance" = "distance",
             "Duration" = "duration",
@@ -36,12 +46,18 @@ ui <- shinydashboard::dashboardPage(
             "Average heart rate" = "avgHeartRate",
             "Work to rest ratio" = "wrRatio"
           ),
-          selected = c("avgSpeed", "distance")
+          selected = c("distance", "duration", 'avgPace')
         ),
         ## In color: qualitative, set 2 form choose_palette(gui = "shiny")
         ## Out color: qualitative, even darker form choose_palette(gui = "shiny")
-        div(style = "display: inline-block;vertical-align:top; width: 100px;", actionButton("plotButton", "Plot", icon("area-chart"), style = "color: #fff; background-color: #4FBF85; border-color: #00AB66", width = "80px")),
-        div(style = "display: inline-block;vertical-align:top; width: 120px;", actionButton("showModalUnits", "Units", icon("balance-scale"), width = "80px"))
+        div(style = "display: inline-block;vertical-align:top; width: 100px;", 
+            actionButton("plotButton", "Plot", 
+                         icon("area-chart"), 
+                         style = "color: #fff; background-color: #4FBF85; border-color: #00AB66",
+                         width = "80px")),
+        div(style = "display: inline-block;vertical-align:top; width: 120px;",
+            actionButton("showModalUnits", "Units", icon("balance-scale"), 
+                         width = "80px"))
       ),
       hr(),
       div(
@@ -49,18 +65,24 @@ ui <- shinydashboard::dashboardPage(
         div(class = "input-group", downloadButton("download_data", "Download procesed data"))
       ),
       hr(),
-      div(style = "display: inline-block;vertical-align:top; width: 100px;", actionButton("resetButton", "Reset", icon("eraser"), style = "color: #fff; background-color: #ED90A4; border-color: #E16A86", width = "80px")),
+      div(style = "display: inline-block;vertical-align:top; width: 100px;", 
+          actionButton("resetButton", "Reset", icon("eraser"), 
+                       style = "color: #fff; background-color: #ED90A4; border-color: #E16A86", 
+                       width = "80px")),
       hr()
     ),
     div(
       class = "form-group shiny-input-container",
-      p("Design and original development", br(), a("Robin Hornak"), br(), a("Ioannis Kosmidis", href = "http://www.ucl.ac.uk/~ucakiko")),
+      p("Design and original development", br(), a("Robin Hornak"), br(), 
+        a("Ioannis Kosmidis", href = "http://www.ucl.ac.uk/~ucakiko")),
       p(
         "Licence",
         a(
-          "GPL3", href = "https://www.gnu.org/licenses/gpl-3.0.en.html",
+          "GPL3",
+          href = "https://www.gnu.org/licenses/gpl-3.0.en.html",
           br(),
-          a("Bugs, issues, feature requests", href = "https://github.com/hfrick/trackeR/issues")
+          a("Bugs, issues, feature requests", 
+            href = "https://github.com/hfrick/trackeR/issues")
         )
       )
     )

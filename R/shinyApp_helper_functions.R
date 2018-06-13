@@ -437,9 +437,30 @@ generate_objects <- function(data, output, session, choices) {
   trackeR:::update_metrics_to_plot_workouts(session, choices, data$hasData)
 }
 
-#' Currently available sports in trackeRdashboard
+#' Currently available sports in the trackeRdashboard.
 sports_options <- c(
   "Running" = "running",
   "Cycling" = "cycling",
   "Swimming" = "swimming"
 )
+
+#' Test whether we can plot work capacity for at least one of cycling or running
+test_work_capacity <- function(data, selected_sports) {
+  is_data_power <- !all(sapply(data$object[data$selectedSessions], function(x){ 
+    all((is.na(x[, "power"])) | (x[, "power"] == 0))
+    }
+  ))
+  # Test for power if cycling
+  if (('cycling' %in% selected_sports) & (is_data_power)) {
+    cycling <- 'cycling'
+  } else {
+    cycling <- NULL
+  }
+  # Test if running selected
+  if ('running' %in% selected_sports) {
+    running <- 'running'
+  } else {
+    running <- NULL
+  }
+  return(c(cycling, running))
+}

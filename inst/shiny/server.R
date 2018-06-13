@@ -186,45 +186,18 @@ server <- function(input, output, session) {
       collapse <- if (i %in% metrics_to_collapse) FALSE else TRUE
       trackeR:::create_selected_workout_plot(id = i, collapsed = collapse)
     }
-    # Check which sport is selected
-    cycling <- reactive({
-      units <- getUnits(data$object)
-      units$unit[units$variable == "cadence"] == "rev_per_min"
-    })
-
-### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
-### Generate work capacity plot                                             ####
-    # Check if power is available
-    is_work_capacity <- reactive({
-      is_data_power <- all(sapply(
-        data$object[data$selectedSessions],
-        function(x) all((is.na(x[, "power"])) | (x[, "power"] == 0))
-      ))
-      if ((cycling()) & (is_data_power)) {
-        NULL
-      } else {
-        "work_capacity"
-      }
-    })
-    if (!is.null(is_work_capacity())) {
-      # Need to change 'cycling' once attribute fixed
-      trackeR:::create_work_capacity_plot(
-        id = "work_capacity", collapsed = TRUE,
-        cycling = cycling()
-      )
-    }
 
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Generate individual sessions plots (except work capacity)               ####
-    lapply(c(metrics[have_data_metrics_selected()], is_work_capacity()), function(i) {
-      plot_width <- if (length(data$selectedSessions) > 2) {
+    lapply(metrics[have_data_metrics_selected()], function(i) {
+      plot_width <- reactive({if (length(data$selectedSessions) > 2) {
         paste0(toString(500 * length(as.vector(data$selectedSessions))), "px")
       } else {
         "auto"
-      }
+      }})
       output[[paste0(i, "_plot")]] <- renderUI({
         shinycssloaders::withSpinner(plotly::plotlyOutput(paste0(i, "Plot"),
-          width = plot_width,
+          width = plot_width(),
           height = "250px"
         ),
         size = 2
@@ -233,47 +206,128 @@ server <- function(input, output, session) {
 
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Render individual sessions plots (except work capacity)                 ####
-      if (i != "work_capacity") {
-        output[[paste0(i, "Plot")]] <- plotly::renderPlotly({
-          # Whether to detect changepoints
-          if (!is.null(input[[paste0("detect_changepoints", i)]])) {
-            fit_changepoint <- input[[paste0("detect_changepoints", i)]] > 0
-          }
-          trackeR:::plot_selectedWorkouts(
-            x = data$object, session = data$selectedSessions, what = i,
-            sumX = data$summary, changepoints = fit_changepoint,
-            n_changepoints = as.numeric(input[[paste0("n_changepoints", i)]])
-          )
-        })
-      } else {
+      output[[paste0(i, "Plot")]] <- plotly::renderPlotly({
+        # Whether to detect changepoints
+        if (!is.null(input[[paste0("detect_changepoints", i)]])) {
+          fit_changepoint <- input[[paste0("detect_changepoints", i)]] > 0
+        }
+        trackeR:::plot_selectedWorkouts(
+          x = data$object, session = data$selectedSessions, what = i,
+          sumX = data$summary, changepoints = fit_changepoint,
+          n_changepoints = as.numeric(input[[paste0("n_changepoints", i)]])
+        )
+      })
+    })
+
+
+
+### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
+### Generate work capacity plot                                             ####
+    # Check which work capacity plots to generate
+    work_capacity_ids <- reactive({
+      trackeR:::test_work_capacity(data, input$sports)
+    })
+    # if (!is.null(work_capacity_ids())) {
+    #   trackeR:::create_work_capacity_plot(id = 'work_capacity')
+    # }
+    trackeR:::create_work_capacity_plot(id = 'work_capacity')
+    
+    sapply(c('cycling', 'running'), function(sport_id) {
+
+      output[[paste0(sport_id, "_work_capacity_plot")]] <- renderUI({
+        n_sessions <- sum(trackeR::sport(data$summary[data$selectedSessions]) %in% sport_id)
+        plot_width <- if (n_sessions > 2) {
+          paste0(toString(500 * n_sessions), "px")
+        } else {
+          "auto"
+        }
+        shinycssloaders::withSpinner(plotly::plotlyOutput(paste0(sport_id, "Plot"),
+                                                          width = plot_width,
+                                                          height = "250px"
+        ),
+        size = 2
+        )
+      }) 
+    
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Render work capacity                                                    ####
-        output$work_capacityPlot <- plotly::renderPlotly({
-          label <- if (unique(sport(data$object[data$selectedSessions])) == "cycling") {
-            "Critical power [J]"
-          } else {
-            "Critical speed [m/s]"
-          }
-          updateNumericInput(session, inputId = "critical_power", label = label)
-          change_power$value
-          trackeR:::plot_work_capacity(
-            x = data$object, session = data$selectedSessions,
-            cp = isolate(as.numeric(input$critical_power))
-          )
-        })
-      }
+    output[[paste0(sport_id, "Plot")]] <- plotly::renderPlotly({
+      # TODO automatically update units 
+      # label <- if (sport == "cycling") {
+      #   "Critical power [J]"
+      # } else {
+      #   "Critical speed [m/s]"
+      # }
+      # updateNumericInput(session, inputId = "critical_power", label = label)
+      
+      change_power[[sport_id]]
+      
+      work_capacity_sessions <- trackeR::sport(data$summary[data$selectedSessions]) %in% sport_id
+      trackeR:::plot_work_capacity(
+        x = data$object, session = data$selectedSessions[work_capacity_sessions],
+        cp = isolate(as.numeric(input[[paste0('critical_power_', sport_id)]]))
+      )
     })
+    if ('running' %in%  work_capacity_ids()) {
+      output[[paste0('work_capacity_running')]] <- reactive({
+        FALSE
+      })
+    } else {
+      output[[paste0('work_capacity_running')]] <- reactive({
+        TRUE
+      })      
+    }
+    if ('cycling' %in%  work_capacity_ids()) {
+      output[[paste0('work_capacity_cycling')]] <- reactive({
+        FALSE
+      })
+    } else {
+      output[[paste0('work_capacity_cycling')]] <- reactive({
+        TRUE
+      })     
+    }
+    outputOptions(output, paste0('work_capacity_', sport_id), suspendWhenHidden = FALSE)
+  })
+
+  
+output[[paste0('work_capacity_running')]] <- reactive({
+  if ('running' %in%  work_capacity_ids()) {
+  FALSE
+  } else {
+    TRUE
+  }
+})
+
+output[[paste0('work_capacity_cycling')]] <- reactive({
+  if ('cycling' %in%  work_capacity_ids()) {
+    FALSE
+  } else {
+    TRUE
+  }
+})
+     
 
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Update power for work capacity plot                                     ####
-    change_power <- reactiveValues(value = 0)
-    observeEvent(input$update_power, {
-      trackeR:::withBusyIndicatorServer("update_power", {
+    change_power <- reactiveValues(cycling = 0, running = 0)
+    observeEvent(input$cycling_update_power, { 
+      trackeR:::withBusyIndicatorServer("cycling_update_power", {
         Sys.sleep(1)
-        if (!is.numeric(input$critical_power) | input$critical_power <= 0) {
+        if (!is.numeric(input$critical_power_cycling) | input$critical_power_cycling <= 0) {
           stop("Invalid input. Input has to be a positive numeric value.")
         } else {
-          change_power$value <- change_power$value + 1
+          change_power$cycling <- change_power$cycling + 1
+        }
+      })
+    })
+    
+    observeEvent(input$running_update_power, {
+      trackeR:::withBusyIndicatorServer("running_update_power", {
+        Sys.sleep(1)
+        if (!is.numeric(input$critical_power_running) | input$critical_power_running <= 0) {
+          stop("Invalid input. Input has to be a positive numeric value.")
+        } else {
+          change_power$running <- change_power$running + 1
         }
       })
     })
@@ -350,3 +404,4 @@ server <- function(input, output, session) {
     shinyjs::js$reset_page()
   })
 }
+

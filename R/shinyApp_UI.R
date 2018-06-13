@@ -11,7 +11,9 @@ create_map <- function() {
         collapsible = TRUE,
         collapsed = TRUE,
         title = tagList(icon("map"), "Map"),
-        shinycssloaders::withSpinner(plotly::plotlyOutput("map", width = "auto", height = "430px"), size = 2)
+        shinycssloaders::withSpinner(plotly::plotlyOutput("map", width = "auto",
+                                                          height = "430px"), 
+                                     size = 2)
       )))
     )
   )
@@ -132,7 +134,7 @@ create_selected_workout_plot <- function(id, collapsed = FALSE) {
 }
 
 #' Create work capacity plot
-create_work_capacity_plot <- function(id, cycling, collapsed = FALSE) {
+create_work_capacity_plot <- function(id, collapsed = FALSE) {
   insertUI(
     selector = ".content",
     where = "beforeEnd",
@@ -154,6 +156,8 @@ create_work_capacity_plot <- function(id, cycling, collapsed = FALSE) {
               "speed" = paste0("Speed")
             )
           ),
+          conditionalPanel(
+            condition = "output.work_capacity_cycling == false",
           fluidRow(
             column(
               2,
@@ -161,8 +165,8 @@ create_work_capacity_plot <- function(id, cycling, collapsed = FALSE) {
               div(
                 tags$label("Press button to update:"),
                 div(withBusyIndicatorUI(actionButton(
-                  "update_power",
-                  "Update power",
+                  "cycling_update_power",
+                  "Update critical power",
                   class = "btn-primary",
                   style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"
                 )))
@@ -171,17 +175,44 @@ create_work_capacity_plot <- function(id, cycling, collapsed = FALSE) {
             column(
               2,
               numericInput(min = 0.01, max = 6.5,
-                inputId = "critical_power", 
+                inputId = "critical_power_cycling", 
                 label = "Critical power [J]", value = 4
               )
             )
           ),
-
           div(
             style = "overflow-x: scroll",
-            uiOutput(paste0(id, "_plot"))
+            uiOutput(paste0('cycling_work_capacity', "_plot"))
+          )),
+          conditionalPanel(
+            condition = "output.work_capacity_running == false",
+          fluidRow(
+            column(
+              2,
+              # Wrap the button in the function `withBusyIndicatorUI()`
+              div(
+                tags$label("Press button to update:"),
+                div(withBusyIndicatorUI(actionButton(
+                  "running_update_power",
+                  "Update critical speed",
+                  class = "btn-primary",
+                  style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"
+                )))
+              )
+            ),
+            column(
+              2,
+              numericInput(min = 0.01, max = 6.5,
+                           inputId = "critical_power_running", 
+                           label = "Critical speed [m/s]", value = 4
+              )
+            )
+          ),
+          div(
+            style = "overflow-x: scroll",
+            uiOutput(paste0('running_work_capacity', "_plot"))
           )
-        )
+        ))
       ))
     )
   )
