@@ -46,16 +46,24 @@ render_summary_table <- function(data, input) {
         }
         dataSelected <- data.frame(
           "Session" = data$summary[data$selectedSessions][["session"]],
-          "SessionStart" =
+          "Date" = 
             format(
               data$summary[data$selectedSessions][["sessionStart"]],
-              format = "%Y-%m-%d  %H:%M:%S"
+              format = "%A, %B %d, %Y"
             ),
-          "SessionEnd" =
+          "Start" =
+            format(
+              data$summary[data$selectedSessions][["sessionStart"]],
+              format = "%H:%M"
+            ),
+          "End" =
             format(
               data$summary[data$selectedSessions][["sessionEnd"]],
-              format = "%Y-%m-%d %H:%M:%S"
+              format = "%H:%M"
             ),
+          "Duration" =
+              paste(round(data$summary[data$selectedSessions][["duration"]], 1),
+                    lab_sum('duration', data=data$summary, whole_text = FALSE)),
           "Sport" = 
             sport(data$object[data$selectedSessions])
         )

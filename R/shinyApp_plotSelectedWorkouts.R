@@ -204,7 +204,7 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
               axis_list,
               list(
                 range = maximal_range * 1.02,
-                showticklabels = FALSE
+                showticklabels = TRUE
               )
             )
           )

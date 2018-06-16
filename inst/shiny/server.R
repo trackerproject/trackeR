@@ -24,6 +24,9 @@ server <- function(input, output, session) {
     summary = NULL, object = NULL,
     selectedSessions = NULL, hasData = NULL
   )
+  # Store the pervious value to let user upload new data constantly
+  previous_file_paths <- reactiveValues(processed = 'NULL')
+
   # Load named vectors
   choices <- trackeR:::choices()
   metrics <- trackeR:::metrics()
@@ -35,10 +38,13 @@ server <- function(input, output, session) {
     if (no_raw_directory_selected & no_processed_file_selected) {
       trackeR:::show_warning_no_data_selected()
     } else {
+      
       processed_data <- raw_data <- NULL
       if (!no_processed_file_selected) {
+        if (input$processedDataPath$datapath != previous_file_paths$processed) {
         # Load processed data
         processed_data <- readRDS(input$processedDataPath$datapath)
+        }
       }
       if (!no_raw_directory_selected) {
         file <- input$rawDataDirectory$datapath
@@ -60,11 +66,12 @@ server <- function(input, output, session) {
           correctDistances = FALSE
         )
       }
-
+      previous_file_paths$processed <- input$processedDataPath$datapath
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Process uploaded data                                                   ####
       ## Remove duplicate sessions and create trackeRdata object from both raw and processed data
-      data$object <- sort(unique(trackeR:::c.trackeRdata(processed_data, raw_data)), decreasing = FALSE)
+      data$object <- sort(unique(trackeR:::c.trackeRdata(processed_data, raw_data,
+                                                         data$object)), decreasing = FALSE)
       ## See helper file
       trackeR:::generate_objects(data, output, session, choices)
     }
@@ -181,14 +188,15 @@ server <- function(input, output, session) {
         }))
       })
     })
+
+### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
+### Generate individual sessions plots (except work capacity)               ####
     metrics_to_collapse <- c("speed", "heart.rate", "altitude")
     for (i in c(metrics[have_data_metrics_selected()])) {
       collapse <- if (i %in% metrics_to_collapse) FALSE else TRUE
       trackeR:::create_selected_workout_plot(id = i, collapsed = collapse)
     }
-
-### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
-### Generate individual sessions plots (except work capacity)               ####
+    
     lapply(metrics[have_data_metrics_selected()], function(i) {
       plot_width <- reactive({if (length(data$selectedSessions) > 2) {
         paste0(toString(500 * length(as.vector(data$selectedSessions))), "px")
@@ -219,21 +227,16 @@ server <- function(input, output, session) {
       })
     })
 
-
-
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Generate work capacity plot                                             ####
     # Check which work capacity plots to generate
     work_capacity_ids <- reactive({
-      trackeR:::test_work_capacity(data, input$sports)
+      trackeR:::test_work_capacity(data)
     })
-    # if (!is.null(work_capacity_ids())) {
-    #   trackeR:::create_work_capacity_plot(id = 'work_capacity')
-    # }
+
     trackeR:::create_work_capacity_plot(id = 'work_capacity')
     
     sapply(c('cycling', 'running'), function(sport_id) {
-
       output[[paste0(sport_id, "_work_capacity_plot")]] <- renderUI({
         n_sessions <- sum(trackeR::sport(data$summary[data$selectedSessions]) %in% sport_id)
         plot_width <- if (n_sessions > 2) {
@@ -243,9 +246,7 @@ server <- function(input, output, session) {
         }
         shinycssloaders::withSpinner(plotly::plotlyOutput(paste0(sport_id, "Plot"),
                                                           width = plot_width,
-                                                          height = "250px"
-        ),
-        size = 2
+                                                          height = "250px" ), size = 2
         )
       }) 
     
@@ -260,53 +261,35 @@ server <- function(input, output, session) {
       # }
       # updateNumericInput(session, inputId = "critical_power", label = label)
       
+      # If button to change units is pressed re-render plot with new units
       change_power[[sport_id]]
-      
+
       work_capacity_sessions <- trackeR::sport(data$summary[data$selectedSessions]) %in% sport_id
       trackeR:::plot_work_capacity(
         x = data$object, session = data$selectedSessions[work_capacity_sessions],
         cp = isolate(as.numeric(input[[paste0('critical_power_', sport_id)]]))
       )
     })
-    if ('running' %in%  work_capacity_ids()) {
-      output[[paste0('work_capacity_running')]] <- reactive({
-        FALSE
-      })
-    } else {
-      output[[paste0('work_capacity_running')]] <- reactive({
-        TRUE
-      })      
-    }
-    if ('cycling' %in%  work_capacity_ids()) {
-      output[[paste0('work_capacity_cycling')]] <- reactive({
-        FALSE
-      })
-    } else {
-      output[[paste0('work_capacity_cycling')]] <- reactive({
-        TRUE
-      })     
-    }
-    outputOptions(output, paste0('work_capacity_', sport_id), suspendWhenHidden = FALSE)
   })
 
-  
-output[[paste0('work_capacity_running')]] <- reactive({
-  if ('running' %in%  work_capacity_ids()) {
-  FALSE
-  } else {
-    TRUE
-  }
-})
-
-output[[paste0('work_capacity_cycling')]] <- reactive({
-  if ('cycling' %in%  work_capacity_ids()) {
+  # Conditions for displaying the work capacity plot
+  output[[paste0('work_capacity_running')]] <- reactive({
+    if ('running' %in%  work_capacity_ids()) {
     FALSE
-  } else {
-    TRUE
-  }
-})
-     
-
+    } else {
+      TRUE
+    }
+  })
+  
+  output[[paste0('work_capacity_cycling')]] <- reactive({
+    if ('cycling' %in%  work_capacity_ids()) {
+      FALSE
+    } else {
+      TRUE
+    }
+  })
+  outputOptions(output, 'work_capacity_cycling', suspendWhenHidden = FALSE)    
+  outputOptions(output, 'work_capacity_running', suspendWhenHidden = FALSE)
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Update power for work capacity plot                                     ####
     change_power <- reactiveValues(cycling = 0, running = 0)

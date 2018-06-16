@@ -135,7 +135,8 @@ metrics <- function() {
     "Altitude" = "altitude",
     "Speed" = "speed",
     "Cadence" = "cadence",
-    "Power" = "power",
+    # TODO decide on whether to implement a power plot as well, give that
+    # work capacity plot already included ("Power" = "power").
     "Pace" = "pace"
   )
 }
@@ -430,7 +431,7 @@ generate_objects <- function(data, output, session, choices) {
   ## Update sport attribute of data$object with classified sports
   trackeR:::classify_sessions_by_sport(data)
   output$download_data <- trackeR:::download_handler(data)
-  shinyjs::disable(selector = "#uploadButton")
+  shinyjs::disable(selector = "#processedDataPath")
   data$selectedSessions <- data$summary$session
   data$sessions_map <- rep(data$summary$session, times = 1, each = 2)
   shinyjs::click("plotButton")
@@ -445,7 +446,8 @@ sports_options <- c(
 )
 
 #' Test whether we can plot work capacity for at least one of cycling or running
-test_work_capacity <- function(data, selected_sports) {
+test_work_capacity <- function(data) {
+  selected_sports <- unique(sport(data$object[data$selectedSessions]))
   is_data_power <- !all(sapply(data$object[data$selectedSessions], function(x){ 
     all((is.na(x[, "power"])) | (x[, "power"] == 0))
     }

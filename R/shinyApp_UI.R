@@ -87,7 +87,7 @@ create_selected_workout_plot <- function(id, collapsed = FALSE) {
             switch(id, "pace" = paste0("Pace"),
               "heart.rate" = paste0("Heart Rate"),
               "altitude" = paste0("Altitude"),
-              "work_capacity" = paste0("Work Capacity"),
+              "power" = paste0("Power"),
               "speed" = paste0("Speed"),
               'cadence' = paste0('Cadence')
             )
@@ -100,10 +100,10 @@ create_selected_workout_plot <- function(id, collapsed = FALSE) {
             div(class = "input-group", actionButton(paste0('detect_changepoints', id),
                        label = 'Detect changepoints', style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"))
           )
-          ), column(3,
+          ), column(2,
           selectizeInput(
             inputId = paste0('n_changepoints', id),
-            label = 'Maximum number of changepoints:',
+            label = 'Maximum # of changepoints:',
             multiple = FALSE,
             choices = c(
                         '1' = 1,
@@ -174,9 +174,9 @@ create_work_capacity_plot <- function(id, collapsed = FALSE) {
             ),
             column(
               2,
-              numericInput(min = 0.01, max = 6.5,
+              numericInput(min = 2, max = 10, step = 0.1,
                 inputId = "critical_power_cycling", 
-                label = "Critical power [J]", value = 4
+                label = "Critical power [J]", value = 3
               )
             )
           ),
@@ -202,7 +202,7 @@ create_work_capacity_plot <- function(id, collapsed = FALSE) {
             ),
             column(
               2,
-              numericInput(min = 0.01, max = 6.5,
+              numericInput(min = 0.01, max = 6.5, step=0.1,
                            inputId = "critical_power_running", 
                            label = "Critical speed [m/s]", value = 4
               )
@@ -236,7 +236,7 @@ create_profiles_box <- function(title, inputId, label, plotId, choices) {
           collapsed = FALSE,
           title = tagList(shiny::icon("gear"), title),
           fluidRow(
-          column(3,
+          column(2,
           selectizeInput(
             inputId = inputId,
             label = paste0(label, ':'),
@@ -275,7 +275,7 @@ create_zones_box <- function(title, inputId, label, plotId, choices) {
             choices = choices,
             selected = "speed"
           )),
-          column(3, selectizeInput(
+          column(2, selectizeInput(
                          inputId = 'n_zones',
                          label = 'Select number of zones:',
                          multiple = FALSE,

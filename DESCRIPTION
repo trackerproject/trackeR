@@ -49,8 +49,7 @@ Imports:
     sp,
     V8,
     class,
-    changepoint,
-    dplyr
+    changepoint
 Suggests:
     testthat,
     knitr,

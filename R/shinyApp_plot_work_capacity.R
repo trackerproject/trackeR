@@ -10,9 +10,11 @@
 plot_work_capacity <- function(x, session, dates = TRUE, scaled = TRUE, cp = 4) {
   units <- getUnits(x)
   sports <- sport(x)[session]
+  
   if ((length(unique(sports)) != 1) | (sum(c("running", "cycling") %in% na.omit(unique(sports))) != 1)) {
     stop("Wprime applies only for running or only for cycling sessions")
   }
+  
   x <- Wprime(
     object = x, session = session, quantity = "expended",
     cp = cp, version = "2012"
@@ -37,7 +39,7 @@ plot_work_capacity <- function(x, session, dates = TRUE, scaled = TRUE, cp = 4) 
       mMov <- mean(unlist(lapply(x, function(z) z$movement)), na.rm = TRUE)
 
       x <- lapply(x, function(z) {
-        if(!all(z$wprime == 0)){
+        if(!all(z$wprime == 0 | is.na(z$wprime))){
           w <- (coredata(z$wprime) - mean(coredata(z$wprime), na.rm = TRUE))/stats::sd(coredata(z$wprime),
               na.rm = TRUE)
           w <- w * sdMov  #sd(coredata(z$movement), na.rm = TRUE)
@@ -45,7 +47,7 @@ plot_work_capacity <- function(x, session, dates = TRUE, scaled = TRUE, cp = 4) 
           }
           # max(mMov, abs(min(w, na.rm = TRUE))) max(mean(coredata(z$movement), na.rm = TRUE),
           # abs(min(w, na.rm = TRUE)))
-          return(z)
+          z
       })
   }
   ## get data
@@ -98,8 +100,9 @@ plot_work_capacity <- function(x, session, dates = TRUE, scaled = TRUE, cp = 4) 
   plot_stored <- vector("list", N)
   images <- vector("list", N)
   show_legend <- TRUE
-  y_axis_range <- c(min(na.omit(df[df$Series == "wprime", 'Value'])) * 0.8,
-                    max(na.omit(df[df$Series == "wprime", 'Value'])) * 1.2)
+  
+  y_axis_range <- c(min(na.omit(df[df$Series == "wprime", 'Value'])) * 0.6,
+                    max(na.omit(df[df$Series == "wprime", 'Value'])) * 1.4)
   step_size <- 1 / length(unique(df$id)) 
   start <- 0
   for (i in unique(df$id)) {
@@ -141,17 +144,18 @@ plot_work_capacity <- function(x, session, dates = TRUE, scaled = TRUE, cp = 4) 
           xaxis = axis_list, yaxis = c(axis_list, list(range = maximal_range * 1.02))
         )
     } else {
+      
       df_subset$Value <- if (na_ranges) 0 else mean(maximal_range)
       a <- plotly::plot_ly(
         df_subset, x = ~ Index, y = ~ Value,
-        hoverinfo = "none", type = "scatter",
+        hoverinfo = "none", type = "scatter", mode = 'none',
         showlegend = show_legend
       ) %>%
         plotly::layout(
           annotations = annotations_list,
           xaxis = axis_list, yaxis = c(axis_list, list(
             range = maximal_range * 1.02,
-            showticklabels = FALSE
+            showticklabels = TRUE
           ))
         )
     }
@@ -174,7 +178,7 @@ plot_work_capacity <- function(x, session, dates = TRUE, scaled = TRUE, cp = 4) 
     show_legend <- FALSE
   }
 
-  y <- list(title = "", fixedrange = TRUE, range=y_axis_range)
+  y <- list(title = "", fixedrange = TRUE, range=y_axis_range, list(showticklabels = FALSE))
   x <- list(title = "Time", fixedrange = TRUE)
   
   return(plotly::subplot(plot_stored, nrows = 1, shareY = TRUE, shareX = FALSE, margin = 0.002) %>%
