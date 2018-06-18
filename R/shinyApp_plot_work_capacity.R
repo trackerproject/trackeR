@@ -54,7 +54,7 @@ plot_work_capacity <- function(x, session, dates = TRUE, scaled = TRUE, cp = 4) 
   class(x) <- "trackeRWprime"
 
   df <- fortify(x, melt = TRUE)
-  
+  df$id <- format(session[df$SessionID])
   ## prepare session id for panel header
   if (dates) {
       df$SessionID <- format(session[df$SessionID])
@@ -73,11 +73,12 @@ plot_work_capacity <- function(x, session, dates = TRUE, scaled = TRUE, cp = 4) 
   # Save session
   session_names <- session
   df$Series <- as.factor(as.character(df$Series))
-  df$id <- as.integer(factor(df$SessionID))
+  df$id <- as.integer(factor(df$id))
   df$numericDate <- as.numeric(df$Index)
   N <- nlevels(factor(df$id))
 
   ranges <- NULL
+  
   for (i in unique(df$id)) {
     df_subset <- df[(df$id == i) & (df$Series == "movement"), ]
 

@@ -74,6 +74,9 @@ server <- function(input, output, session) {
                                                          data$object)), decreasing = FALSE)
       ## See helper file
       trackeR:::generate_objects(data, output, session, choices)
+      data$no_location_data <- sapply(data$object, 
+          function(x) all((is.na(x[, 'longitude'])) | (x[, 'longitude'] == 0))
+        )
     }
   })
 
@@ -127,23 +130,31 @@ server <- function(input, output, session) {
       output$summary <- trackeR:::render_summary_table(data, input)
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Map                                                                     ####
-      trackeR:::create_map()
-      preped_route_map <- reactive({
-        session <- seq_along(data$object)
-        prepRoute(data$object, session = session, threshold = TRUE)
-      })
-      output$map <- plotly::renderPlotly({
-        trackeR:::plot_map(
-          x = data$object, preped_route = preped_route_map(),
-          session = isolate(data$selectedSessions), sumX = data$summary
-        )
-      })
-      # Update map based on current selection
-      observeEvent(data$selectedSessions, {
-        sessions_rows <- which(preped_route_map()$SessionID %in% data$selectedSessions)
-        plot_df <- preped_route_map()[sessions_rows, ]
-        trackeR:::update_map(plot_df, session, data)
-      })
+      # do not generate map if no location data for at least one session
+      # TODO allow to plot only sessions that do have location data
+      if (!any(data$no_location_data)) {
+        trackeR:::create_map()
+        
+        preped_route_map <- reactive({
+          session <- seq_along(data$object)
+          prepRoute(data$object,
+                    session = session, threshold = TRUE)
+        })
+        output$map <- plotly::renderPlotly({
+          trackeR:::plot_map(
+            x = data$object,
+            preped_route = preped_route_map(),
+            session = isolate(data$selectedSessions),
+            sumX = data$summary
+          )
+        })
+        # Update map based on current selection
+        observeEvent(data$selectedSessions, {
+          sessions_rows <- which(preped_route_map()$SessionID %in% data$selectedSessions)
+          plot_df <- preped_route_map()[sessions_rows, ]
+          trackeR:::update_map(plot_df, session, data)
+        })
+      }
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Summary boxes                                                           ####
       trackeR:::create_summary_boxes()

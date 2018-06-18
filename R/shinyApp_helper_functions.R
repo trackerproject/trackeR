@@ -246,7 +246,6 @@ process_dataset <- function(data){
   data$hasData <- lapply(data$summary, function(session_summaries) {
     !all(is.na(session_summaries) | session_summaries == 0)
   })
-  
 }
 
 
