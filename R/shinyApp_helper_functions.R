@@ -142,6 +142,9 @@ metrics <- function() {
 }
 
 #' Update panel with metrics to plot
+#' @param session A shiny object.
+#' @param choices A vector. A list of features to plot, see \code{\link{choices}}.
+#' @param has_data A vector with boolean expressions representing which features have data. 
 update_metrics_to_plot_workouts <- function(session, choices, has_data) {
   updateSelectizeInput(
     session = session,
@@ -153,6 +156,10 @@ update_metrics_to_plot_workouts <- function(session, choices, has_data) {
 }
 
 #' Update metrics to plot for Work capacity and time in zones
+#' @param id A character. The ID of the input.
+#' @param session A shiny object.
+#' @param metrics A vector.  A list of features to plot, see \code{\link{metrics}}.
+#' @param has_data A vector with boolean expressions representing which features have data.
 update_metrics_to_plot_selected_workouts <- function(id, session, metrics, has_data) {
   updateSelectizeInput(
     session = session,
@@ -164,6 +171,7 @@ update_metrics_to_plot_selected_workouts <- function(id, session, metrics, has_d
 }
 
 #' Download handler
+#' @param data An object of class \code{reactivevalues}.
 download_handler <- function(data) {
   downloadHandler(
       filename = function() {
@@ -189,6 +197,7 @@ show_warning_window <- function() {
 }
 
 #' Calculate plot height for either time in zones or work capacity
+#' @param metrics A vector of metrics that will be plotted. 
 calculate_plot_height <- function(metrics) {
   paste0(250 * length(metrics), "px")
 }
@@ -205,9 +214,10 @@ get_javascript <- function() {
 }
 
 #' Classify sessions by sport using the KNN model and 'sport_classification_train' dataset as a training set
+#' @param data An object of class \code{reactivevalues}.
 classify_sessions_by_sport <- function(data) {
-  
-  data(sport_classification_train)
+  filepath <- system.file('inst/extdata/sport_classification_train.csv', package = 'trackeR')
+  sport_classification_train <- read.csv(filepath)
   n_train <- nrow(sport_classification_train)
   merged_df <- rbind(sport_classification_train[,c('avgPaceMoving','distance')],
                      data.frame(avgPaceMoving = data$summary$avgPaceMoving,
@@ -233,6 +243,7 @@ classify_sessions_by_sport <- function(data) {
 
 
 #' Process \code{trackeRdata} object by: setting thresholds to remove wrong values, change units, set a moving threshold and test which variables contain data
+#' @param data An object of class \code{reactivevalues}.
 process_dataset <- function(data){
   data$object <- threshold(data$object)
   data$object <- threshold(data$object, variable = 'distance', lower = 0, upper = 500000)
@@ -369,17 +380,17 @@ update_map <- function(plot_df, session, data){
   )
 }
 
-#' Calculate plot height for work capacity
-calculate_plot_height_work_capacity <- function(name, data) {
-  if (name != 'work_capacity') {
-    "250px"
-  } else {
-    sports <- unique(sport(data$object[data$selectedSessions]))
-    # Work capacity only for running and cycling
-    sports <- intersect(c('running', 'cycling'), sports)
-    paste0(250 * length(sports), "px")
-  }
-}
+#' #' Calculate plot height for work capacity
+#' calculate_plot_height_work_capacity <- function(name, data) {
+#'   if (name != 'work_capacity') {
+#'     "250px"
+#'   } else {
+#'     sports <- unique(sport(data$object[data$selectedSessions]))
+#'     # Work capacity only for running and cycling
+#'     sports <- intersect(c('running', 'cycling'), sports)
+#'     paste0(250 * length(sports), "px")
+#'   }
+#' }
 
 #' Plot work capacities for each sport
 #' @param x An object of class \code{\link{trackeRdata}}.
@@ -390,13 +401,13 @@ plot_work_capacities <- function(x, session, cp) {
   # Work capacity only for running and cycling
   sports <- intersect(c('running', 'cycling'), sports)
   if (length(sports) == 1) {
-    return(trackeR:::plot_work_capacity(x = x, session = session, cp = cp))
+    return(plot_work_capacity(x = x, session = session, cp = cp))
   } else {
     cycling_sessions <- session[sport(x[session]) == 'cycling']
-    plot_cycling <- trackeR:::plot_work_capacity(x = x, session = c(cycling_sessions, -1),
+    plot_cycling <- plot_work_capacity(x = x, session = c(cycling_sessions, -1),
                                                  cp = cp)
     running_sessions <- session[sport(x[session]) == 'running']
-    plot_running <- trackeR:::plot_work_capacity(x = x, session = running_sessions,
+    plot_running <- plot_work_capacity(x = x, session = running_sessions,
                                                  cp = cp)
     plots <- do.call(plotly::subplot, c(
       list(plot_cycling, plot_running), nrows = 2,
@@ -425,16 +436,20 @@ show_warning_no_data_selected <- function() {
 #' Classify sessions by sport, process dataset, generate download handler,
 #' generate selected sessions object, update what metrics are available 
 #' to plot and other minor actions.
+#' @param data An object of class \code{reactivevalues}.
+#' @param output A shiny object.
+#' @param session A shiny object.
+#' @param choices A vector. See \code{\link{choices}}. 
 generate_objects <- function(data, output, session, choices) {
-  trackeR:::process_dataset(data)
+  process_dataset(data)
   ## Update sport attribute of data$object with classified sports
-  trackeR:::classify_sessions_by_sport(data)
-  output$download_data <- trackeR:::download_handler(data)
+  classify_sessions_by_sport(data)
+  output$download_data <- download_handler(data)
   shinyjs::disable(selector = "#processedDataPath")
   data$selectedSessions <- data$summary$session
   data$sessions_map <- rep(data$summary$session, times = 1, each = 2)
   shinyjs::click("plotButton")
-  trackeR:::update_metrics_to_plot_workouts(session, choices, data$hasData)
+  update_metrics_to_plot_workouts(session, choices, data$hasData)
 }
 
 #' Currently available sports in the trackeRdashboard.
@@ -444,7 +459,8 @@ sports_options <- c(
   "Swimming" = "swimming"
 )
 
-#' Test whether we can plot work capacity for at least one of cycling or running
+#' Test whether we can plot work capacity for at least one of cycling or running.
+#' @param data An object of class \code{reactivevalues}.
 test_work_capacity <- function(data) {
   selected_sports <- unique(sport(data$object[data$selectedSessions]))
   is_data_power <- !all(sapply(data$object[data$selectedSessions], function(x){ 

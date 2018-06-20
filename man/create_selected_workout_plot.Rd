@@ -6,6 +6,11 @@
 \usage{
 create_selected_workout_plot(id, collapsed = FALSE)
 }
+\arguments{
+\item{id}{A character. The ID of the plot.}
+
+\item{collapsed}{A logical. Whether or not the UI box should be collapsed.}
+}
 \description{
 Create selected_workouts plot
 }

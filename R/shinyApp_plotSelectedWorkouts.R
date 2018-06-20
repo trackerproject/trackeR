@@ -2,7 +2,7 @@
 #'
 #' @param x An object of class \code{\link{trackeRdata}}.
 #' @param session A numeric vector of the sessions to be plotted, defaults to all sessions.
-#' @param sumX An object of class \code{\link{trackeRdataSummary}}.
+#' @param sumX An object of class \code{trackeRdataSummary}.
 #' @param what Which variables should be plotted?
 #' @param threshold Logical. Should thresholds be applied?
 #' @param smooth Logical. Should the data be smoothed?
@@ -10,12 +10,11 @@
 #' @param dates Logical. Should the date of the session be used in the panel header?
 #' @param plotly Logical. Whether return plotly plots or standard TrackeR plot.
 #' @param changepoints Logical. Whether changepoints should be identified and plotted.
-#' @param Q Numeric. The maximum number of changepoints to be considered (when changepoints = TRUE).
 #' @param print_changepoints Logical. Whether or not to print changepoint values (when changepoints = TRUE).
+#' @param n_changepoints A numeric. The threshold for the maximum number of changepoints to search for. 
 
 plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smooth = FALSE, trend = TRUE, dates = TRUE,
-                                  plotly = TRUE, changepoints = FALSE, n_changepoints = 6,
-                                  print_changepoints = FALSE, ...) {
+                                  plotly = TRUE, changepoints = FALSE, n_changepoints = 6, print_changepoints = FALSE) {
 
   if (plotly) {
     sports <- sport(x)[session]
@@ -33,7 +32,7 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
 
     ## threshold
     if (threshold){
-        dots <- list(...)
+        dots <- list()
         if (all(c("variable", "lower", "upper") %in% names(dots))){
             ## thresholds provided by user
             th <- data.frame(variable = dots$variable, lower = dots$lower, upper = dots$upper)
@@ -62,7 +61,7 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
     if (smooth) {
         xo <- x
         if (is.null(getOperations(x)$smooth)) {
-            x <- smoother(x, what = what, ...)
+            x <- smoother(x, what = what)
         } else {
             warning("This object has already been smoothed. No additional smoothing takes place.")
             smooth <- FALSE ## it's not the plot function calling smoother

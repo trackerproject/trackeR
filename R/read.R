@@ -76,6 +76,7 @@ generateVariableNames <- function() {
 }
 
 ##' Guess sport for internal use in readX functions.
+##' @param sport A character. The name of the sport from the file name.
 guess_sport <- function(sport) {
     keyword <- c("run", "cycl", "swim", "bik", "rid")
     sports <- c("running", "cycling", "swimming", "cycling", "cycling")

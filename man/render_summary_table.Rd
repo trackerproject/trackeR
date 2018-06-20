@@ -6,6 +6,11 @@
 \usage{
 render_summary_table(data, input)
 }
+\arguments{
+\item{data}{An object of class \code{reactivevalues}.}
+
+\item{input}{A shiny object with user input.}
+}
 \description{
 Render summary table
 }

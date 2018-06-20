@@ -6,8 +6,7 @@
 \usage{
 plot_selectedWorkouts(x, session, what, sumX, threshold = TRUE,
   smooth = FALSE, trend = TRUE, dates = TRUE, plotly = TRUE,
-  changepoints = FALSE, n_changepoints = 6, print_changepoints = FALSE,
-  ...)
+  changepoints = FALSE, n_changepoints = 6, print_changepoints = FALSE)
 }
 \arguments{
 \item{x}{An object of class \code{\link{trackeRdata}}.}
@@ -16,7 +15,7 @@ plot_selectedWorkouts(x, session, what, sumX, threshold = TRUE,
 
 \item{what}{Which variables should be plotted?}
 
-\item{sumX}{An object of class \code{\link{trackeRdataSummary}}.}
+\item{sumX}{An object of class \code{trackeRdataSummary}.}
 
 \item{threshold}{Logical. Should thresholds be applied?}
 
@@ -30,9 +29,9 @@ plot_selectedWorkouts(x, session, what, sumX, threshold = TRUE,
 
 \item{changepoints}{Logical. Whether changepoints should be identified and plotted.}
 
-\item{print_changepoints}{Logical. Whether or not to print changepoint values (when changepoints = TRUE).}
+\item{n_changepoints}{A numeric. The threshold for the maximum number of changepoints to search for.}
 
-\item{Q}{Numeric. The maximum number of changepoints to be considered (when changepoints = TRUE).}
+\item{print_changepoints}{Logical. Whether or not to print changepoint values (when changepoints = TRUE).}
 }
 \description{
 Plot the profile for each selected session for a given variable (heart rate, altitude, pace).

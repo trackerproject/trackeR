@@ -84,8 +84,8 @@ server <- function(input, output, session) {
 ##  Uploading sample dataset                                                ####
   observeEvent(input$uploadSampleDataset, {
     removeModal()
-    data(runs) # NOTE: check if optimal way to use dataset from the same package
-    data$object <- runs
+    filepath <- system.file('inst/extdata/sample.rds', package = 'trackeR')
+    data$object <- readRDS(filepath)
     # See helper file
     trackeR:::generate_objects(data, output, session, choices)
   })
@@ -165,8 +165,8 @@ server <- function(input, output, session) {
 
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Sessions summaries plots                                                ####
-      for (i in input$metricsSelected) {
-        trackeR:::create_workout_plots(i)
+      for (metric in input$metricsSelected) {
+        trackeR:::create_workout_plots(metric)
       }
       lapply(input$metricsSelected, function(i) {
         output[[paste0(i, "_plot")]] <- plotly::renderPlotly({
@@ -329,8 +329,8 @@ server <- function(input, output, session) {
 ##  ............................................................................
 ##  Time in zones                                                           ####
     trackeR:::create_zones_box(
-      title = "Time in Zones", inputId = "zonesMetricsPlot",
-      label = "Select zone metrics to plot", plotId = "zonesPlotUi",
+      inputId = "zonesMetricsPlot",
+      plotId = "zonesPlotUi",
       choices = metrics[have_data_metrics_selected()]
     )
     ## Render UI for time in zones plot
@@ -354,8 +354,8 @@ server <- function(input, output, session) {
 ##  ............................................................................
 ##  Concentration profiles                                                  ####
     trackeR:::create_profiles_box(
-      title = "Concentration profiles", inputId = "profileMetricsPlot",
-      label = "Select profile metrics to plot", plotId = "concentration_profiles",
+      inputId = "profileMetricsPlot",
+      plotId = "concentration_profiles",
       choices = metrics[have_data_metrics_selected()]
     )
     ## Render UI for concentration profiles

@@ -7,3 +7,4 @@
 #'
 #' @format A \code{\link{trackeRdata}} object containing 27 running training sessions.
 "runs"
+

@@ -6,6 +6,9 @@
 \usage{
 calculate_plot_height(metrics)
 }
+\arguments{
+\item{metrics}{A vector of metrics that will be plotted.}
+}
 \description{
 Calculate plot height for either time in zones or work capacity
 }

@@ -4,7 +4,14 @@
 \alias{create_zones_box}
 \title{Create time in zones plot UI.}
 \usage{
-create_zones_box(title, inputId, label, plotId, choices)
+create_zones_box(inputId, plotId, choices)
+}
+\arguments{
+\item{inputId}{A character. The ID of the user input for the metrics that should be plotted.}
+
+\item{plotId}{A character. The ID of the plot.}
+
+\item{choices}{A vector of the metrics a user can select to be plotted, selected from \code{\link{metrics}}.}
 }
 \description{
 Create time in zones plot UI.

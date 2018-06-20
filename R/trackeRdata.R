@@ -584,6 +584,7 @@ as.data.frame.trackeRdata <- function(x, ...) {
 #'
 #' The print method returns training coverage, number of sessions and
 #' total training duration from the data in the
+#' @param duration A character. The unit of duration of a session.
 #' \code{\link{trackeRdata}} object
 #'
 #' @export

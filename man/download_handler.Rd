@@ -6,6 +6,9 @@
 \usage{
 download_handler(data)
 }
+\arguments{
+\item{data}{An object of class \code{reactivevalues}.}
+}
 \description{
 Download handler
 }

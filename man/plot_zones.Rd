@@ -12,6 +12,8 @@ plot_zones(x, session, what = c("heart.rate"), n_zones)
 \item{session}{A vector of selected sessions.}
 
 \item{what}{A vector of variable names to be plotted.}
+
+\item{n_zones}{A numeric. The number of zones to split the dataset into.}
 }
 \description{
 Plot training zones.

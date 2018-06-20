@@ -6,6 +6,9 @@
 \usage{
 process_dataset(data)
 }
+\arguments{
+\item{data}{An object of class \code{reactivevalues}.}
+}
 \description{
 Process \code{trackeRdata} object by: setting thresholds to remove wrong values, change units, set a moving threshold and test which variables contain data
 }

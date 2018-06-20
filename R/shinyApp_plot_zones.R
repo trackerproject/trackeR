@@ -3,7 +3,7 @@
 #' @param x An object of class \code{trackeRdata}.
 #' @param session A vector of selected sessions.
 #' @param what A vector of variable names to be plotted.
-
+#' @param n_zones A numeric. The number of zones to split the dataset into.
 plot_zones <- function(x, session, what = c("heart.rate"), n_zones) {
   x <- zones(x, session = session, what = what, auto_breaks = TRUE, n_zones = n_zones)
 

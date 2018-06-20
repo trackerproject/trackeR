@@ -6,6 +6,13 @@
 \usage{
 update_metrics_to_plot_workouts(session, choices, has_data)
 }
+\arguments{
+\item{session}{A shiny object.}
+
+\item{choices}{A vector. A list of features to plot, see \code{\link{choices}}.}
+
+\item{has_data}{A vector with boolean expressions representing which features have data.}
+}
 \description{
 Update panel with metrics to plot
 }

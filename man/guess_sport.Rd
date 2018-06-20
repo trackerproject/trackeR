@@ -6,6 +6,9 @@
 \usage{
 guess_sport(sport)
 }
+\arguments{
+\item{sport}{A character. The name of the sport from the file name.}
+}
 \description{
 Guess sport for internal use in readX functions.
 }

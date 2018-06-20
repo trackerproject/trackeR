@@ -4,15 +4,12 @@
 \alias{plot_work_capacity}
 \title{Plot the work capacity W' (w prime).}
 \usage{
-plot_work_capacity(x, session, plotly = TRUE, dates = TRUE, scaled = TRUE,
-  cp = 4)
+plot_work_capacity(x, session, dates = TRUE, scaled = TRUE, cp = 4)
 }
 \arguments{
 \item{x}{An object of class \code{\link{trackeRdata}}.}
 
 \item{session}{A numeric vector of the sessions to be used, defaults to all sessions.}
-
-\item{plotly}{A boolean as to whether an output should be a plotly plot or a standard TrackeR plot.}
 
 \item{dates}{Logical. Should the date of the session be used in the panel header?}
 

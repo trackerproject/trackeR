@@ -47,10 +47,11 @@
 #' @import shiny
 #' @import xml2
 #' @import ggplot2
+#' @importFrom utils read.csv
 #' @importFrom stats quantile
 #' @importFrom plotly "%>%"
 #' @importFrom graphics plot
-#' @importFrom stats na.omit start density
+#' @importFrom stats na.omit start density median
 NULL
 # > NULL
 

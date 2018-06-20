@@ -6,6 +6,15 @@
 \usage{
 update_metrics_to_plot_selected_workouts(id, session, metrics, has_data)
 }
+\arguments{
+\item{id}{A character. The ID of the input.}
+
+\item{session}{A shiny object.}
+
+\item{metrics}{A vector.  A list of features to plot, see \code{\link{metrics}}.}
+
+\item{has_data}{A vector with boolean expressions representing which features have data.}
+}
 \description{
 Update metrics to plot for Work capacity and time in zones
 }

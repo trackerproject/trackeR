@@ -4,7 +4,10 @@
 \alias{create_workout_plots}
 \title{Create workout plots}
 \usage{
-create_workout_plots(i)
+create_workout_plots(feature)
+}
+\arguments{
+\item{feature}{A character. The metric that is plotted, selected from \code{\link{choices}}.}
 }
 \description{
 Create workout plots

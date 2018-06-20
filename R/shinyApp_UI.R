@@ -37,31 +37,32 @@ create_summary_boxes <- function() {
 }
 
 #' Create workout plots
-create_workout_plots <- function(i) {
-  name <- switch(as.character(i),
-      "distance" = "Distance",
-      "duration" = "Duration",
-      "avgSpeed" = "Average Speed",
-      "avgPace" = "Average Pace",
-      "avgCadence" = "Average Cadence",
-      "avgPower" = "Average Power",
-      "avgHeartRate" = "Average Heart Rate",
-      "wrRatio" = "Work-to-rest Ratio"
-    )
-
+#' @param feature A character. The metric that is plotted, selected from \code{\link{choices}}.
+create_workout_plots <- function(feature) {
+  name <- switch(as.character(feature),
+    "distance" = "Distance",
+    "duration" = "Duration",
+    "avgSpeed" = "Average Speed",
+    "avgPace" = "Average Pace",
+    "avgCadence" = "Average Cadence",
+    "avgPower" = "Average Power",
+    "avgHeartRate" = "Average Heart Rate",
+    "wrRatio" = "Work-to-rest Ratio"
+  )
   insertUI(
     selector = ".content",
     where = "beforeEnd",
     ui = conditionalPanel(
       condition = "output.cond == true",
-      div(class = "main_plots", id = paste0("box", i), fluidRow(
+      div(class = "main_plots", id = paste0("box", feature), fluidRow(
         shinydashboard::box(
           status = "primary",
           width = 12,
           collapsible = TRUE,
           # height = "250px",
-          title = tagList(shiny::icon(create_icon(i)), name),
-          plotly::plotlyOutput(paste0(i, '_plot'), width = "auto", height = "180px")
+          title = tagList(shiny::icon(create_icon(feature)), name),
+          plotly::plotlyOutput(paste0(feature, "_plot"), width = "auto", 
+                               height = "180px")
         )
       ))
     )
@@ -69,6 +70,8 @@ create_workout_plots <- function(i) {
 }
 
 #' Create selected_workouts plot
+#' @param id A character. The ID of the plot.
+#' @param collapsed A logical. Whether or not the UI box should be collapsed.
 create_selected_workout_plot <- function(id, collapsed = FALSE) {
   insertUI(
     selector = ".content",
@@ -134,6 +137,8 @@ create_selected_workout_plot <- function(id, collapsed = FALSE) {
 }
 
 #' Create work capacity plot
+#' @param id A character. The ID of the plot.
+#' @param collapsed A logical. Whether or not the UI box should be collapsed.
 create_work_capacity_plot <- function(id, collapsed = FALSE) {
   insertUI(
     selector = ".content",
@@ -220,7 +225,10 @@ create_work_capacity_plot <- function(id, collapsed = FALSE) {
 
 
 #' Create concentration profile plot UI.
-create_profiles_box <- function(title, inputId, label, plotId, choices) {
+#' @param inputId A character. The ID of the user input for the metrics that should be plotted
+#' @param plotId A character. The ID of the plot. 
+#' @param choices A vector of the metrics a user can select to be plotted, selected from \code{\link{metrics}}.
+create_profiles_box <- function(inputId, plotId, choices) {
  ## Other metrics - Work capacity, Distribution profile, Concentration profile
   insertUI(
     selector = ".content",
@@ -234,12 +242,12 @@ create_profiles_box <- function(title, inputId, label, plotId, choices) {
           width = 12,
           collapsible = TRUE,
           collapsed = FALSE,
-          title = tagList(shiny::icon("gear"), title),
+          title = tagList(shiny::icon("gear"), "Concentration profiles"),
           fluidRow(
           column(2,
           selectizeInput(
             inputId = inputId,
-            label = paste0(label, ':'),
+            label = "Select profile metrics to plot:",
             multiple = TRUE,
             choices = choices,
             selected = "speed"
@@ -252,7 +260,10 @@ create_profiles_box <- function(title, inputId, label, plotId, choices) {
 }
 
 #' Create time in zones plot UI.
-create_zones_box <- function(title, inputId, label, plotId, choices) {
+#' @param inputId A character. The ID of the user input for the metrics that should be plotted.
+#' @param plotId A character. The ID of the plot. 
+#' @param choices A vector of the metrics a user can select to be plotted, selected from \code{\link{metrics}}.
+create_zones_box <- function(inputId, plotId, choices) {
  ## Other metrics - Work capacity, Distribution profile, Concentration profile
   insertUI(
     selector = ".content",
@@ -266,11 +277,11 @@ create_zones_box <- function(title, inputId, label, plotId, choices) {
           width = 12,
           collapsible = TRUE,
           collapsed = FALSE,
-          title = tagList(shiny::icon("gear"), title),
+          title = tagList(shiny::icon("gear"), "Time in Zones"),
           fluidRow(
           column(2, selectizeInput(
             inputId = inputId,
-            label = paste0(label, ':'),
+            label = "Select zone metrics to plot:",
             multiple = TRUE,
             choices = choices,
             selected = "speed"
@@ -299,6 +310,7 @@ create_zones_box <- function(title, inputId, label, plotId, choices) {
 }
 
 #' Create a return button from selected workouts plot
+#' @param sport_options A vector of sports identified from the uploaded sessions.
 create_option_box <- function(sport_options) {
   insertUI(
            selector = ".content",

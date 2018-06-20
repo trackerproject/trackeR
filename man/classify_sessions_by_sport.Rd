@@ -6,6 +6,9 @@
 \usage{
 classify_sessions_by_sport(data)
 }
+\arguments{
+\item{data}{An object of class \code{reactivevalues}.}
+}
 \description{
 Classify sessions by sport using the KNN model and 'sport_classification_train' dataset as a training set
 }

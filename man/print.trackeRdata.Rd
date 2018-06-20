@@ -9,6 +9,9 @@
 \arguments{
 \item{x}{An object of class \code{\link{trackeRdata}}.}
 
+\item{duration}{A character. The unit of duration of a session.
+\code{\link{trackeRdata}} object}
+
 \item{...}{Not used, for compatibility with generic summary method only.}
 
 \item{digits}{Number of digits to be printed.}
@@ -19,5 +22,4 @@ print method for \code{\link{trackeRdata}} objects
 \details{
 The print method returns training coverage, number of sessions and
 total training duration from the data in the
-\code{\link{trackeRdata}} object
 }

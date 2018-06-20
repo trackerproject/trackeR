@@ -5,7 +5,7 @@
 #' @param shiny Logical. Whether plots are in a shiny environment.
 #' @param session A vector. Selected session numbers.
 
-plot_timeline <- function(sumX, session, lims=NULL, shiny=TRUE, plotly=TRUE) {
+plot_timeline <- function(sumX, session, shiny=TRUE, plotly=TRUE) {
 if (plotly) {
   d <- if (shiny) plotly::event_data("plotly_selected") else NULL
   startdates <- as.POSIXct(as.Date(sumX$sessionStart))
@@ -22,9 +22,7 @@ if (plotly) {
     units = "secs"
   )), origin = Sys.Date())
   df <- data.frame(sday = startdates, eday = enddates, start = starttimes, end = endtimes, session = sumX$session)
-  if (!is.null(lims)) {
-    lims <- as.POSIXct(paste(Sys.Date(), lims))
-  }
+  
   p <- plotly::plot_ly()
   p <- plotly::add_markers(p, data = df, x = ~start, y = ~sday, key = ~session, alpha = 0, hoverinfo = "none")
 

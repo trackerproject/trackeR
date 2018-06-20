@@ -6,6 +6,13 @@
 \usage{
 render_summary_box(short_name, long_name, data)
 }
+\arguments{
+\item{short_name}{A character. The metric name, e.g., distance.}
+
+\item{long_name}{A character. The title of the box.}
+
+\item{data}{An object of class \code{reactivevalues}.}
+}
 \description{
 Render data in summary box
 }

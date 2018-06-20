@@ -2,7 +2,6 @@
 #'
 #' @param x An object of class \code{\link{trackeRdata}}.
 #' @param session A numeric vector of the sessions to be used, defaults to all sessions.
-#' @param plotly A boolean as to whether an output should be a plotly plot or a standard TrackeR plot.
 #' @param dates Logical. Should the date of the session be used in the panel header?
 #' @param scaled Logical. Should the W' be scaled to the movement variable (power or speed)
 #'     which is then plotted in the background?

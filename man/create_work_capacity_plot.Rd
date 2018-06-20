@@ -4,7 +4,12 @@
 \alias{create_work_capacity_plot}
 \title{Create work capacity plot}
 \usage{
-create_work_capacity_plot(id, cycling, collapsed = FALSE)
+create_work_capacity_plot(id, collapsed = FALSE)
+}
+\arguments{
+\item{id}{A character. The ID of the plot.}
+
+\item{collapsed}{A logical. Whether or not the UI box should be collapsed.}
 }
 \description{
 Create work capacity plot

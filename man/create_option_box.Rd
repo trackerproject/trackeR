@@ -6,6 +6,9 @@
 \usage{
 create_option_box(sport_options)
 }
+\arguments{
+\item{sport_options}{A vector of sports identified from the uploaded sessions.}
+}
 \description{
 Create a return button from selected workouts plot
 }
