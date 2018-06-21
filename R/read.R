@@ -1,85 +1,3 @@
-##' Generate variables names for internal use in readX functions. The
-##' variables vectors need to correspond one by on interms of variable
-##' type
-generateVariableNames <- function() {
-    humanNames <- c("time",
-                    "latitude",
-                    "longitude",
-                    "altitude",
-                    "distance",
-                    "heart_rate",
-                    "speed",
-                    "cadence_running",
-                    "cadence_cycling",
-                    "power",
-                    "temperature")
-
-    ## resources for tcx:
-    ## https://en.wikipedia.org/wiki/Training_Center_XML
-    ## http://www8.garmin.com/xmlschemas/index.jsp#/web/docs/xmlschemas
-    ## http://www.garmindeveloper.com/schemas/tcx/v2/
-    tcxNames <- c("Time",
-                  "LatitudeDegrees",
-                  "LongitudeDegrees",
-                  "AltitudeMeters",
-                   "DistanceMeters",
-                  "HeartRateBpm",
-                  "Speed",
-                  "RunCadence",
-                  "Cadence",
-                  "Watts",
-                  "temperature")
-
-
-    ## resources for tcx:
-    ## https://en.wikipedia.org/wiki/Training_Center_XML
-    ## http://www8.garmin.com/xmlschemas/index.jsp#/web/docs/xmlschemas
-    ## http://www.garmindeveloper.com/schemas/tcx/v2/
-    gpxNames <- c("time",
-                  "lat",
-                  "lon",
-                  "ele",
-                  "distance",
-                  "hr",
-                  "speed",
-                  "rcad", ## dummy for now; gpx seems not to distinguish between run and cycling cadence
-                  "cad",
-                  "watts",
-                  "atemp")
-
-    ## Resource for db3: none... mostly reverse engineering
-    db3Names <-     c("dttm",
-                      "lat",
-                      "lon",
-                      "altitude",
-                      "dist",
-                      "hr",
-                      "velocity",
-                      "rcadence",
-                      "cadence", ## dummy for now; db3 seems not to distinguish between run and cycling cadence
-                      "watts",
-                      "temperature")
-
-    ## Resource for Golden Cheetah JSON: reverse engineering
-    jsonNames <- c("SECS",
-                   "LAT",
-                   "LON",
-                   "ALT",
-                   "KM",
-                   "HR",
-                   "KPH",
-                   "RCAD",
-                   "CAD", ## dummy for now; json seems not to distinguish between run and cycling cadence
-                   "WATTS",
-                   "temperature")
-
-    list(humanNames = humanNames,
-         gpxNames = gpxNames,
-         tcx2Names = tcxNames,
-         db3Names = db3Names,
-         jsonNames = jsonNames)
-}
-
 ##' Guess sport for internal use in readX functions.
 guess_sport <- function(sport) {
     keyword <- c("run", "hik", "cycl", "swim", "bik", "rid")
@@ -123,8 +41,8 @@ guess_sport <- function(sport) {
 #'
 #' ## turn into trackeRdata object
 #' run <- trackeRdata(run, units = data.frame(variable = c("latitude", "longitude",
-#'     "altitude", "distance", "heart_rate", "speed", "cadence", "power"),
-#'     unit = c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "W"),
+#'     "altitude", "distance", "heart_rate", "speed", "cadence_running", "cadence_cycling", "power"),
+#'     unit = c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "rev_per_min", "W"),
 #'     stringsAsFactors = FALSE))
 #'
 #' ## alternatively
@@ -205,20 +123,15 @@ readTCX <- function(file, timezone = "",
 
     observations <- as.data.frame(observations, stringsAsFactors = FALSE)
 
-    ## Rename RunCadence to Cadence
     names(observations) <- tp_vars$name
-    ## run_cadence <- tp_vars$name == "RunCadence"
-    ## if (any(run_cadence)) {
-    ##     names(observations)[run_cadence] <- "Cadence"
-    ## }
 
     ## Convert to numeric
     observations[!is_time] <- apply(observations[!is_time], 2, as.numeric)
 
     ## human names
-    allnames <- generateVariableNames()
-    namesOfInterest <- allnames$tcx2Names
-    namesToBeUsed <- allnames$humanNames
+    allnames <- generate_variable_names()
+    namesOfInterest <- allnames$tcx2_names
+    namesToBeUsed <- allnames$human_names
     inds <- match(namesOfInterest, names(observations), nomatch = 0)
     observations <- observations[inds]
     names(observations) <- namesToBeUsed[inds!=0]
@@ -248,8 +161,8 @@ readTCX <- function(file, timezone = "",
     }
 
     ## use variable order for trackeRdata
-    if (any(names(observations) != allnames$humanNames)) {
-        observations <- observations[, allnames$humanNames]
+    if (any(names(observations) != allnames$human_names)) {
+        observations <- observations[, allnames$human_names]
     }
 
     attr(observations, "sport") <- sport
@@ -339,9 +252,9 @@ readGPX <- function(file, timezone = "",
     observations$distance <- if (length(dists) == 1) 0 else cumsum(c(0, dists))
 
     ## human names
-    allnames <- generateVariableNames()
-    namesOfInterest <- allnames$gpxNames
-    namesToBeUsed <- allnames$humanNames
+    allnames <- generate_variable_names()
+    namesOfInterest <- allnames$gpx_names
+    namesToBeUsed <- allnames$human_names
     inds <- match(namesOfInterest, names(observations), nomatch = 0)
 
     observations <- observations[inds]
@@ -387,8 +300,8 @@ readGPX <- function(file, timezone = "",
     }
 
     ## use variable order for trackeRdata
-    if (any(names(observations) != allnames$humanNames)) {
-        observations <- observations[, allnames$humanNames]
+    if (any(names(observations) != allnames$human_names)) {
+        observations <- observations[, allnames$human_names]
     }
 
     attr(observations, "sport") <- sport
@@ -415,9 +328,9 @@ readDB3 <- function(file, timezone = "", table = "gps_data",
     }
 
     ## prepare names
-    allnames <- generateVariableNames()
-    namesOfInterest <- allnames$db3Names
-    namesToBeUsed <- allnames$humanNames
+    allnames <- generate_variable_names()
+    namesOfInterest <- allnames$db3_names
+    namesToBeUsed <- allnames$human_names
 
     ## extract the interesting variables
     inds <- match(namesOfInterest, names(mydf), nomatch = 0)
@@ -463,8 +376,8 @@ readDB3 <- function(file, timezone = "", table = "gps_data",
     }
 
     ## use variable order for trackeRdata
-    if (any(names(newdat) != allnames$humanNames))
-        newdat <- newdat[, allnames$humanNames]
+    if (any(names(newdat) != allnames$human_names))
+        newdat <- newdat[, allnames$human_names]
 
     attr(newdata, "sport") <- NA
     attr(file, "file") <- file
@@ -496,9 +409,9 @@ readJSON <- function(file, timezone = "",
     mydf <- jslist$SAMPLES
 
     ## prepare names
-    allnames <- generateVariableNames()
-    namesOfInterest <- allnames$jsonNames
-    namesToBeUsed <- allnames$humanNames
+    allnames <- generate_variable_names()
+    namesOfInterest <- allnames$json_names
+    namesToBeUsed <- allnames$human_names
 
     ## extract the interesting variables
     inds <- match(namesOfInterest, names(mydf), nomatch = 0)
@@ -545,8 +458,8 @@ readJSON <- function(file, timezone = "",
     }
 
     ## use variable order for trackeRdata
-    if (any(names(observations) != allnames$humanNames))
-        observations <- observations[, allnames$humanNames]
+    if (any(names(observations) != allnames$human_names))
+        observations <- observations[, allnames$human_names]
 
     attr(observations, "sport") <- sport
     attr(file, "file") <- file
