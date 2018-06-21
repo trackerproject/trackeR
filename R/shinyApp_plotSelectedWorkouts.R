@@ -207,7 +207,7 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
       }
       plot_stored[[as.character(i)]] <- a
     }
-    y_axis_range <- if(what == 'heart.rate') {c(80, 200)} else {c(0.9 * min(c(changepoint_y_values, smoothed_values$minimum)),
+    y_axis_range <- if(what == 'heart_rate') {c(80, 200)} else {c(0.9 * min(c(changepoint_y_values, smoothed_values$minimum)),
                                                                             max(c(changepoint_y_values, smoothed_values$maximum)) * 1.1)}
     y <- list(title = var_name_units, fixedrange = TRUE, range=y_axis_range)
     x <- list(title = "Time", fixedrange = TRUE)

@@ -19,7 +19,7 @@
 #'     \itemize{
 #'     \item variables \code{latitude} and \code{longitude} with unit \code{degree}
 #'     \item variables \code{altitude}, \code{distance} with unit \code{m}, \code{km}, \code{mi} or \code{ft}
-#'     \item variable \code{heart.rate} with unit \code{bpm}
+#'     \item variable \code{heart_rate} with unit \code{bpm}
 #'     \item variable \code{speed} with unit \code{m_per_s}, \code{km_per_h}, \code{ft_per_min},
 #'           \code{ft_per_s} or \code{mi_per_h}
 #'     \item variable \code{cadence} with unit \code{steps_per_min} or \code{rev_per_min}
@@ -52,7 +52,7 @@
 #'
 #' ## turn into trackeRdata object
 #' run <- trackeRdata(run, units = data.frame(variable = c('latitude', 'longitude',
-#'     'altitude', 'distance', 'heart.rate', 'speed', 'cadence', 'power'),
+#'     'altitude', 'distance', 'heart_rate', 'speed', 'cadence', 'power'),
 #'     unit = c('degree', 'degree', 'm', 'm', 'bpm', 'm_per_s', 'steps_per_min', 'W'),
 #'     stringsAsFactors = FALSE))
 #'
@@ -192,11 +192,11 @@ inPeriod <- function(dates, start, end) {
 #' @param silent Logical. Should warnings be generated if any of the sanity checks on the data are triggered?
 sanityChecks <- function(dat, silent) {
     ## replace heart rate 0 with NA
-    hr0 <- dat$heart.rate == 0
+    hr0 <- dat$heart_rate == 0
     if (any(hr0, na.rm = TRUE)) {
         if (!silent)
             warning("Heart rate measurements of 0 are set to NA.")
-        dat$heart.rate[hr0] <- NA
+        dat$heart_rate[hr0] <- NA
     }
 
     ## handle NAs
@@ -505,7 +505,7 @@ nsessions.trackeRdata <- function(object, ...) {
 GC2trackeRdata <- function(gc, cycling = TRUE, correctDistances = FALSE, country = NULL,
     mask = TRUE, fromDistances = FALSE, lgap = 30, lskip = 5, m = 11, silent = FALSE) {
 
-    units <- data.frame(variable = c("latitude", "longitude", "altitude", "distance", "heart.rate",
+    units <- data.frame(variable = c("latitude", "longitude", "altitude", "distance", "heart_rate",
         "speed", "cadence", "power", "pace"), unit = c("degree", "degree", "m", "km", "bpm",
         "km_per_h", "rev_per_min", "W", "min_per_km"), stringsAsFactors = FALSE)
 
@@ -515,7 +515,7 @@ GC2trackeRdata <- function(gc, cycling = TRUE, correctDistances = FALSE, country
     ## get variables, cast to zoo
     trackerdat <- lapply(gc, function(x) {
         ## select variables
-        x <- x[, c("time", "latitude", "longitude", "altitude", "distance", "heart.rate",
+        x <- x[, c("time", "latitude", "longitude", "altitude", "distance", "heart_rate",
             "speed", "cadence", "power")]
 
         ## basic edits

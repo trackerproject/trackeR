@@ -4,7 +4,7 @@
 #' @param session A vector of selected sessions.
 #' @param what A vector of variable names to be plotted.
 
-plot_zones <- function(x, session, what = c("heart.rate"), n_zones) {
+plot_zones <- function(x, session, what = c("heart_rate"), n_zones) {
   x <- zones(x, session = session, what = what, auto_breaks = TRUE, n_zones = n_zones)
 
   dat <- do.call("rbind", x)

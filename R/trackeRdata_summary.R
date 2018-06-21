@@ -112,7 +112,7 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
         ret
     }
 
-    summaries <- sapply(object, weightedMeans, which = c("cadence", "power", "heart.rate", "altitude"), th = movingThreshold)
+    summaries <- sapply(object, weightedMeans, which = c("cadence", "power", "heart_rate", "altitude"), th = movingThreshold)
     ## work to rest ratio
     wrRatio <- as.numeric(durationMoving)/as.numeric(duration - durationMoving)
 
@@ -127,9 +127,9 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
         avgCadenceMoving = summaries["cadence_moving", ],
         avgPower = summaries["power", ],
         avgPowerMoving = summaries["power_moving", ],
-        avgHeartRate = summaries["heart.rate", ],
-        avgHeartRateMoving = summaries["heart.rate_moving", ],
-        avgHeartRateResting = summaries["heart.rate_resting", ],
+        avgHeartRate = summaries["heart_rate", ],
+        avgHeartRateMoving = summaries["heart_rate_moving", ],
+        avgHeartRateResting = summaries["heart_rate_resting", ],
         wrRatio = wrRatio,
         sport = sports[session],
         file = files[session])
@@ -195,13 +195,13 @@ print.trackeRdataSummary <- function(x, ..., digits = 2) {
             "power"], "\n ")
 
         cat("Average heart rate:", round(x$avgHeartRate[i], digits = digits), units$unit[units$variable ==
-            "heart.rate"], "\n ")
+            "heart_rate"], "\n ")
 
         cat("Average heart rate moving:", round(x$avgHeartRateMoving[i], digits = digits),
-            units$unit[units$variable == "heart.rate"], "\n ")
+            units$unit[units$variable == "heart_rate"], "\n ")
 
         cat("Average heart rate resting:", round(x$avgHeartRateResting[i], digits = digits),
-            units$unit[units$variable == "heart.rate"], "\n ")
+            units$unit[units$variable == "heart_rate"], "\n ")
 
         cat("Work to rest ratio:", round(x$wrRatio[i], digits), "\n")
 
@@ -336,7 +336,7 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, l
     lab_sum <- function(series) {
         series <- as.character(series)
         concept <- switch(series, avgPace = "pace", avgSpeed = "speed", distance = "distance",
-            duration = "duration", avgPower = "power", avgCadence = "cadence", avgHeartRate = "heart.rate")
+            duration = "duration", avgPower = "power", avgCadence = "cadence", avgHeartRate = "heart_rate")
         thisunit <- units$unit[units$variable == concept]
         prettyUnit <- prettifyUnits(thisunit)
         ret <- switch(series, distance = paste0("distance \n [", prettyUnit, "]"), duration = paste0("duration \n [",

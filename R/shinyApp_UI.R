@@ -83,7 +83,7 @@ create_selected_workout_plot <- function(id, collapsed = FALSE) {
           title = tagList(
             shiny::icon("gear"),
             switch(id, "pace" = paste0("Pace"),
-              "heart.rate" = paste0("Heart Rate"),
+              "heart_rate" = paste0("Heart Rate"),
               "altitude" = paste0("Altitude"),
               "work_capacity" = paste0("Work Capacity"),
               "speed" = paste0("Speed"),
@@ -148,7 +148,7 @@ create_work_capacity_plot <- function(id, collapsed = FALSE) {
           title = tagList(
             shiny::icon("gear"),
             switch(id, "pace" = paste0("Pace"),
-              "heart.rate" = paste0("Heart Rate"),
+              "heart_rate" = paste0("Heart Rate"),
               "altitude" = paste0("Altitude"),
               "work_capacity" = paste0("Work Capacity"),
               "speed" = paste0("Speed")

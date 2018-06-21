@@ -7,7 +7,7 @@ generateVariableNames <- function() {
                     "longitude",
                     "altitude",
                     "distance",
-                    "heart.rate",
+                    "heart_rate",
                     "speed",
                     "cadence",
                     "power",
@@ -118,7 +118,7 @@ guess_sport <- function(sport) {
 #'
 #' ## turn into trackeRdata object
 #' run <- trackeRdata(run, units = data.frame(variable = c("latitude", "longitude",
-#'     "altitude", "distance", "heart.rate", "speed", "cadence", "power"),
+#'     "altitude", "distance", "heart_rate", "speed", "cadence", "power"),
 #'     unit = c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "W"),
 #'     stringsAsFactors = FALSE))
 #'

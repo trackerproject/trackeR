@@ -27,8 +27,8 @@
 #' runZones <- zones(run, what = 'speed', breaks = c(0, 2:6, 12.5))
 #' plot(runZones)
 #' @export
-zones <- function(object, session = NULL, what = c("speed", "heart.rate"), breaks = list(speed = 0:10,
-    heart.rate = c(0, seq(75, 225, by = 50), 250)), parallel = FALSE, auto_breaks = TRUE,
+zones <- function(object, session = NULL, what = c("speed", "heart_rate"), breaks = list(speed = 0:10,
+    heart_rate = c(0, seq(75, 225, by = 50), 250)), parallel = FALSE, auto_breaks = TRUE,
     n_zones = 9, ...) {
 
     ## select sessions
@@ -62,7 +62,7 @@ zones <- function(object, session = NULL, what = c("speed", "heart.rate"), break
         }
         for (feature in what) {
             maximum <- ceiling(quantile(df[feature], 0.98, na.rm = TRUE))
-            minimum <- if (feature == 'heart.rate') 60 else floor(quantile(df[feature], 0.01, na.rm = TRUE))
+            minimum <- if (feature == 'heart_rate') 60 else floor(quantile(df[feature], 0.01, na.rm = TRUE))
             breaks[[feature]] <- find_step_size(maximum, minimum)
         }
     }

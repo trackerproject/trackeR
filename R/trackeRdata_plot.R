@@ -27,7 +27,7 @@
 #'     smooth = TRUE, width = 15, parallel = FALSE)
 #' }
 #' @export
-plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
+plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart_rate"),
                              threshold = TRUE, smooth = FALSE, trend = TRUE, dates = TRUE, ...){
 
     ## code inspired by autoplot.zoo

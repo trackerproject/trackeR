@@ -19,8 +19,8 @@
 #' dProfile <- distributionProfile(run, what = "speed", grid = seq(0, 12.5, by = 0.05))
 #' plot(dProfile, smooth = FALSE)
 #' @export
-distributionProfile <- function(object, session = NULL, what = c("speed", "heart.rate"),
-                                grid = list(speed = seq(0, 12.5, by = 0.05), heart.rate = seq(0, 250)),
+distributionProfile <- function(object, session = NULL, what = c("speed", "heart_rate"),
+                                grid = list(speed = seq(0, 12.5, by = 0.05), heart_rate = seq(0, 250)),
                                 parallel = FALSE, cores = NULL, auto_grid = TRUE) {
 
 
@@ -49,7 +49,7 @@ distributionProfile <- function(object, session = NULL, what = c("speed", "heart
         }
         for (feature in what) {
             maximum <- ceiling(quantile(df[feature], 0.999, na.rm = TRUE))
-            minimum <- if (feature == 'heart.rate') 35 else 0
+            minimum <- if (feature == 'heart_rate') 35 else 0
             grid[[feature]] <- find_step_size(maximum, minimum)
         }
     }
@@ -175,7 +175,7 @@ distributionProfile <- function(object, session = NULL, what = c("speed", "heart
 #' @param what Which variables should be scaled?
 #' @param ... Currently not used.
 #' @export
-scaled.distrProfile <- function(object, session  = NULL, what = c("speed", "heart.rate"), ...){
+scaled.distrProfile <- function(object, session  = NULL, what = c("speed", "heart_rate"), ...){
     operations <- getOperations(object)
 
     ## select sessions
@@ -276,7 +276,7 @@ fortify.distrProfile <- function(model, data, melt = FALSE, ...){
 #' plot(dProfile, smooth = FALSE, multiple = TRUE)
 #' plot(dProfile, multiple = TRUE)
 #' @export
-plot.distrProfile <- function(x, session = NULL, what = c("speed", "heart.rate"),
+plot.distrProfile <- function(x, session = NULL, what = c("speed", "heart_rate"),
                             multiple = FALSE, smooth = TRUE, ...){
     ## code inspired by autoplot.zoo
     units <- getUnits(x)
@@ -485,7 +485,7 @@ smoother.distrProfile <- function(object, session = NULL, control = list(...), .
 #' @param parallel Logical. Should computation be carried out in parallel?
 #' @param cores Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options("corese")} (on Windows) or \code{options("mc.cores")} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.
 #' @export
-smootherControl.distrProfile <- function(what = c("speed", "heart.rate"), k = 30, sp = NULL,
+smootherControl.distrProfile <- function(what = c("speed", "heart_rate"), k = 30, sp = NULL,
                                          ## len = NULL, fam = "poisson",
                                          parallel = FALSE, cores = NULL){
     if (is.vector(what)) {
@@ -665,7 +665,7 @@ nsessions.distrProfile <- function(object, ...) {
 #' \dontrun{
 #'
 #' data('runs', package = 'trackeR')
-#' dProfile <- distributionProfile(runs, what = c("speed", "heart.rate"), auto_grid = TRUE)
+#' dProfile <- distributionProfile(runs, what = c("speed", "heart_rate"), auto_grid = TRUE)
 #' ridges(dProfile)
 #'
 #' }

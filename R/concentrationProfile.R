@@ -22,7 +22,7 @@
 #' plot(cProfile, smooth = FALSE)
 #' plot(cProfile)
 #' @export
-concentrationProfile <- function(object, session = NULL, what = c("speed", "heart.rate"),
+concentrationProfile <- function(object, session = NULL, what = c("speed", "heart_rate"),
     ...) {
     units <- getUnits(object)
     operations <- getOperations(object)
@@ -55,8 +55,8 @@ concentrationProfile <- function(object, session = NULL, what = c("speed", "hear
 }
 
 ## Experimental concentration profile
-cp <- function(object, session = NULL, what = c("speed", "heart.rate"),
-               limits = list(speed = c(0, 12.5), heart.rate = c(0, 250)),
+cp <- function(object, session = NULL, what = c("speed", "heart_rate"),
+               limits = list(speed = c(0, 12.5), heart_rate = c(0, 250)),
                parallel = FALSE, cores = NULL, auto_grid = TRUE) {
 
     units <- getUnits(object)
@@ -140,7 +140,7 @@ fortify.conProfile <- function(model, data, melt = FALSE, ...) {
 #' plot(cProfile, smooth = FALSE)
 #' plot(cProfile)
 #' @export
-plot.conProfile <- function(x, session = NULL, what = c("speed", "heart.rate"), multiple = FALSE,
+plot.conProfile <- function(x, session = NULL, what = c("speed", "heart_rate"), multiple = FALSE,
     smooth = TRUE, ...) {
     ## code inspired by autoplot.zoo
     units <- getUnits(x)
@@ -414,10 +414,10 @@ nsessions.conProfile <- function(object, ...) {
 #' \dontrun{
 #'
 #' data('runs', package = 'trackeR')
-#' dProfile <- distributionProfile(runs, what = c('speed', 'heart.rate'), auto_grid = TRUE)
+#' dProfile <- distributionProfile(runs, what = c('speed', 'heart_rate'), auto_grid = TRUE)
 #' cProfile <- concentrationProfile(dProfile)
 #' ridges(cProfile, what = "speed")
-#' ridges(cProfile, what = "heart.rate")
+#' ridges(cProfile, what = "heart_rate")
 #' }
 #'
 ridges.conProfile <- function(x, session = NULL, what = c("speed"),

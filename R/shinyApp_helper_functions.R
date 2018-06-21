@@ -3,14 +3,14 @@
 #' @param feature A character representing the feature whose units we want to generate.
 #' @param data An object of class \code{trackeRdataSummary} or \code{trackeRdata}.
 #' @param whole_text Generate only unit (e.g "[bpm]") or whole text (e.g. "Heart Rate [bpm]").
-#' @param transform_feature If TRUE, expected format of \code{feature} is such as "avgCadence", "avgPower". If FALSE, expected format is "pace", "cadence", "heart.rate" or "altitude".
+#' @param transform_feature If TRUE, expected format of \code{feature} is such as "avgCadence", "avgPower". If FALSE, expected format is "pace", "cadence", "heart_rate" or "altitude".
 lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE) {
   feature <- as.character(feature)
   units <- getUnits(data)
   if (transform_feature) {
     concept <- switch(feature, "avgPace" = "pace", "avgSpeed" = "speed",
       "distance" = "distance", "duration" = "duration",
-      "avgPower" = "power", "avgCadence" = "cadence", "avgHeartRate" = "heart.rate"
+      "avgPower" = "power", "avgCadence" = "cadence", "avgHeartRate" = "heart_rate"
     )
   }
   else {
@@ -35,7 +35,7 @@ lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE) 
       ret <- switch(feature,
         "pace" = paste0("Pace \n[", prettyUnit, "]"),
         "cadence" = paste0("Cadence \n[", prettyUnit, "]"),
-        "heart.rate" = paste0("Heart Rate \n[", prettyUnit, "]"),
+        "heart_rate" = paste0("Heart Rate \n[", prettyUnit, "]"),
         "altitude" = paste0("Altitude \n[", prettyUnit, "]"),
         "speed" = paste0("Speed \n[", prettyUnit, "]")
       )
@@ -59,7 +59,7 @@ lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE) 
       ret <- switch(feature,
         "pace" = prettyUnit,
         "cadence" = prettyUnit,
-        "heart.rate" = prettyUnit,
+        "heart_rate" = prettyUnit,
         "altitude" = prettyUnit,
         "speed" = prettyUnit
       )
@@ -100,7 +100,7 @@ get_selected_units <- function(feature, data) {
 #' @param input An object of class \code{reactivevalues}.
 #' @param object A character of either 'summary' or 'object' to specify which objects' units to change.
 change_units <- function(data, input, object) {
-  unused_variables <- c("latitude", "longitude", "heart.rate", "duration")
+  unused_variables <- c("latitude", "longitude", "heart_rate", "duration")
   allUnits <- getUnits(data$object)$variable[!(getUnits(data$object)$variable %in% unused_variables)]
 
   units <- c()
@@ -131,7 +131,7 @@ choices <- function() {
 #' Generate metrics to test if they have data
 metrics <- function() {
    c(
-    "Heart Rate" = "heart.rate",
+    "Heart Rate" = "heart_rate",
     "Altitude" = "altitude",
     "Speed" = "speed",
     "Cadence" = "cadence",

@@ -97,7 +97,7 @@ smoother.trackeRdata <- function(object, session = NULL, control = list(...), ..
 #' @seealso \code{\link{smoother.trackeRdata}}
 #' @export
 smootherControl.trackeRdata <- function(fun = "mean", width = 10, parallel = FALSE,
-    what = c("speed", "heart.rate"), nsessions = NA, ...) {
+    what = c("speed", "heart_rate"), nsessions = NA, ...) {
     # Basic checks for the arguments
     if (!is.character(fun)) {
         stop("'fun' should be a character string")
