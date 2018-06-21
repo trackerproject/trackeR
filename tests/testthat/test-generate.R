@@ -27,3 +27,5 @@ test_that("thresholds are generated correctly", {
     g <- generate_thresholds()
     expect_true(all(c("variable", "unit", "lower", "upper", "sport") %in% names(g)))
 })
+
+

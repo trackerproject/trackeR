@@ -505,7 +505,7 @@ readJSON <- function(file, timezone = "",
 #' run <- readContainer(filepath, type = "tcx", timezone = "GMT")
 #' }
 readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
-                          table = "gps_data", timezone = "", sessionThreshold = 2,
+                          table = "gps_data", timezone = "", session_threshold = 2,
                           correctDistances = FALSE,
                           country = NULL, mask = TRUE,
                           fromDistances = NULL,
@@ -548,7 +548,7 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
     ## make trackeRdata object (with all necessary data handling)
     trackerdat <- trackeRdata(dat, units = NULL, sport = sport,
                               correctDistances = correctDistances, country = country, mask = mask,
-                              sessionThreshold = sessionThreshold,
+                              session_threshold = session_threshold,
                               fromDistances = fromDistances,
                               lgap = lgap, lskip = lskip, m = m,
                               silent = silent)
@@ -561,7 +561,7 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
 #' @param directory The path to the directory.
 #' @param aggregate Logical. Aggregate data from different files to
 #'     the same session if observations are less then
-#'     \code{sessionThreshold} hours apart? Alternatively, data from
+#'     \code{session_threshold} hours apart? Alternatively, data from
 #'     different files is stored in different sessions.
 #' @param table The name of the table in the database for db3 files.
 #' @param fromDistances Logical. Should the speeds be calculated from
@@ -616,7 +616,7 @@ readDirectory <- function(directory,
                           aggregate = FALSE, ## aggregate data from all files or keep data from different files in different sessions?
                           table = "gps_data",
                           timezone = "",
-                          sessionThreshold = 2,
+                          session_threshold = 2,
                           correctDistances = FALSE,
                           country = NULL,
                           mask = TRUE,
@@ -701,7 +701,7 @@ readDirectory <- function(directory,
             allData <- do.call("rbind", allData[!sapply(allData, inherits, what = "try-error")])
             fromDistances <- if (is.null(fromDistances)) TRUE else fromDistances
             allData <- trackeRdata(allData,
-                                   sessionThreshold = sessionThreshold,
+                                   session_threshold = session_threshold,
                                    correctDistances = correctDistances,
                                    country = country,
                                    mask = mask,
@@ -731,7 +731,7 @@ readDirectory <- function(directory,
                                       type = currentType,
                                       table = table,
                                       timezone = timezone,
-                                      sessionThreshold = sessionThreshold,
+                                      session_threshold = session_threshold,
                                       correctDistances = correctDistances,
                                       country = country,
                                       mask = mask,

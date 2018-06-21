@@ -42,7 +42,7 @@
 #'     \code{trackeRdata} assumes that all observations in \code{dat}
 #'     are from the same \code{sport}, even if \code{dat} ends up
 #'     having observations from different sessions (also depending on
-#'     the value of \code{sessionThreshold}.
+#'     the value of \code{session_threshold}.
 #'
 #' @seealso \code{\link{readContainer}} for reading .tcx and .db3
 #'     files directly into \code{trackeRdata} objects.
@@ -70,7 +70,7 @@
 #' run <- readContainer(filepath, type = 'tcx', timezone = 'GMT')
 #' }
 #' @export
-trackeRdata <- function(dat, units = NULL, sport = NULL, sessionThreshold = 2,
+trackeRdata <- function(dat, units = NULL, sport = NULL, session_threshold = 2,
                         correctDistances = FALSE, country = NULL, mask = TRUE,
                         fromDistances = TRUE, lgap = 30, lskip = 5, m = 11, silent = FALSE) {
 
@@ -93,7 +93,7 @@ trackeRdata <- function(dat, units = NULL, sport = NULL, sessionThreshold = 2,
     dat <- sanity_checks(dat = dat, silent = silent)
 
     ## separate sessions and cast to zoo objects
-    trackerdat <- getSessions(dat, sessionThreshold = sessionThreshold)
+    trackerdat <- get_sessions(dat, session_threshold = session_threshold)
 
     ## remove sessions which only contain NA
     empty <- sapply(trackerdat, function(x) all(is.na(x)))
@@ -101,7 +101,7 @@ trackeRdata <- function(dat, units = NULL, sport = NULL, sessionThreshold = 2,
 
     ## correct GPS distances for elevation
     if (correctDistances)
-        trackerdat <- lapply(trackerdat, distanceCorrection, country = country, mask = mask)
+        trackerdat <- lapply(trackerdat, distance_correction, country = country, mask = mask)
 
     ## impute speeds in each session
     trackerdat <- lapply(trackerdat, imputeSpeeds, fromDistances = fromDistances, lgap = lgap,
@@ -419,7 +419,7 @@ GC2trackeRdata <- function(gc, cycling = TRUE, correctDistances = FALSE, country
 
     ## correct GPS distances for elevation
     if (correctDistances)
-        trackerdat <- lapply(trackerdat, distanceCorrection, country = country, mask = mask)
+        trackerdat <- lapply(trackerdat, distance_correction, country = country, mask = mask)
 
     ## impute speeds in each session
     trackerdat <- lapply(trackerdat, imputeSpeeds, fromDistances = fromDistances, lgap = lgap,

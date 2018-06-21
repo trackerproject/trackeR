@@ -1,71 +1,23 @@
-library(testthat)
-context("Tests for tracker")
+context("implementation [extraction utilities]")
 
-tcxfile <- system.file("extdata/tcx/", "2013-05-16-120907.TCX", package = "trackeR")
 gpxfile_run <- system.file("extdata/gpx/", "20170708-154835-Run.gpx", package = "trackeR")
-gpxfile_ride <- system.file("extdata/gpx/", "20170709-151453-Ride.gpx", package = "trackeR")
-gpxfile_swim <- system.file("extdata/gpx/", "20170714-143644-Swim.gpx", package = "trackeR")
-jsonfile <- system.file("extdata/json/", "2017_04_24_10_18_45.json", package = "trackeR")
+gpx <- readGPX(gpxfile_run)
 
-DataNonGarmin <- readContainer(tcxfile)
-
-## Test trackeRdata object
-test_that("class of object from readContainer is trackeRdata", {
-    expect_is(DataNonGarmin, "trackeRdata")
+test_that("resting_periods returns the expected number of splits", {
+    rp1 <- resting_periods(gpx$time, session_threshold = 2)
+    rp2 <- resting_periods(gpx$time, session_threshold = 0.5/60)
+    expect_equal(nrow(rp1$sessions), 1)
+    expect_equal(nrow(rp2$sessions), 3)
 })
 
-test_that("number of sessions in DataNonGarmin is 1", {
-    expect_equal(nsessions(DataNonGarmin), 1)
-})
-
-trackeRdatanames <- c("latitude", "longitude", "altitude", "distance", "heart.rate", "speed", "cadence", "power", "temperature", "pace")
-test_that("the names of each element of an trackeRdata object are as in trackeRdatanames", {
-    expect_named(DataNonGarmin[[1]], trackeRdatanames)
-})
-
-test_that("class of each element of an trackeRdata object is of class zoo", {
-    expect_is(DataNonGarmin[[1]], "zoo")
-})
-
-
-## Smoother
-DataNonGarmin_smoothed <- smoother(DataNonGarmin, width = 20, what = "speed")
-
-test_that("class of object from smoother.trackeRdata is trackeRdata", {
-    expect_is(DataNonGarmin_smoothed, "trackeRdata")
-})
-
-test_that("only speed is smoothed in DataNonGarmin_smoothed (test only first session)", {
-    Data_smoothed <- DataNonGarmin_smoothed[[1]]
-    Data_original <- DataNonGarmin[[1]]
-    inds <- match("speed", names(Data_smoothed))
-    expect_equal(Data_smoothed[, -inds],
-                 Data_original[index(Data_smoothed), -inds])
-    expect_false(isTRUE(all.equal(Data_smoothed[, inds], Data_original[index(Data_smoothed), inds])))
-})
-
-test_that("smoother returns error is the trackeRdata object is already smoothed", {
-    expect_warning(smoother(DataNonGarmin_smoothed))
-})
-
-
-## Summary
-DataNonGarmin_summary <- summary(DataNonGarmin)
-
-test_that("standard keywords are produced from print.spdataSummary", {
-    expect_output(print(DataNonGarmin_summary), "Session")
-    expect_output(print(DataNonGarmin_summary), "Duration")
-    expect_output(print(DataNonGarmin_summary), "Distance")
-    expect_output(print(DataNonGarmin_summary), "speed")
-    expect_output(print(DataNonGarmin_summary), "pace")
-    expect_output(print(DataNonGarmin_summary), "time")
-})
-
-
-test_that("class of the object from summary.trackeRdata is trackeRdataSummary", {
-    expect_is(DataNonGarmin_summary, "trackeRdataSummary")
-})
-
-test_that("object from summary.trackeRdata also inherit from data.frame", {
-    expect_is(DataNonGarmin_summary, "data.frame")
+test_that("get_sessions returns a list of zoo objects that are the same when combined", {
+    sess1 <- get_sessions(gpx, session_threshold = 2)
+    sess2 <- get_sessions(gpx, session_threshold = 0.5/60)
+    for (j in 1:length(sess1)) {
+        expect_is(sess1[[j]], "zoo")
+    }
+    for (j in 1:length(sess2)) {
+        expect_is(sess2[[j]], "zoo")
+    }
+    expect_true(all.equal(do.call("rbind", sess2), sess1[[1]], tolerance = 1e-15))
 })
