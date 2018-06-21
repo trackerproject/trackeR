@@ -1,7 +1,11 @@
 library(testthat)
 context("Tests for tracker")
 
-tcxfile <- system.file("extdata", "2013-05-16-120907.TCX", package = "trackeR")
+tcxfile <- system.file("extdata/tcx/", "2013-05-16-120907.TCX", package = "trackeR")
+gpxfile_run <- system.file("extdata/gpx/", "20170708-154835-Run.gpx", package = "trackeR")
+gpxfile_ride <- system.file("extdata/gpx/", "20170709-151453-Ride.gpx", package = "trackeR")
+gpxfile_swim <- system.file("extdata/gpx/", "20170714-143644-Swim.gpx", package = "trackeR")
+jsonfile <- system.file("extdata/json/", "2017_04_24_10_18_45.json", package = "trackeR")
 
 DataNonGarmin <- readContainer(tcxfile)
 
