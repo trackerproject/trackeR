@@ -68,15 +68,16 @@ threshold <- function(object, variable, lower, upper, ...) {
 
 
 generateDefaultThresholds <- function(cycling = FALSE, ...) {
-    th <- generateBaseUnits(cycling)
+    th <- generateBaseUnits()
     ## FIXME: tighter limits?
     if (cycling) {
-        th$lower <- c(-90, -180, -500, 0, 0, 0, 0, 0, -30, 0, 0)
-        th$upper <- c(90, 180, 9000, Inf, 250, 100, Inf, Inf, 60, Inf, Inf)
-    } else {
-        th$lower <- c(-90, -180, -500, 0, 0, 0, 0, 0, -30, 0, 0)
+        th$lower <- c(-90, -180, -500, 0, 0, 0, 0, 0, 0, -30, 0, 0)
+        th$upper <- c(90, 180, 9000, Inf, 250, 100, Inf, Inf, Inf, 60, Inf, Inf)
+    }
+    else {
+        th$lower <- c(-90, -180, -500, 0, 0, 0, 0, 0, 0, -30, 0, 0)
         ## th$upper <- c(90, 180, 9000, Inf, 250, 20, Inf, Inf)
-        th$upper <- c(90, 180, 9000, Inf, 250, 12.5, Inf, Inf, 60, Inf, Inf)
+        th$upper <- c(90, 180, 9000, Inf, 250, 12.5, Inf, Inf, Inf, 60, Inf, Inf)
     }
     class(th) <- c("trackeRthresholds", class(th))
     return(th)

@@ -112,7 +112,7 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
         ret
     }
 
-    summaries <- sapply(object, weightedMeans, which = c("cadence", "power", "heart_rate", "altitude"), th = movingThreshold)
+    summaries <- sapply(object, weightedMeans, which = c("cadence_running", "cadence_cycling", "power", "heart_rate", "altitude"), th = movingThreshold)
     ## work to rest ratio
     wrRatio <- as.numeric(durationMoving)/as.numeric(duration - durationMoving)
 
@@ -121,10 +121,12 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
     ret <- data.frame(session = session, sessionStart = sessionStart, sessionEnd = sessionEnd,
         distance = distance, duration = duration, durationMoving = durationMoving, avgSpeed = avgSpeed,
         avgSpeedMoving = avgSpeedMoving, avgPace = avgPace, avgPaceMoving = avgPaceMoving,
-        avgCadence = summaries["cadence", ],
+        avgCadenceRunning = summaries["cadence_running", ],
+        avgCadenceCycling = summaries["cadence_cycling", ],
         avgAltitude = summaries["altitude", ],
         avgAltitudeMoving = summaries["altitude_moving", ],
-        avgCadenceMoving = summaries["cadence_moving", ],
+        avgCadenceRunningMoving = summaries["cadence_running_moving", ],
+        avgCadenceCyclingMoving = summaries["cadence_cycling_moving", ],
         avgPower = summaries["power", ],
         avgPowerMoving = summaries["power_moving", ],
         avgHeartRate = summaries["heart_rate", ],
@@ -182,11 +184,15 @@ print.trackeRdataSummary <- function(x, ..., digits = 2) {
         cat(paste0("Average pace moving (per 1 ", unitDist4pace, "):"), paste(floor(avgPaceMoving),
             round(x$avgPaceMoving[i]%%1 * 60, 0), sep = ":"), "min:sec\n ")
 
-        cat("Average cadence:", round(x$avgCadence[i], digits = digits), units$unit[units$variable ==
-            "cadence"], "\n ")
+        cat("Average cadence running:", round(x$avgCadenceRunning[i], digits = digits),
+            units$unit[units$variable == "cadence_running"], "\n ")
+        cat("Average cadence cycling:", round(x$avgCadenceCycling[i], digits = digits),
+            units$unit[units$variable == "cadence_cycling"], "\n ")
 
-        cat("Average cadence moving:", round(x$avgCadenceMoving[i], digits = digits), units$unit[units$variable ==
-            "cadence"], "\n ")
+        cat("Average cadence running moving:", round(x$avgCadenceRunningMoving[i], digits = digits),
+            units$unit[units$variable == "cadence_running"], "\n ")
+        cat("Average cadence cycling moving:", round(x$avgCadenceCyclingMoving[i], digits = digits),
+            units$unit[units$variable == "cadence_cycling"], "\n ")
 
         cat("Average power:", round(x$avgPower[i], digits = digits), units$unit[units$variable ==
             "power"], "\n ")
@@ -228,9 +234,11 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...) {
 
         basic <- ret[, c("session", "sessionStart", "sessionEnd")]
 
-        varsTotal <- c("distance", "duration", "avgSpeed", "avgPace", "avgCadence", "avgPower",
-            "avgHeartRate", "wrRatio")
-        varsMoving <- c("duration", "avgSpeed", "avgPace", "avgCadence", "avgPower", "avgHeartRate")
+        varsTotal <- c("distance", "duration", "avgSpeed", "avgPace", "avgCadenceRunning",
+                       "avgCadenceCycling", "avgPower", "avgHeartRate", "wrRatio")
+        varsMoving <- c("duration", "avgSpeed", "avgPace", "avgCadenceRunning",
+                        "avgCadenceCycling",
+                        "avgPower", "avgHeartRate")
         varsResting <- c("avgHeartRate")
 
         dfTotal <- data.frame(basic[rep(seq_along(ret$session), times = length(varsTotal)),
@@ -336,14 +344,21 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, l
     lab_sum <- function(series) {
         series <- as.character(series)
         concept <- switch(series, avgPace = "pace", avgSpeed = "speed", distance = "distance",
-            duration = "duration", avgPower = "power", avgCadence = "cadence", avgHeartRate = "heart_rate")
+                          duration = "duration", avgPower = "power", avgCadenceRunning = "cadence_running",
+                          avgCadenceCycling = "cadence_cycling",
+                          avgHeartRate = "heart_rate")
         thisunit <- units$unit[units$variable == concept]
         prettyUnit <- prettifyUnits(thisunit)
-        ret <- switch(series, distance = paste0("distance \n [", prettyUnit, "]"), duration = paste0("duration \n [",
-            prettyUnit, "]"), avgSpeed = paste0("avg. speed \n [", prettyUnit, "]"), avgPace = paste0("avg. pace \n [",
-            prettyUnit, "]"), avgCadence = paste0("avg. cadence \n [", prettyUnit, "]"),
-            avgPower = paste0("avg. power \n [", prettyUnit, "]"), avgHeartRate = paste0("avg. heart rate \n [",
-                prettyUnit, "]"), wrRatio = "work-to-rest \n ratio")
+        ret <- switch(series,
+                      distance = paste0("distance \n [", prettyUnit, "]"),
+                      duration = paste0("duration \n [", prettyUnit, "]"),
+                      avgSpeed = paste0("avg. speed \n [", prettyUnit, "]"),
+                      avgPace = paste0("avg. pace \n [", prettyUnit, "]"),
+                      avgCadenceRunning = paste0("avg. cadence \n [", prettyUnit, "]"),
+                      avgCadenceCycling = paste0("avg. cadence \n [", prettyUnit, "]"),
+                      avgPower = paste0("avg. power \n [", prettyUnit, "]"),
+                      avgHeartRate = paste0("avg. heart rate \n [", prettyUnit, "]"),
+                      wrRatio = "work-to-rest \n ratio")
         ret
     }
     lab_sum <- Vectorize(lab_sum)

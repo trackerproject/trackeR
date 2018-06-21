@@ -55,8 +55,8 @@ generateVariableNames <- function() {
                       "dist",
                       "hr",
                       "velocity",
-                      "cadence",
-                      "rcadence", ## dummy for now; db3 seems not to distinguish between run and cycling cadence
+                      "rcadence",
+                      "cadence", ## dummy for now; db3 seems not to distinguish between run and cycling cadence
                       "watts",
                       "temperature")
 
@@ -68,8 +68,8 @@ generateVariableNames <- function() {
                    "KM",
                    "HR",
                    "KPH",
-                   "CAD",
-                   "RCAD", ## dummy for now; json seems not to distinguish between run and cycling cadence
+                   "RCAD",
+                   "CAD", ## dummy for now; json seems not to distinguish between run and cycling cadence
                    "WATTS",
                    "temperature")
 
@@ -502,13 +502,14 @@ readJSON <- function(file, timezone = "",
 
     ## extract the interesting variables
     inds <- match(namesOfInterest, names(mydf), nomatch = 0)
-    newdat <- mydf[inds]
-    names(newdat) <- namesToBeUsed[inds!=0]
+    observations <- mydf[inds]
+    names(observations) <- namesToBeUsed[inds!=0]
 
     ## coerce time into POSIXct
-    newdat$time <- stime + newdat$time
+    observations$time <- stime + observations$time
 
     is_cadence <- grepl("cadence", names(observations))
+
     if (any(is_cadence)) {
         if (is.na(sport)) {
             observations[is_cadence] <- NULL
@@ -524,33 +525,33 @@ readJSON <- function(file, timezone = "",
     }
 
     ## add missing variables as NA
-    missingVars <- namesToBeUsed[match(namesToBeUsed, names(newdat), nomatch = 0) == 0]
-    if (nrow(newdat) > 0) {
+    missingVars <- namesToBeUsed[match(namesToBeUsed, names(observations), nomatch = 0) == 0]
+    if (nrow(observations) > 0) {
         for (nn in missingVars) {
-            newdat[[nn]] <- NA
+            observations[[nn]] <- NA
         }
     }
 
     ## convert speed from speedunit to m/s
     if (speedunit != "m_per_s"){
         speedConversion <- match.fun(paste(speedunit, "m_per_s", sep = "2"))
-        newdat$speed <- speedConversion(newdat$speed)
+        observations$speed <- speedConversion(observations$speed)
     }
 
     ## convert distance from distanceunit to m
     if (distanceunit != "m"){
         distanceConversion <- match.fun(paste(distanceunit, "m", sep = "2"))
-        newdat$distance <- distanceConversion(newdat$distance)
+        observations$distance <- distanceConversion(observations$distance)
     }
 
     ## use variable order for trackeRdata
-    if (any(names(newdat) != allnames$humanNames))
-        newdat <- newdat[, allnames$humanNames]
+    if (any(names(observations) != allnames$humanNames))
+        observations <- observations[, allnames$humanNames]
 
-    attr(newdat, "sport") <- sport
+    attr(observations, "sport") <- sport
     attr(file, "file") <- file
 
-    return(newdat)
+    return(observations)
 
 }
 
@@ -581,7 +582,6 @@ readJSON <- function(file, timezone = "",
 #'     Available options for \code{distanceunit} currently are \code{km}, \code{m}, \code{mi} and
 #'     \code{ft}.
 #'
-#'     Reading Golden Cheetah's JSON files is experimental.
 #' @return An object of class \code{\link{trackeRdata}}.
 #' @seealso \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}, \code{\link{readJSON}}
 #'

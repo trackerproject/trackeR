@@ -28,14 +28,15 @@
 #'     }
 #'     If the argument \code{units} is \code{NULL}, the default units are used. These are the first options, i.e.,
 #'     \code{m} for variables \code{altitude} and \code{distance}, \code{m_per_s} for variable \code{speed} as well
-#'     as \code{W} for variable \code{power}. The default for variable \code{cadence} depends on the value of
-#'     argument \code{cycling}.
+#'     as \code{W} for variable \code{power}.
 #'
-#'     During small breaks within a session, e.g., because the recording device was paused,
-#'     observations are imputed the following way:
-#'     0 for speed, last known position for latitude, longitude and altitude,
-#'     NA or 0 power for running or cycling session, respectively, and NA for all other
-#'     variables. Distances are (re-)calculated based on speeds after imputation.
+#'     During small breaks within a session, e.g., because the
+#'     recording device was paused, observations are imputed the
+#'     following way: 0 for speed, last known position for latitude,
+#'     longitude and altitude, NA or 0 power for running or cycling
+#'     session, respectively, and NA for all other
+#'     variables. Distances are (re-)calculated based on speeds after
+#'     imputation.
 #'
 #'     \code{trackeRdata} assumes that all observations in \code{dat}
 #'     are from the same \code{sport}, even if \code{dat} ends up
@@ -75,20 +76,7 @@ trackeRdata <- function(dat, units = NULL, sport = NULL, sessionThreshold = 2, c
 
     ## prep units
     if (is.null(units)) {
-        units <- generateBaseUnits(is_cycling)
-    }
-
-    if (is_cycling) {
-        if (units$unit[units$variable == "cadence"] != "rev_per_min") {
-            warning("Unit for cadence is set to 'rev_per_min' due to sport = 'cycling'.")
-            units$unit[units$variable == "cadence"] <- "rev_per_min"
-        }
-    }
-    else {
-        if (units$unit[units$variable == "cadence"] != "steps_per_min") {
-            warning("Unit for cadence is set to 'steps_per_min' due to sport != 'cycling'.")
-            units$unit[units$variable == "cadence"] <- "steps_per_min"
-        }
+        units <- generateBaseUnits()
     }
 
     ## ensure units are characters, not factors, if provided by the user
@@ -495,7 +483,7 @@ nsessions.trackeRdata <- function(object, ...) {
 #' Experimental state.
 #'
 #' @param gc Output of \code{GC.activity}.
-#' @param cycling Logical. Does the data stem from cycling instead of running?
+#' @param cycling Logical. Does the data stem from cycling?
 #' @inheritParams trackeRdata
 #' @inheritParams sanityChecks
 #' @inheritParams restingPeriods
@@ -505,9 +493,11 @@ nsessions.trackeRdata <- function(object, ...) {
 GC2trackeRdata <- function(gc, cycling = TRUE, correctDistances = FALSE, country = NULL,
     mask = TRUE, fromDistances = FALSE, lgap = 30, lskip = 5, m = 11, silent = FALSE) {
 
-    units <- data.frame(variable = c("latitude", "longitude", "altitude", "distance", "heart_rate",
-        "speed", "cadence", "power", "pace"), unit = c("degree", "degree", "m", "km", "bpm",
-        "km_per_h", "rev_per_min", "W", "min_per_km"), stringsAsFactors = FALSE)
+    units <- data.frame(
+        variable = c("latitude", "longitude", "altitude", "distance", "heart_rate",
+                     "speed", "cadence_running", "cadence_cycling", "power", "pace"),
+        unit = c("degree", "degree", "m", "km", "bpm",
+                 "km_per_h", "rev_per_min", "steps_per_min", "W", "min_per_km"), stringsAsFactors = FALSE)
 
     ## clear out sessions without any data
     gc <- gc[sapply(gc, function(x) nrow(x) > 0)]
@@ -516,7 +506,7 @@ GC2trackeRdata <- function(gc, cycling = TRUE, correctDistances = FALSE, country
     trackerdat <- lapply(gc, function(x) {
         ## select variables
         x <- x[, c("time", "latitude", "longitude", "altitude", "distance", "heart_rate",
-            "speed", "cadence", "power")]
+            "speed", "cadence_running", "cadence_cycling", "power")]
 
         ## basic edits
         x <- sanityChecks(dat = x, silent = silent)

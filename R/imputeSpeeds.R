@@ -32,7 +32,7 @@ imputeSpeeds <- function(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5
         return(sessionData)
     }
 
-    if (is.null(units)) units <- generateBaseUnits(cycling)
+    if (is.null(units)) units <- generateBaseUnits()
     distUnit <- units$unit[units$variable == "distance"]
     speedUnits <- strsplit(units$unit[units$variable == "speed"], "_per_")[[1]]
     distUnitSpeed <- speedUnits[1]

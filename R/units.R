@@ -316,25 +316,21 @@ getOperations.conProfile <- function(object, ...) {
 
 
 
-## README: export?
 #' Generate base units.
 #'
-#' @param cycling Logical. Is the data from a cycling session rather than a running session?
 #' @param ... Currently not used.
-generateBaseUnits <- function(cycling = FALSE, ...) {
+#' @export
+generateBaseUnits <- function(...) {
     ## Get the variable names
     varnames <- generateVariableNames()$humanNames
     ## Remove time and add duration
     varnames <- varnames[-match("time", varnames)]
     varnames <- c(varnames, c("pace", "duration"))
 
-    if (cycling) {
-        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "rev_per_min", "W", "C",
-            "min_per_km", "s")
-    } else {
-        units <- c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "W", "C",
-            "min_per_km", "s")
-    }
+    units <- c("degree", "degree", "m", "m", "bpm", "m_per_s",
+               "steps_per_min", "rev_per_min",
+               "W", "C",
+               "min_per_km", "s")
 
     return(data.frame(variable = varnames, unit = units, stringsAsFactors = FALSE))
 }

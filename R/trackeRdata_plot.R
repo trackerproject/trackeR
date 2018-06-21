@@ -42,7 +42,8 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart_rate"),
         if (all(c("variable", "lower", "upper") %in% names(dots))){
             ## thresholds provided by user
             th <- data.frame(variable = dots$variable, lower = dots$lower, upper = dots$upper)
-        } else {
+        }
+        else {
             ## default thresholds
             cycling <- units$unit[units$variable == "cadence"] == "rev_per_min"
             th <- generateDefaultThresholds(cycling)
