@@ -27,10 +27,10 @@ Ridgeline plots for distrProfile objects
 \dontrun{
 
 data('runs', package = 'trackeR')
-dProfile <- distributionProfile(runs, what = c('speed', 'heart.rate'), auto_grid = TRUE)
+dProfile <- distributionProfile(runs, what = c('speed', 'heart_rate'), auto_grid = TRUE)
 cProfile <- concentrationProfile(dProfile)
 ridges(cProfile, what = "speed")
-ridges(cProfile, what = "heart.rate")
+ridges(cProfile, what = "heart_rate")
 }
 
 }

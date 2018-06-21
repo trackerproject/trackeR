@@ -486,7 +486,7 @@ readJSON <- function(file, timezone = "",
 #'     \code{tcx} and \code{km} when \code{type} is \code{db3} or \code{json}. See Details.
 #' @param sport What sport does \code{file} contain data from? Either \code{'cycling'}, \code{'running'}, \code{'swimming'} or \code{NULL} (default), in which case the sport is directly obtained from the \code{\link{readX}} extractors.
 #' @inheritParams readX
-#' @inheritParams restingPeriods
+#' @inheritParams resting_periods
 #' @inheritParams imputeSpeeds
 #' @inheritParams trackeRdata
 #' @inheritParams sanityChecks
@@ -591,7 +591,7 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
 #'     made \code{\link[shiny]{reactive}}? For use in the shiny
 #'     interface. Default is \code{FALSE}.
 #' @inheritParams readX
-#' @inheritParams restingPeriods
+#' @inheritParams resting_periods
 #' @inheritParams imputeSpeeds
 #' @inheritParams trackeRdata
 #' @inheritParams sanityChecks

@@ -5,7 +5,7 @@
 \title{Scale the distribution profile relative to its maximum value}
 \usage{
 \method{scaled}{distrProfile}(object, session = NULL, what = c("speed",
-  "heart.rate"), ...)
+  "heart_rate"), ...)
 }
 \arguments{
 \item{object}{An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.}

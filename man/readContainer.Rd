@@ -55,7 +55,8 @@ observation after a small break.}
 
 \item{m}{Number of imputed observations in each small break.}
 
-\item{silent}{Logical. Should warnings be generated if any of the sanity checks on the data are triggered?}
+\item{silent}{Logical. Should warnings be generated if any of the
+sanity checks on the data are triggered?}
 }
 \value{
 An object of class \code{\link{trackeRdata}}.
@@ -68,8 +69,6 @@ Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_pe
     \code{mi_per_h}, \code{ft_per_min} and \code{ft_per_s}.
     Available options for \code{distanceunit} currently are \code{km}, \code{m}, \code{mi} and
     \code{ft}.
-
-    Reading Golden Cheetah's JSON files is experimental.
 }
 \examples{
 \dontrun{

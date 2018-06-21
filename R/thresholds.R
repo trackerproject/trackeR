@@ -30,17 +30,14 @@ threshold <- function(object, variable, lower, upper, ...) {
         units <- getUnits(object)
         th <- generateDefaultThresholds()
         th <- changeUnits(th, variable = units$variable, unit = units$unit)
-        running_th <- changeUnits(running_th, variable = units$variable, unit = units$unit)
-        swimming_th <- changeUnits(swimming_th, variable = units$variable, unit = units$unit)
     }
     else {
         ## new thresholds
         if (!missing(variable) && is.data.frame(variable)) {
-            running_th <- cycling_th <- swimming_th <- variable
+            th <- variable
         }
         else {
-            running_th <- cycling_th <- swimming_th <-
-                data.frame(variable = variable, lower = lower, upper = upper)
+            th <- data.frame(variable = variable, lower = lower, upper = upper)
         }
     }
 
@@ -77,9 +74,8 @@ generateDefaultThresholds <- function(...) {
     th <- generateBaseUnits()
     n_variables <- nrow(th)
     th <- rbind(th, th, th)
-    ## FIXME: tighter limits?
-    th$lower <- c(-90, -180, -500, 0, 0, 0, 0, 0, 0, -30, 0, 0)
     th$sport <- rep(c("cycling", "running", "swimming"), each = n_variables)
+    th$lower <- c(-90, -180, -500, 0, 0, 0, 0, 0, 0, -30, 0, 0)
     th$upper <- c(c(90, 180, 9000, Inf, 250, 100, Inf, Inf, Inf, 60, Inf, Inf),
                   c(90, 180, 9000, Inf, 250, 12.5, Inf, Inf, Inf, 60, Inf, Inf),
                   c(90, 180, 9000, Inf, 250, 5, Inf, Inf, Inf, 60, Inf, Inf))

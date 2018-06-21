@@ -5,7 +5,7 @@
 \title{Generate training concentration profiles.}
 \usage{
 concentrationProfile(object, session = NULL, what = c("speed",
-  "heart.rate"), ...)
+  "heart_rate"), ...)
 }
 \arguments{
 \item{object}{An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.}

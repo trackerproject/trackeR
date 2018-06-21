@@ -61,8 +61,8 @@ run <- readTCX(file = filepath, timezone = "GMT")
 
 ## turn into trackeRdata object
 run <- trackeRdata(run, units = data.frame(variable = c("latitude", "longitude",
-    "altitude", "distance", "heart.rate", "speed", "cadence", "power"),
-    unit = c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "W"),
+    "altitude", "distance", "heart_rate", "speed", "cadence_running", "cadence_cycling", "power"),
+    unit = c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "rev_per_min", "W"),
     stringsAsFactors = FALSE))
 
 ## alternatively

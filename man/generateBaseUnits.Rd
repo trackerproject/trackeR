@@ -4,11 +4,9 @@
 \alias{generateBaseUnits}
 \title{Generate base units.}
 \usage{
-generateBaseUnits(cycling = FALSE, ...)
+generateBaseUnits(...)
 }
 \arguments{
-\item{cycling}{Logical. Is the data from a cycling session rather than a running session?}
-
 \item{...}{Currently not used.}
 }
 \description{

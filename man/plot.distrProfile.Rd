@@ -5,7 +5,7 @@
 \title{Plot distribution profiles.}
 \usage{
 \method{plot}{distrProfile}(x, session = NULL, what = c("speed",
-  "heart.rate"), multiple = FALSE, smooth = TRUE, ...)
+  "heart_rate"), multiple = FALSE, smooth = TRUE, ...)
 }
 \arguments{
 \item{x}{An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.}

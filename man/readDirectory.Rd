@@ -10,8 +10,7 @@ readDirectory(directory, aggregate = FALSE, table = "gps_data",
   speedunit = list(tcx = "m_per_s", gpx = "km_per_h", db3 = "km_per_h", json =
   "km_per_h"), distanceunit = list(tcx = "m", gpx = "km", db3 = "km", json =
   "km"), sport = NULL, lgap = 30, lskip = 5, m = 11, silent = FALSE,
-  shiny = FALSE, parallel = FALSE, cores = getOption("mc.cores", 2L),
-  verbose = TRUE)
+  shiny = FALSE, parallel = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{directory}{The path to the directory.}
@@ -68,7 +67,8 @@ observation after a small break.}
 
 \item{m}{Number of imputed observations in each small break.}
 
-\item{silent}{Logical. Should warnings be generated if any of the sanity checks on the data are triggered?}
+\item{silent}{Logical. Should warnings be generated if any of the
+sanity checks on the data are triggered?}
 
 \item{shiny}{Logical. Should the output of \code{readDirectory} be
 made \code{\link[shiny]{reactive}}? For use in the shiny
@@ -78,8 +78,6 @@ interface. Default is \code{FALSE}.}
 If \code{TRUE} reading is performed in parallel using the
 backend provided to \code{\link{foreach}}. Default is
 \code{FALSE}.}
-
-\item{cores}{Number of cores for parallel computing.}
 
 \item{verbose}{Logical. Should progress reports be printed?}
 }

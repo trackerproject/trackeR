@@ -4,8 +4,8 @@
 \alias{distributionProfile}
 \title{Generate training distribution profiles.}
 \usage{
-distributionProfile(object, session = NULL, what = c("speed", "heart.rate"),
-  grid = list(speed = seq(0, 12.5, by = 0.05), heart.rate = seq(0, 250)),
+distributionProfile(object, session = NULL, what = c("speed", "heart_rate"),
+  grid = list(speed = seq(0, 12.5, by = 0.05), heart_rate = seq(0, 250)),
   parallel = FALSE, cores = NULL, auto_grid = TRUE)
 }
 \arguments{

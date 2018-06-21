@@ -38,7 +38,12 @@ Impute speeds of 0 during small breaks within a session.
 }
 \references{
 Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
-    Endurance Runners to Training and Physiological Effects via Multi-Resolution
-    Elastic Net. \emph{ArXiv e-print} arXiv:1506.01388.
-    Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal of Statistical Software}, \bold{82}(7), 1--29. doi:10.18637/jss.v082.i07
+Endurance Runners to Training and Physiological Effects via
+Multi-Resolution Elastic Net. \emph{ArXiv e-print}
+arXiv:1506.01388.
+
+Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running
+and Cycling Data from GPS-Enabled Tracking Devices in
+R. \emph{Journal of Statistical Software}, \bold{82}(7),
+1--29. doi:10.18637/jss.v082.i07
 }

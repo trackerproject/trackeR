@@ -4,8 +4,8 @@
 \alias{zones}
 \title{Time spent in training zones.}
 \usage{
-zones(object, session = NULL, what = c("speed", "heart.rate"),
-  breaks = list(speed = 0:10, heart.rate = c(0, seq(75, 225, by = 50), 250)),
+zones(object, session = NULL, what = c("speed", "heart_rate"),
+  breaks = list(speed = 0:10, heart_rate = c(0, seq(75, 225, by = 50), 250)),
   parallel = FALSE, auto_breaks = TRUE, n_zones = 9, ...)
 }
 \arguments{

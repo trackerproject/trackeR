@@ -5,7 +5,7 @@
 \title{Plot training sessions in form of trackeRdata objects.}
 \usage{
 \method{plot}{trackeRdata}(x, session = NULL, what = c("pace",
-  "heart.rate"), threshold = TRUE, smooth = FALSE, trend = TRUE,
+  "heart_rate"), threshold = TRUE, smooth = FALSE, trend = TRUE,
   dates = TRUE, ...)
 }
 \arguments{

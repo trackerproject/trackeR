@@ -5,7 +5,7 @@
 \title{Auxiliary function for \code{\link{smoother.distrProfile}}. Typically used to construct
 a control argument for \code{\link{smoother.distrProfile}}.}
 \usage{
-smootherControl.distrProfile(what = c("speed", "heart.rate"), k = 30,
+smootherControl.distrProfile(what = c("speed", "heart_rate"), k = 30,
   sp = NULL, parallel = FALSE, cores = NULL)
 }
 \arguments{

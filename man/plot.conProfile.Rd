@@ -5,7 +5,7 @@
 \title{Plot concentration profiles.}
 \usage{
 \method{plot}{conProfile}(x, session = NULL, what = c("speed",
-  "heart.rate"), multiple = FALSE, smooth = TRUE, ...)
+  "heart_rate"), multiple = FALSE, smooth = TRUE, ...)
 }
 \arguments{
 \item{x}{An object of class \code{conProfile} as returned by \code{\link{concentrationProfile}}.}

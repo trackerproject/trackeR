@@ -6,7 +6,7 @@
 a control argument for \code{\link{smoother.trackeRdata}}.}
 \usage{
 smootherControl.trackeRdata(fun = "mean", width = 10, parallel = FALSE,
-  what = c("speed", "heart.rate"), nsessions = NA, ...)
+  what = c("speed", "heart_rate"), nsessions = NA, ...)
 }
 \arguments{
 \item{fun}{The name of the function to be matched and used to

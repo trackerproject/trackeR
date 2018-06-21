@@ -11,7 +11,7 @@ GC2trackeRdata(gc, cycling = TRUE, correctDistances = FALSE,
 \arguments{
 \item{gc}{Output of \code{GC.activity}.}
 
-\item{cycling}{Logical. Does the data stem from cycling instead of running?}
+\item{cycling}{Logical. Does the data stem from cycling?}
 
 \item{correctDistances}{Logical. Should the distances be corrected for elevation?}
 
@@ -32,7 +32,8 @@ observation after a small break.}
 
 \item{m}{Number of imputed observations in each small break.}
 
-\item{silent}{Logical. Should warnings be generated if any of the sanity checks on the data are triggered?}
+\item{silent}{Logical. Should warnings be generated if any of the
+sanity checks on the data are triggered?}
 }
 \description{
 Experimental state.

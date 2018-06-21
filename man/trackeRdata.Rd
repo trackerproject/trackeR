@@ -38,7 +38,8 @@ observation after a small break.}
 
 \item{m}{Number of imputed observations in each small break.}
 
-\item{silent}{Logical. Should warnings be generated if any of the sanity checks on the data are triggered?}
+\item{silent}{Logical. Should warnings be generated if any of the
+sanity checks on the data are triggered?}
 }
 \description{
 Create a trackeRdata object from a data frame with observations being divided in
@@ -50,23 +51,25 @@ The \code{units} argument takes a data frame with two variables named \code{vari
     \itemize{
     \item variables \code{latitude} and \code{longitude} with unit \code{degree}
     \item variables \code{altitude}, \code{distance} with unit \code{m}, \code{km}, \code{mi} or \code{ft}
-    \item variable \code{heart.rate} with unit \code{bpm}
+    \item variable \code{heart_rate} with unit \code{bpm}
     \item variable \code{speed} with unit \code{m_per_s}, \code{km_per_h}, \code{ft_per_min},
           \code{ft_per_s} or \code{mi_per_h}
-    \item variable \code{cadence} with unit \code{steps_per_min} or \code{rev_per_min}
+    \item variable \code{cadence_running} with unit \code{steps_per_min}
+    \item variable \code{cadence_cycling} with unit \code{rev_per_min}
     \item variable \code{power} with unit \code{W} or \code{kW}.
     \item variable \code{temperature} with unit \code{C} (Celsius) or \code{F}.
     }
     If the argument \code{units} is \code{NULL}, the default units are used. These are the first options, i.e.,
     \code{m} for variables \code{altitude} and \code{distance}, \code{m_per_s} for variable \code{speed} as well
-    as \code{W} for variable \code{power}. The default for variable \code{cadence} depends on the value of
-    argument \code{cycling}.
+    as \code{W} for variable \code{power}.
 
-    During small breaks within a session, e.g., because the recording device was paused,
-    observations are imputed the following way:
-    0 for speed, last known position for latitude, longitude and altitude,
-    NA or 0 power for running or cycling session, respectively, and NA for all other
-    variables. Distances are (re-)calculated based on speeds after imputation.
+    During small breaks within a session, e.g., because the
+    recording device was paused, observations are imputed the
+    following way: 0 for speed, last known position for latitude,
+    longitude and altitude, NA or 0 power for running or cycling
+    session, respectively, and NA for all other
+    variables. Distances are (re-)calculated based on speeds after
+    imputation.
 
     \code{trackeRdata} assumes that all observations in \code{dat}
     are from the same \code{sport}, even if \code{dat} ends up
@@ -81,7 +84,7 @@ run <- readTCX(file = filepath, timezone = 'GMT')
 
 ## turn into trackeRdata object
 run <- trackeRdata(run, units = data.frame(variable = c('latitude', 'longitude',
-    'altitude', 'distance', 'heart.rate', 'speed', 'cadence', 'power'),
+    'altitude', 'distance', 'heart_rate', 'speed', 'cadence', 'power'),
     unit = c('degree', 'degree', 'm', 'm', 'bpm', 'm_per_s', 'steps_per_min', 'W'),
     stringsAsFactors = FALSE))
 
@@ -90,8 +93,12 @@ run <- readContainer(filepath, type = 'tcx', timezone = 'GMT')
 }
 }
 \references{
-Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal of Statistical Software}, \bold{82}(7), 1--29. doi:10.18637/jss.v082.i07
+Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running
+and Cycling Data from GPS-Enabled Tracking Devices in
+R. \emph{Journal of Statistical Software}, \bold{82}(7),
+1--29. doi:10.18637/jss.v082.i07
 }
 \seealso{
-\code{\link{readContainer}} for reading .tcx and .db3 files directly into \code{trackeRdata} objects.
+\code{\link{readContainer}} for reading .tcx and .db3
+    files directly into \code{trackeRdata} objects.
 }

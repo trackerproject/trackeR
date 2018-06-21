@@ -4,7 +4,7 @@
 \alias{fortify.distrProfile}
 \title{Fortify a distrProfile object for plotting with ggplot2.}
 \usage{
-\method{fortify}{distrProfile}(model, data, melt = FALSE, ...)
+fortify.distrProfile(model, data, melt = FALSE, ...)
 }
 \arguments{
 \item{model}{The \code{distrProfile} object.}

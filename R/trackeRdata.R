@@ -11,8 +11,8 @@
 #'     longitude and latitude.
 #' @param mask Logical. Passed on to \code{\link[raster]{getData}}. Should only the altitudes for the specified
 #'     \code{country} be extracted (\code{TRUE}) or also those for the neighboring countries (\code{FALSE})?
-#' @inheritParams sanityChecks
-#' @inheritParams restingPeriods
+#' @inheritParams sanity_checks
+#' @inheritParams resting_periods
 #' @inheritParams imputeSpeeds
 #' @details The \code{units} argument takes a data frame with two variables named \code{variable} and \code{unit}.
 #'     Possible options include:
@@ -22,7 +22,8 @@
 #'     \item variable \code{heart_rate} with unit \code{bpm}
 #'     \item variable \code{speed} with unit \code{m_per_s}, \code{km_per_h}, \code{ft_per_min},
 #'           \code{ft_per_s} or \code{mi_per_h}
-#'     \item variable \code{cadence} with unit \code{steps_per_min} or \code{rev_per_min}
+#'     \item variable \code{cadence_running} with unit \code{steps_per_min}
+#'     \item variable \code{cadence_cycling} with unit \code{rev_per_min}
 #'     \item variable \code{power} with unit \code{W} or \code{kW}.
 #'     \item variable \code{temperature} with unit \code{C} (Celsius) or \code{F}.
 #'     }
@@ -43,8 +44,16 @@
 #'     having observations from different sessions (also depending on
 #'     the value of \code{sessionThreshold}.
 #'
-#' @seealso \code{\link{readContainer}} for reading .tcx and .db3 files directly into \code{trackeRdata} objects.
-#' @references Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal of Statistical Software}, \bold{82}(7), 1--29. doi:10.18637/jss.v082.i07
+#' @seealso \code{\link{readContainer}} for reading .tcx and .db3
+#'     files directly into \code{trackeRdata} objects.
+#'
+#' @references
+#'
+#' Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running
+#' and Cycling Data from GPS-Enabled Tracking Devices in
+#' R. \emph{Journal of Statistical Software}, \bold{82}(7),
+#' 1--29. doi:10.18637/jss.v082.i07
+#'
 #' @examples
 #' \dontrun{
 #' ## read raw data
@@ -61,8 +70,9 @@
 #' run <- readContainer(filepath, type = 'tcx', timezone = 'GMT')
 #' }
 #' @export
-trackeRdata <- function(dat, units = NULL, sport = NULL, sessionThreshold = 2, correctDistances = FALSE,
-                        country = NULL, mask = TRUE, fromDistances = TRUE, lgap = 30, lskip = 5, m = 11, silent = FALSE) {
+trackeRdata <- function(dat, units = NULL, sport = NULL, sessionThreshold = 2,
+                        correctDistances = FALSE, country = NULL, mask = TRUE,
+                        fromDistances = TRUE, lgap = 30, lskip = 5, m = 11, silent = FALSE) {
 
     ## sport
     if (is.null(sport)) {
@@ -79,14 +89,8 @@ trackeRdata <- function(dat, units = NULL, sport = NULL, sessionThreshold = 2, c
         units <- generateBaseUnits()
     }
 
-    ## ensure units are characters, not factors, if provided by the user
-    for (i in seq_len(ncol(units))) {
-        if (is.factor(units[, i]))
-            units[, i] <- as.character(units[, i])
-    }
-
     ## basic edits on time stamps
-    dat <- sanityChecks(dat = dat, silent = silent)
+    dat <- sanity_checks(dat = dat, silent = silent)
 
     ## separate sessions and cast to zoo objects
     trackerdat <- getSessions(dat, sessionThreshold = sessionThreshold)
@@ -136,115 +140,6 @@ trackeRdata <- function(dat, units = NULL, sport = NULL, sessionThreshold = 2, c
     class(trackerdat) <- c("trackeRdata", class(trackerdat))
     return(trackerdat)
 }
-
-
-#' Extract resting period characteristics.
-#'
-#' @param times Timestamps.
-#' @param sessionThreshold The threshold in hours for the time
-#' difference between consecutive timestamps above which they are
-#' considered to belong to different training sessions.
-#' @return A list containing a dataframe with start, end, and duration
-#' for each session and the resting time between sessions, named
-#' 'sessions' and 'restingTime', respectively.
-#' @export
-restingPeriods <- function(times, sessionThreshold) {
-    if (length(times) == 0)
-        return(NULL)
-    t1 <- times[-length(times)]
-    t2 <- times[-1]
-    hoursBetweenObservations <- difftime(t2, t1, units = "hours")
-    ##
-    sessionEnd <- c(which(hoursBetweenObservations > sessionThreshold), length(times))
-    sessionStart <- c(1, sessionEnd[-length(sessionEnd)] + 1)
-    start <- times[sessionStart]
-    ending <- times[sessionEnd]
-    sessions <- data.frame(sessionStart = start, sessionEnd = ending, trainingDuration = difftime(ending,
-        start, units = "hours"))
-    resting <- difftime(start[-1], ending[-length(ending)], units = "hours")
-    list(sessions = sessions, restingTime = resting)
-}
-
-## Is the date within a certain period (including both start and end)?  Output is a
-## logical vector for all dates.
-inPeriod <- function(dates, start, end) {
-    (dates >= start) & (dates <= end)
-}
-
-#' Sanity checks for tracking data.
-#'
-#' Heart rate measurements of 0 are set to NA, assuming the athlete is alive.
-#' Observations with missing or duplicated time stamps are removed.
-#'
-#' @param dat Data set to be clean up.
-#' @param silent Logical. Should warnings be generated if any of the sanity checks on the data are triggered?
-sanityChecks <- function(dat, silent) {
-    ## replace heart rate 0 with NA
-    hr0 <- dat$heart_rate == 0
-    if (any(hr0, na.rm = TRUE)) {
-        if (!silent)
-            warning("Heart rate measurements of 0 are set to NA.")
-        dat$heart_rate[hr0] <- NA
-    }
-
-    ## handle NAs
-    natime <- is.na(dat$time)
-    if (all(natime)) {
-        stop("The are no useable timestamps.")
-    }
-    if (any(natime)) {
-        if (!silent)
-            warning("Observations with missing time stamps have been removed.")
-        dat <- dat[!natime, ]
-    }
-
-    ## handle missing data
-    nadat <- is.na(dat[, -which(names(dat) == "time")])
-    if (all(nadat)) {
-        stop("The is no useable data.")
-    }
-
-    ## remove duplicates
-    duptime <- duplicated(dat$time)
-    if (any(duptime)) {
-        if (!silent)
-            warning("Observations with duplicated time stamps have been removed.")
-        dat <- dat[!duptime, ]
-    }
-
-    ## order according to time
-    dat <- dat[order(dat$time), ]
-
-    rownames(dat) <- NULL
-    return(dat)
-}
-
-getSessions <- function(dat, sessionThreshold = 2) {
-    ## get session IDs
-    dat$sessionID <- NA
-    resting <- restingPeriods(dat$time, sessionThreshold)
-
-    nSessions <- nrow(resting$sessions)
-    for (i in seq.int(nSessions)) {
-        session <- resting$sessions[i, 1:2]
-        dat$sessionID[inPeriod(dat$time, start = session[[1]], end = session[[2]])] <- i
-    }
-    rownames(dat) <- NULL
-
-    ## make multivariate zoo object for each session
-    sessions <- unique(dat$sessionID)
-    trackerdat <- vector("list", length = max(sessions))
-    for (i in sessions) {
-        dati <- subset(dat, dat$sessionID == i)
-        extra <- which(names(dati) %in% c("time", "sessionID"))
-        trackerdat[[i]] <- zoo(dati[, -extra], order.by = dati$time)
-    }
-    ## remove empty sessions
-    trackerdat <- trackerdat[!sapply(trackerdat, is.null)]
-
-    return(trackerdat)
-}
-
 
 #' @export
 c.trackeRdata <- function(..., recursive = FALSE) {
@@ -485,8 +380,8 @@ nsessions.trackeRdata <- function(object, ...) {
 #' @param gc Output of \code{GC.activity}.
 #' @param cycling Logical. Does the data stem from cycling?
 #' @inheritParams trackeRdata
-#' @inheritParams sanityChecks
-#' @inheritParams restingPeriods
+#' @inheritParams sanity_checks
+#' @inheritParams resting_periods
 #' @inheritParams imputeSpeeds
 #' @seealso \code{\link{trackeRdata}}
 #' @export
@@ -509,8 +404,8 @@ GC2trackeRdata <- function(gc, cycling = TRUE, correctDistances = FALSE, country
             "speed", "cadence_running", "cadence_cycling", "power")]
 
         ## basic edits
-        x <- sanityChecks(dat = x, silent = silent)
-        ## README: add arg sort = T/F to sanityChecks() so we don't need to sort the
+        x <- sanity_checks(dat = x, silent = silent)
+        ## README: add arg sort = T/F to sanity_checks() so we don't need to sort the
         ## observations again if we can be sure that GC already does this
 
         ## cast to multivariate zoo

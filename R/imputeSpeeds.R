@@ -1,5 +1,3 @@
-## FIXME: export? write more flexible so that also univariate zoos can be imputed? Do this via a generic?
-
 #' Impute speeds.
 #'
 #' Impute speeds of 0 during small breaks within a session.
@@ -21,10 +19,18 @@
 #' @return A multivariate \code{\link[zoo]{zoo}} object with imputed observations:
 #'     0 for speed, last known position for latitude, longitude and altitude,
 #'     NA for all other variables. Distances are calculated based on speeds after imputation.
-#' @references Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
-#'     Endurance Runners to Training and Physiological Effects via Multi-Resolution
-#'     Elastic Net. \emph{ArXiv e-print} arXiv:1506.01388.
-#'     Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal of Statistical Software}, \bold{82}(7), 1--29. doi:10.18637/jss.v082.i07
+#'
+#' @references
+#'
+#' Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
+#' Endurance Runners to Training and Physiological Effects via
+#' Multi-Resolution Elastic Net. \emph{ArXiv e-print}
+#' arXiv:1506.01388.
+#'
+#' Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running
+#' and Cycling Data from GPS-Enabled Tracking Devices in
+#' R. \emph{Journal of Statistical Software}, \bold{82}(7),
+#' 1--29. doi:10.18637/jss.v082.i07
 imputeSpeeds <- function(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5, m = 11,
                          cycling = FALSE, units = NULL) {
 
@@ -96,7 +102,7 @@ imputeSpeeds <- function(sessionData, fromDistances = TRUE, lgap = 30, lskip = 5
     sessionData <- sessionData[sessionData$speed >= 0 & !is.na(sessionData$speed)]
 
     ## get session parts (which are separated by short breaks lasting more than lgap seconds)
-    shortBreaks <- restingPeriods(index(sessionData), lgap/3600)
+    shortBreaks <- resting_periods(index(sessionData), lgap/3600)
 
     ## Put some zeros within the short breaks
     #nObs <- nrow(sessionData)

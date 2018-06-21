@@ -244,13 +244,19 @@ changeUnits.trackeRWprime <- function(object, variable, unit, ...) {
 changeUnits.trackeRthresholds <- function(object, variable, unit, ...) {
     for (v in variable) {
         i <- which(object$variable == v)
-        currentUnit <- object$unit[i]
-        newUnit <- unit[which(variable == v)]
-        if (currentUnit != newUnit) {
-            conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
-            object$lower[i] <- conversion(object$lower[i])
-            object$upper[i] <- conversion(object$upper[i])
-            object$unit[i] <- newUnit
+        current_unit <- object$unit[i]
+        new_unit <- unit[which(variable == v)]
+        inds <- current_unit == new_unit
+        if (all(inds)) {
+            object
+        }
+        else {
+            for (j in i[!inds]) {
+                conversion <- match.fun(paste(object$unit[j], new_unit, sep = "2"))
+                object$lower[j] <- conversion(object$lower[j])
+                object$upper[j] <- conversion(object$upper[j])
+                object$unit[j] <- new_unit
+            }
         }
     }
     return(object)
@@ -313,16 +319,13 @@ getOperations.conProfile <- function(object, ...) {
 }
 
 
-
-
-
 #' Generate base units.
 #'
 #' @param ... Currently not used.
 #' @export
 generateBaseUnits <- function(...) {
     ## Get the variable names
-    varnames <- generateVariableNames()$humanNames
+    varnames <- generate_variable_names()$human_names
     ## Remove time and add duration
     varnames <- varnames[-match("time", varnames)]
     varnames <- c(varnames, c("pace", "duration"))
