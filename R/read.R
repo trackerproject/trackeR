@@ -9,7 +9,8 @@ generateVariableNames <- function() {
                     "distance",
                     "heart_rate",
                     "speed",
-                    "cadence",
+                    "cadence_running",
+                    "cadence_cycling",
                     "power",
                     "temperature")
 
@@ -24,6 +25,7 @@ generateVariableNames <- function() {
                    "DistanceMeters",
                   "HeartRateBpm",
                   "Speed",
+                  "RunCadence",
                   "Cadence",
                   "Watts",
                   "temperature")
@@ -40,6 +42,7 @@ generateVariableNames <- function() {
                   "distance",
                   "hr",
                   "speed",
+                  "rcad", ## dummy for now; gpx seems not to distinguish between run and cycling cadence
                   "cad",
                   "watts",
                   "atemp")
@@ -53,6 +56,7 @@ generateVariableNames <- function() {
                       "hr",
                       "velocity",
                       "cadence",
+                      "rcadence", ## dummy for now; db3 seems not to distinguish between run and cycling cadence
                       "watts",
                       "temperature")
 
@@ -65,6 +69,7 @@ generateVariableNames <- function() {
                    "HR",
                    "KPH",
                    "CAD",
+                   "RCAD", ## dummy for now; json seems not to distinguish between run and cycling cadence
                    "WATTS",
                    "temperature")
 
@@ -77,8 +82,8 @@ generateVariableNames <- function() {
 
 ##' Guess sport for internal use in readX functions.
 guess_sport <- function(sport) {
-    keyword <- c("run", "cycl", "swim", "bik", "rid")
-    sports <- c("running", "cycling", "swimming", "cycling", "cycling")
+    keyword <- c("run", "hik", "cycl", "swim", "bik", "rid")
+    sports <- c("running", "running", "cycling", "swimming", "cycling", "cycling")
     sport <- sports[sapply(keyword, function(key) grepl(key, sport, ignore.case = TRUE))]
     if (length(sport) == 0) {
         NA
@@ -199,13 +204,15 @@ readTCX <- function(file, timezone = "",
     })
 
     observations <- as.data.frame(observations, stringsAsFactors = FALSE)
-    ## Rename RunCadence to Cadence
 
+    ## Rename RunCadence to Cadence
     names(observations) <- tp_vars$name
-    run_cadence <- tp_vars$name == "RunCadence"
-    if (any(run_cadence)) {
-        names(observations)[run_cadence] <- "Cadence"
-    }
+    ## run_cadence <- tp_vars$name == "RunCadence"
+    ## if (any(run_cadence)) {
+    ##     names(observations)[run_cadence] <- "Cadence"
+    ## }
+
+    ## Convert to numeric
     observations[!is_time] <- apply(observations[!is_time], 2, as.numeric)
 
     ## human names
@@ -257,6 +264,11 @@ readTCX <- function(file, timezone = "",
 #' @rdname readX
 readGPX <- function(file, timezone = "",
                     speedunit = "km_per_h", distanceunit = "km", ...) {
+
+    ## https://developers.strava.com/docs/uploads/ assuming that
+    ## regardless if activity is running or cycling cadence will be
+    ## named as cadence. If sport is unknown then we assume that both
+    ## cadence_running and cadence_cycling are NA
 
     doc <- read_xml(file)
     ns <- xml_ns(doc)
@@ -313,12 +325,9 @@ readGPX <- function(file, timezone = "",
         })
     })
 
-
     observations <- as.data.frame(matrix(observations, ncol = nrow(tp_vars)), stringsAsFactors = FALSE)
 
     names(observations) <- tp_vars$name
-
-
     observations[!is_time] <- apply(observations[!is_time], 2, as.numeric)
 
     ## Add lat and lon
@@ -334,12 +343,28 @@ readGPX <- function(file, timezone = "",
     namesOfInterest <- allnames$gpxNames
     namesToBeUsed <- allnames$humanNames
     inds <- match(namesOfInterest, names(observations), nomatch = 0)
+
     observations <- observations[inds]
     names(observations) <- namesToBeUsed[inds!=0]
 
     ## coerce time into POSIXct
     observations$time <- gsub("[\t\n]", "", observations$time)
     observations$time <- convertTCXTimes2POSIXct(observations$time, timezone = timezone)
+
+    is_cadence <- grepl("cadence", names(observations))
+    if (any(is_cadence)) {
+        if (is.na(sport)) {
+            observations[is_cadence] <- NULL
+        }
+        else {
+            if (sport == "running") {
+                names(observations)[is_cadence] <- "cadence_running"
+            }
+            if (sport == "swimming" | is.na(sport)) {
+                observations[is_cadence] <- NULL
+            }
+        }
+    }
 
     ## Add missing varibles
     missingVars <- namesToBeUsed[match(namesToBeUsed, names(observations), nomatch = 0) == 0]
@@ -401,6 +426,21 @@ readDB3 <- function(file, timezone = "", table = "gps_data",
 
     ## coerce time into POSIXct
     newdat$time <- as.POSIXct(newdat$time*24*60*60, origin = "1899-12-30", tz = timezone)
+
+    is_cadence <- grepl("cadence", names(observations))
+    if (any(is_cadence)) {
+        if (is.na(sport)) {
+            observations[is_cadence] <- NULL
+        }
+        else {
+            if (sport == "running") {
+                names(observations)[is_cadence] <- "cadence_running"
+            }
+            if (sport == "swimming" | is.na(sport)) {
+                observations[is_cadence] <- NULL
+            }
+        }
+    }
 
     ## add missing variables as NA
     missingVars <- namesToBeUsed[match(namesToBeUsed, names(newdat), nomatch = 0) == 0]
@@ -467,6 +507,21 @@ readJSON <- function(file, timezone = "",
 
     ## coerce time into POSIXct
     newdat$time <- stime + newdat$time
+
+    is_cadence <- grepl("cadence", names(observations))
+    if (any(is_cadence)) {
+        if (is.na(sport)) {
+            observations[is_cadence] <- NULL
+        }
+        else {
+            if (sport == "running") {
+                names(observations)[is_cadence] <- "cadence_running"
+            }
+            if (sport == "swimming" | is.na(sport)) {
+                observations[is_cadence] <- NULL
+            }
+        }
+    }
 
     ## add missing variables as NA
     missingVars <- namesToBeUsed[match(namesToBeUsed, names(newdat), nomatch = 0) == 0]
