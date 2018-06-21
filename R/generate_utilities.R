@@ -104,8 +104,8 @@ generate_thresholds <- function(...) {
     th <- generateBaseUnits()
     n_variables <- nrow(th)
     th <- rbind(th, th, th)
-    th$lower <- c(-90, -180, -500, 0, 0, 0, 0, 0, 0, -30, 0, 0)
     th$sport <- rep(c("cycling", "running", "swimming"), each = n_variables)
+    th$lower <- c(-90, -180, -500, 0, 0, 0, 0, 0, 0, -30, 0, 0)
     th$upper <- c(c(90, 180, 9000, Inf, 250, 10^2, Inf, Inf, Inf, 60, Inf, Inf),
                   c(90, 180, 9000, Inf, 250, 12.5, Inf, Inf, Inf, 60, Inf, Inf),
                   c(90, 180, 9000, Inf, 250, 5, Inf, Inf, Inf, 60, Inf, Inf))

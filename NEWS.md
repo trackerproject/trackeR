@@ -12,7 +12,9 @@
 * `sort` and `unique` methods for `trackeRdata` objects
 * `trackeR_app()` launches a shiny dashboard that provides an interface to a workflow for the analysis of activity data
 
+
 ### Enhancements
+* Numerous under-the-hood performance and design improvements
 * Refactored code for `readTCX`; reading Garmin TCX is now notably faster (circa 15x faster) and more robust
 * Refactored code for `summary` method for `trackeRdata` objects, making it faster (circa 10x faster)
 * Code improvements in `readDirectory`
