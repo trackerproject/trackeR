@@ -13,10 +13,7 @@ generate_variable_names <- function() {
                      "cadence_cycling",
                      "power",
                      "temperature")
-    ## resources for tcx:
-    ## https://en.wikipedia.org/wiki/Training_Center_XML
-    ## http://www8.garmin.com/xmlschemas/index.jsp#/web/docs/xmlschemas
-    ## http://www.garmindeveloper.com/schemas/tcx/v2/
+
     tcx_names <- c("Time",
                    "LatitudeDegrees",
                    "LongitudeDegrees",
@@ -28,10 +25,7 @@ generate_variable_names <- function() {
                    "Cadence",
                    "Watts",
                    "temperature")
-    ## resources for tcx:
-    ## https://en.wikipedia.org/wiki/Training_Center_XML
-    ## http://www8.garmin.com/xmlschemas/index.jsp#/web/docs/xmlschemas
-    ## http://www.garmindeveloper.com/schemas/tcx/v2/
+
     gpx_names <- c("time",
                    "lat",
                    "lon",
@@ -43,7 +37,7 @@ generate_variable_names <- function() {
                    "cad",
                    "watts",
                    "atemp")
-    ## Resource for db3: none... mostly reverse engineering
+
     db3_names <-     c("dttm",
                        "lat",
                        "lon",
@@ -55,7 +49,7 @@ generate_variable_names <- function() {
                        "cadence", ## dummy for now; db3 seems not to distinguish between run and cycling cadence
                        "watts",
                        "temperature")
-    ## Resource for Golden Cheetah JSON: reverse engineering
+
     json_names <- c("SECS",
                     "LAT",
                     "LON",
@@ -100,6 +94,10 @@ generate_base_units <- function(...) {
     return(data.frame(variable = varnames, unit = units, stringsAsFactors = FALSE))
 }
 
+#' Generate default thresholds
+#'
+#' @param ... Currently not used
+#' @export
 generate_thresholds <- function(...) {
     th <- generateBaseUnits()
     n_variables <- nrow(th)

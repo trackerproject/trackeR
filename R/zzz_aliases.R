@@ -21,3 +21,13 @@ readContainer <- read_container
 #' @rdname read_directory
 #' @export
 readDirectory <- read_directory
+
+generateVariableNames <- generate_variable_names
+
+#' @rdname generate_base_units
+#' @export
+generateBaseUnits <- generate_base_units
+
+#' @rdname generate_thresholds
+#' @export
+generateDefaultThresholds <- generate_thresholds
