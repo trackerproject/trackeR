@@ -4,9 +4,9 @@
 \alias{trackeRdata}
 \title{Create a trackeRdata object.}
 \usage{
-trackeRdata(dat, units = NULL, sport = NULL, sessionThreshold = 2,
-  correctDistances = FALSE, country = NULL, mask = TRUE,
-  fromDistances = TRUE, lgap = 30, lskip = 5, m = 11, silent = FALSE)
+trackeRdata(dat, units = NULL, sport = NULL, session_threshold = 2,
+  correct_distances = FALSE, from_distances = TRUE, country = NULL,
+  mask = TRUE, lgap = 30, lskip = 5, m = 11, silent = FALSE)
 }
 \arguments{
 \item{dat}{A data frame.}
@@ -15,20 +15,20 @@ trackeRdata(dat, units = NULL, sport = NULL, sessionThreshold = 2,
 
 \item{sport}{What sport does \code{dat} contain data of? Either \code{'cycling'}, \code{'running'}, \code{'swimming'} or \code{NULL} (default), in which case the sport is directly extracted from the \code{dat}. See Details.}
 
-\item{sessionThreshold}{The threshold in hours for the time
+\item{session_threshold}{The threshold in hours for the time
 difference between consecutive timestamps above which they are
 considered to belong to different training sessions.}
 
-\item{correctDistances}{Logical. Should the distances be corrected for elevation?}
+\item{correct_distances}{Logical. Should the distances be corrected for elevation?}
+
+\item{from_distances}{Logical. Should the speeds be calculated from the distance recordings
+instead of taken from the speed recordings directly?}
 
 \item{country}{ISO3 country code for downloading altitude data. If \code{NULL}, country is derived from
 longitude and latitude.}
 
 \item{mask}{Logical. Passed on to \code{\link[raster]{getData}}. Should only the altitudes for the specified
 \code{country} be extracted (\code{TRUE}) or also those for the neighboring countries (\code{FALSE})?}
-
-\item{fromDistances}{Logical. Should the speeds be calculated from the distance recordings
-instead of taken from the speed recordings directly?}
 
 \item{lgap}{Time in seconds corresponding to the minimal sampling rate.}
 
@@ -74,19 +74,22 @@ The \code{units} argument takes a data frame with two variables named \code{vari
     \code{trackeRdata} assumes that all observations in \code{dat}
     are from the same \code{sport}, even if \code{dat} ends up
     having observations from different sessions (also depending on
-    the value of \code{sessionThreshold}.
+    the value of \code{session_threshold}.
 }
 \examples{
 \dontrun{
 ## read raw data
-filepath <- system.file('extdata', '2013-06-08-090442.TCX', package = 'trackeR')
+filepath <- system.file('extdata/tcx/', '2013-06-08-090442.TCX', package = 'trackeR')
 run <- readTCX(file = filepath, timezone = 'GMT')
 
 ## turn into trackeRdata object
-run <- trackeRdata(run, units = data.frame(variable = c('latitude', 'longitude',
-    'altitude', 'distance', 'heart_rate', 'speed', 'cadence', 'power'),
-    unit = c('degree', 'degree', 'm', 'm', 'bpm', 'm_per_s', 'steps_per_min', 'W'),
-    stringsAsFactors = FALSE))
+units0 <- data.frame(variable = c('latitude', 'longitude', 'altitude', 'distance',
+                                  'heart_rate', 'speed', 'cadence_running', 'cadence_cycling',
+                                  'power'),
+                     unit = c('degree', 'degree', 'm', 'm', 'bpm', 'm_per_s', 'steps_per_min',
+                              'rev_per_min', 'W'),
+                     stringsAsFactors = FALSE)
+run <- trackeRdata(run, units = units0)
 
 ## alternatively
 run <- readContainer(filepath, type = 'tcx', timezone = 'GMT')

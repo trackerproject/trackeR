@@ -6,14 +6,14 @@
 #' @param dat A data frame.
 #' @param units A data frame containing the unit of measurement for all variables. See Details.
 #' @param sport What sport does \code{dat} contain data of? Either \code{'cycling'}, \code{'running'}, \code{'swimming'} or \code{NULL} (default), in which case the sport is directly extracted from the \code{dat}. See Details.
-#' @param correctDistances Logical. Should the distances be corrected for elevation?
+#' @param correct_distances Logical. Should the distances be corrected for elevation?
 #' @param country ISO3 country code for downloading altitude data. If \code{NULL}, country is derived from
 #'     longitude and latitude.
 #' @param mask Logical. Passed on to \code{\link[raster]{getData}}. Should only the altitudes for the specified
 #'     \code{country} be extracted (\code{TRUE}) or also those for the neighboring countries (\code{FALSE})?
 #' @inheritParams sanity_checks
 #' @inheritParams resting_periods
-#' @inheritParams imputeSpeeds
+#' @inheritParams impute_speeds
 #' @details The \code{units} argument takes a data frame with two variables named \code{variable} and \code{unit}.
 #'     Possible options include:
 #'     \itemize{
@@ -57,22 +57,27 @@
 #' @examples
 #' \dontrun{
 #' ## read raw data
-#' filepath <- system.file('extdata', '2013-06-08-090442.TCX', package = 'trackeR')
+#' filepath <- system.file('extdata/tcx/', '2013-06-08-090442.TCX', package = 'trackeR')
 #' run <- readTCX(file = filepath, timezone = 'GMT')
 #'
 #' ## turn into trackeRdata object
-#' run <- trackeRdata(run, units = data.frame(variable = c('latitude', 'longitude',
-#'     'altitude', 'distance', 'heart_rate', 'speed', 'cadence', 'power'),
-#'     unit = c('degree', 'degree', 'm', 'm', 'bpm', 'm_per_s', 'steps_per_min', 'W'),
-#'     stringsAsFactors = FALSE))
+#' units0 <- data.frame(variable = c('latitude', 'longitude', 'altitude', 'distance',
+#'                                   'heart_rate', 'speed', 'cadence_running', 'cadence_cycling',
+#'                                   'power'),
+#'                      unit = c('degree', 'degree', 'm', 'm', 'bpm', 'm_per_s', 'steps_per_min',
+#'                               'rev_per_min', 'W'),
+#'                      stringsAsFactors = FALSE)
+#' run <- trackeRdata(run, units = units0)
 #'
 #' ## alternatively
 #' run <- readContainer(filepath, type = 'tcx', timezone = 'GMT')
 #' }
 #' @export
 trackeRdata <- function(dat, units = NULL, sport = NULL, session_threshold = 2,
-                        correctDistances = FALSE, country = NULL, mask = TRUE,
-                        fromDistances = TRUE, lgap = 30, lskip = 5, m = 11, silent = FALSE) {
+                        correct_distances = FALSE, from_distances = TRUE,
+                        country = NULL, mask = TRUE,
+                        lgap = 30, lskip = 5, m = 11,
+                        silent = FALSE) {
 
     ## sport
     if (is.null(sport)) {
@@ -100,11 +105,11 @@ trackeRdata <- function(dat, units = NULL, sport = NULL, session_threshold = 2,
     trackerdat <- trackerdat[!empty]
 
     ## correct GPS distances for elevation
-    if (correctDistances)
+    if (correct_distances)
         trackerdat <- lapply(trackerdat, distance_correction, country = country, mask = mask)
 
     ## impute speeds in each session
-    trackerdat <- lapply(trackerdat, imputeSpeeds, fromDistances = fromDistances, lgap = lgap,
+    trackerdat <- lapply(trackerdat, impute_speeds, from_distances = from_distances, lgap = lgap,
         lskip = lskip, m = m, cycling = is_cycling, units = units)
 
 
@@ -113,8 +118,8 @@ trackeRdata <- function(dat, units = NULL, sport = NULL, session_threshold = 2,
     if (!("pace" %in% units$variable)) {
         unitSpeed <- strsplit(units$unit[units$variable == "speed"], split = "_per_")[[1]]
         distUnit4pace <- switch(unitSpeed[1], km = "km", m = "km", ft = "mi", mi = "mi")
-        conversion <- match.fun(paste(units$unit[units$variable == "speed"], paste(distUnit4pace,
-            "min", sep = "_per_"), sep = "2"))
+        conversion <- match.fun(paste(units$unit[units$variable == "speed"],
+                                      paste(distUnit4pace, "min", sep = "_per_"), sep = "2"))
         units <- rbind(units, c("pace", paste0("min_per_", distUnit4pace)))
 
     }
@@ -382,11 +387,11 @@ nsessions.trackeRdata <- function(object, ...) {
 #' @inheritParams trackeRdata
 #' @inheritParams sanity_checks
 #' @inheritParams resting_periods
-#' @inheritParams imputeSpeeds
+#' @inheritParams impute_speeds
 #' @seealso \code{\link{trackeRdata}}
 #' @export
-GC2trackeRdata <- function(gc, cycling = TRUE, correctDistances = FALSE, country = NULL,
-    mask = TRUE, fromDistances = FALSE, lgap = 30, lskip = 5, m = 11, silent = FALSE) {
+GC2trackeRdata <- function(gc, cycling = TRUE, correct_distances = FALSE, country = NULL,
+    mask = TRUE, from_distances = FALSE, lgap = 30, lskip = 5, m = 11, silent = FALSE) {
 
     units <- data.frame(
         variable = c("latitude", "longitude", "altitude", "distance", "heart_rate",
@@ -418,11 +423,11 @@ GC2trackeRdata <- function(gc, cycling = TRUE, correctDistances = FALSE, country
     trackerdat <- trackerdat[!empty]
 
     ## correct GPS distances for elevation
-    if (correctDistances)
+    if (correct_distances)
         trackerdat <- lapply(trackerdat, distance_correction, country = country, mask = mask)
 
     ## impute speeds in each session
-    trackerdat <- lapply(trackerdat, imputeSpeeds, fromDistances = fromDistances, lgap = lgap,
+    trackerdat <- lapply(trackerdat, impute_speeds, from_distances = from_distances, lgap = lgap,
         lskip = lskip, m = m, cycling = cycling, units = units)
 
     ## add pace

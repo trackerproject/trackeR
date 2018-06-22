@@ -4,7 +4,7 @@
 \alias{fortify.conProfile}
 \title{Fortify a conProfile object for plotting with ggplot2.}
 \usage{
-fortify.conProfile(model, data, melt = FALSE, ...)
+\method{fortify}{conProfile}(model, data, melt = FALSE, ...)
 }
 \arguments{
 \item{model}{The \code{conProfile} object.}

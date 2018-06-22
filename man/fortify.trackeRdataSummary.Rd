@@ -4,7 +4,7 @@
 \alias{fortify.trackeRdataSummary}
 \title{Fortify a trackeRdataSummary object for plotting with ggplot2.}
 \usage{
-fortify.trackeRdataSummary(model, data, melt = FALSE, ...)
+\method{fortify}{trackeRdataSummary}(model, data, melt = FALSE, ...)
 }
 \arguments{
 \item{model}{The \code{\link{trackeRdata}} object.}

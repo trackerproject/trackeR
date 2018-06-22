@@ -4,7 +4,7 @@
 \alias{fortify.trackeRWprime}
 \title{Fortify a trackeRWprime object for plotting with ggplot2.}
 \usage{
-fortify.trackeRWprime(model, data, melt = FALSE, ...)
+\method{fortify}{trackeRWprime}(model, data, melt = FALSE, ...)
 }
 \arguments{
 \item{model}{The \code{trackeRWprime} object as returned by \code{\link{Wprime}}.}

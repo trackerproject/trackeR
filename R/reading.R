@@ -46,7 +46,7 @@ guess_sport <- function(sport) {
 #'     stringsAsFactors = FALSE))
 #'
 #' ## alternatively
-#' run <- readContainer(filepath, type = "tcx", timezone = "GMT")
+#' run <- read_container(filepath, type = "tcx", timezone = "GMT")
 #' }
 #'
 #' @export
@@ -475,7 +475,7 @@ readJSON <- function(file, timezone = "",
 #' @param type The type of the GPS container file. Supported so far are \code{tcx}, \code{db3}, and \code{json}.
 #' @param table The name of the table in the database if \code{type} is set to \code{db3},
 #'     ignored otherwise.
-#' @param fromDistances Logical. Should the speeds be calculated from the distance recordings
+#' @param from_distances Logical. Should the speeds be calculated from the distance recordings
 #'     instead of taken from the speed recordings directly. Defaults to \code{TRUE} for \code{tcx}
 #'     and Golden Cheetah's json files and to \code{FALSE} for \code{db3} files.
 #' @param speedunit Character string indicating the measurement unit of the speeds in the container
@@ -487,9 +487,9 @@ readJSON <- function(file, timezone = "",
 #' @param sport What sport does \code{file} contain data from? Either \code{'cycling'}, \code{'running'}, \code{'swimming'} or \code{NULL} (default), in which case the sport is directly obtained from the \code{\link{readX}} extractors.
 #' @inheritParams readX
 #' @inheritParams resting_periods
-#' @inheritParams imputeSpeeds
+#' @inheritParams impute_speeds
 #' @inheritParams trackeRdata
-#' @inheritParams sanityChecks
+#' @inheritParams sanity_checks
 #' @details  Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_per_s},
 #'     \code{mi_per_h}, \code{ft_per_min} and \code{ft_per_s}.
 #'     Available options for \code{distanceunit} currently are \code{km}, \code{m}, \code{mi} and
@@ -502,21 +502,21 @@ readJSON <- function(file, timezone = "",
 #' @examples
 #' \dontrun{
 #' filepath <- system.file("extdata", "2013-06-08-090442.TCX", package = "trackeR")
-#' run <- readContainer(filepath, type = "tcx", timezone = "GMT")
+#' run <- read_container(filepath, type = "tcx", timezone = "GMT")
 #' }
-readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
+read_container <- function(file, type = c("tcx", "gpx", "db3", "json"),
                           table = "gps_data", timezone = "", session_threshold = 2,
-                          correctDistances = FALSE,
+                          correct_distances = FALSE,
                           country = NULL, mask = TRUE,
-                          fromDistances = NULL,
+                          from_distances = NULL,
                           speedunit = NULL, distanceunit = NULL,
                           sport = NULL,
                           lgap = 30, lskip = 5, m = 11,
                           silent = FALSE) {
     ## prepare args
     type <- match.arg(tolower(type), choices = c("tcx", "gpx", "db3", "json"))
-    if (is.null(fromDistances)){
-        fromDistances <- if (type == "db3") FALSE else TRUE
+    if (is.null(from_distances)){
+        from_distances <- if (type == "db3") FALSE else TRUE
     }
     if (is.null(speedunit)){
         speedunit <- switch(type,
@@ -547,9 +547,9 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
 
     ## make trackeRdata object (with all necessary data handling)
     trackerdat <- trackeRdata(dat, units = NULL, sport = sport,
-                              correctDistances = correctDistances, country = country, mask = mask,
+                              correct_distances = correct_distances, country = country, mask = mask,
                               session_threshold = session_threshold,
-                              fromDistances = fromDistances,
+                              from_distances = from_distances,
                               lgap = lgap, lskip = lskip, m = m,
                               silent = silent)
 
@@ -564,7 +564,7 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
 #'     \code{session_threshold} hours apart? Alternatively, data from
 #'     different files is stored in different sessions.
 #' @param table The name of the table in the database for db3 files.
-#' @param fromDistances Logical. Should the speeds be calculated from
+#' @param from_distances Logical. Should the speeds be calculated from
 #'     the distance recordings instead of taken from the speed
 #'     recordings directly. Defaults to \code{TRUE} for tcx and Golden
 #'     Cheetah's json files and to \code{FALSE} for db3 files.
@@ -592,9 +592,9 @@ readContainer <- function(file, type = c("tcx", "gpx", "db3", "json"),
 #'     interface. Default is \code{FALSE}.
 #' @inheritParams readX
 #' @inheritParams resting_periods
-#' @inheritParams imputeSpeeds
+#' @inheritParams impute_speeds
 #' @inheritParams trackeRdata
-#' @inheritParams sanityChecks
+#' @inheritParams sanity_checks
 #' @details Available options for \code{speedunit} currently are
 #'     \code{km_per_h}, \code{m_per_s}, \code{mi_per_h},
 #'     \code{ft_per_min} and \code{ft_per_s}.  Available options for
@@ -617,10 +617,10 @@ readDirectory <- function(directory,
                           table = "gps_data",
                           timezone = "",
                           session_threshold = 2,
-                          correctDistances = FALSE,
+                          correct_distances = FALSE,
                           country = NULL,
                           mask = TRUE,
-                          fromDistances = NULL,
+                          from_distances = NULL,
                           speedunit = list(tcx = "m_per_s", gpx = "km_per_h", db3 = "km_per_h", json = "km_per_h"),
                           distanceunit = list(tcx = "m", gpx = "km", db3 = "km", json = "km"),
                           sport = NULL,
@@ -699,13 +699,13 @@ readDirectory <- function(directory,
             }
 
             allData <- do.call("rbind", allData[!sapply(allData, inherits, what = "try-error")])
-            fromDistances <- if (is.null(fromDistances)) TRUE else fromDistances
+            from_distances <- if (is.null(from_distances)) TRUE else from_distances
             allData <- trackeRdata(allData,
                                    session_threshold = session_threshold,
-                                   correctDistances = correctDistances,
+                                   correct_distances = correct_distances,
                                    country = country,
                                    mask = mask,
-                                   fromDistances = fromDistances,
+                                   from_distances = from_distances,
                                    sport = sport,
                                    lgap = lgap,
                                    lskip = lskip,
@@ -727,15 +727,15 @@ readDirectory <- function(directory,
                     if (verbose) {
                         cat("Reading file", allFiles[j], paste0("(file ", j, " out of ", lall, ")"), "...\n")
                     }
-                    try(readContainer(file = allFiles[j],
+                    try(read_container(file = allFiles[j],
                                       type = currentType,
                                       table = table,
                                       timezone = timezone,
                                       session_threshold = session_threshold,
-                                      correctDistances = correctDistances,
+                                      correct_distances = correct_distances,
                                       country = country,
                                       mask = mask,
-                                      fromDistances = fromDistances,
+                                      from_distances = from_distances,
                                       speedunit = speedunit[[currentType]],
                                       distanceunit = distanceunit[[currentType]],
                                       sport = sport,
