@@ -31,3 +31,7 @@ generateBaseUnits <- generate_base_units
 #' @rdname generate_thresholds
 #' @export
 generateDefaultThresholds <- generate_thresholds
+
+#' @rdname get_operations
+#' @export
+getOperations <- get_operations

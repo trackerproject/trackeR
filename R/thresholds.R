@@ -19,7 +19,7 @@ threshold <- function(object, variable, lower, upper, ...) {
 
     ## if variable is NULL, just update attribute, leave data unchanged
     if (!missing(variable) && is.null(variable)) {
-        operations <- getOperations(object)
+        operations <- get_operations(object)
         operations$threshold <- NULL
         attr(object, "operations") <- operations
         return(object)
@@ -42,7 +42,7 @@ threshold <- function(object, variable, lower, upper, ...) {
     }
 
     ## compare with existing thresholds
-    operations <- getOperations(object)
+    operations <- get_operations(object)
     if (!is.null(operations$threshold)) {
         th <- merge(th, operations$threshold, by = "variable", all = TRUE)
         th$lower <- apply(th[, c("lower.x", "lower.y")], 1, max, na.rm = TRUE)

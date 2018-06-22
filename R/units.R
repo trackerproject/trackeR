@@ -66,7 +66,7 @@ get_units.trackeRfpca <- function(object, ...) {
 change_units.trackeRdata <- function(object, variable, unit, ...) {
     ## get current units and thresholds
     current <- getUnits(object)
-    operations <- getOperations(object)
+    operations <- get_operations(object)
     th <- operations$threshold
 
     ## change units
@@ -296,7 +296,7 @@ change_units.trackeRdataZones <- function(object, variable, unit, ...) {
 #' @param object An object of class \code{\link{trackeRdata}}.
 #' @param ... Currently not used.
 #' @export
-getOperations.trackeRdata <- function(object, ...) {
+get_operations.trackeRdata <- function(object, ...) {
     attr(object, "operations")
 }
 
@@ -305,7 +305,7 @@ getOperations.trackeRdata <- function(object, ...) {
 #' @param object An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.
 #' @param ... Currently not used.
 #' @export
-getOperations.distrProfile <- function(object, ...) {
+get_operations.distrProfile <- function(object, ...) {
     attr(object, "operations")
 }
 
@@ -314,7 +314,7 @@ getOperations.distrProfile <- function(object, ...) {
 #' @param object An object of class \code{conProfile} as returned by \code{\link{concentrationProfile}}.
 #' @param ... Currently not used.
 #' @export
-getOperations.conProfile <- function(object, ...) {
+get_operations.conProfile <- function(object, ...) {
     attr(object, "operations")
 }
 

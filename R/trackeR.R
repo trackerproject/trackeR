@@ -107,7 +107,7 @@ change_units <- function(object, variable, unit, ...) UseMethod("change_units")
 #' @param object The object of which the units of measurement are retrieved.
 #' @param ... Arguments to be passed to methods.
 #' @export
-getOperations <- function(object, ...) UseMethod("getOperations")
+get_operations <- function(object, ...) UseMethod("get_operations")
 
 #' Generic function for calculating number of sessions.
 #'

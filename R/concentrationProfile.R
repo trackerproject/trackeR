@@ -29,7 +29,7 @@
 concentrationProfile <- function(object, session = NULL, what = c("speed", "heart_rate"),
     ...) {
     units <- getUnits(object)
-    operations <- getOperations(object)
+    operations <- get_operations(object)
 
     ## select variables
     what <- what[what %in% names(object)]
@@ -152,7 +152,7 @@ plot.conProfile <- function(x, session = NULL, what = c("speed", "heart_rate"), 
     smooth = TRUE, ...) {
     ## code inspired by autoplot.zoo
     units <- getUnits(x)
-    operations <- getOperations(x)
+    operations <- get_operations(x)
 
     ## select variables
     what <- what[what %in% names(x)]
@@ -335,40 +335,40 @@ c.conProfile <- function(..., recursive = FALSE) {
             paste(allNames[[1]], collapse = ", "), "."))
 
     nsessionsInput <- sapply(input, length)
-    operations <- getOperations(input[[1]])
+    operations <- get_operations(input[[1]])
 
     ## check/change smoother attribute
 
     ## if all smoother settings are NULL, skip whole aggregation process
-    if (!all(sapply(input, function(x) is.null(getOperations(x)$smooth)))) {
+    if (!all(sapply(input, function(x) is.null(get_operations(x)$smooth)))) {
 
         ## if the settings for the first session are NULL, create a new reference setup
-        if (is.null(getOperations(input[[1]])$smooth)) {
+        if (is.null(get_operations(input[[1]])$smooth)) {
             operations$smooth <- list(what = NA, k = NA, sp = NA, parallel = FALSE, cores = NULL,
                 nsessions = NULL)
         }
 
-        whats <- lapply(input, function(x) unique(getOperations(x)$smooth$what))
-        ks <- lapply(input, function(x) unique(getOperations(x)$smooth$k))
-        sps <- lapply(input, function(x) unique(getOperations(x)$smooth$sp))
+        whats <- lapply(input, function(x) unique(get_operations(x)$smooth$what))
+        ks <- lapply(input, function(x) unique(get_operations(x)$smooth$k))
+        sps <- lapply(input, function(x) unique(get_operations(x)$smooth$sp))
         changeWhat <- any(!sapply(whats, function(x) isTRUE(all.equal(whats[[1]], x))))
         changeK <- any(!sapply(ks, function(x) isTRUE(all.equal(ks[[1]], x))))
         changeSp <- any(!sapply(sps, function(x) isTRUE(all.equal(sps[[1]], x))))
         changeO <- changeWhat | changeK | changeSp
         if (changeO) {
-            whats <- lapply(input, function(x) getOperations(x)$smooth$what)
+            whats <- lapply(input, function(x) get_operations(x)$smooth$what)
             whats[sapply(whats, is.null)] <- list(operations$smooth$what[1])
             whats <- do.call("c", whats)
 
-            ks <- lapply(input, function(x) getOperations(x)$smooth$k)
+            ks <- lapply(input, function(x) get_operations(x)$smooth$k)
             ks[sapply(ks, is.null)] <- operations$smooth$k[1]
             ks <- do.call("c", ks)
 
-            sps <- lapply(input, function(x) getOperations(x)$smooth$sp)
+            sps <- lapply(input, function(x) get_operations(x)$smooth$sp)
             sps[sapply(sps, is.null)] <- list(operations$smooth$sp[1])
             sps <- do.call("c", sps)
 
-            nsessions <- lapply(input, function(x) getOperations(x)$smooth$nsessions)
+            nsessions <- lapply(input, function(x) get_operations(x)$smooth$nsessions)
             nsessions[sapply(nsessions, is.null)] <- nsessionsInput[sapply(nsessions, is.null)]
             nsessions <- do.call("c", nsessions)
 
@@ -377,7 +377,7 @@ c.conProfile <- function(..., recursive = FALSE) {
             operations$smooth$sp <- sps
             operations$smooth$nsessions <- nsessions
         } else {
-            nsessions <- lapply(input, function(x) getOperations(x)$smooth$nsessions)
+            nsessions <- lapply(input, function(x) get_operations(x)$smooth$nsessions)
             nsessions[sapply(nsessions, is.null)] <- nsessionsInput[sapply(nsessions, is.null)]
             operations$smooth$nsessions <- sum(do.call("c", nsessions))
         }
@@ -438,7 +438,7 @@ ridges.conProfile <- function(x, session = NULL, what = c("speed"),
 
     ## code inspired by autoplot.zoo
     units <- getUnits(x)
-    operations <- getOperations(x)
+    operations <- get_operations(x)
 
     ## select variables
     what <- what[what %in% names(x)]

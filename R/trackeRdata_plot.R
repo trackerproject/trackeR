@@ -67,7 +67,7 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart_rate"),
     ## smooth
     if (smooth) {
         xo <- x
-        if (is.null(getOperations(x)$smooth)) {
+        if (is.null(get_operations(x)$smooth)) {
             x <- smoother(x, what = what, ...)
         } else {
             warning("This object has already been smoothed. No additional smoothing takes place.")

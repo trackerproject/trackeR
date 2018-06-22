@@ -167,21 +167,21 @@ c.trackeRdata <- function(..., recursive = FALSE) {
         return(input[[1]])
     nsessionsInput <- sapply(input, length)
     units1 <- getUnits(input[[1]])
-    operations <- getOperations(input[[1]])
+    operations <- get_operations(input[[1]])
 
     ## check/change operations attributes: smooth
 
     ## if all smoother settings are NULL, skip whole aggregation process
-    if (!all(sapply(input, function(x) is.null(getOperations(x)$smooth)))) {
+    if (!all(sapply(input, function(x) is.null(get_operations(x)$smooth)))) {
 
         ## if the settings for the first session are NULL, create a new reference setup
-        if (is.null(getOperations(input[[1]])$smooth)) {
+        if (is.null(get_operations(input[[1]])$smooth)) {
             operations$smooth <- list(fun = NA, width = NA, parallel = FALSE, cores = NULL,
                                       what = NA, nsessions = NULL)
         }
 
 
-        funs <- sapply(input, function(x) getOperations(x)$smooth$fun)
+        funs <- sapply(input, function(x) get_operations(x)$smooth$fun)
         funs <- funs[!sapply(funs, is.null)]
         funs <- funs[!sapply(funs, is.na)]
         if (any(!sapply(funs, function(x) isTRUE(all.equal(funs[[1]], x)))))
@@ -189,19 +189,19 @@ c.trackeRdata <- function(..., recursive = FALSE) {
         if (is.na(operations$smooth$fun))
             operations$smooth$fun <- funs[[1]]
 
-        widths <- lapply(input, function(x) unique(getOperations(x)$smooth$width))
-        whats <- lapply(input, function(x) unique(getOperations(x)$smooth$what))
+        widths <- lapply(input, function(x) unique(get_operations(x)$smooth$width))
+        whats <- lapply(input, function(x) unique(get_operations(x)$smooth$what))
         changeWidth <- any(!sapply(widths, function(x) isTRUE(all.equal(widths[[1]], x))))
         changeWhat <- any(!sapply(whats, function(x) isTRUE(all.equal(whats[[1]], x))))
         changeO <- changeWidth | changeWhat
         if (changeO) {
-            widths <- lapply(input, function(x) getOperations(x)$smooth$width)
+            widths <- lapply(input, function(x) get_operations(x)$smooth$width)
             widths[sapply(widths, is.null)] <- operations$smooth$width[1]
             widths <- do.call("c", widths)
-            whats <- lapply(input, function(x) getOperations(x)$smooth$what)
+            whats <- lapply(input, function(x) get_operations(x)$smooth$what)
             whats[sapply(whats, is.null)] <- list(operations$smooth$what[1])
             whats <- do.call("c", whats)
-            nsessions <- lapply(input, function(x) getOperations(x)$smooth$nsessions)
+            nsessions <- lapply(input, function(x) get_operations(x)$smooth$nsessions)
             nsessions[sapply(nsessions, is.null)] <- nsessionsInput[sapply(nsessions, is.null)]
             nsessions <- do.call("c", nsessions)
             operations$smooth$width <- widths
@@ -209,7 +209,7 @@ c.trackeRdata <- function(..., recursive = FALSE) {
             operations$smooth$nsessions <- nsessions
         }
         else {
-            nsessions <- lapply(input, function(x) getOperations(x)$smooth$nsessions)
+            nsessions <- lapply(input, function(x) get_operations(x)$smooth$nsessions)
             nsessions[sapply(nsessions, is.null)] <- nsessionsInput[sapply(nsessions, is.null)]
             operations$smooth$nsessions <- sum(do.call("c", nsessions))
         }
@@ -218,7 +218,7 @@ c.trackeRdata <- function(..., recursive = FALSE) {
     ## check/change operations attributes: threshold apply thresholds of first session to
     ## all sessions if necessary
     th <- operations$threshold
-    thAll <- lapply(input, function(x) getOperations(x)$threshold)
+    thAll <- lapply(input, function(x) get_operations(x)$threshold)
     changeT <- !all(sapply(thAll, function(x) isTRUE(all.equal(th, x))))
     if (changeT) {
         if (is.null(th)) {
@@ -309,7 +309,7 @@ unique.trackeRdata <- function(x, incomparables = FALSE, ...) {
 "[.trackeRdata" <- function(x, i, j, drop = TRUE, ...) {
 
     units <- getUnits(x)
-    operations <- getOperations(x)
+    operations <- get_operations(x)
     sport <- attr(x, "sport")
     files <- attr(x, "file")
 
