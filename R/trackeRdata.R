@@ -12,7 +12,7 @@
 #' @param mask Logical. Passed on to \code{\link[raster]{getData}}. Should only the altitudes for the specified
 #'     \code{country} be extracted (\code{TRUE}) or also those for the neighboring countries (\code{FALSE})?
 #' @inheritParams sanity_checks
-#' @inheritParams resting_periods
+#' @inheritParams get_resting_periods
 #' @inheritParams impute_speeds
 #' @details The \code{units} argument takes a data frame with two variables named \code{variable} and \code{unit}.
 #'     Possible options include:
@@ -386,7 +386,7 @@ nsessions.trackeRdata <- function(object, ...) {
 #' @param cycling Logical. Does the data stem from cycling?
 #' @inheritParams trackeRdata
 #' @inheritParams sanity_checks
-#' @inheritParams resting_periods
+#' @inheritParams get_resting_periods
 #' @inheritParams impute_speeds
 #' @seealso \code{\link{trackeRdata}}
 #' @export

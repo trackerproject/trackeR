@@ -8,7 +8,7 @@
 #'     for each session and the resting time between sessions, named
 #'     'sessions' and 'restingTime', respectively.
 #' @export
-resting_periods <- function(times, session_threshold) {
+get_resting_periods <- function(times, session_threshold) {
     if (length(times) == 0)
         return(NULL)
     t1 <- times[-length(times)]
@@ -38,7 +38,7 @@ in_period <- function(dates, start, end) {
 get_sessions <- function(dat, session_threshold = 2) {
     ## get session IDs
     dat$sessionID <- NA
-    resting <- resting_periods(dat$time, session_threshold)
+    resting <- get_resting_periods(dat$time, session_threshold)
 
     n_sessions <- nrow(resting$sessions)
     for (i in seq.int(n_sessions)) {

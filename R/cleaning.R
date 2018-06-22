@@ -208,7 +208,7 @@ impute_speeds <- function(session_data, from_distances = TRUE,
     session_data <- session_data[session_data$speed >= 0 & !is.na(session_data$speed)]
 
     ## get session parts (which are separated by short breaks lasting more than lgap seconds)
-    shortBreaks <- resting_periods(index(session_data), lgap/3600)
+    shortBreaks <- get_resting_periods(index(session_data), lgap/3600)
 
     ## Put some zeros within the short breaks
     #nObs <- nrow(session_data)
