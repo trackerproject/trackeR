@@ -231,7 +231,7 @@ c.trackeRdata <- function(..., recursive = FALSE) {
         warning("The sessions have different units. The units of the first session are applied to all sessions.")
         ## change units
         for (i in 2:ninput) {
-            input[[i]] <- changeUnits(input[[i]], variable = units1$variable, unit = units1$unit)
+            input[[i]] <- change_units(input[[i]], variable = units1$variable, unit = units1$unit)
         }
     }
 
@@ -479,7 +479,7 @@ as.data.frame.trackeRdata <- function(x, ...) {
 #' @export
 print.trackeRdata <- function(x, duration = "h", ..., digits = 2) {
     x <- summary(x)
-    x <- changeUnits(x, "duration", "h")
+    x <- change_units(x, "duration", "h")
     units <- getUnits(x)
     sports <- as.character(na.omit(unique(sport(x))))
     cat("A trackeRdata object\n")

@@ -29,7 +29,7 @@ runSummary <- summary(runs, session = 1:2)
 runSummary
 print(runSummary, digits = 3)
 ## change units
-changeUnits(runSummary, variable = 'speed', unit = 'km_per_h')
+change_units(runSummary, variable = 'speed', unit = 'km_per_h')
 ## plot summary
 runSummaryFull <- summary(runs)
 plot(runSummaryFull)

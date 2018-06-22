@@ -377,7 +377,7 @@ c.conProfile <- function(..., recursive = FALSE) {
         warning("The profiles for at least one variable have different units. The units of the first profile for each variable are applied to all profiles of that variable.")
         ## change units
         for (i in 2:ninput) {
-            input[[i]] <- changeUnits(input[[i]], variable = units1$variable, unit = units1$unit)
+            input[[i]] <- change_units(input[[i]], variable = units1$variable, unit = units1$unit)
 
         }
     }

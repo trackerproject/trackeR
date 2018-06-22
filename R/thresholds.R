@@ -29,7 +29,7 @@ threshold <- function(object, variable, lower, upper, ...) {
     if (missing(variable) & missing(lower) & missing(upper)) {
         units <- getUnits(object)
         th <- generateDefaultThresholds()
-        th <- changeUnits(th, variable = units$variable, unit = units$unit)
+        th <- change_units(th, variable = units$variable, unit = units$unit)
     }
     else {
         ## new thresholds

@@ -63,7 +63,7 @@ get_units.trackeRfpca <- function(object, ...) {
 #' @param unit A vector with the units, corresponding to variable.
 #' @param ... Currently not used.
 #' @export
-changeUnits.trackeRdata <- function(object, variable, unit, ...) {
+change_units.trackeRdata <- function(object, variable, unit, ...) {
     ## get current units and thresholds
     current <- getUnits(object)
     operations <- getOperations(object)
@@ -104,7 +104,7 @@ changeUnits.trackeRdata <- function(object, variable, unit, ...) {
 #' @param unit A vector with the units, corresponding to variable.
 #' @param ... Currently not used.
 #' @export
-changeUnits.trackeRdataSummary <- function(object, variable, unit, ...) {
+change_units.trackeRdataSummary <- function(object, variable, unit, ...) {
     ## NOTE: variable is expected to contain concepts like 'speed' rather than variable
     ## names like 'avgSpeed' or 'avgSpeedMoving'.
     concept <- variable
@@ -144,7 +144,7 @@ changeUnits.trackeRdataSummary <- function(object, variable, unit, ...) {
 #' @param unit A vector with the units, corresponding to variable.
 #' @param ... Currently not used.
 #' @export
-changeUnits.distrProfile <- function(object, variable, unit, ...) {
+change_units.distrProfile <- function(object, variable, unit, ...) {
     current <- getUnits(object)
 
     ## change units
@@ -173,7 +173,7 @@ changeUnits.distrProfile <- function(object, variable, unit, ...) {
 #' @param unit A vector with the units, corresponding to variable.
 #' @param ... Currently not used.
 #' @export
-changeUnits.conProfile <- function(object, variable, unit, ...) {
+change_units.conProfile <- function(object, variable, unit, ...) {
     current <- getUnits(object)
 
     ## change units
@@ -202,7 +202,7 @@ changeUnits.conProfile <- function(object, variable, unit, ...) {
 #' @param unit A vector with the units, corresponding to variable.
 #' @param ... Currently not used.
 #' @export
-changeUnits.trackeRWprime <- function(object, variable, unit, ...) {
+change_units.trackeRWprime <- function(object, variable, unit, ...) {
     ## get current unit
     current <- getUnits(object)
 
@@ -241,7 +241,7 @@ changeUnits.trackeRWprime <- function(object, variable, unit, ...) {
 }
 
 ## not to be exported
-changeUnits.trackeRthresholds <- function(object, variable, unit, ...) {
+change_units.trackeRthresholds <- function(object, variable, unit, ...) {
     for (v in variable) {
         i <- which(object$variable == v)
         current_unit <- object$unit[i]
@@ -263,7 +263,7 @@ changeUnits.trackeRthresholds <- function(object, variable, unit, ...) {
 }
 
 
-changeUnits.trackeRdataZones <- function(object, variable, unit, ...) {
+change_units.trackeRdataZones <- function(object, variable, unit, ...) {
 
     current <- getUnits(object)
 

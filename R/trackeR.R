@@ -100,7 +100,7 @@ get_units <- function(object, ...) UseMethod("get_units")
 #' @param unit The unit of measurement to which is changed.
 #' @param ... Arguments to be passed to methods.
 #' @export
-changeUnits <- function(object, variable, unit, ...) UseMethod("changeUnits")
+change_units <- function(object, variable, unit, ...) UseMethod("change_units")
 
 #' Generic function for retrieving the operation settings.
 #'

@@ -49,7 +49,7 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart_rate"),
             th <- generateDefaultThresholds(cycling)
             ## th <- th[which(th$variable %in% what),]
             ## w <- which(units$variable %in% what)
-            th <- changeUnits(th, variable = units$variable, unit = units$unit)
+            th <- change_units(th, variable = units$variable, unit = units$unit)
         }
         ## apply thresholds
         x <- threshold(x, th)
@@ -461,7 +461,7 @@ prepRoute <- function(x, session = 1, threshold = TRUE, ...){
             ## default thresholds
             cycling <- units$unit[units$variable == "cadence"] == "rev_per_min"
             th <- generateDefaultThresholds(cycling)
-            th <- changeUnits(th, variable = units$variable, unit = units$unit)
+            th <- change_units(th, variable = units$variable, unit = units$unit)
         }
         ## apply thresholds
         x <- threshold(x, th)
