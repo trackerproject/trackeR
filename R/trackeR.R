@@ -86,12 +86,12 @@ scaled <- function(object, ...) UseMethod("scaled")
 #' @export
 append <- function(object, file, ...) UseMethod("append")
 
-#' Generic function for retrieving the units of measurement.
+#' Generic function for extracting the units of measurement.
 #'
 #' @param object The object of which the units of measurement are retrieved.
 #' @param ... Arguments to be passed to methods.
 #' @export
-getUnits <- function(object, ...) UseMethod("getUnits")
+get_units <- function(object, ...) UseMethod("get_units")
 
 #' Generic function for changing the units of measurement.
 #'

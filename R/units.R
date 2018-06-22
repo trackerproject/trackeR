@@ -3,7 +3,7 @@
 #' @param object An object of class \code{\link{trackeRdata}}.
 #' @param ... Currently not used.
 #' @export
-getUnits.trackeRdata <- function(object, ...) {
+get_units.trackeRdata <- function(object, ...) {
     attr(object, "units")
 }
 
@@ -12,7 +12,7 @@ getUnits.trackeRdata <- function(object, ...) {
 #' @param object An object of class \code{trackeRdataSummary}.
 #' @param ... Currently not used.
 #' @export
-getUnits.trackeRdataSummary <- function(object, ...) {
+get_units.trackeRdataSummary <- function(object, ...) {
     attr(object, "units")
 }
 
@@ -21,7 +21,7 @@ getUnits.trackeRdataSummary <- function(object, ...) {
 #' @param object An object of class \code{distrProfile}.
 #' @param ... Currently not used.
 #' @export
-getUnits.distrProfile <- function(object, ...) {
+get_units.distrProfile <- function(object, ...) {
     attr(object, "units")
 }
 
@@ -30,7 +30,7 @@ getUnits.distrProfile <- function(object, ...) {
 #' @param object An object of class \code{conProfile}.
 #' @param ... Currently not used.
 #' @export
-getUnits.conProfile <- function(object, ...) {
+get_units.conProfile <- function(object, ...) {
     attr(object, "units")
 }
 
@@ -39,20 +39,20 @@ getUnits.conProfile <- function(object, ...) {
 #' @param object An object of class \code{trackeRWprime}.
 #' @param ... Currently not used.
 #' @export
-getUnits.trackeRWprime <- function(object, ...) {
+get_units.trackeRWprime <- function(object, ...) {
     attr(object, "unit")
 }
 
 ## not to be exported
-getUnits.trackeRthresholds <- function(object, ...) {
+get_units.trackeRthresholds <- function(object, ...) {
     object[, c("variable", "unit")]
 }
 
-getUnits.trackeRdataZones <- function(object, ...) {
+get_units.trackeRdataZones <- function(object, ...) {
     attr(object, "units")
 }
 
-getUnits.trackeRfpca <- function(object, ...) {
+get_units.trackeRfpca <- function(object, ...) {
     attr(object, "units")
 }
 
