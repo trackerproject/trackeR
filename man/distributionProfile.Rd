@@ -11,19 +11,27 @@ distributionProfile(object, session = NULL, what = c("speed", "heart_rate"),
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}
 
-\item{session}{A numeric vector of the sessions to be used, defaults to all sessions.}
+\item{session}{A numeric vector of the sessions to be used,
+defaults to all sessions.}
 
-\item{what}{The variables for which the distribution profiles should be generated.}
+\item{what}{The variables for which the distribution profiles
+should be generated.}
 
-\item{grid}{A named list containing the grid for the variables in \code{what}.}
+\item{grid}{A named list containing the grid for the variables in
+\code{what}.}
 
-\item{parallel}{Logical. Should computation be carried out in parallel?}
+\item{parallel}{Logical. Should computation be carried out in
+parallel?}
 
-\item{cores}{Number of cores for parallel computing. If NULL, the number of cores is
-set to the value of \code{options("cores")} (on Windows) or \code{options("mc.cores")}
-(elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.}
+\item{cores}{Number of cores for parallel computing. If NULL, the
+number of cores is set to the value of \code{options("cores")}
+(on Windows) or \code{options("mc.cores")} (elsewhere), or, if
+the relevant option is unspecified, to half the number of cores
+detected.}
 
-\item{auto_grid}{Logical. Should grids be selected automatically? Default is \code{FALSE} and \code{grid} will be ignored if \code{TRUE}.}
+\item{auto_grid}{Logical. Should grids be selected automatically?
+Default is \code{FALSE} and \code{grid} will be ignored if
+\code{TRUE}.}
 }
 \value{
 An object of class \code{distrProfile}.
@@ -38,7 +46,12 @@ plot(dProfile, smooth = FALSE)
 }
 \references{
 Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
-    Endurance Runners to Training and Physiological Effects via Multi-Resolution
-    Elastic Net. \emph{ArXiv e-print} arXiv:1506.01388.
-Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal of Statistical Software}, \bold{82}(7), 1--29. doi:10.18637/jss.v082.i07
+Endurance Runners to Training and Physiological Effects via
+Multi-Resolution Elastic Net. \emph{ArXiv e-print}
+arXiv:1506.01388.
+
+Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running
+and Cycling Data from GPS-Enabled Tracking Devices in
+R. \emph{Journal of Statistical Software}, \bold{82}(7),
+1--29. doi:10.18637/jss.v082.i07
 }

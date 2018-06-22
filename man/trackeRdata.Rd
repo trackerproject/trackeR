@@ -11,24 +11,31 @@ trackeRdata(dat, units = NULL, sport = NULL, session_threshold = 2,
 \arguments{
 \item{dat}{A data frame.}
 
-\item{units}{A data frame containing the unit of measurement for all variables. See Details.}
+\item{units}{A data frame containing the unit of measurement for
+all variables. See Details.}
 
-\item{sport}{What sport does \code{dat} contain data of? Either \code{'cycling'}, \code{'running'}, \code{'swimming'} or \code{NULL} (default), in which case the sport is directly extracted from the \code{dat}. See Details.}
+\item{sport}{What sport does \code{dat} contain data of? Either
+\code{'cycling'}, \code{'running'}, \code{'swimming'} or
+\code{NULL} (default), in which case the sport is directly
+extracted from the \code{dat}. See Details.}
 
 \item{session_threshold}{The threshold in hours for the time
 difference between consecutive timestamps above which they are
 considered to belong to different training sessions.}
 
-\item{correct_distances}{Logical. Should the distances be corrected for elevation?}
+\item{correct_distances}{Logical. Should the distances be corrected
+for elevation?}
 
 \item{from_distances}{Logical. Should the speeds be calculated from the distance recordings
 instead of taken from the speed recordings directly?}
 
-\item{country}{ISO3 country code for downloading altitude data. If \code{NULL}, country is derived from
-longitude and latitude.}
+\item{country}{ISO3 country code for downloading altitude data. If
+\code{NULL}, country is derived from longitude and latitude.}
 
-\item{mask}{Logical. Passed on to \code{\link[raster]{getData}}. Should only the altitudes for the specified
-\code{country} be extracted (\code{TRUE}) or also those for the neighboring countries (\code{FALSE})?}
+\item{mask}{Logical. Passed on to
+\code{\link[raster]{getData}}. Should only the altitudes for
+the specified \code{country} be extracted (\code{TRUE}) or also
+those for the neighboring countries (\code{FALSE})?}
 
 \item{lgap}{Time in seconds corresponding to the minimal sampling rate.}
 
@@ -42,26 +49,29 @@ observation after a small break.}
 sanity checks on the data are triggered?}
 }
 \description{
-Create a trackeRdata object from a data frame with observations being divided in
-separate training sessions. For breaks within a session observations are imputed.
+Create a trackeRdata object from a data frame with observations
+being divided in separate training sessions. For breaks within a
+session observations are imputed.
 }
 \details{
-The \code{units} argument takes a data frame with two variables named \code{variable} and \code{unit}.
-    Possible options include:
-    \itemize{
-    \item variables \code{latitude} and \code{longitude} with unit \code{degree}
-    \item variables \code{altitude}, \code{distance} with unit \code{m}, \code{km}, \code{mi} or \code{ft}
-    \item variable \code{heart_rate} with unit \code{bpm}
-    \item variable \code{speed} with unit \code{m_per_s}, \code{km_per_h}, \code{ft_per_min},
-          \code{ft_per_s} or \code{mi_per_h}
-    \item variable \code{cadence_running} with unit \code{steps_per_min}
-    \item variable \code{cadence_cycling} with unit \code{rev_per_min}
+The \code{units} argument takes a data frame with two
+    variables named \code{variable} and \code{unit}.  Possible
+    options include: \itemize{ \item variables \code{latitude} and
+    \code{longitude} with unit \code{degree} \item variables
+    \code{altitude}, \code{distance} with unit \code{m}, \code{km},
+    \code{mi} or \code{ft} \item variable \code{heart_rate} with
+    unit \code{bpm} \item variable \code{speed} with unit
+    \code{m_per_s}, \code{km_per_h}, \code{ft_per_min},
+    \code{ft_per_s} or \code{mi_per_h} \item variable
+    \code{cadence_running} with unit \code{steps_per_min} \item
+    variable \code{cadence_cycling} with unit \code{rev_per_min}
     \item variable \code{power} with unit \code{W} or \code{kW}.
-    \item variable \code{temperature} with unit \code{C} (Celsius) or \code{F}.
-    }
-    If the argument \code{units} is \code{NULL}, the default units are used. These are the first options, i.e.,
-    \code{m} for variables \code{altitude} and \code{distance}, \code{m_per_s} for variable \code{speed} as well
-    as \code{W} for variable \code{power}.
+    \item variable \code{temperature} with unit \code{C} (Celsius)
+    or \code{F}.  } If the argument \code{units} is \code{NULL},
+    the default units are used. These are the first options, i.e.,
+    \code{m} for variables \code{altitude} and \code{distance},
+    \code{m_per_s} for variable \code{speed} as well as \code{W}
+    for variable \code{power}.
 
     During small breaks within a session, e.g., because the
     recording device was paused, observations are imputed the

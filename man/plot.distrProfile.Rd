@@ -8,17 +8,22 @@
   "heart_rate"), multiple = FALSE, smooth = TRUE, ...)
 }
 \arguments{
-\item{x}{An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.}
+\item{x}{An object of class \code{distrProfile} as returned by
+\code{\link{distributionProfile}}.}
 
-\item{session}{A numeric vector of the sessions to be plotted, defaults to all sessions.}
+\item{session}{A numeric vector of the sessions to be plotted,
+defaults to all sessions.}
 
 \item{what}{Which variables should be plotted?}
 
-\item{multiple}{Logical. Should all sessions be plotted in one panel?}
+\item{multiple}{Logical. Should all sessions be plotted in one
+panel?}
 
-\item{smooth}{Logical. Should unsmoothed profiles be smoothed before plotting?}
+\item{smooth}{Logical. Should unsmoothed profiles be smoothed
+before plotting?}
 
-\item{...}{Further arguments to be passed to \code{\link{smootherControl.distrProfile}}.}
+\item{...}{Further arguments to be passed to
+\code{\link{smootherControl.distrProfile}}.}
 }
 \description{
 Plot distribution profiles.

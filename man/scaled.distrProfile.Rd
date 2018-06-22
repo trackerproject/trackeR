@@ -8,9 +8,11 @@
   "heart_rate"), ...)
 }
 \arguments{
-\item{object}{An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.}
+\item{object}{An object of class \code{distrProfile} as returned by
+\code{\link{distributionProfile}}.}
 
-\item{session}{A numeric vector of the sessions to be plotted, defaults to all sessions.}
+\item{session}{A numeric vector of the sessions to be plotted,
+defaults to all sessions.}
 
 \item{what}{Which variables should be scaled?}
 

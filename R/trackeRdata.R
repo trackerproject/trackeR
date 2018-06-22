@@ -1,35 +1,45 @@
 #' Create a trackeRdata object.
 #'
-#' Create a trackeRdata object from a data frame with observations being divided in
-#' separate training sessions. For breaks within a session observations are imputed.
+#' Create a trackeRdata object from a data frame with observations
+#' being divided in separate training sessions. For breaks within a
+#' session observations are imputed.
 #'
 #' @param dat A data frame.
-#' @param units A data frame containing the unit of measurement for all variables. See Details.
-#' @param sport What sport does \code{dat} contain data of? Either \code{'cycling'}, \code{'running'}, \code{'swimming'} or \code{NULL} (default), in which case the sport is directly extracted from the \code{dat}. See Details.
-#' @param correct_distances Logical. Should the distances be corrected for elevation?
-#' @param country ISO3 country code for downloading altitude data. If \code{NULL}, country is derived from
-#'     longitude and latitude.
-#' @param mask Logical. Passed on to \code{\link[raster]{getData}}. Should only the altitudes for the specified
-#'     \code{country} be extracted (\code{TRUE}) or also those for the neighboring countries (\code{FALSE})?
+#' @param units A data frame containing the unit of measurement for
+#'     all variables. See Details.
+#' @param sport What sport does \code{dat} contain data of? Either
+#'     \code{'cycling'}, \code{'running'}, \code{'swimming'} or
+#'     \code{NULL} (default), in which case the sport is directly
+#'     extracted from the \code{dat}. See Details.
+#' @param correct_distances Logical. Should the distances be corrected
+#'     for elevation?
+#' @param country ISO3 country code for downloading altitude data. If
+#'     \code{NULL}, country is derived from longitude and latitude.
+#' @param mask Logical. Passed on to
+#'     \code{\link[raster]{getData}}. Should only the altitudes for
+#'     the specified \code{country} be extracted (\code{TRUE}) or also
+#'     those for the neighboring countries (\code{FALSE})?
 #' @inheritParams sanity_checks
 #' @inheritParams get_resting_periods
 #' @inheritParams impute_speeds
-#' @details The \code{units} argument takes a data frame with two variables named \code{variable} and \code{unit}.
-#'     Possible options include:
-#'     \itemize{
-#'     \item variables \code{latitude} and \code{longitude} with unit \code{degree}
-#'     \item variables \code{altitude}, \code{distance} with unit \code{m}, \code{km}, \code{mi} or \code{ft}
-#'     \item variable \code{heart_rate} with unit \code{bpm}
-#'     \item variable \code{speed} with unit \code{m_per_s}, \code{km_per_h}, \code{ft_per_min},
-#'           \code{ft_per_s} or \code{mi_per_h}
-#'     \item variable \code{cadence_running} with unit \code{steps_per_min}
-#'     \item variable \code{cadence_cycling} with unit \code{rev_per_min}
+#' @details The \code{units} argument takes a data frame with two
+#'     variables named \code{variable} and \code{unit}.  Possible
+#'     options include: \itemize{ \item variables \code{latitude} and
+#'     \code{longitude} with unit \code{degree} \item variables
+#'     \code{altitude}, \code{distance} with unit \code{m}, \code{km},
+#'     \code{mi} or \code{ft} \item variable \code{heart_rate} with
+#'     unit \code{bpm} \item variable \code{speed} with unit
+#'     \code{m_per_s}, \code{km_per_h}, \code{ft_per_min},
+#'     \code{ft_per_s} or \code{mi_per_h} \item variable
+#'     \code{cadence_running} with unit \code{steps_per_min} \item
+#'     variable \code{cadence_cycling} with unit \code{rev_per_min}
 #'     \item variable \code{power} with unit \code{W} or \code{kW}.
-#'     \item variable \code{temperature} with unit \code{C} (Celsius) or \code{F}.
-#'     }
-#'     If the argument \code{units} is \code{NULL}, the default units are used. These are the first options, i.e.,
-#'     \code{m} for variables \code{altitude} and \code{distance}, \code{m_per_s} for variable \code{speed} as well
-#'     as \code{W} for variable \code{power}.
+#'     \item variable \code{temperature} with unit \code{C} (Celsius)
+#'     or \code{F}.  } If the argument \code{units} is \code{NULL},
+#'     the default units are used. These are the first options, i.e.,
+#'     \code{m} for variables \code{altitude} and \code{distance},
+#'     \code{m_per_s} for variable \code{speed} as well as \code{W}
+#'     for variable \code{power}.
 #'
 #'     During small breaks within a session, e.g., because the
 #'     recording device was paused, observations are imputed the
@@ -167,7 +177,7 @@ c.trackeRdata <- function(..., recursive = FALSE) {
         ## if the settings for the first session are NULL, create a new reference setup
         if (is.null(getOperations(input[[1]])$smooth)) {
             operations$smooth <- list(fun = NA, width = NA, parallel = FALSE, cores = NULL,
-                what = NA, nsessions = NULL)
+                                      what = NA, nsessions = NULL)
         }
 
 
@@ -194,7 +204,6 @@ c.trackeRdata <- function(..., recursive = FALSE) {
             nsessions <- lapply(input, function(x) getOperations(x)$smooth$nsessions)
             nsessions[sapply(nsessions, is.null)] <- nsessionsInput[sapply(nsessions, is.null)]
             nsessions <- do.call("c", nsessions)
-
             operations$smooth$width <- widths
             operations$smooth$what <- whats
             operations$smooth$nsessions <- nsessions

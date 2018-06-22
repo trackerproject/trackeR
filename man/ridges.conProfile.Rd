@@ -2,26 +2,29 @@
 % Please edit documentation in R/concentrationProfile.R
 \name{ridges.conProfile}
 \alias{ridges.conProfile}
-\title{Ridgeline plots for distrProfile objects}
+\title{Ridgeline plots for \code{distrProfile} objects}
 \usage{
 \method{ridges}{conProfile}(x, session = NULL, what = c("speed"),
   smooth = TRUE, ...)
 }
 \arguments{
-\item{x}{An object of class \code{conProfile} as returned by \code{\link{concentrationProfile}}.}
+\item{x}{An object of class \code{conProfile} as returned by
+\code{\link{concentrationProfile}}.}
 
-\item{session}{A vector of the sessions to be plotted, defaults to all sessions.
-Either a character vector with the session names, e.g., c('Session3', 'Session4')
-or a numeric vector with the relative position of the session(s).}
+\item{session}{A vector of the sessions to be plotted, defaults to
+all sessions.  Either a character vector with the session
+names, e.g., c('Session3', 'Session4') or a numeric vector with
+the relative position of the session(s).}
 
 \item{what}{Which variables should be plotted?}
 
-\item{smooth}{Logical. Should unsmoothed profiles be smoothed before plotting?}
+\item{smooth}{Logical. Should unsmoothed profiles be smoothed
+before plotting?}
 
 \item{...}{Currently not used.}
 }
 \description{
-Ridgeline plots for distrProfile objects
+Ridgeline plots for \code{distrProfile} objects
 }
 \examples{
 \dontrun{

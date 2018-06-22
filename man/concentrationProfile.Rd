@@ -8,11 +8,14 @@ concentrationProfile(object, session = NULL, what = c("speed",
   "heart_rate"), ...)
 }
 \arguments{
-\item{object}{An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.}
+\item{object}{An object of class \code{distrProfile} as returned by
+\code{\link{distributionProfile}}.}
 
-\item{session}{A numeric vector of the sessions to be used, defaults to all sessions.}
+\item{session}{A numeric vector of the sessions to be used,
+defaults to all sessions.}
 
-\item{what}{The variables for which the concentration profiles should be generated.}
+\item{what}{The variables for which the concentration profiles
+should be generated.}
 
 \item{...}{Currently not used.}
 }
@@ -31,8 +34,9 @@ plot(cProfile)
 }
 \references{
 Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
-Endurance Runners to Training and Physiological Effects via Multi-Resolution
-Elastic Net. \emph{ArXiv e-print} arXiv:1506.01388.
+Endurance Runners to Training and Physiological Effects via
+Multi-Resolution Elastic Net. \emph{ArXiv e-print}
+arXiv:1506.01388.
 
 Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running
 and Cycling Data from GPS-Enabled Tracking Devices in

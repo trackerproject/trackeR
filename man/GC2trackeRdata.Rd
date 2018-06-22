@@ -13,13 +13,16 @@ GC2trackeRdata(gc, cycling = TRUE, correct_distances = FALSE,
 
 \item{cycling}{Logical. Does the data stem from cycling?}
 
-\item{correct_distances}{Logical. Should the distances be corrected for elevation?}
+\item{correct_distances}{Logical. Should the distances be corrected
+for elevation?}
 
-\item{country}{ISO3 country code for downloading altitude data. If \code{NULL}, country is derived from
-longitude and latitude.}
+\item{country}{ISO3 country code for downloading altitude data. If
+\code{NULL}, country is derived from longitude and latitude.}
 
-\item{mask}{Logical. Passed on to \code{\link[raster]{getData}}. Should only the altitudes for the specified
-\code{country} be extracted (\code{TRUE}) or also those for the neighboring countries (\code{FALSE})?}
+\item{mask}{Logical. Passed on to
+\code{\link[raster]{getData}}. Should only the altitudes for
+the specified \code{country} be extracted (\code{TRUE}) or also
+those for the neighboring countries (\code{FALSE})?}
 
 \item{from_distances}{Logical. Should the speeds be calculated from the distance recordings
 instead of taken from the speed recordings directly?}

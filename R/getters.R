@@ -26,12 +26,6 @@ get_resting_periods <- function(times, session_threshold) {
 }
 
 
-## Is the date within a certain period (including both start and end)?  Output is a
-## logical vector for all dates.
-in_period <- function(dates, start, end) {
-    (dates >= start) & (dates <= end)
-}
-
 ## Detects sessions in the output of readX functions according to
 ## session_threshold and returns a multivariate zoo object
 ## session_threshold in hours!
@@ -43,7 +37,7 @@ get_sessions <- function(dat, session_threshold = 2) {
     n_sessions <- nrow(resting$sessions)
     for (i in seq.int(n_sessions)) {
         session <- resting$sessions[i, 1:2]
-        dat$sessionID[in_period(dat$time, start = session[[1]], end = session[[2]])] <- i
+        dat$sessionID[is_in_period(dat$time, start = session[[1]], end = session[[2]])] <- i
     }
     rownames(dat) <- NULL
 

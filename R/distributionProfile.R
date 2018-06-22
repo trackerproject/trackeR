@@ -1,19 +1,35 @@
 #' Generate training distribution profiles.
 #'
 #' @param object An object of class \code{\link{trackeRdata}}.
-#' @param session A numeric vector of the sessions to be used, defaults to all sessions.
-#' @param what The variables for which the distribution profiles should be generated.
-#' @param grid A named list containing the grid for the variables in \code{what}.
-#' @param parallel Logical. Should computation be carried out in parallel?
-#' @param cores Number of cores for parallel computing. If NULL, the number of cores is
-#'     set to the value of \code{options("cores")} (on Windows) or \code{options("mc.cores")}
-#'     (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.
-#' @param auto_grid Logical. Should grids be selected automatically? Default is \code{FALSE} and \code{grid} will be ignored if \code{TRUE}.
+#' @param session A numeric vector of the sessions to be used,
+#'     defaults to all sessions.
+#' @param what The variables for which the distribution profiles
+#'     should be generated.
+#' @param grid A named list containing the grid for the variables in
+#'     \code{what}.
+#' @param parallel Logical. Should computation be carried out in
+#'     parallel?
+#' @param cores Number of cores for parallel computing. If NULL, the
+#'     number of cores is set to the value of \code{options("cores")}
+#'     (on Windows) or \code{options("mc.cores")} (elsewhere), or, if
+#'     the relevant option is unspecified, to half the number of cores
+#'     detected.
+#' @param auto_grid Logical. Should grids be selected automatically?
+#'     Default is \code{FALSE} and \code{grid} will be ignored if
+#'     \code{TRUE}.
 #' @return An object of class \code{distrProfile}.
-#' @references Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
-#'     Endurance Runners to Training and Physiological Effects via Multi-Resolution
-#'     Elastic Net. \emph{ArXiv e-print} arXiv:1506.01388.
-#' Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal of Statistical Software}, \bold{82}(7), 1--29. doi:10.18637/jss.v082.i07
+#' @references
+#'
+#' Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
+#' Endurance Runners to Training and Physiological Effects via
+#' Multi-Resolution Elastic Net. \emph{ArXiv e-print}
+#' arXiv:1506.01388.
+#'
+#' Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running
+#' and Cycling Data from GPS-Enabled Tracking Devices in
+#' R. \emph{Journal of Statistical Software}, \bold{82}(7),
+#' 1--29. doi:10.18637/jss.v082.i07
+#'
 #' @examples
 #' data('run', package = 'trackeR')
 #' dProfile <- distributionProfile(run, what = "speed", grid = seq(0, 12.5, by = 0.05))
@@ -170,8 +186,10 @@ distributionProfile <- function(object, session = NULL, what = c("speed", "heart
 
 #' Scale the distribution profile relative to its maximum value
 #'
-#' @param object An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.
-#' @param session A numeric vector of the sessions to be plotted, defaults to all sessions.
+#' @param object An object of class \code{distrProfile} as returned by
+#'     \code{\link{distributionProfile}}.
+#' @param session A numeric vector of the sessions to be plotted,
+#'     defaults to all sessions.
 #' @param what Which variables should be scaled?
 #' @param ... Currently not used.
 #' @export
@@ -262,12 +280,17 @@ fortify.distrProfile <- function(model, data, melt = FALSE, ...){
 
 #' Plot distribution profiles.
 #'
-#' @param x An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.
-#' @param session A numeric vector of the sessions to be plotted, defaults to all sessions.
+#' @param x An object of class \code{distrProfile} as returned by
+#'     \code{\link{distributionProfile}}.
+#' @param session A numeric vector of the sessions to be plotted,
+#'     defaults to all sessions.
 #' @param what Which variables should be plotted?
-#' @param multiple Logical. Should all sessions be plotted in one panel?
-#' @param smooth Logical. Should unsmoothed profiles be smoothed before plotting?
-#' @param ... Further arguments to be passed to \code{\link{smootherControl.distrProfile}}.
+#' @param multiple Logical. Should all sessions be plotted in one
+#'     panel?
+#' @param smooth Logical. Should unsmoothed profiles be smoothed
+#'     before plotting?
+#' @param ... Further arguments to be passed to
+#'     \code{\link{smootherControl.distrProfile}}.
 #' @examples
 #' data('runs', package = 'trackeR')
 #' dProfile <- distributionProfile(runs, session = 1:2,
@@ -365,22 +388,34 @@ plot.distrProfile <- function(x, session = NULL, what = c("speed", "heart_rate")
 ## FIXME: example
 #' Smoother for distribution profiles.
 #'
-#' The distribution profiles are smoothed using a shape constrained additive model with Poisson
-#' responses to ensure that the smoothed distribution profile is positive and monotone decreasing.
+#' The distribution profiles are smoothed using a shape constrained
+#' additive model with Poisson responses to ensure that the smoothed
+#' distribution profile is positive and monotone decreasing.
 #'
-#' @param object An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.
-#' @param session A numeric vector of the sessions to be selected and smoothed. Defaults to all sessions.
-#' @param control A list of parameters for controlling the smoothing process.
-#'     This is passed to \code{\link{smootherControl.distrProfile}}.
-#' @param ... Arguments to be used to form the default \code{control} argument if it is not supplied directly.
+#' @param object An object of class \code{distrProfile} as returned by
+#'     \code{\link{distributionProfile}}.
+#' @param session A numeric vector of the sessions to be selected and
+#'     smoothed. Defaults to all sessions.
+#' @param control A list of parameters for controlling the smoothing
+#'     process.  This is passed to
+#'     \code{\link{smootherControl.distrProfile}}.
+#' @param ... Arguments to be used to form the default \code{control}
+#'     argument if it is not supplied directly.
 #' @seealso \code{\link{smootherControl.distrProfile}}
-#' @references Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
-#'     Endurance Runners to Training and Physiological Effects via Multi-Resolution
-#'     Elastic Net. \emph{ArXiv e-print} arXiv:1506.01388.
+#' @references
 #'
-#'     Pya, N. and Wood S. (2015). Shape Constrained Additive Models. Statistics and
-#'     Computing, 25(3), 543--559.
-#'     Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal of Statistical Software}, \bold{82}(7), 1--29. doi:10.18637/jss.v082.i07
+#' Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
+#' Endurance Runners to Training and Physiological Effects via
+#' Multi-Resolution Elastic Net. \emph{ArXiv e-print}
+#' arXiv:1506.01388.
+#'
+#' Pya, N. and Wood S. (2015). Shape Constrained Additive
+#' Models. Statistics and Computing, 25(3), 543--559.  Frick, H.,
+#' Kosmidis, I. (2017). trackeR: Infrastructure for Running and
+#' Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal
+#' of Statistical Software}, \bold{82}(7),
+#' 1--29. doi:10.18637/jss.v082.i07
+#'
 #' @export
 smoother.distrProfile <- function(object, session = NULL, control = list(...), ...){
 
@@ -477,13 +512,20 @@ smoother.distrProfile <- function(object, session = NULL, control = list(...), .
 }
 
 
-#' Auxiliary function for \code{\link{smoother.distrProfile}}. Typically used to construct
-#' a control argument for \code{\link{smoother.distrProfile}}.
+#' Auxiliary function for
+#' \code{\link{smoother.distrProfile}}. Typically used to construct a
+#' control argument for \code{\link{smoother.distrProfile}}.
 #'
-#' @param what Vector of the names of the variables which should be smoothed.
+#' @param what Vector of the names of the variables which should be
+#'     smoothed.
 #' @inheritParams decreasingSmoother
-#' @param parallel Logical. Should computation be carried out in parallel?
-#' @param cores Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options("corese")} (on Windows) or \code{options("mc.cores")} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.
+#' @param parallel Logical. Should computation be carried out in
+#'     parallel?
+#' @param cores Number of cores for parallel computing. If NULL, the
+#'     number of cores is set to the value of \code{options("corese")}
+#'     (on Windows) or \code{options("mc.cores")} (elsewhere), or, if
+#'     the relevant option is unspecified, to half the number of cores
+#'     detected.
 #' @export
 smootherControl.distrProfile <- function(what = c("speed", "heart_rate"), k = 30, sp = NULL,
                                          ## len = NULL, fam = "poisson",

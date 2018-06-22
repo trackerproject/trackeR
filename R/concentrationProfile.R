@@ -1,14 +1,18 @@
 #' Generate training concentration profiles.
 #'
-#' @param object An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.
-#' @param what The variables for which the concentration profiles should be generated.
+#' @param object An object of class \code{distrProfile} as returned by
+#'     \code{\link{distributionProfile}}.
+#' @param what The variables for which the concentration profiles
+#'     should be generated.
 #' @inheritParams distributionProfile
 #' @param ... Currently not used.
 #' @return An object of class \code{conProfile}.
 #' @references
+#'
 #' Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
-#' Endurance Runners to Training and Physiological Effects via Multi-Resolution
-#' Elastic Net. \emph{ArXiv e-print} arXiv:1506.01388.
+#' Endurance Runners to Training and Physiological Effects via
+#' Multi-Resolution Elastic Net. \emph{ArXiv e-print}
+#' arXiv:1506.01388.
 #'
 #' Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running
 #' and Cycling Data from GPS-Enabled Tracking Devices in
@@ -124,18 +128,22 @@ fortify.conProfile <- function(model, data, melt = FALSE, ...) {
 ## README: more examples, especially for the behaviour of session?
 #' Plot concentration profiles.
 #'
-#' @param x An object of class \code{conProfile} as returned by \code{\link{concentrationProfile}}.
-#' @param session A vector of the sessions to be plotted, defaults to all sessions.
-#'     Either a character vector with the session names, e.g., c('Session3', 'Session4')
-#'     or a numeric vector with the relative position of the session(s).
+#' @param x An object of class \code{conProfile} as returned by
+#'     \code{\link{concentrationProfile}}.
+#' @param session A vector of the sessions to be plotted, defaults to
+#'     all sessions.  Either a character vector with the session
+#'     names, e.g., c('Session3', 'Session4') or a numeric vector with
+#'     the relative position of the session(s).
 #' @param what Which variables should be plotted?
-#' @param multiple Logical. Should all sessions be plotted in one panel?
-#' @param smooth Logical. Should unsmoothed profiles be smoothed before plotting?
+#' @param multiple Logical. Should all sessions be plotted in one
+#'     panel?
+#' @param smooth Logical. Should unsmoothed profiles be smoothed
+#'     before plotting?
 #' @param ... Currently not used.
 #' @examples
 #' data('runs', package = 'trackeR')
-#' dProfile <- distributionProfile(runs, session = 1:3,
-#'     what = 'speed', grid = seq(0, 12.5, by = 0.05))
+#' dProfile <- distributionProfile(runs, session = 1:3, what = 'speed',
+#'                                 grid = seq(0, 12.5, by = 0.05))
 #' cProfile <- concentrationProfile(dProfile)
 #' plot(cProfile, smooth = FALSE)
 #' plot(cProfile)
@@ -246,15 +254,20 @@ c2d <- function(cp) {
 
 #' Smoother for concentration profiles.
 #'
-#' To ensure positivity of the smoothed concentration profiles, the concentration profiles
-#' are transformed to distribution profiles before smoothing. The smoothed distribution
-#' profiles are then transformed to concentration profiles.
+#' To ensure positivity of the smoothed concentration profiles, the
+#' concentration profiles are transformed to distribution profiles
+#' before smoothing. The smoothed distribution profiles are then
+#' transformed to concentration profiles.
 #'
-#' @param object An object of class \code{conProfile} as returned by \code{\link{concentrationProfile}}.
-#' @param session A numeric vector of the sessions to be selected and smoothed. Defaults to all sessions.
-#' @param control A list of parameters for controlling the smoothing process.
-#'     This is passed to \code{\link{smootherControl.distrProfile}}.
-#' @param ... Arguments to be used to form the default \code{control} argument if it is not supplied directly.
+#' @param object An object of class \code{conProfile} as returned by
+#'     \code{\link{concentrationProfile}}.
+#' @param session A numeric vector of the sessions to be selected and
+#'     smoothed. Defaults to all sessions.
+#' @param control A list of parameters for controlling the smoothing
+#'     process.  This is passed to
+#'     \code{\link{smootherControl.distrProfile}}.
+#' @param ... Arguments to be used to form the default \code{control}
+#'     argument if it is not supplied directly.
 #' @seealso \code{\link{smootherControl.distrProfile}}
 #' @export
 smoother.conProfile <- function(object, session = NULL, control = list(...), ...) {
@@ -406,7 +419,7 @@ nsessions.conProfile <- function(object, ...) {
         1 else ncol(object[[1]])
 }
 
-#' Ridgeline plots for distrProfile objects
+#' Ridgeline plots for \code{distrProfile} objects
 #'
 #' @inheritParams plot.conProfile
 #'
