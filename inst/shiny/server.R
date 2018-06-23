@@ -149,6 +149,19 @@ observeEvent(input$clear_table_selection, {
       trackeR:::create_summary_timeline_boxes()
       shinyjs::addClass(selector = "body", class = "sidebar-collapse")
       output$summary <- trackeR:::render_summary_table(data, input)
+
+### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
+### Summary boxes                                                           ####
+trackeR:::create_summary_boxes()
+output$avgDistance_box <- trackeR:::render_summary_box("distance",
+                                                       "Average distance", data)
+output$avgDuration_box <- trackeR:::render_summary_box("duration", 
+                                                       "Average duration", data)
+output$avgHeartRate_box <- trackeR:::render_summary_box("avgHeartRate",
+                                                        "Average heart rate", data)
+output$avgPace_box <- trackeR:::render_summary_box("avgPace", 
+                                                   "Average pace", data)
+
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Map                                                                     ####
       # do not generate map if no location data for at least one session
@@ -176,13 +189,6 @@ observeEvent(input$clear_table_selection, {
           trackeR:::update_map(plot_df, session, data)
         })
       }
-### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
-### Summary boxes                                                           ####
-      trackeR:::create_summary_boxes()
-      output$avgDistance_box <- trackeR:::render_summary_box("distance", "Average distance", data)
-      output$avgDuration_box <- trackeR:::render_summary_box("duration", "Average duration", data)
-      output$avgHeartRate_box <- trackeR:::render_summary_box("avgHeartRate", "Average heart rate", data)
-      output$avgPace_box <- trackeR:::render_summary_box("avgPace", "Average pace", data)
 
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Sessions summaries plots                                                ####
