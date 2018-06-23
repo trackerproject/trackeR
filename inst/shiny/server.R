@@ -77,9 +77,30 @@ server <- function(input, output, session) {
       data$no_location_data <- sapply(data$object, 
           function(x) all((is.na(x[, 'longitude'])) | (x[, 'longitude'] == 0))
         )
-    }
+    }  
   })
+### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
+### Selected sessions                                                       ####
+proxy <- DT::dataTableProxy('summary')
+observeEvent(c(
+  plotly::event_data("plotly_selected"),
+  input$summary_rows_selected,
+  input$sports,
+  input$clear_table_selection
+  ), {
+    
+    trackeR:::generate_selected_sessions_object(data, input)
+})
 
+observeEvent(input$highlight_selected_sessions, {
+  DT::selectRows(proxy = proxy, selected = as.numeric(data$selectedSessions))
+  
+})
+### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
+### Selected sessions table                                                 ####
+observeEvent(input$clear_table_selection, {
+  DT::selectRows(proxy = proxy, selected = NULL)
+})
 ##  ............................................................................
 ##  Uploading sample dataset                                                ####
   observeEvent(input$uploadSampleDataset, {
@@ -108,7 +129,7 @@ server <- function(input, output, session) {
 #   ____________________________________________________________________________
 #   Session summaries page                                                  ####
   observeEvent({
-    input$plotButton
+    input$createDashboard
   }, {
     if (is.null(data$object)) {
       trackeR:::show_warning_window()
@@ -119,7 +140,7 @@ server <- function(input, output, session) {
         }
       })
       # Re-render all plots
-      removeUI(selector = ".main_plots", immediate = TRUE, multiple = TRUE)
+      # removeUI(selector = ".main_plots", immediate = TRUE, multiple = TRUE)
       sports_options <- trackeR:::sports_options
       identified_sports <- sports_options %in% unique(trackeR::sport(data$object))
       trackeR:::create_option_box(sports_options[identified_sports])
@@ -165,18 +186,15 @@ server <- function(input, output, session) {
 
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Sessions summaries plots                                                ####
-      for (metric in input$metricsSelected) {
+      # Generate conditional plot for each metric irrespective of whether data available
+      for (metric in c(choices)) {
+        
         trackeR:::create_workout_plots(metric)
       }
-      lapply(input$metricsSelected, function(i) {
+      sapply(c(choices), function(i) {
         output[[paste0(i, "_plot")]] <- plotly::renderPlotly({
-          if (!is.null(input$sports)) {
-            selected_sessions_by_sport <- sport(data$object) %in% input$sports
-            selected_sports <- data$summary$session[selected_sessions_by_sport]
-          } else {
-            selected_sports <- data$summary$session
-          }
-          trackeR:::plot_workouts(sumX = data$summary, what = i)
+          trackeR:::plot_workouts(sumX = data$summary, what = i, 
+                                  sessions = data$selectedSessions)
         })
       })
       # Set to TRUE such that all plots are visible
@@ -184,8 +202,21 @@ server <- function(input, output, session) {
         TRUE
       })
       outputOptions(output, "cond", suspendWhenHidden = FALSE)
+      data$show_summary_plots <- TRUE
+      sapply(c(choices), function(choice) {
+        output[[choice]] <- reactive({
+          
+          if ((choice %in% input$metricsSelected) & (data$show_summary_plots)) {
+            FALSE
+          } else {
+            TRUE
+          }
+        })
+        outputOptions(output, choice, suspendWhenHidden = FALSE)
+      })
+
     }
-  })
+  }, once = TRUE)
 
 #   ____________________________________________________________________________
 #   Individual sessions page                                                ####
@@ -286,7 +317,7 @@ server <- function(input, output, session) {
   # Conditions for displaying the work capacity plot
   output[[paste0('work_capacity_running')]] <- reactive({
     if ('running' %in%  work_capacity_ids()) {
-    FALSE
+      FALSE
     } else {
       TRUE
     }
@@ -391,6 +422,7 @@ server <- function(input, output, session) {
     output$cond <- reactive({
       FALSE
     })
+    data$show_summary_plots <- FALSE
   })
 ##  ............................................................................
 ##  Reset button                                                            ####

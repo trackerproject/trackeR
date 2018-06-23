@@ -448,7 +448,7 @@ generate_objects <- function(data, output, session, choices) {
   shinyjs::disable(selector = "#processedDataPath")
   data$selectedSessions <- data$summary$session
   data$sessions_map <- rep(data$summary$session, times = 1, each = 2)
-  shinyjs::click("plotButton")
+  shinyjs::click("createDashboard")
   update_metrics_to_plot_workouts(session, choices, data$hasData)
 }
 

@@ -32,32 +32,10 @@ ui <- shinydashboard::dashboardPage(
       actionButton("uploadButton", "Load data", icon("upload"),
                    style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"),
       hr(),
-      div(
-        selectizeInput(
-          "metricsSelected", "Select metrics",
-          multiple = TRUE,
-          choices = c(
-            "Distance" = "distance",
-            "Duration" = "duration",
-            "Average speed" = "avgSpeed",
-            "Average pace" = "avgPace",
-            "Average cadence" = "avgCadence",
-            "Average power" = "avgPower",
-            "Average heart rate" = "avgHeartRate",
-            "Work to rest ratio" = "wrRatio"
-          ),
-          selected = c("distance", "duration", 'avgPace')
-        ),
-        ## In color: qualitative, set 2 form choose_palette(gui = "shiny")
-        ## Out color: qualitative, even darker form choose_palette(gui = "shiny")
-        div(style = "display: inline-block;vertical-align:top; width: 100px;", 
-            actionButton("plotButton", "Plot", 
-                         icon("area-chart"), 
-                         style = "color: #fff; background-color: #4FBF85; border-color: #00AB66",
-                         width = "80px")),
-        div(style = "display: inline-block;vertical-align:top; width: 120px;",
-            actionButton("showModalUnits", "Units", icon("balance-scale"), 
-                         width = "80px"))
+      actionButton("createDashboard", "Create Dashboard",
+                   icon("area-chart"),
+                   style = "color: #fff; background-color: #4FBF85; border-color: #00AB66",
+                   width = "auto"
       ),
       hr(),
       div(

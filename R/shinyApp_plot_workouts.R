@@ -8,11 +8,12 @@
 #' @param lines Should interpolating lines be plotted?
 #' @param plotly Logical. Return plotly plots or standard TrackeR plots
 #' @param shiny Logical. Whether plots are in a shiny environment.
+#' @param sessions A vector. Selected sessions by session number. 
 #' @param ... Currently not used.
 #' @seealso \code{\link{summary.trackeRdata}}
 
-plot_workouts <- function(sumX, what, plotly=TRUE, shiny=TRUE, date = TRUE, group = c("total"), lines = TRUE) {
-
+plot_workouts <- function(sumX, what, sessions, plotly = TRUE, shiny = TRUE, date = TRUE, 
+                          group = c("total"), lines = TRUE) {
   feature <- lab_sum(feature = what, data = sumX)
   units_text <- lab_sum(feature = what, data = sumX, whole_text = FALSE)
 
@@ -58,7 +59,7 @@ plot_workouts <- function(sumX, what, plotly=TRUE, shiny=TRUE, date = TRUE, grou
         xlab <- "Session"
     }
 
-    d <- if(shiny) plotly::event_data("plotly_selected") else NULL
+    # d <- if(shiny) plotly::event_data("plotly_selected") else NULL
     what <- switch(what,
       "distance" = "Distance",
       "duration" = "Duration",
@@ -81,8 +82,8 @@ plot_workouts <- function(sumX, what, plotly=TRUE, shiny=TRUE, date = TRUE, grou
       plotly::add_markers(key = dat$session, color = I("deepskyblue3")) %>%
       plotly::add_lines(color = I("deepskyblue3"))
     if (shiny){
-      if (length(unique(d[["key"]])) > 0) {
-        m <- dat[dat$session %in% unique(d[["key"]]), ]
+      if (length(unique(sessions)) != nsessions) {
+        m <- dat[dat$session %in% unique(sessions), ]
         p <- plotly::add_markers(p, data = m, color = I("darkorange3"),
                                  size = I(8)) 
             # plotly::add_paths(data = m, color = I("darkorange3"))

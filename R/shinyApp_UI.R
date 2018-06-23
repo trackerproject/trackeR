@@ -11,9 +11,12 @@ create_map <- function() {
         collapsible = TRUE,
         collapsed = TRUE,
         title = tagList(icon("map"), "Map"),
-        shinycssloaders::withSpinner(plotly::plotlyOutput("map", width = "auto",
-                                                          height = "430px"), 
-                                     size = 2)
+        shinycssloaders::withSpinner(plotly::plotlyOutput("map",
+          width = "auto",
+          height = "700px"
+        ),
+        size = 2
+        )
       )))
     )
   )
@@ -22,17 +25,17 @@ create_map <- function() {
 #' Insert summary boxes
 create_summary_boxes <- function() {
   insertUI(
-  selector = ".content",
-  where = "beforeEnd",
-  ui = conditionalPanel(
-    condition = "output.cond == true",
-    div(class = "main_plots", fluidRow(
-      shinydashboard::valueBoxOutput("avgDistance_box", width = 3),
-      shinydashboard::valueBoxOutput("avgDuration_box", width = 3),
-      shinydashboard::valueBoxOutput("avgPace_box", width = 3),
-      shinydashboard::valueBoxOutput("avgHeartRate_box", width = 3)
-    ))
-  )
+    selector = ".content",
+    where = "beforeEnd",
+    ui = conditionalPanel(
+      condition = "output.cond == true",
+      div(class = "main_plots", fluidRow(
+        shinydashboard::valueBoxOutput("avgDistance_box", width = 3),
+        shinydashboard::valueBoxOutput("avgDuration_box", width = 3),
+        shinydashboard::valueBoxOutput("avgPace_box", width = 3),
+        shinydashboard::valueBoxOutput("avgHeartRate_box", width = 3)
+      ))
+    )
   )
 }
 
@@ -53,7 +56,7 @@ create_workout_plots <- function(feature) {
     selector = ".content",
     where = "beforeEnd",
     ui = conditionalPanel(
-      condition = "output.cond == true",
+      condition = paste0("output.", feature, " == false"),
       div(class = "main_plots", id = paste0("box", feature), fluidRow(
         shinydashboard::box(
           status = "primary",
@@ -61,8 +64,10 @@ create_workout_plots <- function(feature) {
           collapsible = TRUE,
           # height = "250px",
           title = tagList(shiny::icon(create_icon(feature)), name),
-          plotly::plotlyOutput(paste0(feature, "_plot"), width = "auto", 
-                               height = "180px")
+          plotly::plotlyOutput(paste0(feature, "_plot"),
+            width = "auto",
+            height = "180px"
+          )
         )
       ))
     )
@@ -88,43 +93,47 @@ create_selected_workout_plot <- function(id, collapsed = FALSE) {
           title = tagList(
             shiny::icon("gear"),
             switch(id, "pace" = paste0("Pace"),
-              "heart.rate" = paste0("Heart Rate"),
-              "altitude" = paste0("Altitude"),
-              "power" = paste0("Power"),
-              "speed" = paste0("Speed"),
-              'cadence' = paste0('Cadence')
+            "heart.rate" = paste0("Heart Rate"),
+            "altitude" = paste0("Altitude"),
+            "power" = paste0("Power"),
+            "speed" = paste0("Speed"),
+            "cadence" = paste0("Cadence")
             )
           ),
           fluidRow(
-          column(3,
-          div(
-            class = "form-group shiny-input-container", id = "processed_path",
-            tags$label("Press button to detect changepoints:"),
-            div(class = "input-group", actionButton(paste0('detect_changepoints', id),
-                       label = 'Detect changepoints', style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"))
-          )
-          ), column(2,
-          selectizeInput(
-            inputId = paste0('n_changepoints', id),
-            label = 'Maximum # of changepoints:',
-            multiple = FALSE,
-            choices = c(
-                        '1' = 1,
-                        '2' = 2,
-                        '3' = 3,
-                        '4' = 4,
-                        '5' = 5,
-                        '6' = 6,
-                        '7' = 7,
-                        '8' = 8,
-                        '9' = 9,
-                        '10' = 10,
-                        '11' = 11,
-                        '12' = 12
-                        ),
-            selected = '4'
-          )
-          )),
+            column(
+              3,
+              div(
+                class = "form-group shiny-input-container", id = "processed_path",
+                tags$label("Press button to detect changepoints:"),
+                div(class = "input-group", actionButton(paste0("detect_changepoints", id),
+                  label = "Detect changepoints", style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"
+                ))
+              )
+            ), column(
+              2,
+              selectizeInput(
+                inputId = paste0("n_changepoints", id),
+                label = "Maximum # of changepoints:",
+                multiple = FALSE,
+                choices = c(
+                  "1" = 1,
+                  "2" = 2,
+                  "3" = 3,
+                  "4" = 4,
+                  "5" = 5,
+                  "6" = 6,
+                  "7" = 7,
+                  "8" = 8,
+                  "9" = 9,
+                  "10" = 10,
+                  "11" = 11,
+                  "12" = 12
+                ),
+                selected = "4"
+              )
+            )
+          ),
           hr(),
           div(
             style = "overflow-x: scroll",
@@ -155,69 +164,73 @@ create_work_capacity_plot <- function(id, collapsed = FALSE) {
           title = tagList(
             shiny::icon("gear"),
             switch(id, "pace" = paste0("Pace"),
-              "heart.rate" = paste0("Heart Rate"),
-              "altitude" = paste0("Altitude"),
-              "work_capacity" = paste0("Work Capacity"),
-              "speed" = paste0("Speed")
+            "heart.rate" = paste0("Heart Rate"),
+            "altitude" = paste0("Altitude"),
+            "work_capacity" = paste0("Work Capacity"),
+            "speed" = paste0("Speed")
             )
           ),
           conditionalPanel(
             condition = "output.work_capacity_cycling == false",
-          fluidRow(
-            column(
-              2,
-              # Wrap the button in the function `withBusyIndicatorUI()`
-              div(
-                tags$label("Press button to update:"),
-                div(withBusyIndicatorUI(actionButton(
-                  "cycling_update_power",
-                  "Update critical power",
-                  class = "btn-primary",
-                  style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"
-                )))
+            fluidRow(
+              column(
+                2,
+                # Wrap the button in the function `withBusyIndicatorUI()`
+                div(
+                  tags$label("Press button to update:"),
+                  div(withBusyIndicatorUI(actionButton(
+                    "cycling_update_power",
+                    "Update critical power",
+                    class = "btn-primary",
+                    style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"
+                  )))
+                )
+              ),
+              column(
+                2,
+                numericInput(
+                  min = 2, max = 10, step = 0.1,
+                  inputId = "critical_power_cycling",
+                  label = "Critical power [J]", value = 3
+                )
               )
             ),
-            column(
-              2,
-              numericInput(min = 2, max = 10, step = 0.1,
-                inputId = "critical_power_cycling", 
-                label = "Critical power [J]", value = 3
-              )
+            div(
+              style = "overflow-x: scroll",
+              uiOutput(paste0("cycling_work_capacity", "_plot"))
             )
           ),
-          div(
-            style = "overflow-x: scroll",
-            uiOutput(paste0('cycling_work_capacity', "_plot"))
-          )),
           conditionalPanel(
             condition = "output.work_capacity_running == false",
-          fluidRow(
-            column(
-              2,
-              # Wrap the button in the function `withBusyIndicatorUI()`
-              div(
-                tags$label("Press button to update:"),
-                div(withBusyIndicatorUI(actionButton(
-                  "running_update_power",
-                  "Update critical speed",
-                  class = "btn-primary",
-                  style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"
-                )))
+            fluidRow(
+              column(
+                2,
+                # Wrap the button in the function `withBusyIndicatorUI()`
+                div(
+                  tags$label("Press button to update:"),
+                  div(withBusyIndicatorUI(actionButton(
+                    "running_update_power",
+                    "Update critical speed",
+                    class = "btn-primary",
+                    style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"
+                  )))
+                )
+              ),
+              column(
+                2,
+                numericInput(
+                  min = 0.01, max = 6.5, step = 0.1,
+                  inputId = "critical_power_running",
+                  label = "Critical speed [m/s]", value = 4
+                )
               )
             ),
-            column(
-              2,
-              numericInput(min = 0.01, max = 6.5, step=0.1,
-                           inputId = "critical_power_running", 
-                           label = "Critical speed [m/s]", value = 4
-              )
+            div(
+              style = "overflow-x: scroll",
+              uiOutput(paste0("running_work_capacity", "_plot"))
             )
-          ),
-          div(
-            style = "overflow-x: scroll",
-            uiOutput(paste0('running_work_capacity', "_plot"))
           )
-        ))
+        )
       ))
     )
   )
@@ -226,10 +239,10 @@ create_work_capacity_plot <- function(id, collapsed = FALSE) {
 
 #' Create concentration profile plot UI.
 #' @param inputId A character. The ID of the user input for the metrics that should be plotted
-#' @param plotId A character. The ID of the plot. 
+#' @param plotId A character. The ID of the plot.
 #' @param choices A vector of the metrics a user can select to be plotted, selected from \code{\link{metrics}}.
 create_profiles_box <- function(inputId, plotId, choices) {
- ## Other metrics - Work capacity, Distribution profile, Concentration profile
+  ## Other metrics - Work capacity, Distribution profile, Concentration profile
   insertUI(
     selector = ".content",
     where = "beforeEnd",
@@ -244,14 +257,17 @@ create_profiles_box <- function(inputId, plotId, choices) {
           collapsed = FALSE,
           title = tagList(shiny::icon("gear"), "Concentration profiles"),
           fluidRow(
-          column(2,
-          selectizeInput(
-            inputId = inputId,
-            label = "Select profile metrics to plot:",
-            multiple = TRUE,
-            choices = choices,
-            selected = "speed"
-          ))),
+            column(
+              2,
+              selectizeInput(
+                inputId = inputId,
+                label = "Select profile metrics to plot:",
+                multiple = TRUE,
+                choices = choices,
+                selected = "speed"
+              )
+            )
+          ),
           uiOutput(plotId)
         ))
       )
@@ -261,10 +277,10 @@ create_profiles_box <- function(inputId, plotId, choices) {
 
 #' Create time in zones plot UI.
 #' @param inputId A character. The ID of the user input for the metrics that should be plotted.
-#' @param plotId A character. The ID of the plot. 
+#' @param plotId A character. The ID of the plot.
 #' @param choices A vector of the metrics a user can select to be plotted, selected from \code{\link{metrics}}.
 create_zones_box <- function(inputId, plotId, choices) {
- ## Other metrics - Work capacity, Distribution profile, Concentration profile
+  ## Other metrics - Work capacity, Distribution profile, Concentration profile
   insertUI(
     selector = ".content",
     where = "beforeEnd",
@@ -279,29 +295,30 @@ create_zones_box <- function(inputId, plotId, choices) {
           collapsed = FALSE,
           title = tagList(shiny::icon("gear"), "Time in Zones"),
           fluidRow(
-          column(2, selectizeInput(
-            inputId = inputId,
-            label = "Select zone metrics to plot:",
-            multiple = TRUE,
-            choices = choices,
-            selected = "speed"
-          )),
-          column(2, selectizeInput(
-                         inputId = 'n_zones',
-                         label = 'Select number of zones:',
-                         multiple = FALSE,
-                         choices = c(
-                                    '2' = 2,
-                                    '3' = 3,
-                                    '4' = 4,
-                                    '5' = 5,
-                                    '6' = 6,
-                                    '7' = 7,
-                                    '8' = 8,
-                                    '9' = 9
-                                    ),
-                         selected = '6'
-                         ))),
+            column(2, selectizeInput(
+              inputId = inputId,
+              label = "Select zone metrics to plot:",
+              multiple = TRUE,
+              choices = choices,
+              selected = "speed"
+            )),
+            column(2, selectizeInput(
+              inputId = "n_zones",
+              label = "Select number of zones:",
+              multiple = FALSE,
+              choices = c(
+                "2" = 2,
+                "3" = 3,
+                "4" = 4,
+                "5" = 5,
+                "6" = 6,
+                "7" = 7,
+                "8" = 8,
+                "9" = 9
+              ),
+              selected = "6"
+            ))
+          ),
           uiOutput(plotId)
         ))
       )
@@ -313,41 +330,73 @@ create_zones_box <- function(inputId, plotId, choices) {
 #' @param sport_options A vector of sports identified from the uploaded sessions.
 create_option_box <- function(sport_options) {
   insertUI(
-           selector = ".content",
-           where = "afterBegin",
-           ui = div(class = "main_plots", fluidRow(shinydashboard::box(
-                                            status = "primary",
-                                            width = 3,
-                                            collapsible = TRUE,
-                                            title = tagList('Options'),
-
-                                            conditionalPanel(
-                                                condition = "output.cond == false",
-                                                 actionButton(
-                                                  "return_to_main_page", "Go back",
-                                                  style = "color: #fff; background-color: #4FBF85; border-color: #00AB66"
-                                                  )),
-                                            conditionalPanel(
-                                                condition = "output.cond == true",
-                                                 actionButton(
-                                                  "plotSelectedWorkouts", "Plot Selected workouts",
-                                                  style = "color: #fff; background-color: #4FBF85; border-color: #00AB66"
-                                                  ))
-                                          ),
-           shinydashboard::box(
-                               status = 'primary',
-                               width = 3,
-                               collapsible = TRUE,
-                               title = tagList('Classified sports'),
-                                        selectizeInput(
-                                        "sports", "Select from identified sports", multiple = TRUE,
-                                        choices = sport_options,
-                                        selected = sport_options)
-                                        )
-
-
-                                 )))
-
+    selector = ".content",
+    where = "afterBegin",
+    ui = div(class = "option_boxes", fluidRow(
+      shinydashboard::box(
+        status = "primary",
+        width = 3,
+        collapsible = TRUE,
+        title = tagList("Options"),
+        conditionalPanel(
+          condition = "output.cond == false",
+          actionButton(
+            "return_to_main_page", "Go back",
+            style = "color: #fff; background-color: #4FBF85; 
+                                                  border-color: #00AB66"
+          )
+        ),
+        conditionalPanel(
+          condition = "output.cond == true",
+          actionButton(
+            "plotSelectedWorkouts", "Plot Selected workouts",
+            style = "color: #fff; background-color: #4FBF85; border-color:
+                                                  #00AB66"
+          )
+        )
+      ),
+      shinydashboard::box(
+        status = "primary",
+        width = 3,
+        collapsible = TRUE,
+        title = tagList("Other tools"),
+        actionButton("showModalUnits", "Change units", icon("balance-scale"))
+      ),
+      shinydashboard::box(
+        status = "primary",
+        width = 3,
+        collapsible = TRUE,
+        title = tagList("Classified sports"),
+        selectizeInput(
+          "sports", "Select from identified sports",
+          multiple = TRUE,
+          choices = sport_options,
+          selected = sport_options
+        )
+      ),
+      shinydashboard::box(
+        status = "primary",
+        width = 3,
+        collapsible = TRUE,
+        title = tagList("Select variables to display"),
+        selectizeInput(
+          "metricsSelected", "Select metrics",
+          multiple = TRUE,
+          choices = c(
+            "Distance" = "distance",
+            "Duration" = "duration",
+            "Average speed" = "avgSpeed",
+            "Average pace" = "avgPace",
+            "Average cadence" = "avgCadence",
+            "Average power" = "avgPower",
+            "Average heart rate" = "avgHeartRate",
+            "Work to rest ratio" = "wrRatio"
+          ),
+          selected = c("distance", "duration", "avgPace")
+        )
+      )
+    ))
+  )
 }
 
 
@@ -355,28 +404,39 @@ create_option_box <- function(sport_options) {
 #'
 create_summary_timeline_boxes <- function() {
   insertUI(
-           selector=".content",
-           where="beforeEnd",
-           ui=div(class = "main_plots", fluidRow(
-                        shinydashboard::box(
-                          id = 'summary_box',
-                          status = "primary",
-                          width = 6,
-                          title = tagList(shiny::icon("reorder"), "Summary of selected workouts"),
-                          DT::dataTableOutput("summary", height = "auto"),
-                          collapsible = FALSE
-                        ),
-                        shinydashboard::box(
-                          id = "workout_timeline_box",
-                          status = "primary",
-                          width = 6,
-                          collapsible = TRUE,
-                          collapsed = FALSE,
-                          title = tagList(shiny::icon("calendar", lib = "glyphicon"), "Workout Timeline"),
-                          plotly::plotlyOutput("timeline_plot", height = "365px")
-                        )
-                       ))
-           )
+    selector = ".content",
+    where = "beforeEnd",
+    ui = div(class = "main_plots", fluidRow(
+      shinydashboard::box(
+        id = "summary_box",
+        status = "primary",
+        width = 6,
+        title = tagList(
+          shiny::icon("reorder"),
+          "Summary of selected workouts"
+        ),
+        actionButton(
+          "highlight_selected_sessions",
+          "Highlight selected sessions"
+        ),
+        actionButton(
+          "clear_table_selection",
+          "Clear Table Selection"
+        ),
+        DT::dataTableOutput("summary", height = "auto"),
+        collapsible = FALSE
+      ),
+      shinydashboard::box(
+        id = "workout_timeline_box",
+        status = "primary",
+        width = 6,
+        collapsible = TRUE,
+        collapsed = FALSE,
+        title = tagList(shiny::icon("calendar", lib = "glyphicon"), "Workout Timeline"),
+        plotly::plotlyOutput("timeline_plot", height = "400px")
+      )
+    ))
+  )
 }
 
 #' Generate a modal window where user can chage units of measurement.
@@ -392,8 +452,9 @@ show_change_unit_window <- function(data) {
         "km" = "km",
         "mi" = "mi",
         "ft" = "ft"
-      ), inline = TRUE,
-      selected = get_selected_units('altitude', data)
+      ),
+      inline = TRUE,
+      selected = get_selected_units("altitude", data)
     ),
     radioButtons(
       "distanceUnits", "Distance:",
@@ -402,8 +463,9 @@ show_change_unit_window <- function(data) {
         "km" = "km",
         "mi" = "mi",
         "ft" = "ft"
-      ), inline = TRUE,
-      selected = get_selected_units('distance', data)
+      ),
+      inline = TRUE,
+      selected = get_selected_units("distance", data)
     ),
     radioButtons(
       "speedUnits", "Speed:",
@@ -413,24 +475,27 @@ show_change_unit_window <- function(data) {
         "ft/min" = "ft_per_min",
         "ft/s" = "ft_per_s",
         "mi/h" = "mi_per_h"
-      ), inline = TRUE,
-      selected = get_selected_units('speed', data)
+      ),
+      inline = TRUE,
+      selected = get_selected_units("speed", data)
     ),
     radioButtons(
       "cadenceUnits", "Cadence:",
       c(
         "steps/min" = "steps_per_min",
         "revolutions/min" = "rev_per_min"
-      ), inline = TRUE,
-      selected = get_selected_units('cadence', data)
+      ),
+      inline = TRUE,
+      selected = get_selected_units("cadence", data)
     ),
     radioButtons(
       "powerUnits", "Power:",
       c(
         "W" = "W",
         "kW" = "kW"
-      ), inline = TRUE,
-      selected = get_selected_units('power', data)
+      ),
+      inline = TRUE,
+      selected = get_selected_units("power", data)
     ),
     radioButtons(
       "paceUnits", "Pace:",
@@ -438,8 +503,9 @@ show_change_unit_window <- function(data) {
         "min/km" = "min_per_km",
         "min/mi" = "min_per_mi",
         "s/min" = "s_per_m"
-      ), inline = TRUE,
-      selected = get_selected_units('pace', data)
+      ),
+      inline = TRUE,
+      selected = get_selected_units("pace", data)
     ),
     radioButtons(
       "durationUnits", "Duration:",
@@ -447,14 +513,13 @@ show_change_unit_window <- function(data) {
         "seconds" = "s",
         "minutes" = "min",
         "hours" = "h"
-      ), inline = TRUE,
-      selected = get_selected_units('duration', data)
+      ),
+      inline = TRUE,
+      selected = get_selected_units("duration", data)
     ),
     footer = tagList(
       modalButton("Cancel"),
       actionButton("updateUnits", "Apply")
     )
-  )
-  )
+  ))
 }
-
