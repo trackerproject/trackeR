@@ -210,7 +210,7 @@ prettifyUnits <- Vectorize(prettifyUnit)
 #' @export
 fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
     ret <- list()
-    sports <- sport(model)
+    sports <- get_sport(model)
     for (i in seq_along(model)) {
 
         ret[[i]] <- zoo::fortify.zoo(model[[i]], melt = melt)

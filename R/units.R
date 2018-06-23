@@ -61,31 +61,38 @@ get_units.trackeRfpca <- function(object, ...) {
 #' @param object An object of class \code{\link{trackeRdata}}.
 #' @param variable A vector of variables to be changed.
 #' @param unit A vector with the units, corresponding to variable.
+#' @param sport A vector of sports (amongst \code{'cycling'},
+#'     \code{'running'}, \code{'swimming'}) with each element
+#'     corresponding to variable and unit
 #' @param ... Currently not used.
 #' @export
-change_units.trackeRdata <- function(object, variable, unit, ...) {
+change_units.trackeRdata <- function(object, variable, unit, sport,...) {
     ## get current units and thresholds
-    current <- getUnits(object)
+    current <- get_units(object)
     operations <- get_operations(object)
+    sports <- get_sport(object)
     th <- operations$threshold
 
     ## change units
-    for (i in variable) {
-        currentUnit <- current$unit[current$variable == i]
-        newUnit <- unit[which(variable == i)]
-        if (currentUnit != newUnit) {
-            conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
+    for (i in seq_along(variable)) {
+        current_unit <- current$unit[current$variable == variable[i] & current$sport == sport[i]]
+        new_unit <- unit[variable == variable[i]]
+        if (current_unit != new_unit) {
+            conversion <- match.fun(paste(current_unit, new_unit, sep = "2"))
             ## change data
             for (session in seq_along(object)) {
-                object[[session]][, i] <- conversion(object[[session]][, i])
+                if (sports[session] != sport[i])
+                    next
+                object[[session]][, variable[i]] <- conversion(object[[session]][, variable[i]])
             }
-
             ## change units attribute
-            current$unit[current$variable == i] <- newUnit
+            current$unit[current$variable == variable[i] & sport == sport[i]] <- new_unit
 
             ## change units of thresholds
-            th$lower[th$variable == i] <- conversion(th$lower[th$variable == i])
-            th$upper[th$variable == i] <- conversion(th$upper[th$variable == i])
+            th$lower[th$variable == variable[i] & th$sport == sport[i]] <-
+                conversion(th$lower[th$variable == variable[i] & th$sport == sport[i]])
+            th$upper[th$variable == variable[i] & th$sport == sport[i]] <-
+                conversion(th$upper[th$variable == variable[i] & th$sport == sport[i]])
         }
     }
 

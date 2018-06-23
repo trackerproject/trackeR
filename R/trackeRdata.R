@@ -5,8 +5,7 @@
 #' session observations are imputed.
 #'
 #' @param dat A data frame.
-#' @param units A data frame containing the unit of measurement for
-#'     all variables. See Details.
+#' @param units The output of \code{\link{generate_units}}.
 #' @param sport What sport does \code{dat} contain data of? Either
 #'     \code{'cycling'}, \code{'running'}, \code{'swimming'} or
 #'     \code{NULL} (default), in which case the sport is directly
@@ -458,7 +457,7 @@ print.trackeRdata <- function(x, duration = "h", ..., digits = 2) {
     x <- summary(x)
     x <- change_units(x, "duration", "h")
     units <- getUnits(x)
-    sports <- as.character(na.omit(unique(sport(x))))
+    sports <- as.character(na.omit(unique(get_sport(x))))
     cat("A trackeRdata object\n")
     cat("Sports:", sports, "\n\n")
     cat("Training coverage:",
@@ -491,9 +490,9 @@ session_duration.trackeRdata <- function(object, ...) {
     })
 }
 
-#' @rdname sport
+#' @rdname get_sport
 #' @export
-sport.trackeRdata <- function(object, ...) {
+get_sport.trackeRdata <- function(object, ...) {
     attr(object, "sport")
 }
 

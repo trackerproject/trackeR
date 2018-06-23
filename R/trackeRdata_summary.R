@@ -25,7 +25,7 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
 
     ## threshold defining 'moving'
     units <- getUnits(object)
-    sports <- sport(object)
+    sports <- get_sport(object)
     files <- attr(object, "file")
     if (is.null(movingThreshold)) {
         ## set to a speed (somewhat) below the preferred walking speed of ~1.4 m/s (Bohannon,
@@ -152,7 +152,7 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
 #' @export
 print.trackeRdataSummary <- function(x, ..., digits = 2) {
     units <- getUnits(x)
-    sports <- as.character(sport(x))
+    sports <- as.character(get_sport(x))
 
     for (i in seq_len(length(x$session))) {
         cat("\n *** Session", x$session[i], ":", sports[i], "***\n")
@@ -416,9 +416,9 @@ nsessions.trackeRdataSummary <- function(object, ...) {
 }
 
 
-#' @rdname sport
+#' @rdname get_sport
 #' @export
-sport.trackeRdataSummary <- function(object, ...) {
+get_sport.trackeRdataSummary <- function(object, ...) {
     object$sport
 }
 

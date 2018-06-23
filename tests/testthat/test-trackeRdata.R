@@ -25,10 +25,10 @@ test_that("trackeRdata extractor methods work [nsessions]", {
 })
 
 test_that("trackeRdata extractor methods work [sport]", {
-    expect_equal(sport(tcx1), "running")
-    expect_equal(sport(tcx2), rep("running", 2))
-    expect_equal(sport(gpx4), rep("cycling", 4))
-    expect_equal(sport(gpx1), "swimming")
+    expect_equal(get_sport(tcx1), "running")
+    expect_equal(get_sport(tcx2), rep("running", 2))
+    expect_equal(get_sport(gpx4), rep("cycling", 4))
+    expect_equal(get_sport(gpx1), "swimming")
 })
 
 test_that("trackeRdata extractor methods work [session_duration, session_times]", {

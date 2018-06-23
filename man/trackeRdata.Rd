@@ -11,8 +11,7 @@ trackeRdata(dat, units = NULL, sport = NULL, session_threshold = 2,
 \arguments{
 \item{dat}{A data frame.}
 
-\item{units}{A data frame containing the unit of measurement for
-all variables. See Details.}
+\item{units}{The output of \code{\link{generate_units}}.}
 
 \item{sport}{What sport does \code{dat} contain data of? Either
 \code{'cycling'}, \code{'running'}, \code{'swimming'} or

@@ -24,8 +24,22 @@ test_that("generate units returns correct units [user specified]", {
 gpxfile_run <- system.file("extdata/gpx/", "20170708-154835-Run.gpx", package = "trackeR")
 gpxfile_ride <- system.file("extdata/gpx/", "20170709-151453-Ride.gpx", package = "trackeR")
 test_that("change units works as expected []", {
-    readContainer(gpxfile_run, type = "gpx")
-    readContainer(gpxfile_ride, type = "gpx")
-    change_units(tcx, variable = "speed", unit = "mi_per_h", sport = "cycling")
+    gpxa <- read_container(gpxfile_run, type = "gpx")
+    gpxb <- read_container(gpxfile_ride, type = "gpx")
+    gpxa1 <- change_units(gpxa,
+                          variable = "speed",
+                          unit = "mi_per_h",
+                          sport = "cycling")
+    expect_equal(gpxa1, gpxa, check.attributes = FALSE)
+
+    gpxb1 <- change_units(gpxb,
+                          variable = c("speed", "distance", "temperature"),
+                          unit = c("mi_per_h", "km", "F"),
+                          sport = c("cycling", "cycling", "running"))
+    expect_equal(gpxb1[[1]]$speed, gpxb[[1]]$speed/1609.344 * 60 * 60)
+    expect_equal(gpxb1[[1]]$distance, gpxb[[1]]$distance/1000)
+    u <- getUnits(gpxb1)
+    expect_equal(u[u$variable == "temperature" & u$sport == "cycling", "unit"], "C")
+
 })
 

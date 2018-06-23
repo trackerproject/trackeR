@@ -71,7 +71,7 @@ smoother.trackeRdata <- function(object, session = NULL, control = list(...), ..
     operations$smooth <- control
     attr(objectNew, "operations") <- operations
     attr(objectNew, "units") <- getUnits(object)
-    attr(objectNew, "sport") <- sport(object)
+    attr(objectNew, "sport") <- get_sport(object)
     attr(objectNew, "file") <- attr(object, "file")
     return(objectNew)
 

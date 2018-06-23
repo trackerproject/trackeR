@@ -210,7 +210,7 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), 
     if (is.null(session))
         session <- 1:length(object)
     object <- object[session]
-    sports <- sport(object)
+    sports <- get_sport(object)
 
     ## FIXME: change here to accommodate multisport environment for
     ## now, do not allow computation of Wprime if user does not
@@ -390,7 +390,7 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, .
 #' @export
 fortify.trackeRWprime <- function(model, data, melt = FALSE, ...) {
     ret <- list()
-    sports <- sport(model)
+    sports <- get_sport(model)
     for (i in seq_along(model)) {
         ret[[i]] <- zoo::fortify.zoo(model[[i]], melt = melt)
         ret[[i]]$SessionID <- i
@@ -407,8 +407,8 @@ nsessions.trackeRWprime <- function(object, ...) {
 }
 
 
-#' @rdname sport
+#' @rdname get_sport
 #' @export
-sport.trackeRWprime <- function(object, ...) {
+get_sport.trackeRWprime <- function(object, ...) {
     attr(object, "sport")
 }

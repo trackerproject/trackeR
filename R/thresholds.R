@@ -28,7 +28,7 @@
 #' @export
 threshold <- function(object, variable, lower, upper, ...) {
 
-    sports <- sport(object)
+    sports <- get_sport(object)
 
     ## if variable is NULL, just update attribute, leave data unchanged
     if (!missing(variable) && is.null(variable)) {
