@@ -4,7 +4,7 @@
 \alias{generateBaseUnits}
 \title{Generate base units.}
 \usage{
-generateBaseUnits(...)
+generateBaseUnits(variable, unit, sport, ...)
 }
 \arguments{
 \item{...}{Currently not used.}

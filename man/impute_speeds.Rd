@@ -6,10 +6,10 @@
 \title{Impute speeds.}
 \usage{
 impute_speeds(session_data, from_distances = TRUE, lgap = 30, lskip = 5,
-  m = 11, cycling = FALSE, units = NULL)
+  m = 11, sport = "cycling", units = NULL)
 
 imputeSpeeds(session_data, from_distances = TRUE, lgap = 30, lskip = 5,
-  m = 11, cycling = FALSE, units = NULL)
+  m = 11, sport = "cycling", units = NULL)
 }
 \arguments{
 \item{session_data}{A multivariate \code{\link[zoo]{zoo}} object with
@@ -27,8 +27,8 @@ observation after a small break.}
 
 \item{m}{Number of imputed observations in each small break.}
 
-\item{cycling}{Logical. Are the data from a cycling session? If \code{TRUE}, power is
-imputed with \code{0}, else with \code{NA}.}
+\item{sport}{What sport does \code{sessions_data} contain data of? Either
+\code{'cycling'} (default), \code{'running'}, \code{'swimming'}.}
 
 \item{units}{Units of measurement.}
 }

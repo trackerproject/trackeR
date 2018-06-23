@@ -8,7 +8,7 @@ test_that("variable names are generated correctly", {
 })
 
 test_that("variables are generated correctly", {
-    g <- generate_base_units()
+    g <- generate_units()
     expect_equal(g[g$variable == "longitude", "unit"], "degree")
     expect_equal(g[g$variable == "latitude", "unit"], "degree")
     expect_equal(g[g$variable == "altitude", "unit"], "m")

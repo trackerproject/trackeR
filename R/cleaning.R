@@ -110,8 +110,8 @@ distance_correction <- function(object, country = NULL, mask = TRUE, ...) {
 #'     and the first imputed speed or the last imputed speed and the first
 #'     observation after a small break.
 #' @param m Number of imputed observations in each small break.
-#' @param cycling Logical. Are the data from a cycling session? If \code{TRUE}, power is
-#'     imputed with \code{0}, else with \code{NA}.
+#' @param sport What sport does \code{sessions_data} contain data of? Either
+#'     \code{'cycling'} (default), \code{'running'}, \code{'swimming'}.
 #' @param units Units of measurement.
 #'
 #' @return A multivariate \code{\link[zoo]{zoo}} object with imputed observations:
@@ -131,15 +131,23 @@ distance_correction <- function(object, country = NULL, mask = TRUE, ...) {
 #' 1--29. doi:10.18637/jss.v082.i07
 impute_speeds <- function(session_data, from_distances = TRUE,
                           lgap = 30, lskip = 5, m = 11,
-                         cycling = FALSE, units = NULL) {
+                          sport = "cycling", units = NULL) {
 
+
+    ## If there are less than two observations then reurn the observation...
     if (length(session_data) < 2) {
         return(session_data)
     }
 
+    sport <- match.arg(sport, c("cycling", "swimming", "running"))
+
     if (is.null(units)) {
-        units <- generate_base_units()
+        units <- generate_units()
     }
+
+    # subset units for sport
+    units <- units[units$sport == sport, ]
+
     distUnit <- units$unit[units$variable == "distance"]
     speedUnits <- strsplit(units$unit[units$variable == "speed"], "_per_")[[1]]
     distUnitSpeed <- speedUnits[1]
@@ -190,7 +198,7 @@ impute_speeds <- function(session_data, from_distances = TRUE,
     ## order variables for imputation:
     ## variables with 'content' imputation and variables with NA imputation
     originalOrder <- names(session_data)
-    if (cycling){
+    if (sport == "cycling"){
         impC <- match(c("latitude", "longitude", "altitude", "distance", "speed", "power"), names(session_data))
         impN <- which(is.na(match(names(session_data), c("latitude", "longitude", "altitude", "distance", "speed", "power"))))
         impPower <- 0
@@ -216,7 +224,8 @@ impute_speeds <- function(session_data, from_distances = TRUE,
     nLaps <- nrow(shortBreaks$sessions)
     ## if there are more than 1 laps then impute zero speeds
     imputedData <- zoo(x = matrix(NA, nrow = 0, ncol = ncol(session_data),
-                           dimnames = list(NULL, names(session_data))), order.by = as.POSIXct("1970-01-01")[c()])
+                                  dimnames = list(NULL, names(session_data))),
+                       order.by = as.POSIXct("1970-01-01")[c()])
     if (nLaps > 1) {
         for (j in seq.int(nLaps)[-nLaps]) {
             newtimes <- with(shortBreaks$sessions,

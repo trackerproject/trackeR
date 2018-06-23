@@ -22,25 +22,7 @@
 #' @inheritParams sanity_checks
 #' @inheritParams get_resting_periods
 #' @inheritParams impute_speeds
-#' @details The \code{units} argument takes a data frame with two
-#'     variables named \code{variable} and \code{unit}.  Possible
-#'     options include: \itemize{ \item variables \code{latitude} and
-#'     \code{longitude} with unit \code{degree} \item variables
-#'     \code{altitude}, \code{distance} with unit \code{m}, \code{km},
-#'     \code{mi} or \code{ft} \item variable \code{heart_rate} with
-#'     unit \code{bpm} \item variable \code{speed} with unit
-#'     \code{m_per_s}, \code{km_per_h}, \code{ft_per_min},
-#'     \code{ft_per_s} or \code{mi_per_h} \item variable
-#'     \code{cadence_running} with unit \code{steps_per_min} \item
-#'     variable \code{cadence_cycling} with unit \code{rev_per_min}
-#'     \item variable \code{power} with unit \code{W} or \code{kW}.
-#'     \item variable \code{temperature} with unit \code{C} (Celsius)
-#'     or \code{F}.  } If the argument \code{units} is \code{NULL},
-#'     the default units are used. These are the first options, i.e.,
-#'     \code{m} for variables \code{altitude} and \code{distance},
-#'     \code{m_per_s} for variable \code{speed} as well as \code{W}
-#'     for variable \code{power}.
-#'
+#' @details
 #'     During small breaks within a session, e.g., because the
 #'     recording device was paused, observations are imputed the
 #'     following way: 0 for speed, last known position for latitude,
@@ -96,12 +78,10 @@ trackeRdata <- function(dat, units = NULL, sport = NULL, session_threshold = 2,
     else {
         sport <- match.arg(sport, c("cycling", "swimming", "running"))
     }
-    is_cycling <- "cycling" %in% sport
-
 
     ## prep units
     if (is.null(units)) {
-        units <- generateBaseUnits()
+        units <- generate_units()
     }
 
     ## basic edits on time stamps
@@ -120,25 +100,12 @@ trackeRdata <- function(dat, units = NULL, sport = NULL, session_threshold = 2,
 
     ## impute speeds in each session
     trackerdat <- lapply(trackerdat, impute_speeds, from_distances = from_distances, lgap = lgap,
-        lskip = lskip, m = m, cycling = is_cycling, units = units)
+                         lskip = lskip, m = m, sport = sport, units = units)
 
-
-    ## add pace (if unspecified: in min per 1 km if speed unit refers to km or m, and in min
-    ## per 1 mile if speed unit refers to ft or mi)
-    if (!("pace" %in% units$variable)) {
-        unitSpeed <- strsplit(units$unit[units$variable == "speed"], split = "_per_")[[1]]
-        distUnit4pace <- switch(unitSpeed[1], km = "km", m = "km", ft = "mi", mi = "mi")
-        conversion <- match.fun(paste(units$unit[units$variable == "speed"],
-                                      paste(distUnit4pace, "min", sep = "_per_"), sep = "2"))
-        units <- rbind(units, c("pace", paste0("min_per_", distUnit4pace)))
-
-    }
-    else {
-        paceInv <- strsplit(units$unit[units$variable == "pace"], split = "_per_")[[1]][2:1]
-        paceInv <- paste(paceInv, collapse = "_per_")
-        conversion <- match.fun(paste(units$unit[units$variable == "speed"], paceInv, sep = "2"))
-    }
-
+    ## compute pace
+    pace_inv <- strsplit(units$unit[units$variable == "pace" & units$sport == sport], split = "_per_")[[1]][2:1]
+    pace_inv <- paste(pace_inv, collapse = "_per_")
+    conversion <- match.fun(paste(units$unit[units$variable == "speed" & units$sport == sport], pace_inv, sep = "2"))
     trackerdat <- lapply(trackerdat, function(x) {
         x$pace <- 1/conversion(x$speed)
         x$pace[is.infinite(x$pace)] <- NA
@@ -237,8 +204,9 @@ c.trackeRdata <- function(..., recursive = FALSE) {
 
     changeU <- !all(sapply(units, function(x) isTRUE(all.equal(units[[1]], x))))
     if (changeU) {
-        warning("The sessions have different units. The units of the first session are applied to all sessions.")
+        warning("The sessions have different units. The units from the first session have been applied to all sessions.")
         ## change units
+        ## FIXME Change units by sport!!! for runs, cycling, swims
         for (i in 2:ninput) {
             input[[i]] <- change_units(input[[i]], variable = units1$variable, unit = units1$unit)
         }

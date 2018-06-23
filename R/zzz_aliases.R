@@ -24,9 +24,9 @@ readDirectory <- read_directory
 
 generateVariableNames <- generate_variable_names
 
-#' @rdname generate_base_units
+#' @rdname generate_units
 #' @export
-generateBaseUnits <- generate_base_units
+generateBaseUnits <- generate_units
 
 #' @rdname generate_thresholds
 #' @export

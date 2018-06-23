@@ -9,11 +9,14 @@ threshold(object, variable, lower, upper, ...)
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}
 
-\item{variable}{A vector containing the names of the variables to which thresholding is applied. See Details.}
+\item{variable}{A vector containing the names of the variables to
+which thresholding is applied. See Details.}
 
-\item{lower}{A vector containing the corresponding lower thresholds. See Details.}
+\item{lower}{A vector containing the corresponding lower
+thresholds. See Details.}
 
-\item{upper}{A vector containing the corresponding upper thresholds. See Details.}
+\item{upper}{A vector containing the corresponding upper
+thresholds. See Details.}
 
 \item{...}{Currently not used.}
 }
@@ -21,8 +24,18 @@ threshold(object, variable, lower, upper, ...)
 Thresholding for variables in \code{trackeRdata} objects.
 }
 \details{
-Argument \code{variable} can also be a data frame containing the variable names, lower, and upper thresholds.
-If arguments \code{variable}, \code{lower}, and \code{upper} are all unspecified, the following default thresholds are employed: latitude [-90, 90] degrees, longitude [-180, 180] degrees, altitude [-500, 9000] m, distance [0, Inf] meters, heart rate [0, 250] bpm, power [0, Inf] W, pace [0, Inf] min per km, duration [0, Inf] seconds. The thresholds for speed differ for running, [0, 12.5] meters per second, and cycling, [0, 100] meters per second. Default thresholds are converted to the units of measurment of the \code{object} before they are applied.
+Argument \code{variable} can also be a data frame
+    containing the variable names, lower, and upper thresholds.  If
+    arguments \code{variable}, \code{lower}, and \code{upper} are
+    all unspecified, the following default thresholds are employed:
+    latitude [-90, 90] degrees, longitude [-180, 180] degrees,
+    altitude [-500, 9000] m, distance [0, Inf] meters, heart rate
+    [0, 250] bpm, power [0, Inf] W, pace [0, Inf] min per km,
+    duration [0, Inf] seconds. The thresholds for speed differ for
+    running, [0, 12.5] meters per second, and cycling, [0, 100]
+    meters per second. Default thresholds are converted to the
+    units of measurment of the \code{object} before they are
+    applied.
 }
 \examples{
 data('runs', package = 'trackeR')

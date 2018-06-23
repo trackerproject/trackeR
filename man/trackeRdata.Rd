@@ -54,26 +54,7 @@ being divided in separate training sessions. For breaks within a
 session observations are imputed.
 }
 \details{
-The \code{units} argument takes a data frame with two
-    variables named \code{variable} and \code{unit}.  Possible
-    options include: \itemize{ \item variables \code{latitude} and
-    \code{longitude} with unit \code{degree} \item variables
-    \code{altitude}, \code{distance} with unit \code{m}, \code{km},
-    \code{mi} or \code{ft} \item variable \code{heart_rate} with
-    unit \code{bpm} \item variable \code{speed} with unit
-    \code{m_per_s}, \code{km_per_h}, \code{ft_per_min},
-    \code{ft_per_s} or \code{mi_per_h} \item variable
-    \code{cadence_running} with unit \code{steps_per_min} \item
-    variable \code{cadence_cycling} with unit \code{rev_per_min}
-    \item variable \code{power} with unit \code{W} or \code{kW}.
-    \item variable \code{temperature} with unit \code{C} (Celsius)
-    or \code{F}.  } If the argument \code{units} is \code{NULL},
-    the default units are used. These are the first options, i.e.,
-    \code{m} for variables \code{altitude} and \code{distance},
-    \code{m_per_s} for variable \code{speed} as well as \code{W}
-    for variable \code{power}.
-
-    During small breaks within a session, e.g., because the
+During small breaks within a session, e.g., because the
     recording device was paused, observations are imputed the
     following way: 0 for speed, last known position for latitude,
     longitude and altitude, NA or 0 power for running or cycling
