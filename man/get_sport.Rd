@@ -10,9 +10,9 @@
 \usage{
 \method{get_sport}{trackeRWprime}(object, ...)
 
-get_sport(object, ...)
+get_sport(object, session, ...)
 
-\method{get_sport}{trackeRdata}(object, ...)
+\method{get_sport}{trackeRdata}(object, session = NULL, ...)
 
 \method{get_sport}{trackeRdataSummary}(object, ...)
 }
@@ -20,6 +20,8 @@ get_sport(object, ...)
 \item{object}{The object from which to extract sports.}
 
 \item{...}{Arguments to be passed to methods.}
+
+\item{session}{The sessions for which to extract sports.}
 }
 \description{
 Generic function for extracting sports

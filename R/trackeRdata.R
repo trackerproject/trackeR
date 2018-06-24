@@ -483,7 +483,10 @@ session_times.trackeRdata <- function(object, ...) {
 #' @export
 session_duration.trackeRdata <- function(object, ...) {
     units0 <- getUnits(object)
-    durUnit <- switch(units0$unit[units0$variable == "duration"],
+    sport <- get_sport(object)
+    ## FIXME: what happens if sport is NAa
+
+    durUnit <- switch(units0$unit[units0$variable == "duration" & units0$sport == sport],
                       "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days")
     with(session_times(object), {
         difftime(sessionEnd, sessionStart, units = durUnit)
@@ -492,7 +495,10 @@ session_duration.trackeRdata <- function(object, ...) {
 
 #' @rdname get_sport
 #' @export
-get_sport.trackeRdata <- function(object, ...) {
-    attr(object, "sport")
+get_sport.trackeRdata <- function(object, session = NULL, ...) {
+    if (is.null(session)) {
+        session <- seq_along(object)
+    }
+    attr(object, "sport")[session]
 }
 

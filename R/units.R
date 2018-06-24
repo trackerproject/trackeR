@@ -76,7 +76,7 @@ change_units.trackeRthresholds <- function(object, variable, unit, sport, ...) {
             object$new_unit <- object$unit
             ## If variable/sport/units combinations do not exist then the object is returned
             if (all(inds == 0)) {
-                stop("Some of the supplied combinations of sport and variable do not exist.")
+                stop("some of the supplied combinations of sport and variable do not exist.")
             }
 
             object$new_unit[inds] <- inputs$unit
@@ -93,7 +93,7 @@ change_units.trackeRthresholds <- function(object, variable, unit, sport, ...) {
             return(object)
         }
         else {
-            stop("variable, unit and sport should have the same length")
+            stop("variable, unit and sport should have the same length.")
         }
     }
 
@@ -110,6 +110,12 @@ change_units.trackeRdata <- function(object, variable, unit, sport,...) {
     units <- get_units(object)
     operations <- get_operations(object)
     sports <- get_sport(object)
+
+    is_na_sports <- is.na(sport)
+    if (any(is.na(sports))) {
+        stop("cannot change units. The sport for sessions", which(is_na_sports), "has not been identified. See ?set_sport on how to set a sport for those sessions.")
+    }
+
     th <- operations$threshold
 
     no_variable <- missing(variable)
@@ -129,7 +135,7 @@ change_units.trackeRdata <- function(object, variable, unit, sport,...) {
             units$new_unit <- units$unit
             ## If variable/sport/units combinations do not exist then the object is returned
             if (all(inds == 0)) {
-                stop("Some of the supplied combinations of sport and variable do not exist.")
+                stop("some of the supplied combinations of sport and variable do not exist.")
             }
 
             units$new_unit[inds] <- inputs$unit
@@ -142,19 +148,18 @@ change_units.trackeRdata <- function(object, variable, unit, sport,...) {
 
             for (sp in sports) {
                 un <- subset(units, sport == sp)
-                for (sess in seq_along(object)) {
-                    if (sports[sess] == sp) {
-                        o <- object[[sess]]
-                        for (k in seq.int(nrow(un))) {
-                            convert <- match.fun(un$fun[k])
-                            va <- un$variable[k]
-                            o[, va] <- convert(o[, va])
-                        }
-                        object[[sess]] <- o
-                        ## ADD: change units of thresholds!!!!
-                    }
-                    else {
-                        next
+                for (k in seq.int(nrow(un))) {
+                    convert <- match.fun(un$fun[k])
+                    va <- un$variable[k]
+
+                    ## Do thresholds if they exist
+                    th[th$sport == sp & th$variable == va, "lower"] <-
+                        convert(th[th$sport == sp & th$variable == va, "lower"])
+                    th[th$sport == sp & th$variable == va, "upper"] <-
+                        convert(th[th$sport == sp & th$variable == va, "upper"])
+
+                    for (sess in which(sports == sp)) {
+                        object[[sess]][, va] <- convert(object[[sess]][, va])
                     }
                 }
             }
@@ -171,7 +176,7 @@ change_units.trackeRdata <- function(object, variable, unit, sport,...) {
 
         }
         else {
-            stop("variable, unit and sport should have the same length")
+            stop("variable, unit and sport should have the same length.")
         }
     }
 }
@@ -294,10 +299,10 @@ change_units.trackeRWprime <- function(object, variable, unit, ...) {
     }
     if (attr(object, "cycling")) {
         if (variable != "power")
-            stop("Can only change measurement units for power.")
+            stop("can only change measurement units for power.")
     } else {
         if (variable != "speed")
-            stop("Can only change measurement units for speed.")
+            stop("can only change measurement units for speed.")
     }
 
     ## change units
