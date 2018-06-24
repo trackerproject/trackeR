@@ -8,94 +8,95 @@
 #' @param lines Should interpolating lines be plotted?
 #' @param plotly Logical. Return plotly plots or standard TrackeR plots
 #' @param shiny Logical. Whether plots are in a shiny environment.
-#' @param sessions A vector. Selected sessions by session number. 
+#' @param sessions A vector. Selected sessions by session number.
 #' @param ... Currently not used.
 #' @seealso \code{\link{summary.trackeRdata}}
 
-plot_workouts <- function(sumX, what, sessions, plotly = TRUE, shiny = TRUE, date = TRUE, 
+plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
                           group = c("total"), lines = TRUE) {
   feature <- lab_sum(feature = what, data = sumX)
   units_text <- lab_sum(feature = what, data = sumX, whole_text = FALSE)
 
-  if (plotly) {
-    ## the following line is just intended to prevent R CMD check to produce the NOTE 'no
-    ## visible binding for global variable *' because those variables are used in subset()
-    variable <- type <- NULL
+  ## the following line is just intended to prevent R CMD check to produce the NOTE 'no
+  ## visible binding for global variable *' because those variables are used in subset()
+  variable <- type <- NULL
 
-    nsessions <- length(unique(sumX$session))
-    ndates <- length(unique(sumX$sessionStart))
-    units <- getUnits(sumX)
+  nsessions <- length(unique(sumX$session))
+  ndates <- length(unique(sumX$sessionStart))
+  units <- getUnits(sumX)
 
-    ## subsets on variables and type
-    dat <- fortify(sumX, melt = TRUE)
-    if (!is.null(what)) {
-        dat <- subset(dat, variable %in% what)
-    }
-    if (!is.null(group)) {
-        dat <- subset(dat, type %in% group)
-    }
-
-    ## remove empty factor levels
-    dat$variable <- factor(dat$variable)
-    # dat$type <- factor(dat$type)
-
-    ## clean up: if there are only NA observations for a variable, the (free) y-scale cannot
-    ## be determined
-    empty <- tapply(dat$value, dat$variable, function(x) all(is.na(x)))
-    if (any(empty)) dat <- subset(dat, !(variable %in% names(empty)[empty]))
-
-    ## single session
-    if (nsessions < 2) {
-        dat$sessionStart <- format(dat$sessionStart, format = "%Y-%m-%d")
-        dat$session <- factor(dat$session)
-    }
-
-    ## x axis
-    if (date) {
-        dat$xaxis <- dat$sessionStart
-        xlab <- "Date"
-    } else {
-        dat$xaxis <- dat$session
-        xlab <- "Session"
-    }
-
-    # d <- if(shiny) plotly::event_data("plotly_selected") else NULL
-    what <- switch(what,
-      "distance" = "Distance",
-      "duration" = "Duration",
-      "avgSpeed" = "Average Speed",
-      "avgPace" = "Average Pace",
-      "avgCadence" = "Average Cadence",
-      "avgPower" = "Average Power",
-      "avgHeartRate" = "Average Heart Rate",
-      "wrRatio" = "work-to-rest ratio"
-    )
-    # print(d)
-    p <- plotly::plot_ly(
-      dat, x = ~xaxis, y = ~value, hoverinfo = "text",
-      text = ~paste(
-        "Session:", session, "\n",
-        "Date:", format(sessionStart, format = "%Y-%m-%d"),
-        "\n", what, ":", round(value, 2), units_text
-      )
-    ) %>%
-      plotly::add_markers(key = dat$session, color = I("deepskyblue3")) %>%
-      plotly::add_lines(color = I("deepskyblue3"))
-    if (shiny){
-      if (length(unique(sessions)) != nsessions) {
-        m <- dat[dat$session %in% unique(sessions), ]
-        p <- plotly::add_markers(p, data = m, color = I("darkorange3"),
-                                 size = I(8)) 
-            # plotly::add_paths(data = m, color = I("darkorange3"))
-      }
-    }
-
-    y <- list(title = feature)
-    x <- list(title = "Date")
-
-    plotly::layout(p, dragmode = "select", showlegend = FALSE, yaxis = y, 
-                   xaxis = x, margin = list(l = 80, b = 50, pad = 0))
-  } else {
-    plot(sumX, what = what)
+  ## subsets on variables and type
+  dat <- fortify(sumX, melt = TRUE)
+  if (!is.null(what)) {
+    dat <- subset(dat, variable %in% what)
   }
+  if (!is.null(group)) {
+    dat <- subset(dat, type %in% group)
+  }
+
+  ## remove empty factor levels
+  dat$variable <- factor(dat$variable)
+  # dat$type <- factor(dat$type)
+
+  ## clean up: if there are only NA observations for a variable, the (free) y-scale cannot
+  ## be determined
+  empty <- tapply(dat$value, dat$variable, function(x) all(is.na(x)))
+  if (any(empty)) dat <- subset(dat, !(variable %in% names(empty)[empty]))
+
+  ## single session
+  if (nsessions < 2) {
+    dat$sessionStart <- format(dat$sessionStart, format = "%Y-%m-%d")
+    dat$session <- factor(dat$session)
+  }
+
+  ## x axis
+  if (date) {
+    dat$xaxis <- dat$sessionStart
+    xlab <- "Date"
+  } else {
+    dat$xaxis <- dat$session
+    xlab <- "Session"
+  }
+
+  # d <- if(shiny) plotly::event_data("plotly_selected") else NULL
+  what <- switch(what,
+    "distance" = "Distance",
+    "duration" = "Duration",
+    "avgSpeed" = "Average Speed",
+    "avgPace" = "Average Pace",
+    "avgCadence" = "Average Cadence",
+    "avgPower" = "Average Power",
+    "avgHeartRate" = "Average Heart Rate",
+    "wrRatio" = "work-to-rest ratio"
+  )
+  # print(d)
+  p <- plotly::plot_ly(
+    dat,
+    x = ~ xaxis, y = ~ value, hoverinfo = "text",
+    text = ~ paste(
+      "Session:", session, "\n",
+      "Date:", format(sessionStart, format = "%Y-%m-%d"),
+      "\n", what, ":", round(value, 2), units_text
+    )
+  ) %>%
+    plotly::add_markers(key = dat$session, color = I("deepskyblue3")) %>%
+    plotly::add_lines(color = I("deepskyblue3"))
+  if (shiny) {
+    if (length(unique(sessions)) != nsessions) {
+      m <- dat[dat$session %in% unique(sessions), ]
+      p <- plotly::add_markers(p,
+        data = m, color = I("darkorange3"),
+        size = I(8)
+      )
+      # plotly::add_paths(data = m, color = I("darkorange3"))
+    }
+  }
+
+  y <- list(title = feature)
+  x <- list(title = "Date")
+
+  plotly::layout(p,
+    dragmode = "select", showlegend = FALSE, yaxis = y,
+    xaxis = x, margin = list(l = 80, b = 50, pad = 0)
+  )
 }

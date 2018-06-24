@@ -136,7 +136,7 @@ metrics <- function() {
     "Speed" = "speed",
     "Cadence" = "cadence",
     # TODO decide on whether to implement a power plot as well, give that
-    # work capacity plot already included ("Power" = "power").
+    "Power" = "power",
     "Pace" = "pace"
   )
 }
@@ -467,6 +467,7 @@ test_work_capacity <- function(data) {
     all((is.na(x[, "power"])) | (x[, "power"] == 0))
     }
   ))
+  
   # Test for power if cycling
   if (('cycling' %in% selected_sports) & (is_data_power)) {
     cycling <- 'cycling'

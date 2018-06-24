@@ -82,7 +82,7 @@ create_selected_workout_plot <- function(id, collapsed = FALSE) {
     selector = ".content",
     where = "beforeEnd",
     ui = conditionalPanel(
-      condition = "output.cond == false",
+      condition = paste0("output.", id, " == false"),
       div(class = "plots", id = id, fluidRow(
         shinydashboard::box(
           status = "primary",
@@ -153,7 +153,7 @@ create_work_capacity_plot <- function(id, collapsed = FALSE) {
     selector = ".content",
     where = "beforeEnd",
     ui = conditionalPanel(
-      condition = "output.cond == false",
+      condition = "output.work_capacity == false",
       div(class = "plots", id = id, fluidRow(
         shinydashboard::box(
           status = "primary",

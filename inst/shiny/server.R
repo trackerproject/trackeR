@@ -194,7 +194,6 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
 ### Sessions summaries plots                                                ####
       # Generate conditional plot for each metric irrespective of whether data available
       for (metric in c(choices)) {
-        
         trackeR:::create_workout_plots(metric)
       }
       sapply(c(choices), function(i) {
@@ -211,7 +210,6 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
       data$show_summary_plots <- TRUE
       sapply(c(choices), function(choice) {
         output[[choice]] <- reactive({
-          
           if ((choice %in% input$metricsSelected) & (data$show_summary_plots)) {
             FALSE
           } else {
@@ -240,12 +238,14 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Generate individual sessions plots (except work capacity)               ####
     metrics_to_collapse <- c("speed", "heart.rate", "altitude")
-    for (i in c(metrics[have_data_metrics_selected()])) {
+    # First generate all plots irrespective if data available
+    for (i in c(metrics)) {
       collapse <- if (i %in% metrics_to_collapse) FALSE else TRUE
+      i <- if (i == 'heart.rate') "heart_rate" else i
       trackeR:::create_selected_workout_plot(id = i, collapsed = collapse)
     }
     
-    lapply(metrics[have_data_metrics_selected()], function(i) {
+    sapply(metrics, function(i) {
       plot_width <- reactive({if (length(data$selectedSessions) > 2) {
         paste0(toString(500 * length(as.vector(data$selectedSessions))), "px")
       } else {
@@ -273,8 +273,24 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
           n_changepoints = as.numeric(input[[paste0("n_changepoints", i)]])
         )
       })
+      
+      output[[i]] <- reactive({
+        if ((i %in% metrics[have_data_metrics_selected()]) & data$show_individual_sessions) {
+          FALSE
+        } else {
+          TRUE
+        }
+      })
+      outputOptions(output, i, suspendWhenHidden = FALSE)  
     })
-
+    
+    # sapply(metrics, function(metric) {
+    #   # Conditions for displaying the work capacity plot
+    #   output[[paste0(metric, '_123')]] <- reactive({
+    #     TRUE
+    #   })
+    #   # outputOptions(output, paste0(metric, '_123'), suspendWhenHidden = FALSE)  
+    # })
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Generate work capacity plot                                             ####
     # Check which work capacity plots to generate
@@ -336,8 +352,17 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
       TRUE
     }
   })
+  
+  output[['work_capacity']] <- reactive({
+    if ((length(work_capacity_ids()) != 0) & data$show_work_capacity) {
+      FALSE
+    } else {
+      TRUE
+    }
+  })
   outputOptions(output, 'work_capacity_cycling', suspendWhenHidden = FALSE)    
   outputOptions(output, 'work_capacity_running', suspendWhenHidden = FALSE)
+  outputOptions(output, 'work_capacity', suspendWhenHidden = FALSE)   
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Update power for work capacity plot                                     ####
     change_power <- reactiveValues(cycling = 0, running = 0)
@@ -422,6 +447,9 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
     output$cond <- reactive({
       TRUE
     })
+    data$show_summary_plots <- TRUE
+    data$show_individual_sessions <- FALSE
+    data$show_work_capacity <- FALSE
   })
   observeEvent(input$plotSelectedWorkouts, {
     shinyjs::addClass(selector = "body", class = "sidebar-collapse")
@@ -429,6 +457,8 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
       FALSE
     })
     data$show_summary_plots <- FALSE
+    data$show_individual_sessions <- TRUE
+    data$show_work_capacity <- TRUE
   })
 ##  ............................................................................
 ##  Reset button                                                            ####

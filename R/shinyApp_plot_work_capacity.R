@@ -183,6 +183,6 @@ plot_work_capacity <- function(x, session, dates = TRUE, scaled = TRUE, cp = 4) 
   
   return(plotly::subplot(plot_stored, nrows = 1, shareY = TRUE, shareX = FALSE, margin = 0.002) %>%
     plotly::config(displayModeBar = F) %>%
-    plotly::layout(yaxis = y, xaxis = x, images=images, hovermode = "closest", legend = list(y = 0.8, orientation = "h")))
+    plotly::layout(yaxis = y, xaxis = x, images=images, hovermode = "x", legend = list(y = 0.8, orientation = "h")))
 
 }
