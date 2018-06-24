@@ -4,8 +4,8 @@ gpxfile_run <- system.file("extdata/gpx/", "20170708-154835-Run.gpx", package = 
 gpx <- readGPX(gpxfile_run)
 
 test_that("resting_periods returns the expected number of splits", {
-    rp1 <- resting_periods(gpx$time, 2)
-    rp2 <- resting_periods(gpx$time, 0.5/60)
+    rp1 <- get_resting_periods(gpx$time, 2)
+    rp2 <- get_resting_periods(gpx$time, 0.5/60)
     expect_equal(nrow(rp1$sessions), 1)
     expect_equal(nrow(rp2$sessions), 3)
 })

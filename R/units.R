@@ -68,39 +68,67 @@ get_units.trackeRfpca <- function(object, ...) {
 #' @export
 change_units.trackeRdata <- function(object, variable, unit, sport,...) {
     ## get current units and thresholds
-    current <- get_units(object)
+    units <- get_units(object)
     operations <- get_operations(object)
     sports <- get_sport(object)
     th <- operations$threshold
 
-    ## change units
-    for (i in seq_along(variable)) {
-        current_unit <- current$unit[current$variable == variable[i] & current$sport == sport[i]]
-        new_unit <- unit[variable == variable[i]]
-        if (current_unit != new_unit) {
-            conversion <- match.fun(paste(current_unit, new_unit, sep = "2"))
-            ## change data
-            for (session in seq_along(object)) {
-                if (sports[session] != sport[i])
-                    next
-                object[[session]][, variable[i]] <- conversion(object[[session]][, variable[i]])
-            }
-            ## change units attribute
-            current$unit[current$variable == variable[i] & sport == sport[i]] <- new_unit
+    no_variable <- missing(variable)
+    no_unit <- missing(variable)
+    no_sport <- missing(sport)
 
-            ## change units of thresholds
-            th$lower[th$variable == variable[i] & th$sport == sport[i]] <-
-                conversion(th$lower[th$variable == variable[i] & th$sport == sport[i]])
-            th$upper[th$variable == variable[i] & th$sport == sport[i]] <-
-                conversion(th$upper[th$variable == variable[i] & th$sport == sport[i]])
+    if (no_sport & no_unit & no_variable) {
+        return(object)
+    }
+    else {
+        p <- length(sport)
+        if (length(unit) == p & length(variable) == p) {
+            inputs <- data.frame(sport = sport, variable = variable, unit = unit, stringsAsFactors = FALSE)
+            inds <- match(paste(inputs$sport, inputs$variable, sep = "-"),
+                          paste(units$sport, units$variable, sep = "-"),
+                          nomatch = 0)
+            units$new_unit <- units$unit
+            units$new_unit[inds] <- inputs$unit
+
+            ## Remove duration (only for trackeRdataSummary objects)
+            units <- units[!(units$variable == "duration"),]
+            units$fun <- paste(units$unit, units$new_unit, sep = "2")
+
+            for (sp in sports) {
+                un <- subset(units, sport == sp)
+                for (sess in seq_along(object)) {
+                    if (sports[sess] != sp)
+                        next
+                    else {
+                        o <- object[[sess]]
+                        for (k in seq.int(nrow(un))) {
+                            convert <- match.fun(un$fun[k])
+                            cat(un$fun[k], "\n")
+                            va <- un$variable[k]
+                            o[, va] <- convert(o[, va])
+                        }
+                        object[[sess]] <- o
+
+                        ## ADD: change units of thresholds!!!!
+
+                    }
+                }
+            }
+            ## Clean up units
+            units$unit <- units$new_unit
+            units$fun <- units$new_unit <- NULL
+
+            ## update attributes and return
+            attr(object, "units") <- units
+            operations$threshold <- th
+            attr(object, "operations") <- operations
+            return(object)
+
+        }
+        else {
+            stop("variable, unit and sport should have the same length")
         }
     }
-
-    ## update attributes and return
-    attr(object, "units") <- current
-    operations$threshold <- th
-    attr(object, "operations") <- operations
-    return(object)
 }
 
 #' Change the units of the variables in an \code{trackeRdataSummary} object.
@@ -538,6 +566,13 @@ h2h <- function(variable) {
     variable
 }
 
+## conversion functions: degree
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+degree2degree <- function(variable) {
+    variable
+}
 
 
 
@@ -854,7 +889,13 @@ mi_per_min2mi_per_min <- function(variable) {
 }
 
 
-
+## conversion functions: heart_rate
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+bpm2bpm <- function(variable) {
+    variable
+}
 
 
 ## conversion functions: pace
@@ -981,6 +1022,21 @@ C2F <- function(variable) {
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
+C2C <- function(variable) {
+    variable
+}
+
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+F2F <- function(variable) {
+    variable
+}
+
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
 F2C <- function(variable) {
     (variable - 32) * 5 / 9
 }
+

@@ -31,15 +31,18 @@ test_that("change units works as expected []", {
                           unit = "mi_per_h",
                           sport = "cycling")
     expect_equal(gpxa1, gpxa, check.attributes = FALSE)
-
     gpxb1 <- change_units(gpxb,
-                          variable = c("speed", "distance", "temperature"),
-                          unit = c("mi_per_h", "km", "F"),
-                          sport = c("cycling", "cycling", "running"))
+                          variable = c("speed", "distance", "temperature", "altitude", "temperature"),
+                          unit = c("mi_per_h", "km", "F", "ft", "F"),
+                          sport = c("cycling", "cycling", "running", "swimming", "cycling"))
     expect_equal(gpxb1[[1]]$speed, gpxb[[1]]$speed/1609.344 * 60 * 60)
     expect_equal(gpxb1[[1]]$distance, gpxb[[1]]$distance/1000)
     u <- getUnits(gpxb1)
-    expect_equal(u[u$variable == "temperature" & u$sport == "cycling", "unit"], "C")
-
+    expect_equal(u[u$variable == "temperature" & u$sport == "cycling", "unit"], "F")
+    expect_equal(u[u$variable == "temperature" & u$sport == "running", "unit"], "F")
+    expect_equal(u[u$variable == "temperature" & u$sport == "swimming", "unit"], "C")
+    expect_equal(u[u$variable == "altitude" & u$sport == "cycling", "unit"], "m")
+    expect_equal(u[u$variable == "altitude" & u$sport == "running", "unit"], "m")
+    expect_equal(u[u$variable == "altitude" & u$sport == "swimming", "unit"], "ft")
 })
 

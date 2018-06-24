@@ -17,11 +17,11 @@ test_that("distance correction works", {
 })
 
 
-test_that("impute_speeds imputes speeds and imputes power [cycling = TRUE]", {
+test_that("impute_speeds imputes speeds and imputes power [sport = 'cycling']", {
     s0 <- sanity_checks(gpx, silent = TRUE)
     s1 <- get_sessions(s0)
-    s2 <- impute_speeds(s1[[1]], from_distances = TRUE, cycling = TRUE)
-    s3 <- impute_speeds(s1[[1]], from_distances = TRUE, cycling = FALSE)
+    s2 <- impute_speeds(s1[[1]], from_distances = TRUE, sport = "cycling")
+    s3 <- impute_speeds(s1[[1]], from_distances = TRUE, sport = "running")
     expect_true(all(is.na(head(s1[[1]]$speed))))
     expect_true(all(!is.na(head(s2$speed))))
     expect_true(all(!is.na(head(s2$power))))
