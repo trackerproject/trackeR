@@ -67,7 +67,34 @@ change_units.trackeRthresholds <- function(object, variable, unit, sport, ...) {
         return(object)
     }
     else {
+        p <- length(sport)
+        if (length(unit) == p & length(variable) == p) {
+            inputs <- data.frame(sport = sport, variable = variable, unit = unit, stringsAsFactors = FALSE)
+            inds <- match(paste(inputs$sport, inputs$variable, sep = "-"),
+                          paste(object$sport, object$variable, sep = "-"),
+                          nomatch = 0)
+            object$new_unit <- object$unit
+            ## If variable/sport/units combinations do not exist then the object is returned
+            if (all(inds == 0)) {
+                stop("Some of the supplied combinations of sport and variable do not exist.")
+            }
 
+            object$new_unit[inds] <- inputs$unit
+            object$fun <- paste(object$unit, object$new_unit, sep = "2")
+
+            ## Check for crappy units is inherent below
+            for (i in seq.int(nrow(object))) {
+                convert <- match.fun(object$fun[i])
+                object[i, "lower"] <- convert(object[i, "lower"])
+                object[i, "upper"] <- convert(object[i, "upper"])
+            }
+            object$unit <- object$new_unit
+            object$fun <- object$new_unit <- NULL
+            return(object)
+        }
+        else {
+            stop("variable, unit and sport should have the same length")
+        }
     }
 
 }
