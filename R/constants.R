@@ -135,30 +135,23 @@ generate_units <- function(variable, unit, sport, ...) {
                "min_per_km",
                "s")
     sports <- c("cycling", "running", "swimming")
-
-
     out <- data.frame(variable = rep(varnames, 3),
                       unit = rep(units, 3),
                       sport = rep(sports, each = length(units)),
                       stringsAsFactors = FALSE)
-
     inds <- with(out, (sport == "cycling" & variable == "cadence_running") |
                       (sport == "running" & variable == "cadence_cycling") |
                       (sport == "swimming" & variable == "cadence_running") |
                       (sport == "swimming" & variable == "cadence_cycling") |
                       (sport == "running" & variable == "power") |
                       (sport == "swimming" & variable == "power"))
-
     out <- out[!inds, ]
-
     no_variable <- missing(variable)
     no_unit <- missing(variable)
     no_sport <- missing(sport)
-
     if (no_sport & no_unit & no_variable) {
         return(out)
     }
-
     if (no_sport | no_unit | no_variable) {
         stop("specify variable, unit and sport")
     }
@@ -191,10 +184,12 @@ generate_units <- function(variable, unit, sport, ...) {
 generate_thresholds <- function(...) {
     th <- generate_units()
     n_variables <- nrow(th)
-    th$lower <- rep(c(-90, -180, -500, 0, 0, 0, 0, 0, 0, -30, 0, 0), 3)
-    th$upper <- c(c(90, 180, 9000, Inf, 250, 10^2, Inf, Inf, Inf, 60, Inf, Inf),
-                  c(90, 180, 9000, Inf, 250, 12.5, Inf, Inf, Inf, 60, Inf, Inf),
-                  c(90, 180, 9000, Inf, 250, 5, Inf, Inf, Inf, 60, Inf, Inf))
+    th$lower <- c(c(-90, -180, -500, 0, 0, 0, 0, 0, -30, 0, 0), # cycling
+                  c(-90, -180, -500, 0, 0, 0, 0, -30, 0, 0), # running
+                  c(-90, -180, -500, 0, 0, 0, -30, 0, 0)) # swimming
+    th$upper <- c(c(90, 180, 9000, Inf, 250, 10^2, Inf, Inf, 60, Inf, Inf), # cycling
+                  c(90, 180, 9000, Inf, 250, 12.5, Inf, 60, Inf, Inf), # running
+                  c(90, 180, 9000, Inf, 250, 5, 60, Inf, Inf)) # swimming
     class(th) <- c("trackeRthresholds", class(th))
     return(th)
 }
