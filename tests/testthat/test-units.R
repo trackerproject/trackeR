@@ -44,5 +44,16 @@ test_that("change units works as expected []", {
     expect_equal(u[u$variable == "altitude" & u$sport == "cycling", "unit"], "m")
     expect_equal(u[u$variable == "altitude" & u$sport == "running", "unit"], "m")
     expect_equal(u[u$variable == "altitude" & u$sport == "swimming", "unit"], "ft")
+
+    expect_error(gpxa1 <- change_units(gpxa,
+                                       variable = "speed",
+                                       unit = "sad",
+                                       sport = "cycling"))
+
+    expect_error(gpxa1 <- change_units(gpxa,
+                                       variable = "speed",
+                                       unit = "m_per_s",
+                                       sport = "hiking"))
+
 })
 

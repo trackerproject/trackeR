@@ -9,15 +9,15 @@
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}
 
-\item{variable}{A vector of variables to be changed.}
+\item{variable}{A vector of variables whose units are to be changed.}
 
-\item{unit}{A vector with the units, corresponding to variable.}
+\item{unit}{A vector with the units, corresponding to \code{variable}.}
 
 \item{sport}{A vector of sports (amongst \code{'cycling'},
 \code{'running'}, \code{'swimming'}) with each element
 corresponding to variable and unit}
 
-\item{...}{Currently not used.}
+\item{...}{Arguments to be passed to methods.}
 }
 \description{
 Change the units of the variables in an \code{trackeRdata} object.

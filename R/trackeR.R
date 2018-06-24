@@ -96,11 +96,14 @@ get_units <- function(object, ...) UseMethod("get_units")
 #' Generic function for changing the units of measurement.
 #'
 #' @param object The object of which the units of measurement are changed.
-#' @param variable The variable of which the units of measurement are changed.
-#' @param unit The unit of measurement to which is changed.
+#' @param variable A vector of variables whose units are to be changed.
+#' @param unit A vector with the units, corresponding to \code{variable}.
+#' @param sport A vector of sports (amongst \code{'cycling'},
+#'     \code{'running'}, \code{'swimming'}) with each element
+#'     corresponding to variable and unit
 #' @param ... Arguments to be passed to methods.
 #' @export
-change_units <- function(object, variable, unit, ...) UseMethod("change_units")
+change_units <- function(object, variable, unit, sport, ...) UseMethod("change_units")
 
 #' Generic function for retrieving the operation settings.
 #'

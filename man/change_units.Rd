@@ -7,18 +7,22 @@
 \alias{changeUnits}
 \title{Change units of variables.}
 \usage{
-change_units(object, variable, unit, ...)
+change_units(object, variable, unit, sport, ...)
 
-change_units(object, variable, unit, ...)
+change_units(object, variable, unit, sport, ...)
 
-changeUnits(object, variable, unit, ...)
+changeUnits(object, variable, unit, sport, ...)
 }
 \arguments{
 \item{object}{A character of either 'summary' or 'object' to specify which objects' units to change.}
 
-\item{variable}{The variable of which the units of measurement are changed.}
+\item{variable}{A vector of variables whose units are to be changed.}
 
-\item{unit}{The unit of measurement to which is changed.}
+\item{unit}{A vector with the units, corresponding to \code{variable}.}
+
+\item{sport}{A vector of sports (amongst \code{'cycling'},
+\code{'running'}, \code{'swimming'}) with each element
+corresponding to variable and unit}
 
 \item{...}{Arguments to be passed to methods.}
 

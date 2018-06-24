@@ -56,15 +56,27 @@ get_units.trackeRfpca <- function(object, ...) {
     attr(object, "units")
 }
 
+
+## not to be exported
+change_units.trackeRthresholds <- function(object, variable, unit, sport, ...) {
+    no_variable <- missing(variable)
+    no_unit <- missing(variable)
+    no_sport <- missing(sport)
+
+    if (no_sport & no_unit & no_variable) {
+        return(object)
+    }
+    else {
+
+    }
+
+}
+
+
 #' Change the units of the variables in an \code{trackeRdata} object.
 #'
 #' @param object An object of class \code{\link{trackeRdata}}.
-#' @param variable A vector of variables to be changed.
-#' @param unit A vector with the units, corresponding to variable.
-#' @param sport A vector of sports (amongst \code{'cycling'},
-#'     \code{'running'}, \code{'swimming'}) with each element
-#'     corresponding to variable and unit
-#' @param ... Currently not used.
+#' @inheritParams change_units
 #' @export
 change_units.trackeRdata <- function(object, variable, unit, sport,...) {
     ## get current units and thresholds
@@ -88,32 +100,38 @@ change_units.trackeRdata <- function(object, variable, unit, sport,...) {
                           paste(units$sport, units$variable, sep = "-"),
                           nomatch = 0)
             units$new_unit <- units$unit
-            units$new_unit[inds] <- inputs$unit
+            ## If variable/sport/units combinations do not exist then the object is returned
+            if (all(inds == 0)) {
+                stop("Some of the supplied combinations of sport and variable do not exist.")
+            }
 
+            units$new_unit[inds] <- inputs$unit
             ## Remove duration (only for trackeRdataSummary objects)
             units <- units[!(units$variable == "duration"),]
             units$fun <- paste(units$unit, units$new_unit, sep = "2")
 
+            ## Check for crappy units
+            ch <- sapply(units$fun, match.fun)
+
             for (sp in sports) {
                 un <- subset(units, sport == sp)
                 for (sess in seq_along(object)) {
-                    if (sports[sess] != sp)
-                        next
-                    else {
+                    if (sports[sess] == sp) {
                         o <- object[[sess]]
                         for (k in seq.int(nrow(un))) {
                             convert <- match.fun(un$fun[k])
-                            cat(un$fun[k], "\n")
                             va <- un$variable[k]
                             o[, va] <- convert(o[, va])
                         }
                         object[[sess]] <- o
-
                         ## ADD: change units of thresholds!!!!
-
+                    }
+                    else {
+                        next
                     }
                 }
             }
+
             ## Clean up units
             units$unit <- units$new_unit
             units$fun <- units$new_unit <- NULL
@@ -274,29 +292,6 @@ change_units.trackeRWprime <- function(object, variable, unit, ...) {
     attr(object, "units") <- current
     return(object)
 }
-
-## not to be exported
-change_units.trackeRthresholds <- function(object, variable, unit, ...) {
-    for (v in variable) {
-        i <- which(object$variable == v)
-        current_unit <- object$unit[i]
-        new_unit <- unit[which(variable == v)]
-        inds <- current_unit == new_unit
-        if (all(inds)) {
-            object
-        }
-        else {
-            for (j in i[!inds]) {
-                conversion <- match.fun(paste(object$unit[j], new_unit, sep = "2"))
-                object$lower[j] <- conversion(object$lower[j])
-                object$upper[j] <- conversion(object$upper[j])
-                object$unit[j] <- new_unit
-            }
-        }
-    }
-    return(object)
-}
-
 
 change_units.trackeRdataZones <- function(object, variable, unit, ...) {
 
