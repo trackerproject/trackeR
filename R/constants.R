@@ -139,6 +139,8 @@ generate_units <- function(variable, unit, sport, ...) {
                       unit = rep(units, 3),
                       sport = rep(sports, each = length(units)),
                       stringsAsFactors = FALSE)
+
+    ## remove impossible combiations of variables and sports
     inds <- with(out, (sport == "cycling" & variable == "cadence_running") |
                       (sport == "running" & variable == "cadence_cycling") |
                       (sport == "swimming" & variable == "cadence_running") |
@@ -158,8 +160,9 @@ generate_units <- function(variable, unit, sport, ...) {
     else {
         p <- length(sport)
         if (length(unit) == p & length(variable) == p) {
-            inds <- (out$variable %in% variable) & (out$sport %in% sport)
-            if (all(!inds)) {
+            inds <- paste(variable, sport, sep = "_") %in% paste(out$variable, out$sport, sep = "_")
+
+            if (!all(inds)) {
                 stop("at least some of the specified combinations of variable and sport are not implemented")
             }
             else {
@@ -205,8 +208,8 @@ generate_thresholds <- function(variable, lower, upper, sport, ...) {
     else {
         p <- length(sport)
         if (length(lower) == p & length(upper) & length(variable) == p) {
-            inds <- (th$variable %in% variable) & (th$sport %in% sport)
-            if (all(!inds)) {
+            inds <- paste(variable, sport, sep = "_") %in% paste(th$variable, th$sport, sep = "_")
+            if (!all(inds)) {
                 stop("at least some of the specified combinations of variable and sport are not implemented")
             }
             else {

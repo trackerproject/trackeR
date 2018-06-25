@@ -5,14 +5,21 @@
 \title{Summary of training sessions.}
 \usage{
 \method{summary}{trackeRdata}(object, session = NULL,
-  movingThreshold = NULL, ...)
+  moving_threshold = NULL, unit_reference_sport = "running", ...)
 }
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}
 
-\item{session}{A numeric vector of the sessions to be summarised, defaults to all sessions.}
+\item{session}{A numeric vector of the sessions to be summarised,
+defaults to all sessions.}
 
-\item{movingThreshold}{The threshold above which speed an athlete is considered moving (given in the unit of the speed measurements in \code{object}. If \code{NULL}, the default, the threshold corresponds to a slow walking speed (1 m/s, converted to another speed unit, if necessary). For reference, the preferred walking speed for humans is around 1.4 m/s (Bohannon, 1997).}
+\item{moving_threshold}{a named vector of 3 speeds above which an
+athlete is considered moving, given in the unit of the speed
+measurements in \code{object}. If \code{NULL} (default), the
+speeds are taken to be \code{c(cycling = 2, running = 1,
+swimming = 0.5)}. See details.}
+
+\item{unit_reference_sport}{the sport to inherit units from}
 
 \item{...}{Currently not used.}
 }
@@ -21,6 +28,15 @@ An object of class \code{trackeRdataSummary}.
 }
 \description{
 Summary of training sessions.
+}
+\details{
+The deafult speed thresholds are 1 m/s for running (3.6 km/h; slow
+walking), 2 m/s for cycling (7.2 km/h) for cycling and 0.5 m/s
+(1.8km/h) for swimming. For reference, the preferred walking speed
+for humans is around 1.4 m/s (Bohannon, 1997).
+
+The units for the computed summaries match those of the sport
+specified by \code{unit_reference_sport}.
 }
 \examples{
 data('runs', package = 'trackeR')
@@ -37,7 +53,9 @@ plot(runSummaryFull, group = c('total', 'moving'),
     what = c('avgSpeed', 'distance', 'duration', 'avgHeartRate'))
 }
 \references{
-Bohannon RW (1997). 'Comfortable and Maximum Walking Speed of Adults Aged 20--79 Years: Reference Values and Determinants.' Age and Ageing, 26(1), 15--19. doi: 10.1093/ageing/26.1.15.
+Bohannon RW (1997). 'Comfortable and Maximum Walking Speed of
+Adults Aged 20--79 Years: Reference Values and Determinants.' Age
+and Ageing, 26(1), 15--19. doi: 10.1093/ageing/26.1.15.
 }
 \seealso{
 \code{\link{plot.trackeRdataSummary}}

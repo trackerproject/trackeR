@@ -23,7 +23,7 @@
 #' @examples
 #' \dontrun{
 #' ## read raw data
-#' filepath <- system.file("extdata", "2013-06-08-090442.TCX", package = "trackeR")
+#' filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX", package = "trackeR")
 #' run <- readTCX(file = filepath, timezone = "GMT")
 #'
 #' ## turn into trackeRdata object

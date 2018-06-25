@@ -382,27 +382,6 @@ get_operations.conProfile <- function(object, ...) {
     attr(object, "operations")
 }
 
-
-#' Generate base units.
-#'
-#' @param ... Currently not used.
-#' @export
-generateBaseUnits <- function(...) {
-    ## Get the variable names
-    varnames <- generate_variable_names()$human_names
-    ## Remove time and add duration
-    varnames <- varnames[-match("time", varnames)]
-    varnames <- c(varnames, c("pace", "duration"))
-
-    units <- c("degree", "degree", "m", "m", "bpm", "m_per_s",
-               "steps_per_min", "rev_per_min",
-               "W", "C",
-               "min_per_km", "s")
-
-    return(data.frame(variable = varnames, unit = units, stringsAsFactors = FALSE))
-}
-
-
 ## conversion functions: distance
 #' Auxiliary conversion functions.
 #'
