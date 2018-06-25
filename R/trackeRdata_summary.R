@@ -51,8 +51,7 @@ summary.trackeRdata <- function(object, session = NULL, moving_threshold = NULL,
     files <- attr(object, "file")
 
     ## Match units to those of unit_reference_sport
-    unit_reference_sport <- match.arg(unit_reference_sport, c("cycling", "running", "swimming"))
-    un <- subset(units, sport == unit_reference_sport)
+    un <- collect_units(units, unit_reference_sport)
     for (va in unique(un$variable)) {
         units[units$variable == va, "unit"] <- un[un$variable == va, "unit"]
     }
@@ -186,7 +185,7 @@ summary.trackeRdata <- function(object, session = NULL, moving_threshold = NULL,
 
     attr(ret, "units") <- units
     attr(ret, "moving_threshold") <- moving_threshold
-    attr(ret, "unit_reference_sport") <- unit_reference_sport
+    attr(ret, "unit_reference_sport") <- attr(un, "unit_reference_sport")
     class(ret) <- c("trackeRdataSummary", class(ret))
     return(ret)
 }
@@ -201,7 +200,7 @@ summary.trackeRdata <- function(object, session = NULL, moving_threshold = NULL,
 #' @export
 print.trackeRdataSummary <- function(x, ..., digits = 2) {
     units <- get_units(x)
-    units <- units[units$sport == attr(x, "unit_reference_sport"), ]
+    units <- collect_units(units, unit_reference_sport = attr(x, "unit_reference_sport"))
     sports <- as.character(get_sport(x))
 
     for (i in seq_len(length(x$session))) {
@@ -342,6 +341,7 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, l
     nsessions <- length(unique(x$session))
     ndates <- length(unique(x$sessionStart))
     units <- getUnits(x)
+    units <- collect_units(units, unit_reference_sport = attr(x, "unit_reference_sport"))
 
     ## subsets on variables and type
     dat <- fortify(x, melt = TRUE)

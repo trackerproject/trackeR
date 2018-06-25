@@ -139,7 +139,7 @@ change_units.trackeRdata <- function(object, variable, unit, sport,...) {
 
             units$new_unit[inds] <- inputs$unit
             ## Remove duration (only for trackeRdataSummary objects)
-            units <- units[!(units$variable == "duration"), ]
+            ## units <- units[!(units$variable == "duration"), ]
             units$fun <- paste(units$unit, units$new_unit, sep = "2")
             units$changed <- units$unit != units$new_unit
 
@@ -183,6 +183,19 @@ change_units.trackeRdata <- function(object, variable, unit, sport,...) {
     }
 }
 
+## Colelcts the units from a reference sport and returns a simple
+## unit-specification df
+collect_units <- function(object, unit_reference_sport = "running") {
+    unit_reference_sport <- match.arg(unit_reference_sport, c("cycling", "running", "swimming"))
+    units <- object[object$sport == unit_reference_sport, ]
+    ## Add missing variables
+    units <- rbind(units, object[!(object$variable %in% units$variable), ])
+    units$sport <- NULL
+    rownames(units) <- NULL
+    attr(units, "unit_reference_sport") <- unit_reference_sport
+    units
+}
+
 #' Change the units of the variables in an \code{trackeRdataSummary} object.
 #'
 #' @param object An object of class \code{trackeRdataSummary}.
@@ -195,9 +208,12 @@ change_units.trackeRdataSummary <- function(object, variable, unit, ...) {
     ## NOTE: variable is expected to contain concepts like 'speed' rather than variable
     ## names like 'avgSpeed' or 'avgSpeedMoving'.
     concept <- variable
-    current <- getUnits(object)
-    mvt <- attr(object, "movingThreshold")
+    units <- get_units(object)
+    current <- collect_units(units, unit_reference_sport = attr(object, "unit_reference_sport"))
+
+    mt <- attr(object, "moving_threshold")
     object <- as.data.frame(object)
+
     for (i in concept) {
         variables <- names(object)[grep(pattern = i, names(object), ignore.case = TRUE)]
         currentUnit <- current$unit[current$variable == i]  ## $concept
@@ -210,16 +226,20 @@ change_units.trackeRdataSummary <- function(object, variable, unit, ...) {
             }
             ## convert moving threshold
             if (i == "speed")
-                mvt <- conversion(mvt)
+                mt <- conversion(mt)
             ## update units
             current$unit[current$variable == i] <- newUnit
         }
 
     }
 
+    for (va in current$variable) {
+        units$unit[units$variable == va] <- current$unit[current$variable == va]
+    }
+
     ## update units attribute and return
-    attr(object, "units") <- current
-    attr(object, "movingThreshold") <- mvt
+    attr(object, "units") <- units
+    attr(object, "moving_threshold") <- mt
     class(object) <- c("trackeRdataSummary", class(object))
     return(object)
 }
