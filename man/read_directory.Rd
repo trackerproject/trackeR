@@ -11,7 +11,7 @@ read_directory(directory, aggregate = FALSE, table = "gps_data",
   speedunit = list(tcx = "m_per_s", gpx = "km_per_h", db3 = "km_per_h", json =
   "km_per_h"), distanceunit = list(tcx = "m", gpx = "km", db3 = "km", json =
   "km"), sport = NULL, lgap = 30, lskip = 5, m = 11, silent = FALSE,
-  shiny = FALSE, parallel = FALSE, verbose = TRUE)
+  parallel = FALSE, verbose = TRUE)
 
 readDirectory(directory, aggregate = FALSE, table = "gps_data",
   timezone = "", session_threshold = 2, correct_distances = FALSE,
@@ -19,7 +19,7 @@ readDirectory(directory, aggregate = FALSE, table = "gps_data",
   speedunit = list(tcx = "m_per_s", gpx = "km_per_h", db3 = "km_per_h", json =
   "km_per_h"), distanceunit = list(tcx = "m", gpx = "km", db3 = "km", json =
   "km"), sport = NULL, lgap = 30, lskip = 5, m = 11, silent = FALSE,
-  shiny = FALSE, parallel = FALSE, verbose = TRUE)
+  parallel = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{directory}{The path to the directory.}
@@ -81,10 +81,6 @@ observation after a small break.}
 
 \item{silent}{Logical. Should warnings be generated if any of the
 sanity checks on the data are triggered?}
-
-\item{shiny}{Logical. Should the output of \code{read_directory} be
-made \code{\link[shiny]{reactive}}? For use in the shiny
-interface. Default is \code{FALSE}.}
 
 \item{parallel}{Logical. Should reading be carried out in parallel?
 If \code{TRUE} reading is performed in parallel using the
