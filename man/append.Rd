@@ -2,7 +2,7 @@
 % Please edit documentation in R/trackeR.R
 \name{append}
 \alias{append}
-\title{Generic function for appending data to existing files.}
+\title{Generic function for appending data to existing files}
 \usage{
 append(object, file, ...)
 }
@@ -14,5 +14,5 @@ append(object, file, ...)
 \item{...}{Arguments to be passed to methods.}
 }
 \description{
-Generic function for appending data to existing files.
+Generic function for appending data to existing files
 }

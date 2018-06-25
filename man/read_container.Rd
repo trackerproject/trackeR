@@ -32,13 +32,13 @@ ignored otherwise.}
 difference between consecutive timestamps above which they are
 considered to belong to different training sessions.}
 
-\item{correct_distances}{Logical. Should the distances be corrected
+\item{correct_distances}{logical. Should the distances be corrected
 for elevation?}
 
 \item{country}{ISO3 country code for downloading altitude data. If
-\code{NULL}, country is derived from longitude and latitude.}
+\code{NULL}, country is derived from longitude and latitude}
 
-\item{mask}{Logical. Passed on to
+\item{mask}{logical. Passed on to
 \code{\link[raster]{getData}}. Should only the altitudes for
 the specified \code{country} be extracted (\code{TRUE}) or also
 those for the neighboring countries (\code{FALSE})?}

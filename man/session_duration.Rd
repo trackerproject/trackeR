@@ -5,7 +5,7 @@
 \alias{session_duration}
 \alias{session_duration.trackeRdata}
 \alias{session_duration.trackeRdataSummary}
-\title{Generic function for calculating session durations.}
+\title{Generic function for calculating session durations}
 \usage{
 session_duration(object, ...)
 
@@ -19,7 +19,7 @@ session_duration(object, ...)
 \item{...}{Arguments to be passed to methods.}
 }
 \description{
-Generic function for calculating session durations.
+Generic function for calculating session durations
 }
 \details{
 The times units will be inherited from \code{object}.

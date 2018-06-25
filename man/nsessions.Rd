@@ -4,7 +4,7 @@
 \alias{nsessions.trackeRWprime}
 \alias{nsessions}
 \alias{nsessions.trackeRdataSummary}
-\title{Generic function for calculating number of sessions.}
+\title{Generic function for calculating number of sessions}
 \usage{
 \method{nsessions}{trackeRWprime}(object, ...)
 
@@ -18,5 +18,5 @@ nsessions(object, ...)
 \item{...}{Arguments to be passed to methods.}
 }
 \description{
-Generic function for calculating number of sessions.
+Generic function for calculating number of sessions
 }

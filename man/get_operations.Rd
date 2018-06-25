@@ -3,7 +3,7 @@
 \name{get_operations}
 \alias{get_operations}
 \alias{getOperations}
-\title{Generic function for retrieving the operation settings.}
+\title{Generic function for retrieving the operation settings}
 \usage{
 get_operations(object, ...)
 
@@ -15,5 +15,5 @@ getOperations(object, ...)
 \item{...}{Arguments to be passed to methods.}
 }
 \description{
-Generic function for retrieving the operation settings.
+Generic function for retrieving the operation settings
 }

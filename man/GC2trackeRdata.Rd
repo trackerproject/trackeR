@@ -9,17 +9,17 @@ GC2trackeRdata(gc, cycling = TRUE, correct_distances = FALSE,
   lskip = 5, m = 11, silent = FALSE)
 }
 \arguments{
-\item{gc}{Output of \code{GC.activity}.}
+\item{gc}{output of \code{GC.activity}}
 
-\item{cycling}{Logical. Does the data stem from cycling?}
+\item{cycling}{logical. Does the data stem from cycling?}
 
-\item{correct_distances}{Logical. Should the distances be corrected
+\item{correct_distances}{logical. Should the distances be corrected
 for elevation?}
 
 \item{country}{ISO3 country code for downloading altitude data. If
-\code{NULL}, country is derived from longitude and latitude.}
+\code{NULL}, country is derived from longitude and latitude}
 
-\item{mask}{Logical. Passed on to
+\item{mask}{logical. Passed on to
 \code{\link[raster]{getData}}. Should only the altitudes for
 the specified \code{country} be extracted (\code{TRUE}) or also
 those for the neighboring countries (\code{FALSE})?}
@@ -39,7 +39,7 @@ observation after a small break.}
 sanity checks on the data are triggered?}
 }
 \description{
-Experimental state.
+Coercion function for use in Golden Cheetah
 }
 \seealso{
 \code{\link{trackeRdata}}

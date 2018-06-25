@@ -5,7 +5,7 @@
 \alias{timeline}
 \alias{timeline.trackeRdata}
 \alias{timeline.trackeRdataSummary}
-\title{Generic function for visualising the sessions on a time versus date plot.}
+\title{Generic function for visualising the sessions on a time versus date plot}
 \usage{
 timeline(object, lims, ...)
 
@@ -14,15 +14,17 @@ timeline(object, lims, ...)
 \method{timeline}{trackeRdataSummary}(object, lims = NULL, ...)
 }
 \arguments{
-\item{object}{An object of class trackeRdata or trackeRdataSummary}
+\item{object}{An object of class \code{\link{trackeRdata}} or
+\code{\link{trackeRdataSummary}}.}
 
-\item{lims}{An optional vector of two times in HH:MM format. Default is NULL.
-If supplied, the times are used to define the limits of the time axis.}
+\item{lims}{An optional vector of two times in HH:MM
+format. Default is \code{NULL} If supplied, the times are used
+to define the limits of the time axis.}
 
-\item{...}{Arguments passed to \code{\link{summary.trackeRdata}}}
+\item{...}{Arguments passed to \code{\link{summary.trackeRdata}}.}
 }
 \description{
-Generic function for visualising the sessions on a time versus date plot.
+Generic function for visualising the sessions on a time versus date plot
 
 Timeline plot for \code{\link{trackeRdata}} objects
 

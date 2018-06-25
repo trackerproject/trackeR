@@ -14,7 +14,8 @@
 funPCA(object, ...)
 }
 \arguments{
-\item{object}{The object to which a functional principal components analysis is applied.}
+\item{object}{The object to which a functional principal components
+analysis is applied.}
 
 \item{what}{The variable for which the profiles should be analysed.}
 
@@ -28,7 +29,7 @@ An object of class \code{trackeRfpca}.
 \description{
 Functional principal components analysis of distribution or concentration profiles.
 
-Generic function for functional principal components analysis.
+Generic function for functional principal components analysis
 }
 \details{
 The \code{...} argument is passed on to \code{\link[fda]{pca.fd}}.

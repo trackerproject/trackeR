@@ -1,15 +1,15 @@
-#' Summary of training sessions.
+#' Summary of training sessions
 #'
 #' @aliases trackeRdataSummary
 #' @param object An object of class \code{\link{trackeRdata}}.
 #' @param session A numeric vector of the sessions to be summarised,
 #'     defaults to all sessions.
-#' @param moving_threshold a named vector of 3 speeds above which an
+#' @param moving_threshold A named vector of 3 speeds above which an
 #'     athlete is considered moving, given in the unit of the speed
 #'     measurements in \code{object}. If \code{NULL} (default), the
 #'     speeds are taken to be \code{c(cycling = 2, running = 1,
 #'     swimming = 0.5)}. See details.
-#' @param unit_reference_sport the sport to inherit units from
+#' @param unit_reference_sport The sport to inherit units from.
 #' @param ... Currently not used.
 #'
 #' @details

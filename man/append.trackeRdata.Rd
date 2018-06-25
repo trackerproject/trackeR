@@ -2,17 +2,17 @@
 % Please edit documentation in R/trackeRdata.R
 \name{append.trackeRdata}
 \alias{append.trackeRdata}
-\title{Append training sessions to existing file.}
+\title{Append training sessions to existing file}
 \usage{
 \method{append}{trackeRdata}(object, file, ...)
 }
 \arguments{
-\item{object}{The object to be appended.}
+\item{object}{the object to be appended}
 
-\item{file}{The file to which \code{object} is to be appended.}
+\item{file}{the file to which \code{object} is to be appended}
 
-\item{...}{Currently not used.}
+\item{...}{currently not used}
 }
 \description{
-Append training sessions to existing file.
+Append training sessions to existing file
 }

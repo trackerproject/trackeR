@@ -5,7 +5,7 @@
 \alias{session_times}
 \alias{session_times.trackeRdata}
 \alias{session_times.trackeRdataSummary}
-\title{Generic function for calculating session times.}
+\title{Generic function for calculating session times}
 \usage{
 session_times(object, ...)
 
@@ -19,5 +19,5 @@ session_times(object, ...)
 \item{...}{Arguments to be passed to methods.}
 }
 \description{
-Generic function for calculating session times.
+Generic function for calculating session times
 }

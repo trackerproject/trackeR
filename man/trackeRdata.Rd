@@ -2,36 +2,36 @@
 % Please edit documentation in R/trackeRdata.R
 \name{trackeRdata}
 \alias{trackeRdata}
-\title{Create a trackeRdata object.}
+\title{Create a trackeRdata object}
 \usage{
 trackeRdata(dat, units = NULL, sport = NULL, session_threshold = 2,
   correct_distances = FALSE, from_distances = TRUE, country = NULL,
   mask = TRUE, lgap = 30, lskip = 5, m = 11, silent = FALSE)
 }
 \arguments{
-\item{dat}{A data frame.}
+\item{dat}{a \code{\link{data.frame}} object}
 
-\item{units}{The output of \code{\link{generate_units}}.}
+\item{units}{the output of \code{\link{generate_units}}}
 
-\item{sport}{What sport does \code{dat} contain data of? Either
+\item{sport}{what sport does \code{dat} contain data of? Either
 \code{'cycling'}, \code{'running'}, \code{'swimming'} or
 \code{NULL} (default), in which case the sport is directly
-extracted from the \code{dat}. See Details.}
+extracted from the \code{dat}. See Details}
 
 \item{session_threshold}{The threshold in hours for the time
 difference between consecutive timestamps above which they are
 considered to belong to different training sessions.}
 
-\item{correct_distances}{Logical. Should the distances be corrected
+\item{correct_distances}{logical. Should the distances be corrected
 for elevation?}
 
 \item{from_distances}{Logical. Should the speeds be calculated from the distance recordings
 instead of taken from the speed recordings directly?}
 
 \item{country}{ISO3 country code for downloading altitude data. If
-\code{NULL}, country is derived from longitude and latitude.}
+\code{NULL}, country is derived from longitude and latitude}
 
-\item{mask}{Logical. Passed on to
+\item{mask}{logical. Passed on to
 \code{\link[raster]{getData}}. Should only the altitudes for
 the specified \code{country} be extracted (\code{TRUE}) or also
 those for the neighboring countries (\code{FALSE})?}

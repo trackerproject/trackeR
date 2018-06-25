@@ -1,4 +1,5 @@
-#' trackeR: Infrastructure for running and cycling data from GPS-enabled tracking devices
+#' trackeR: Infrastructure for running and cycling data from
+#' GPS-enabled tracking devices
 #'
 #' trackeR provides infrastructure for handling cycling and running
 #' data from GPS-enabled tracking devices. After extraction and appropriate
@@ -64,21 +65,21 @@ if (getRversion() >= "2.15.1") {
 ## register S3 methods (need a name which doesn't conflict with e.g. the smooth function
 ## from the stats package)
 
-#' Generic function for smoothing.
+#' Generic function for smoothing
 #'
 #' @param object The object to be smoothed.
 #' @param ... Arguments to be passed to methods.
 #' @export
 smoother <- function(object, ...) UseMethod("smoother")
 
-#' Generic function for scaling.
+#' Generic function for scaling
 #'
 #' @param object The object to be scaled.
 #' @param ... Arguments to be passed to methods.
 #' @export
 scaled <- function(object, ...) UseMethod("scaled")
 
-#' Generic function for appending data to existing files.
+#' Generic function for appending data to existing files
 #'
 #' @param object The object to be appended.
 #' @param file The file to which \code{object} is to be appended.
@@ -86,40 +87,40 @@ scaled <- function(object, ...) UseMethod("scaled")
 #' @export
 append <- function(object, file, ...) UseMethod("append")
 
-#' Generic function for extracting the units of measurement.
+#' Generic function for extracting the units of measurement
 #'
 #' @param object The object of which the units of measurement are retrieved.
 #' @param ... Arguments to be passed to methods.
 #' @export
 get_units <- function(object, ...) UseMethod("get_units")
 
-#' Generic function for changing the units of measurement.
+#' Generic function for changing the units of measurement
 #'
 #' @param object The object of which the units of measurement are changed.
 #' @param variable A vector of variables whose units are to be changed.
 #' @param unit A vector with the units, corresponding to \code{variable}.
 #' @param sport A vector of sports (amongst \code{'cycling'},
 #'     \code{'running'}, \code{'swimming'}) with each element
-#'     corresponding to \code{variable} and \code{unit}
+#'     corresponding to \code{variable} and \code{unit}.
 #' @param ... Arguments to be passed to methods.
 #' @export
 change_units <- function(object, variable, unit, sport, ...) UseMethod("change_units")
 
-#' Generic function for retrieving the operation settings.
+#' Generic function for retrieving the operation settings
 #'
 #' @param object The object of which the units of measurement are retrieved.
 #' @param ... Arguments to be passed to methods.
 #' @export
 get_operations <- function(object, ...) UseMethod("get_operations")
 
-#' Generic function for calculating number of sessions.
+#' Generic function for calculating number of sessions
 #'
 #' @param object The object for which to calculate the number of sessions.
 #' @param ... Arguments to be passed to methods.
 #' @export
 nsessions <- function(object, ...) UseMethod("nsessions")
 
-#' Generic function for calculating session times.
+#' Generic function for calculating session times
 #'
 #' @param object The object for which to calculate session start and end times.
 #' @param ... Arguments to be passed to methods.
@@ -135,24 +136,27 @@ session_times <- function(object, ...) UseMethod("session_times")
 get_sport <- function(object, session, ...) UseMethod("get_sport")
 
 
-#' Generic function for calculating session durations.
+#' Generic function for calculating session durations
 #'
 #' @param object The object for which to calculate session durations.
 #' @param ... Arguments to be passed to methods.
 #'
 #' @details
+#'
 #' The times units will be inherited from \code{object}.
 #'
 #' @export
 session_duration <- function(object, ...) UseMethod("session_duration")
 
 
-#' Generic function for visualising the sessions on a time versus date plot.
+#' Generic function for visualising the sessions on a time versus date plot
 #'
-#' @param object An object of class trackeRdata or trackeRdataSummary
-#' @param lims An optional vector of two times in HH:MM format. Default is NULL.
-#'     If supplied, the times are used to define the limits of the time axis.
-#' @param ... Arguments passed to \code{\link{summary.trackeRdata}}
+#' @param object An object of class \code{\link{trackeRdata}} or
+#'     \code{\link{trackeRdataSummary}}.
+#' @param lims An optional vector of two times in HH:MM
+#'     format. Default is \code{NULL} If supplied, the times are used
+#'     to define the limits of the time axis.
+#' @param ... Arguments passed to \code{\link{summary.trackeRdata}}.
 #' @export
 #'
 #' @examples
@@ -169,16 +173,18 @@ session_duration <- function(object, ...) UseMethod("session_duration")
 #' }
 timeline <- function(object, lims, ...) UseMethod("timeline")
 
-#' Generic function for functional principal components analysis.
+#' Generic function for functional principal components analysis
 #'
-#' @param object The object to which a functional principal components analysis is applied.
+#' @param object The object to which a functional principal components
+#'     analysis is applied.
 #' @param ... Arguments to be passed to methods.
 #' @export
 funPCA <- function(object, ...) UseMethod("funPCA")
 
-#' Generic function for ridgeline plots.
+#' Generic function for ridgeline plots
 #'
-#' @param x An object of class \code{distrProfile} or \code{conProfile}.
+#' @param x An object of class \code{distrProfile} or
+#'     \code{conProfile}.
 #' @param ... Arguments to be passed to methods.
 ridges <- function(x, ...) UseMethod("ridges")
 

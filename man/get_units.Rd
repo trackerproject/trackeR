@@ -3,7 +3,7 @@
 \name{get_units}
 \alias{get_units}
 \alias{getUnits}
-\title{Generic function for extracting the units of measurement.}
+\title{Generic function for extracting the units of measurement}
 \usage{
 get_units(object, ...)
 
@@ -15,5 +15,5 @@ getUnits(object, ...)
 \item{...}{Arguments to be passed to methods.}
 }
 \description{
-Generic function for extracting the units of measurement.
+Generic function for extracting the units of measurement
 }

@@ -7,16 +7,16 @@
 \method{unique}{trackeRdata}(x, incomparables = FALSE, ...)
 }
 \arguments{
-\item{x}{a \code{trackeRdata} object.}
+\item{x}{a \code{trackeRdata} object}
 
-\item{incomparables}{currently not used.}
+\item{incomparables}{currently not used}
 
-\item{...}{Currently not used.}
+\item{...}{currently not used}
 }
 \description{
 Exrtact unique sessions in a \code{trackerRdata} object.
 }
 \details{
-Uniqueness is determined by comparing the first timestamp
-    of the sessions in the \code{trackeRdata} object.
+Uniqueness is determined by comparing the first timestamp of the
+sessions in the \code{trackeRdata} object.
 }

@@ -7,11 +7,11 @@
 \method{print}{trackeRdata}(x, duration = "h", ..., digits = 2)
 }
 \arguments{
-\item{x}{An object of class \code{\link{trackeRdata}}.}
+\item{x}{an object of class \code{\link{trackeRdata}}}
 
-\item{...}{Not used, for compatibility with generic summary method only.}
+\item{...}{currently not used; only for compatibility with generic \code{\link{summary}} method only}
 
-\item{digits}{Number of digits to be printed.}
+\item{digits}{number of digits to be printed}
 }
 \description{
 print method for \code{\link{trackeRdata}} objects
@@ -19,5 +19,5 @@ print method for \code{\link{trackeRdata}} objects
 \details{
 The print method returns training coverage, number of sessions and
 total training duration from the data in the
-\code{\link{trackeRdata}} object
+\code{\link{trackeRdata}} object.
 }

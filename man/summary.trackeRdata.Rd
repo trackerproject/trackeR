@@ -3,7 +3,7 @@
 \name{summary.trackeRdata}
 \alias{summary.trackeRdata}
 \alias{trackeRdataSummary}
-\title{Summary of training sessions.}
+\title{Summary of training sessions}
 \usage{
 \method{summary}{trackeRdata}(object, session = NULL,
   moving_threshold = NULL, unit_reference_sport = "running", ...)
@@ -14,13 +14,13 @@
 \item{session}{A numeric vector of the sessions to be summarised,
 defaults to all sessions.}
 
-\item{moving_threshold}{a named vector of 3 speeds above which an
+\item{moving_threshold}{A named vector of 3 speeds above which an
 athlete is considered moving, given in the unit of the speed
 measurements in \code{object}. If \code{NULL} (default), the
 speeds are taken to be \code{c(cycling = 2, running = 1,
 swimming = 0.5)}. See details.}
 
-\item{unit_reference_sport}{the sport to inherit units from}
+\item{unit_reference_sport}{The sport to inherit units from.}
 
 \item{...}{Currently not used.}
 }
@@ -28,7 +28,7 @@ swimming = 0.5)}. See details.}
 An object of class \code{trackeRdataSummary}.
 }
 \description{
-Summary of training sessions.
+Summary of training sessions
 }
 \details{
 The deafult speed thresholds are 1 m/s for running (3.6 km/h; slow
