@@ -1,5 +1,6 @@
 #' Summary of training sessions.
 #'
+#' @aliases trackeRdataSummary
 #' @param object An object of class \code{\link{trackeRdata}}.
 #' @param session A numeric vector of the sessions to be summarised,
 #'     defaults to all sessions.
@@ -430,6 +431,10 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, l
     return(p)
 }
 
+#' Timeline plot for \code{\link{trackeRdataSummary}} objects
+#'
+#' @inheritParams timeline
+#' @rdname timeline
 #' @export
 timeline.trackeRdataSummary <- function(object, lims = NULL, ...) {
     startdates <- as.Date(object$sessionStart)

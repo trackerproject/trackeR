@@ -4,6 +4,7 @@
 #' being divided in separate training sessions. For breaks within a
 #' session observations are imputed.
 #'
+#' @aliases trackeRdata
 #' @param dat A data frame.
 #' @param units The output of \code{\link{generate_units}}.
 #' @param sport What sport does \code{dat} contain data of? Either

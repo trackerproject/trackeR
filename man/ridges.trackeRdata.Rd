@@ -16,9 +16,9 @@ defaults to all sessions.}
 \item{what}{The variables for which the distribution profiles
 should be generated.}
 
-\item{smooth}{Logical. Should the concentration profiles be smoothed before plotting?}
+\item{smooth}{logical. Should the concentration profiles be smoothed before plotting?}
 
-\item{...}{Currently not used.}
+\item{...}{currently not used.}
 }
 \description{
 Ridgeline plots for \code{trackeRdata} objects

@@ -2,6 +2,7 @@
 % Please edit documentation in R/trackeRdata_summary.R
 \name{summary.trackeRdata}
 \alias{summary.trackeRdata}
+\alias{trackeRdataSummary}
 \title{Summary of training sessions.}
 \usage{
 \method{summary}{trackeRdata}(object, session = NULL,

@@ -534,11 +534,15 @@ prepRoute <- function(x, session = 1, threshold = TRUE, ...){
     return(df)
 }
 
-
+#' Timeline plot for \code{\link{trackeRdata}} objects
+#'
+#' @inheritParams timeline
+#' @rdname timeline
 #' @export
+#'
 timeline.trackeRdata <- function(object, lims = NULL, ...) {
-    sobject <- summary.trackeRdata(object, ...)
-    timeline.trackeRdataSummary(sobject, lims = lims)
+    s <- summary.trackeRdata(object, ...)
+    timeline.trackeRdataSummary(s, lims = lims)
 }
 
 
@@ -546,8 +550,8 @@ timeline.trackeRdata <- function(object, lims = NULL, ...) {
 #'
 #' @inheritParams distributionProfile
 #' @param x a \code{trackeRdata} object.
-#' @param smooth Logical. Should the concentration profiles be smoothed before plotting?
-#' @param ... Currently not used.
+#' @param smooth logical. Should the concentration profiles be smoothed before plotting?
+#' @param ... currently not used.
 #'
 #' @examples
 #'
