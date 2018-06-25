@@ -54,6 +54,5 @@ test_that("change units works as expected []", {
                                        sport = "hiking"))
     attr(gpxa, "sport") <- NA
     expect_error(change_units(gpxa, "distance", "m", "running"))
-
 })
 
