@@ -4,7 +4,7 @@
 \alias{threshold}
 \title{Thresholding for variables in \code{trackeRdata} objects.}
 \usage{
-threshold(object, variable, lower, upper, ...)
+threshold(object, variable, lower, upper, sport, ...)
 }
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}
@@ -18,24 +18,39 @@ thresholds. See Details.}
 \item{upper}{A vector containing the corresponding upper
 thresholds. See Details.}
 
+\item{sport}{A vector of sports (amongst \code{'cycling'},
+\code{'running'}, \code{'swimming'}) with each element
+corresponding to \code{variable}, \code{lower} and \code{upper}}
+
 \item{...}{Currently not used.}
 }
 \description{
 Thresholding for variables in \code{trackeRdata} objects.
 }
 \details{
-Argument \code{variable} can also be a data frame
-    containing the variable names, lower, and upper thresholds.  If
-    arguments \code{variable}, \code{lower}, and \code{upper} are
-    all unspecified, the following default thresholds are employed:
-    latitude [-90, 90] degrees, longitude [-180, 180] degrees,
-    altitude [-500, 9000] m, distance [0, Inf] meters, heart rate
-    [0, 250] bpm, power [0, Inf] W, pace [0, Inf] min per km,
-    duration [0, Inf] seconds. The thresholds for speed differ for
-    running, [0, 12.5] meters per second, and cycling, [0, 100]
-    meters per second. Default thresholds are converted to the
-    units of measurment of the \code{object} before they are
-    applied.
+\code{lower} and \code{upper} are always understood as referring to
+the units of the \code{object}.
+
+If the arguments \code{variable}, \code{lower}, and \code{upper}
+are all unspecified, the following default thresholds are employed
+\itemize{
+\item latitude [-90, 90] degrees
+\item longitude [-180, 180] degrees
+\item altitude [-500, 9000] m
+\item distance [0, Inf] meters
+\item cadence_running [0, Inf] steps per min
+\item cadence_cycling [0, Inf] revolutions per min
+\item distance [0, Inf] meters
+\item heart rate [0, 250] bpm
+\item power [0, Inf] W
+\item pace [0, Inf] min per km
+\item duration [0, Inf] seconds
+}
+after they have been tranformed to the units of the \code{object}
+
+The thresholds for speed differ across sports: for running they are
+[0, 12.5] meters per second, for cycling [0, 100] meters per second
+and for swimming [0, 5] meters per second.
 }
 \examples{
 data('runs', package = 'trackeR')

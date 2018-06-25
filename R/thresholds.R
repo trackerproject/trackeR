@@ -7,28 +7,48 @@
 #'     thresholds. See Details.
 #' @param upper A vector containing the corresponding upper
 #'     thresholds. See Details.
+#' @param sport A vector of sports (amongst \code{'cycling'},
+#'     \code{'running'}, \code{'swimming'}) with each element
+#'     corresponding to \code{variable}, \code{lower} and \code{upper}
 #' @param ... Currently not used.
-#' @details Argument \code{variable} can also be a data frame
-#'     containing the variable names, lower, and upper thresholds.  If
-#'     arguments \code{variable}, \code{lower}, and \code{upper} are
-#'     all unspecified, the following default thresholds are employed:
-#'     latitude [-90, 90] degrees, longitude [-180, 180] degrees,
-#'     altitude [-500, 9000] m, distance [0, Inf] meters, heart rate
-#'     [0, 250] bpm, power [0, Inf] W, pace [0, Inf] min per km,
-#'     duration [0, Inf] seconds. The thresholds for speed differ for
-#'     running, [0, 12.5] meters per second, and cycling, [0, 100]
-#'     meters per second. Default thresholds are converted to the
-#'     units of measurment of the \code{object} before they are
-#'     applied.
+#' @details
+#'
+#' \code{lower} and \code{upper} are always understood as referring to
+#' the units of the \code{object}.
+#'
+#' If the arguments \code{variable}, \code{lower}, and \code{upper}
+#' are all unspecified, the following default thresholds are employed
+#' \itemize{
+#' \item latitude [-90, 90] degrees
+#' \item longitude [-180, 180] degrees
+#' \item altitude [-500, 9000] m
+#' \item distance [0, Inf] meters
+#' \item cadence_running [0, Inf] steps per min
+#' \item cadence_cycling [0, Inf] revolutions per min
+#' \item distance [0, Inf] meters
+#' \item heart rate [0, 250] bpm
+#' \item power [0, Inf] W
+#' \item pace [0, Inf] min per km
+#' \item duration [0, Inf] seconds
+#' }
+#' after they have been tranformed to the units of the \code{object}
+#'
+#' The thresholds for speed differ across sports: for running they are
+#' [0, 12.5] meters per second, for cycling [0, 100] meters per second
+#' and for swimming [0, 5] meters per second.
+#'
+#'
 #' @examples
 #' data('runs', package = 'trackeR')
 #' plot(runs, session = 4, what = 'speed', threshold = FALSE)
 #' runsT <- threshold(runs, variable = 'speed', lower = 0, upper = 12.5)
 #' plot(runsT, session = 4, what = 'speed', threshold = FALSE)
 #' @export
-threshold <- function(object, variable, lower, upper, ...) {
+threshold <- function(object, variable, lower, upper, sport, ...) {
 
     sports <- get_sport(object)
+    units <- get_units(object)
+    operations <- get_operations(object)
 
     ## if variable is NULL, just update attribute, leave data unchanged
     if (!missing(variable) && is.null(variable)) {
@@ -38,45 +58,50 @@ threshold <- function(object, variable, lower, upper, ...) {
         return(object)
     }
 
-    ## prep default thresholds if nothing is specified
-    if (missing(variable) & missing(lower) & missing(upper)) {
-        units <- getUnits(object)
-        th <- generate_thresholds()
-        th <- change_units(th, variable = units$variable, unit = units$unit)
-    }
-    else {
-        ## new thresholds
-        if (!missing(variable) && is.data.frame(variable)) {
-            th <- variable
-        }
-        else {
-            th <- data.frame(variable = variable, lower = lower, upper = upper)
-        }
-    }
+    no_variable <- missing(variable)
+    no_unit <- missing(variable)
+    no_sport <- missing(sport)
 
-    ## compare with existing thresholds
-    operations <- get_operations(object)
-    if (!is.null(operations$threshold)) {
-        th <- merge(th, operations$threshold, by = "variable", all = TRUE)
-        th$lower <- apply(th[, c("lower.x", "lower.y")], 1, max, na.rm = TRUE)
-        th$upper <- apply(th[, c("upper.x", "upper.y")], 1, min, na.rm = TRUE)
-    }
+    ## Generate default thresholds
+    thresholds <- generate_thresholds()
+     ## Change default threshold units to the units of object
+    thresholds <- change_units(thresholds, variable = units$variable, unit = units$unit, sport = units$sport)
+    thresholds$changed <- FALSE
 
-    ## apply thresholds
-    for (i in 1:nrow(th)) {
-        v <- as.character(th$variable[i])
-        for (session in seq_along(object)) {
-            if (v %in% names(object[[session]])) {
-                wL <- which(object[[session]][, v] < th$lower[i])
-                object[[session]][wL, v] <- NA  ## th$lower[i] ## set to boundary value or to NA?
-                wU <- which(object[[session]][, v] > th$upper[i])
-                object[[session]][wU, v] <- NA  ## th$upper[i]
+    if (!(no_sport & no_unit & no_variable)) {
+        ## Assuming that lower and upper are supplied in the units of object
+        ## This will also check if variable, lower, upper and sport have the right lengths
+        thresholds_new <- generate_thresholds(variable, lower, upper, sport)
+        thresholds_new$changed <- FALSE
+        p <- length(variable)
+        for (j in seq.int(p)) {
+            ind <- thresholds_new$variable == variable[j] & thresholds_new$sport == sport[j]
+            ## Set changed limits to their values
+            thresholds[ind, ] <- thresholds_new[ind, ]
+            thresholds[ind, "changed"] <- TRUE
+        }
+
+
+        ## Change thresholds
+        for (sp in unique(sports)) {
+            th <- subset(thresholds, sport == sp)
+            for (sess in which(sports == sp)) {
+                o <- object[[sess]]
+                for (k in which(th$changed)) {
+                    va <- th$variable[k]
+                    inds_lower <- o[, va] < th$lower[k]
+                    inds_upper <- o[, va] > th$upper[k]
+                    o[inds_lower, va] <- NA
+                    o[inds_upper, va] <- NA
+                }
+                object[[sess]] <- o
             }
         }
     }
+    thresholds$changed <- NULL
 
     ## update attribute
-    operations$threshold <- th[, c("variable", "lower", "upper")]
+    operations$threshold <- thresholds
     attr(object, "operations") <- operations
 
     return(object)

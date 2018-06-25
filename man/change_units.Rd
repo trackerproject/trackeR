@@ -22,7 +22,7 @@ changeUnits(object, variable, unit, sport, ...)
 
 \item{sport}{A vector of sports (amongst \code{'cycling'},
 \code{'running'}, \code{'swimming'}) with each element
-corresponding to variable and unit}
+corresponding to \code{variable} and \code{unit}}
 
 \item{...}{Arguments to be passed to methods.}
 

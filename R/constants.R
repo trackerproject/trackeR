@@ -160,7 +160,7 @@ generate_units <- function(variable, unit, sport, ...) {
         if (length(unit) == p & length(variable) == p) {
             inds <- (out$variable %in% variable) & (out$sport %in% sport)
             if (all(!inds)) {
-                stop("At least some of the specified combinations of variable and sport are not implemented")
+                stop("at least some of the specified combinations of variable and sport are not implemented")
             }
             else {
                 for (j in seq.int(p)) {
@@ -181,7 +181,7 @@ generate_units <- function(variable, unit, sport, ...) {
 #'
 #' @param ... Currently not used
 #' @export
-generate_thresholds <- function(...) {
+generate_thresholds <- function(variable, lower, upper, sport, ...) {
     th <- generate_units()
     n_variables <- nrow(th)
     th$lower <- c(c(-90, -180, -500, 0, 0, 0, 0, 0, -30, 0, 0), # cycling
@@ -190,6 +190,37 @@ generate_thresholds <- function(...) {
     th$upper <- c(c(90, 180, 9000, Inf, 250, 10^2, Inf, Inf, 60, Inf, Inf), # cycling
                   c(90, 180, 9000, Inf, 250, 12.5, Inf, 60, Inf, Inf), # running
                   c(90, 180, 9000, Inf, 250, 5, 60, Inf, Inf)) # swimming
+
+    no_variable <- missing(variable)
+    no_lower <- missing(lower)
+    no_upper <- missing(upper)
+    no_sport <- missing(sport)
+    if (no_sport & no_lower & no_upper & no_variable) {
+        class(th) <- c("trackeRthresholds", class(th))
+        return(th)
+    }
+    if (no_sport | no_lower| no_upper | no_variable) {
+        stop("specify variable, lower, upper and sport")
+    }
+    else {
+        p <- length(sport)
+        if (length(lower) == p & length(upper) & length(variable) == p) {
+            inds <- (th$variable %in% variable) & (th$sport %in% sport)
+            if (all(!inds)) {
+                stop("at least some of the specified combinations of variable and sport are not implemented")
+            }
+            else {
+                for (j in seq.int(p)) {
+                    th[th$variable == variable[j] & th$sport == sport[j], "lower"] <- lower[j]
+                    th[th$variable == variable[j] & th$sport == sport[j], "upper"] <- upper[j]
+                }
+            }
+        }
+        else {
+            stop("variable, unit and sport should have the same length")
+        }
+    }
+
     class(th) <- c("trackeRthresholds", class(th))
     return(th)
 }

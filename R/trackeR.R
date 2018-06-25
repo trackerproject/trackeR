@@ -100,7 +100,7 @@ get_units <- function(object, ...) UseMethod("get_units")
 #' @param unit A vector with the units, corresponding to \code{variable}.
 #' @param sport A vector of sports (amongst \code{'cycling'},
 #'     \code{'running'}, \code{'swimming'}) with each element
-#'     corresponding to variable and unit
+#'     corresponding to \code{variable} and \code{unit}
 #' @param ... Arguments to be passed to methods.
 #' @export
 change_units <- function(object, variable, unit, sport, ...) UseMethod("change_units")

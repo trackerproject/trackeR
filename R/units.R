@@ -96,7 +96,6 @@ change_units.trackeRthresholds <- function(object, variable, unit, sport, ...) {
             stop("variable, unit and sport should have the same length.")
         }
     }
-
 }
 
 
@@ -140,24 +139,27 @@ change_units.trackeRdata <- function(object, variable, unit, sport,...) {
 
             units$new_unit[inds] <- inputs$unit
             ## Remove duration (only for trackeRdataSummary objects)
-            units <- units[!(units$variable == "duration"),]
+            units <- units[!(units$variable == "duration"), ]
             units$fun <- paste(units$unit, units$new_unit, sep = "2")
+            units$changed <- units$unit != units$new_unit
 
             ## Check for crappy units
             ch <- sapply(units$fun, match.fun)
 
-            for (sp in sports) {
+            for (sp in unique(sports)) {
                 un <- subset(units, sport == sp)
-                for (k in seq.int(nrow(un))) {
+                for (k in which(un$changed)) {
                     convert <- match.fun(un$fun[k])
                     va <- un$variable[k]
-
                     ## Do thresholds if they exist
-                    th[th$sport == sp & th$variable == va, "lower"] <-
-                        convert(th[th$sport == sp & th$variable == va, "lower"])
-                    th[th$sport == sp & th$variable == va, "upper"] <-
-                        convert(th[th$sport == sp & th$variable == va, "upper"])
-
+                    if (!is.null(th)) {
+                        th[th$sport == sp & th$variable == va, "lower"] <-
+                            convert(th[th$sport == sp & th$variable == va, "lower"])
+                        th[th$sport == sp & th$variable == va, "upper"] <-
+                            convert(th[th$sport == sp & th$variable == va, "upper"])
+                        th[th$sport == sp & th$variable == va, "unit"] <-
+                            un$new_unit[k]
+                    }
                     for (sess in which(sports == sp)) {
                         object[[sess]][, va] <- convert(object[[sess]][, va])
                     }
@@ -166,7 +168,7 @@ change_units.trackeRdata <- function(object, variable, unit, sport,...) {
 
             ## Clean up units
             units$unit <- units$new_unit
-            units$fun <- units$new_unit <- NULL
+            units$fun <- units$new_unit <- units$changed <- NULL
 
             ## update attributes and return
             attr(object, "units") <- units

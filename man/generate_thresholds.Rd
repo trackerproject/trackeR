@@ -5,9 +5,9 @@
 \alias{generateDefaultThresholds}
 \title{Generate default thresholds}
 \usage{
-generate_thresholds(...)
+generate_thresholds(variable, lower, upper, sport, ...)
 
-generateDefaultThresholds(...)
+generateDefaultThresholds(variable, lower, upper, sport, ...)
 }
 \arguments{
 \item{...}{Currently not used}
