@@ -80,7 +80,8 @@ plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
     )
   ) %>%
     plotly::add_markers(key = dat$session, color = I("deepskyblue3")) %>%
-    plotly::add_lines(color = I("deepskyblue3"))
+    plotly::add_lines(color = I("deepskyblue3"), connectgaps = TRUE, 
+                      line = list(shape = "spline", smoothing = 0.5))
   if (shiny) {
     if (length(unique(sessions)) != nsessions) {
       m <- dat[dat$session %in% unique(sessions), ]

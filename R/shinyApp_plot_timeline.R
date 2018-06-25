@@ -51,7 +51,8 @@ if (plotly) {
   }
   y <- list(title = "")
   x <- list(title = "")
-  p <- plotly::layout(p, dragmode = "select", showlegend = FALSE, yaxis = y, xaxis = x)
+  p <- plotly::layout(p, dragmode = "select", showlegend = FALSE, yaxis = y, xaxis = x) %>% 
+    plotly::config(displayModeBar = F)
   p
 } else {
     timeline(sumX)

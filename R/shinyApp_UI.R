@@ -100,38 +100,38 @@ create_selected_workout_plot <- function(id, collapsed = FALSE) {
             "cadence" = paste0("Cadence")
             )
           ),
-          fluidRow(
-            column(
-              3,
-              div(
-                class = "form-group shiny-input-container", id = "processed_path",
-                tags$label("Press button to detect changepoints:"),
-                div(class = "input-group", actionButton(paste0("detect_changepoints", id),
-                  label = "Detect changepoints", style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"
-                ))
-              )
-            ), column(
-              2,
-              selectizeInput(
-                inputId = paste0("n_changepoints", id),
-                label = "Maximum # of changepoints:",
-                multiple = FALSE,
-                choices = c(
-                  "1" = 1,
-                  "2" = 2,
-                  "3" = 3,
-                  "4" = 4,
-                  "5" = 5,
-                  "6" = 6,
-                  "7" = 7,
-                  "8" = 8,
-                  "9" = 9,
-                  "10" = 10,
-                  "11" = 11,
-                  "12" = 12
-                ),
-                selected = "4"
-              )
+          shinyWidgets::dropdownButton(
+            circle = TRUE, status = "info", up = TRUE,
+            icon = icon("wrench"), width = "300px",
+
+            tooltip = tooltipOptions(title = "Click to see inputs !"),
+            div(
+              class = "form-group shiny-input-container", id = "processed_path",
+              tags$label("Press button to detect changepoints:"),
+              div(class = "input-group", actionButton(paste0("detect_changepoints", id),
+                label = "Detect changepoints", style = "color: #fff; background-color: #6FB1E7; border-color: #5093E3"
+              ))
+            )
+            ,
+            selectizeInput(
+              inputId = paste0("n_changepoints", id),
+              label = "Maximum # of changepoints:",
+              multiple = FALSE,
+              choices = c(
+                "1" = 1,
+                "2" = 2,
+                "3" = 3,
+                "4" = 4,
+                "5" = 5,
+                "6" = 6,
+                "7" = 7,
+                "8" = 8,
+                "9" = 9,
+                "10" = 10,
+                "11" = 11,
+                "12" = 12
+              ),
+              selected = "4"
             )
           ),
           hr(),
@@ -333,28 +333,34 @@ create_option_box <- function(sport_options) {
     selector = ".content",
     where = "afterBegin",
     ui = div(class = "option_boxes", fluidRow(
-      shinydashboard::box(
-        status = "primary",
-        width = 3,
-        collapsible = TRUE,
-        title = tagList("Options"),
+      # shinydashboard::box(
+      #   status = "primary",
+      #   width = 3,
+      #   collapsible = TRUE,
+      #   title = tagList("Options"),
+      column(
+        12,
         conditionalPanel(
           condition = "output.cond == false",
-          actionButton(
-            "return_to_main_page", "Go back",
-            style = "color: #fff; background-color: #4FBF85; 
-                                                  border-color: #00AB66"
+          shinyWidgets::actionBttn(
+            inputId = "return_to_main_page",
+            label = "Go back",
+            style = "unite",
+            color = "success"
           )
         ),
         conditionalPanel(
           condition = "output.cond == true",
-          actionButton(
-            "plotSelectedWorkouts", "Plot Selected workouts",
-            style = "color: #fff; background-color: #4FBF85; border-color:
-                                                  #00AB66"
+          shinyWidgets::actionBttn(
+            inputId = "plotSelectedWorkouts",
+            label = "Plot workouts",
+            style = "unite",
+            color = "success"
           )
-        )
-      ),
+        ),
+        style='padding-bottom:2%;')
+    ), fluidRow(
+      # ),
       shinydashboard::box(
         status = "primary",
         width = 3,
@@ -366,22 +372,10 @@ create_option_box <- function(sport_options) {
         status = "primary",
         width = 3,
         collapsible = TRUE,
-        title = tagList("Classified sports"),
-        selectizeInput(
-          "sports", "Select from identified sports",
-          multiple = TRUE,
-          choices = sport_options,
-          selected = sport_options
-        )
-      ),
-      shinydashboard::box(
-        status = "primary",
-        width = 3,
-        collapsible = TRUE,
         title = tagList("Select variables to display"),
-        selectizeInput(
-          "metricsSelected", "Select metrics",
-          multiple = TRUE,
+        shinyWidgets::pickerInput(
+          inputId = "metricsSelected",
+          label = "Select metrics",
           choices = c(
             "Distance" = "distance",
             "Duration" = "duration",
@@ -391,8 +385,20 @@ create_option_box <- function(sport_options) {
             "Average power" = "avgPower",
             "Average heart rate" = "avgHeartRate",
             "Work to rest ratio" = "wrRatio"
-          ),
-          selected = c("distance", "duration", "avgPace")
+          ), options = list(`actions-box` = TRUE, `style` = "btn-info"),
+          multiple = TRUE, selected = c("distance", "duration", "avgPace")
+        )
+      ),
+      shinydashboard::box(
+        status = "primary",
+        width = 6,
+        collapsible = TRUE,
+        title = tagList("Classified sports"),
+        shinyWidgets::checkboxGroupButtons(
+          inputId = "sports", label = "Select from identified sports: ",
+          choices = sport_options, selected = sport_options,
+          justified = TRUE, status = "info",
+          checkIcon = list(yes = icon("ok", lib = "glyphicon"), no = icon("remove", lib = "glyphicon"))
         )
       )
     ))

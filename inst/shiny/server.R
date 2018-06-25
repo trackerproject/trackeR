@@ -19,6 +19,10 @@ options(shiny.maxRequestSize = 30 * 1024^3)
 #   ____________________________________________________________________________
 #   Server                                                                  ####
 server <- function(input, output, session) {
+  shinyjs::runjs(
+    "$(document).on('click', '.dropdown-menu', function (e) {
+  e.stopPropagation();
+});")
   # Main object where most data is stored
   data <- reactiveValues(
     summary = NULL, object = NULL,
@@ -88,8 +92,8 @@ observeEvent(c(
   input$sports,
   input$clear_table_selection
   ), {
-    
     trackeR:::generate_selected_sessions_object(data, input)
+    
 })
 
 observeEvent(input$highlight_selected_sessions, {
@@ -178,7 +182,7 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
           trackeR:::plot_map(
             x = data$object,
             preped_route = preped_route_map(),
-            session = isolate(data$selectedSessions),
+            session = isolate({data$selectedSessions}),
             sumX = data$summary
           )
         })
@@ -270,7 +274,7 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
         trackeR:::plot_selectedWorkouts(
           x = data$object, session = data$selectedSessions, what = i,
           sumX = data$summary, changepoints = fit_changepoint,
-          n_changepoints = as.numeric(input[[paste0("n_changepoints", i)]])
+          n_changepoints = isolate(as.numeric(input[[paste0("n_changepoints", i)]]))
         )
       })
       
