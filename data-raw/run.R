@@ -31,17 +31,3 @@ runs <- readDirectory(filedir,
                       verbose = TRUE,
                       silent = FALSE)
 save(runs, file = "data/runs.rda", compress = "xz")
-
-
-run <- readContainer(filepath,
-                     type = "tcx",
-                     timezone = "GMT",
-                     sessionThreshold = 2,
-                     country = NULL,
-                     mask = TRUE,
-                     fromDistances = NULL,
-                     speedunit = NULL,
-                     distanceunit = NULL,
-                     lgap = 30,
-                     lskip = 5,
-                     m = 11)

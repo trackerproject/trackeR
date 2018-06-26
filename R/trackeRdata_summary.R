@@ -9,7 +9,7 @@
 #'     measurements in \code{object}. If \code{NULL} (default), the
 #'     speeds are taken to be \code{c(cycling = 2, running = 1,
 #'     swimming = 0.5)}. See details.
-#' @param unit_reference_sport The sport to inherit units from.
+#' @param unit_reference_sport The sport to inherit units from (default is "cycling").
 #' @param ... Currently not used.
 #'
 #' @details
@@ -46,7 +46,7 @@
 #'     what = c('avgSpeed', 'distance', 'duration', 'avgHeartRate'))
 #' @export
 summary.trackeRdata <- function(object, session = NULL, moving_threshold = NULL,
-                                unit_reference_sport = "running", ...) {
+                                unit_reference_sport = "cycling", ...) {
     units <- get_units(object)
     sports <- get_sport(object)
     files <- attr(object, "file")
