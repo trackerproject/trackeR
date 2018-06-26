@@ -5,17 +5,17 @@
 #' session observations are imputed.
 #'
 #' @aliases trackeRdata
-#' @param dat a \code{\link{data.frame}} object
-#' @param units the output of \code{\link{generate_units}}
-#' @param sport what sport does \code{dat} contain data of? Either
+#' @param dat A \code{\link{data.frame}} object.
+#' @param units The output of \code{\link{generate_units}}.
+#' @param sport What sport does \code{dat} contain data of? Either
 #'     \code{'cycling'}, \code{'running'}, \code{'swimming'} or
 #'     \code{NULL} (default), in which case the sport is directly
-#'     extracted from the \code{dat}. See Details
-#' @param correct_distances logical. Should the distances be corrected
+#'     extracted from the \code{dat}. See Details.
+#' @param correct_distances Logical. Should the distances be corrected
 #'     for elevation?
 #' @param country ISO3 country code for downloading altitude data. If
 #'     \code{NULL}, country is derived from longitude and latitude
-#' @param mask logical. Passed on to
+#' @param mask Logical. Passed on to
 #'     \code{\link[raster]{getData}}. Should only the altitudes for
 #'     the specified \code{country} be extracted (\code{TRUE}) or also
 #'     those for the neighboring countries (\code{FALSE})?
@@ -232,14 +232,15 @@ c.trackeRdata <- function(..., recursive = FALSE) {
 
 }
 
-
-#' Sort the sessions \code{trackeRdata} objects into ascending or
-#' descending order according to the first session timestamp
+#' Sort sessions in \code{\link{trackeRdata}} objects
 #'
-#' @param x a \code{trackeRdata} object
-#' @param decreasing logical. Should the objects be sorted in
+#' Sort the sessions \code{\link{trackeRdata}} objects into ascending
+#' or descending order according to the first session timestamp.
+#'
+#' @param x A \code{trackeRdata} object.
+#' @param decreasing Logical. Should the objects be sorted in
 #'     increasing or decreasing order?
-#' @param ... currently not used
+#' @param ... Currently not used.
 #'
 #' @export
 sort.trackeRdata <- function(x, decreasing = FALSE, ...) {
@@ -253,11 +254,11 @@ sort.trackeRdata <- function(x, decreasing = FALSE, ...) {
     ret
 }
 
-#' Exrtact unique sessions in a \code{trackerRdata} object.
+#' Exrtact unique sessions in a \code{trackerRdata} object
 #'
-#' @param x a \code{trackeRdata} object
-#' @param incomparables currently not used
-#' @param ... currently not used
+#' @param x A \code{trackeRdata} object.
+#' @param incomparables Currently not used.
+#' @param ... Currently not used.
 #'
 #' @details
 #'
@@ -340,9 +341,9 @@ unique.trackeRdata <- function(x, incomparables = FALSE, ...) {
 
 #' Append training sessions to existing file
 #'
-#' @param object the object to be appended
-#' @param file the file to which \code{object} is to be appended
-#' @param ... currently not used
+#' @param object The object to be appended.
+#' @param file The file to which \code{object} is to be appended.
+#' @param ... Currently not used.
 #' @export
 append.trackeRdata <- function(object, file, ...) {
     old <- load(file)
@@ -358,8 +359,8 @@ nsessions.trackeRdata <- function(object, ...) {
 
 #' Coercion function for use in Golden Cheetah
 #'
-#' @param gc output of \code{GC.activity}
-#' @param cycling logical. Does the data stem from cycling?
+#' @param gc Output of \code{GC.activity}.
+#' @param cycling Logical. Does the data stem from cycling?
 #' @inheritParams trackeRdata
 #' @inheritParams sanity_checks
 #' @inheritParams get_resting_periods
@@ -440,11 +441,11 @@ as.data.frame.trackeRdata <- function(x, ...) {
     return(ret)
 }
 
-#' print method for \code{\link{trackeRdata}} objects
+#' \code{\link{print}} method for \code{\link{trackeRdata}} objects
 #'
-#' @param x an object of class \code{\link{trackeRdata}}
-#' @param ... currently not used; only for compatibility with generic \code{\link{summary}} method only
-#' @param digits number of digits to be printed
+#' @param x An object of class \code{\link{trackeRdata}}.
+#' @param ... Currently not used; only for compatibility with generic \code{\link{summary}} method only.
+#' @param digits Number of digits to be printed.
 #'
 #' @details
 #'

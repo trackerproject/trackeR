@@ -3,7 +3,7 @@
 \name{impute_speeds}
 \alias{impute_speeds}
 \alias{imputeSpeeds}
-\title{Impute speeds.}
+\title{Impute speeds}
 \usage{
 impute_speeds(session_data, from_distances = TRUE, lgap = 30, lskip = 5,
   m = 11, sport = "cycling", units = NULL)

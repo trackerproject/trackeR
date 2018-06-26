@@ -2,7 +2,7 @@
 % Please edit documentation in R/cleaning.R
 \name{sanity_checks}
 \alias{sanity_checks}
-\title{Sanity checks for tracking data.}
+\title{Sanity checks for tracking data}
 \usage{
 sanity_checks(dat, silent)
 }

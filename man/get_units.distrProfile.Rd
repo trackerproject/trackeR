@@ -2,7 +2,7 @@
 % Please edit documentation in R/units.R
 \name{get_units.distrProfile}
 \alias{get_units.distrProfile}
-\title{Get the units of the variables in an \code{distrProfile} object.}
+\title{Get the units of the variables in an \code{distrProfile} object}
 \usage{
 \method{get_units}{distrProfile}(object, ...)
 }
@@ -12,5 +12,5 @@
 \item{...}{Currently not used.}
 }
 \description{
-Get the units of the variables in an \code{distrProfile} object.
+Get the units of the variables in an \code{distrProfile} object
 }

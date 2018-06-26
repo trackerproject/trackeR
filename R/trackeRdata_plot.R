@@ -1,4 +1,4 @@
-#' Plot training sessions in form of trackeRdata objects.
+#' Plot training sessions in form of trackeRdata objects
 #'
 #' @param x An object of class \code{\link{trackeRdata}}.
 #' @param session A numeric vector of the sessions to be plotted, defaults to all sessions.
@@ -200,7 +200,7 @@ prettifyUnit <- function(unit){
 prettifyUnits <- Vectorize(prettifyUnit)
 
 
-#' Fortify a trackeRdata object for plotting with ggplot2.
+#' Fortify a trackeRdata object for plotting with ggplot2
 #'
 #' @param model The \code{\link{trackeRdata}} object.
 #' @param data Ignored.
@@ -222,7 +222,7 @@ fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
     return(ret)
 }
 
-#' Plot routes for training sessions.
+#' Plot routes for training sessions
 #'
 #' Plot the route ran/cycled during training onto a background map.
 #' Internet connection is required to download the background map.
@@ -325,7 +325,7 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
 }
 
 
-#' Plot routes for training sessions.
+#' Plot routes for training sessions
 #'
 #' Plot the route ran/cycled during training on an interactive map.
 #' Internet connection is required to download the background map.
@@ -549,9 +549,9 @@ timeline.trackeRdata <- function(object, lims = NULL, ...) {
 #' Ridgeline plots for \code{trackeRdata} objects
 #'
 #' @inheritParams distributionProfile
-#' @param x a \code{trackeRdata} object.
-#' @param smooth logical. Should the concentration profiles be smoothed before plotting?
-#' @param ... currently not used.
+#' @param x A \code{trackeRdata} object.
+#' @param smooth Logical. Should the concentration profiles be smoothed before plotting?
+#' @param ... Currently not used.
 #'
 #' @examples
 #'

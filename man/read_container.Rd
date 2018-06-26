@@ -3,7 +3,7 @@
 \name{read_container}
 \alias{read_container}
 \alias{readContainer}
-\title{Read a GPS container file.}
+\title{Read a GPS container file}
 \usage{
 read_container(file, type = c("tcx", "gpx", "db3", "json"),
   table = "gps_data", timezone = "", session_threshold = 2,
@@ -32,13 +32,13 @@ ignored otherwise.}
 difference between consecutive timestamps above which they are
 considered to belong to different training sessions.}
 
-\item{correct_distances}{logical. Should the distances be corrected
+\item{correct_distances}{Logical. Should the distances be corrected
 for elevation?}
 
 \item{country}{ISO3 country code for downloading altitude data. If
 \code{NULL}, country is derived from longitude and latitude}
 
-\item{mask}{logical. Passed on to
+\item{mask}{Logical. Passed on to
 \code{\link[raster]{getData}}. Should only the altitudes for
 the specified \code{country} be extracted (\code{TRUE}) or also
 those for the neighboring countries (\code{FALSE})?}
@@ -72,7 +72,7 @@ sanity checks on the data are triggered?}
 An object of class \code{\link{trackeRdata}}.
 }
 \description{
-Read a GPS container file.
+Read a GPS container file
 }
 \details{
 Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_per_s},

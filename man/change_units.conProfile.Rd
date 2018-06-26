@@ -2,7 +2,7 @@
 % Please edit documentation in R/units.R
 \name{change_units.conProfile}
 \alias{change_units.conProfile}
-\title{Change the units of the variables in an \code{conProfile} object.}
+\title{Change the units of the variables in an \code{conProfile} object}
 \usage{
 \method{change_units}{conProfile}(object, variable, unit, ...)
 }
@@ -16,5 +16,5 @@
 \item{...}{Currently not used.}
 }
 \description{
-Change the units of the variables in an \code{conProfile} object.
+Change the units of the variables in an \code{conProfile} object
 }

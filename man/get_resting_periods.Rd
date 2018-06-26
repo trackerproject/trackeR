@@ -3,7 +3,7 @@
 \name{get_resting_periods}
 \alias{get_resting_periods}
 \alias{restingPeriods}
-\title{Extract resting period characteristics.}
+\title{Extract resting period characteristics}
 \usage{
 get_resting_periods(times, session_threshold)
 
@@ -22,5 +22,5 @@ A list containing a dataframe with start, end, and duration
     'sessions' and 'restingTime', respectively.
 }
 \description{
-Extract resting period characteristics.
+Extract resting period characteristics
 }

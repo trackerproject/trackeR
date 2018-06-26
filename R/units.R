@@ -1,4 +1,4 @@
-#' Get the units of the variables in an \code{trackeRdata} object.
+#' Get the units of the variables in an \code{trackeRdata} object
 #'
 #' @param object An object of class \code{\link{trackeRdata}}.
 #' @param ... Currently not used.
@@ -7,7 +7,7 @@ get_units.trackeRdata <- function(object, ...) {
     attr(object, "units")
 }
 
-#' Get the units of the variables in an \code{trackeRdataSummary} object.
+#' Get the units of the variables in an \code{trackeRdataSummary} object
 #'
 #' @param object An object of class \code{trackeRdataSummary}.
 #' @param ... Currently not used.
@@ -16,7 +16,7 @@ get_units.trackeRdataSummary <- function(object, ...) {
     attr(object, "units")
 }
 
-#' Get the units of the variables in an \code{distrProfile} object.
+#' Get the units of the variables in an \code{distrProfile} object
 #'
 #' @param object An object of class \code{distrProfile}.
 #' @param ... Currently not used.
@@ -25,7 +25,7 @@ get_units.distrProfile <- function(object, ...) {
     attr(object, "units")
 }
 
-#' Get the units of the variables in an \code{conProfile} object.
+#' Get the units of the variables in an \code{conProfile} object
 #'
 #' @param object An object of class \code{conProfile}.
 #' @param ... Currently not used.
@@ -34,7 +34,7 @@ get_units.conProfile <- function(object, ...) {
     attr(object, "units")
 }
 
-#' Get the units of the variables in an \code{trackeRWprime} object.
+#' Get the units of the variables in an \code{trackeRWprime} object
 #'
 #' @param object An object of class \code{trackeRWprime}.
 #' @param ... Currently not used.
@@ -99,7 +99,7 @@ change_units.trackeRthresholds <- function(object, variable, unit, sport, ...) {
 }
 
 
-#' Change the units of the variables in an \code{trackeRdata} object.
+#' Change the units of the variables in an \code{trackeRdata} object
 #'
 #' @param object An object of class \code{\link{trackeRdata}}.
 #' @inheritParams change_units
@@ -196,7 +196,7 @@ collect_units <- function(object, unit_reference_sport = "running") {
     units
 }
 
-#' Change the units of the variables in an \code{trackeRdataSummary} object.
+#' Change the units of the variables in an \code{trackeRdataSummary} object
 #'
 #' @param object An object of class \code{trackeRdataSummary}.
 #' @param variable A vector of variables to be changed. Note, these are expected to be
@@ -244,7 +244,7 @@ change_units.trackeRdataSummary <- function(object, variable, unit, ...) {
     return(object)
 }
 
-#' Change the units of the variables in an \code{distrProfile} object.
+#' Change the units of the variables in an \code{distrProfile} object
 #'
 #' @param object An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.
 #' @param variable A vector of variables to be changed.
@@ -273,7 +273,7 @@ change_units.distrProfile <- function(object, variable, unit, ...) {
     return(object)
 }
 
-#' Change the units of the variables in an \code{conProfile} object.
+#' Change the units of the variables in an \code{conProfile} object
 #'
 #' @param object An object of class \code{conProfile} as returned by \code{\link{concentrationProfile}}.
 #' @param variable A vector of variables to be changed.
@@ -302,7 +302,7 @@ change_units.conProfile <- function(object, variable, unit, ...) {
     return(object)
 }
 
-#' Change the units of the variables in an \code{trackeRdata} object.
+#' Change the units of the variables in an \code{trackeRdata} object
 #'
 #' @param object An object of class \code{\link{trackeRdata}}.
 #' @param variable A vector of variables to be changed.
@@ -375,7 +375,7 @@ change_units.trackeRdataZones <- function(object, variable, unit, ...) {
 
 
 
-#' Get the operation settings of an \code{trackeRdata} object.
+#' Get the operation settings of an \code{trackeRdata} object
 #'
 #' @param object An object of class \code{\link{trackeRdata}}.
 #' @param ... Currently not used.
@@ -384,7 +384,7 @@ get_operations.trackeRdata <- function(object, ...) {
     attr(object, "operations")
 }
 
-#' Get the operation settings of an \code{distrProfile} object.
+#' Get the operation settings of an \code{distrProfile} object
 #'
 #' @param object An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.
 #' @param ... Currently not used.
@@ -393,7 +393,7 @@ get_operations.distrProfile <- function(object, ...) {
     attr(object, "operations")
 }
 
-#' Get the operation settings of an \code{conProfile} object.
+#' Get the operation settings of an \code{conProfile} object
 #'
 #' @param object An object of class \code{conProfile} as returned by \code{\link{concentrationProfile}}.
 #' @param ... Currently not used.
@@ -403,9 +403,10 @@ get_operations.conProfile <- function(object, ...) {
 }
 
 ## conversion functions: distance
-#' Auxiliary conversion functions.
+#' Auxiliary conversion functions
 #'
-#' Conversion functions for distance, duration, speed, pace, power, cadence and temperature.
+#' Conversion functions for distance, duration, speed, pace, power,
+#' cadence and temperature.
 #'
 #' @param variable Variable to be converted.
 #' @name conversions

@@ -2,7 +2,7 @@
 % Please edit documentation in R/trackeRdata_plot.R
 \name{plot.trackeRdata}
 \alias{plot.trackeRdata}
-\title{Plot training sessions in form of trackeRdata objects.}
+\title{Plot training sessions in form of trackeRdata objects}
 \usage{
 \method{plot}{trackeRdata}(x, session = NULL, what = c("pace",
   "heart_rate"), threshold = TRUE, smooth = FALSE, trend = TRUE,
@@ -27,7 +27,7 @@
 \code{\link{smootherControl.trackeRdata}}.}
 }
 \description{
-Plot training sessions in form of trackeRdata objects.
+Plot training sessions in form of trackeRdata objects
 }
 \details{
 Note that a threshold is always applied to the pace. This (upper) threshold

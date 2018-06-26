@@ -99,7 +99,7 @@
 \alias{C2C}
 \alias{F2F}
 \alias{F2C}
-\title{Auxiliary conversion functions.}
+\title{Auxiliary conversion functions}
 \usage{
 m2km(variable)
 
@@ -299,5 +299,6 @@ F2C(variable)
 \item{variable}{Variable to be converted.}
 }
 \description{
-Conversion functions for distance, duration, speed, pace, power, cadence and temperature.
+Conversion functions for distance, duration, speed, pace, power,
+cadence and temperature.
 }

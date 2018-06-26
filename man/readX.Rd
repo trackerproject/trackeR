@@ -6,7 +6,8 @@
 \alias{readGPX}
 \alias{readDB3}
 \alias{readJSON}
-\title{Read a training file in tcx, gpx, db3 or Golden Cheetah's JSON format.}
+\title{Read a training file in tcx, gpx, db3 or Golden Cheetah's JSON
+format}
 \usage{
 readTCX(file, timezone = "", speedunit = "m_per_s", distanceunit = "m",
   ...)
@@ -36,10 +37,12 @@ meters. See Details.}
 
 \item{...}{Currently not used.}
 
-\item{table}{Character string indicating the name of the table with the GPS data in the db3 container file.}
+\item{table}{Character string indicating the name of the table with
+the GPS data in the db3 container file.}
 }
 \description{
-Read a training file in tcx, gpx, db3 or Golden Cheetah's JSON format.
+Read a training file in tcx, gpx, db3 or Golden Cheetah's JSON
+format
 }
 \details{
 Available options for \code{speedunit} currently are

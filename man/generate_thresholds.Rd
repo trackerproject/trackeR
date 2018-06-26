@@ -10,7 +10,7 @@ generate_thresholds(variable, lower, upper, sport, ...)
 generateDefaultThresholds(variable, lower, upper, sport, ...)
 }
 \arguments{
-\item{...}{Currently not used}
+\item{...}{Currently not used.}
 }
 \description{
 Generate default thresholds

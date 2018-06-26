@@ -2,7 +2,7 @@
 % Please edit documentation in R/units.R
 \name{change_units.trackeRdata}
 \alias{change_units.trackeRdata}
-\title{Change the units of the variables in an \code{trackeRdata} object.}
+\title{Change the units of the variables in an \code{trackeRdata} object}
 \usage{
 \method{change_units}{trackeRdata}(object, variable, unit, sport, ...)
 }
@@ -20,5 +20,5 @@ corresponding to \code{variable} and \code{unit}.}
 \item{...}{Arguments to be passed to methods.}
 }
 \description{
-Change the units of the variables in an \code{trackeRdata} object.
+Change the units of the variables in an \code{trackeRdata} object
 }

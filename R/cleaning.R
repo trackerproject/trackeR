@@ -1,4 +1,4 @@
-#' Sanity checks for tracking data.
+#' Sanity checks for tracking data
 #'
 #' Heart rate measurements of 0 are set to NA, assuming the athlete is alive.
 #' Observations with missing or duplicated time stamps are removed.
@@ -96,7 +96,7 @@ distance_correction <- function(object, country = NULL, mask = TRUE, ...) {
 }
 
 
-#' Impute speeds.
+#' Impute speeds
 #'
 #' Impute speeds of 0 during small breaks within a session.
 #'
@@ -300,7 +300,7 @@ impute_speeds <- function(session_data, from_distances = TRUE,
     return(session_data)
 }
 
-#' Convert distance to speed.
+#' Convert distance to speed
 #'
 #' @param distance Distance in meters.
 #' @param time Time.
@@ -312,7 +312,7 @@ distance2speed <- function(distance, time, timeunit){
     return(speed)
 }
 
-#' Convert speed to distance.
+#' Convert speed to distance
 #'
 #' @param speed Speed in meters per second.
 #' @param time Time.
@@ -325,7 +325,7 @@ speed2distance <- function(speed, time, timeunit, cumulative = TRUE){
     return(distance)
 }
 
-#' Extract resting period characteristics.
+#' Extract resting period characteristics
 #'
 #' @param times Timestamps.
 #' @param session_threshold The threshold in hours for the time

@@ -2,7 +2,7 @@
 % Please edit documentation in R/thresholds.R
 \name{threshold}
 \alias{threshold}
-\title{Thresholding for variables in \code{trackeRdata} objects.}
+\title{Thresholding for variables in \code{trackeRdata} objects}
 \usage{
 threshold(object, variable, lower, upper, sport, ...)
 }
@@ -25,7 +25,7 @@ corresponding to \code{variable}, \code{lower} and \code{upper}}
 \item{...}{Currently not used.}
 }
 \description{
-Thresholding for variables in \code{trackeRdata} objects.
+Thresholding for variables in \code{trackeRdata} objects
 }
 \details{
 \code{lower} and \code{upper} are always understood as referring to

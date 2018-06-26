@@ -17,9 +17,9 @@ to variable (see details).}
 
 \item{sport}{A vector of sports (amongst \code{'cycling'},
 \code{'running'}, \code{'swimming'}) with each element
-corresponding to variable and unit}
+corresponding to variable and unit.}
 
-\item{...}{Currently not used}
+\item{...}{Currently not used.}
 }
 \description{
 Generate base units

@@ -8,7 +8,7 @@
   smooth = TRUE, ...)
 }
 \arguments{
-\item{x}{a \code{trackeRdata} object.}
+\item{x}{A \code{trackeRdata} object.}
 
 \item{session}{A numeric vector of the sessions to be used,
 defaults to all sessions.}
@@ -16,9 +16,9 @@ defaults to all sessions.}
 \item{what}{The variables for which the distribution profiles
 should be generated.}
 
-\item{smooth}{logical. Should the concentration profiles be smoothed before plotting?}
+\item{smooth}{Logical. Should the concentration profiles be smoothed before plotting?}
 
-\item{...}{currently not used.}
+\item{...}{Currently not used.}
 }
 \description{
 Ridgeline plots for \code{trackeRdata} objects

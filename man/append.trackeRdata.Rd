@@ -7,11 +7,11 @@
 \method{append}{trackeRdata}(object, file, ...)
 }
 \arguments{
-\item{object}{the object to be appended}
+\item{object}{The object to be appended.}
 
-\item{file}{the file to which \code{object} is to be appended}
+\item{file}{The file to which \code{object} is to be appended.}
 
-\item{...}{currently not used}
+\item{...}{Currently not used.}
 }
 \description{
 Append training sessions to existing file

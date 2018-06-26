@@ -2,7 +2,7 @@
 % Please edit documentation in R/trackeRdata_plot.R
 \name{plotRoute}
 \alias{plotRoute}
-\title{Plot routes for training sessions.}
+\title{Plot routes for training sessions}
 \usage{
 plotRoute(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRUE,
   mfrow = NULL, ...)

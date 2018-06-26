@@ -1,4 +1,4 @@
-#' Thresholding for variables in \code{trackeRdata} objects.
+#' Thresholding for variables in \code{trackeRdata} objects
 #'
 #' @param object An object of class \code{\link{trackeRdata}}.
 #' @param variable A vector containing the names of the variables to

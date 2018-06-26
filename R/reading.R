@@ -1,4 +1,5 @@
-#' Read a training file in tcx, gpx, db3 or Golden Cheetah's JSON format.
+#' Read a training file in tcx, gpx, db3 or Golden Cheetah's JSON
+#' format
 #'
 #' @param file The path to the file.
 #' @param timezone The timezone of the observations as passed on to
@@ -298,7 +299,8 @@ readGPX <- function(file, timezone = "",
 
 }
 
-#' @param table Character string indicating the name of the table with the GPS data in the db3 container file.
+#' @param table Character string indicating the name of the table with
+#'     the GPS data in the db3 container file.
 #' @inheritParams readX
 #' @export
 #' @rdname readX
@@ -456,7 +458,7 @@ readJSON <- function(file, timezone = "",
 }
 
 
-#' Read a GPS container file.
+#' Read a GPS container file
 #'
 #' @param file The path to the file.
 #' @param type The type of the GPS container file. Supported so far are \code{tcx}, \code{db3}, and \code{json}.
@@ -543,7 +545,7 @@ read_container <- function(file, type = c("tcx", "gpx", "db3", "json"),
     return(trackerdat)
 }
 
-#' Read all supported container files from a supplied directory.
+#' Read all supported container files from a supplied directory
 #'
 #' @param directory The path to the directory.
 #' @param aggregate Logical. Aggregate data from different files to

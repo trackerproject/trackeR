@@ -2,7 +2,7 @@
 % Please edit documentation in R/units.R
 \name{get_units.trackeRdata}
 \alias{get_units.trackeRdata}
-\title{Get the units of the variables in an \code{trackeRdata} object.}
+\title{Get the units of the variables in an \code{trackeRdata} object}
 \usage{
 \method{get_units}{trackeRdata}(object, ...)
 }
@@ -12,5 +12,5 @@
 \item{...}{Currently not used.}
 }
 \description{
-Get the units of the variables in an \code{trackeRdata} object.
+Get the units of the variables in an \code{trackeRdata} object
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/units.R
 \name{change_units.trackeRdataSummary}
 \alias{change_units.trackeRdataSummary}
-\title{Change the units of the variables in an \code{trackeRdataSummary} object.}
+\title{Change the units of the variables in an \code{trackeRdataSummary} object}
 \usage{
 \method{change_units}{trackeRdataSummary}(object, variable, unit, ...)
 }
@@ -17,5 +17,5 @@ concepts like 'speed' rather than variable names like 'avgSpeed' or 'avgSpeedMov
 \item{...}{Currently not used.}
 }
 \description{
-Change the units of the variables in an \code{trackeRdataSummary} object.
+Change the units of the variables in an \code{trackeRdataSummary} object
 }

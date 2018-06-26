@@ -2,7 +2,7 @@
 % Please edit documentation in R/units.R
 \name{get_units.conProfile}
 \alias{get_units.conProfile}
-\title{Get the units of the variables in an \code{conProfile} object.}
+\title{Get the units of the variables in an \code{conProfile} object}
 \usage{
 \method{get_units}{conProfile}(object, ...)
 }
@@ -12,5 +12,5 @@
 \item{...}{Currently not used.}
 }
 \description{
-Get the units of the variables in an \code{conProfile} object.
+Get the units of the variables in an \code{conProfile} object
 }

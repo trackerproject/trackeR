@@ -2,7 +2,7 @@
 % Please edit documentation in R/units.R
 \name{get_operations.conProfile}
 \alias{get_operations.conProfile}
-\title{Get the operation settings of an \code{conProfile} object.}
+\title{Get the operation settings of an \code{conProfile} object}
 \usage{
 \method{get_operations}{conProfile}(object, ...)
 }
@@ -12,5 +12,5 @@
 \item{...}{Currently not used.}
 }
 \description{
-Get the operation settings of an \code{conProfile} object.
+Get the operation settings of an \code{conProfile} object
 }

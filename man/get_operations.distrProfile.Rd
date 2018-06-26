@@ -2,7 +2,7 @@
 % Please edit documentation in R/units.R
 \name{get_operations.distrProfile}
 \alias{get_operations.distrProfile}
-\title{Get the operation settings of an \code{distrProfile} object.}
+\title{Get the operation settings of an \code{distrProfile} object}
 \usage{
 \method{get_operations}{distrProfile}(object, ...)
 }
@@ -12,5 +12,5 @@
 \item{...}{Currently not used.}
 }
 \description{
-Get the operation settings of an \code{distrProfile} object.
+Get the operation settings of an \code{distrProfile} object
 }

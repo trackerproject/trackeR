@@ -2,7 +2,7 @@
 % Please edit documentation in R/units.R
 \name{change_units.distrProfile}
 \alias{change_units.distrProfile}
-\title{Change the units of the variables in an \code{distrProfile} object.}
+\title{Change the units of the variables in an \code{distrProfile} object}
 \usage{
 \method{change_units}{distrProfile}(object, variable, unit, ...)
 }
@@ -16,5 +16,5 @@
 \item{...}{Currently not used.}
 }
 \description{
-Change the units of the variables in an \code{distrProfile} object.
+Change the units of the variables in an \code{distrProfile} object
 }

@@ -3,7 +3,7 @@
 \name{read_directory}
 \alias{read_directory}
 \alias{readDirectory}
-\title{Read all supported container files from a supplied directory.}
+\title{Read all supported container files from a supplied directory}
 \usage{
 read_directory(directory, aggregate = FALSE, table = "gps_data",
   timezone = "", session_threshold = 2, correct_distances = FALSE,
@@ -38,13 +38,13 @@ different files is stored in different sessions.}
 difference between consecutive timestamps above which they are
 considered to belong to different training sessions.}
 
-\item{correct_distances}{logical. Should the distances be corrected
+\item{correct_distances}{Logical. Should the distances be corrected
 for elevation?}
 
 \item{country}{ISO3 country code for downloading altitude data. If
 \code{NULL}, country is derived from longitude and latitude}
 
-\item{mask}{logical. Passed on to
+\item{mask}{Logical. Passed on to
 \code{\link[raster]{getData}}. Should only the altitudes for
 the specified \code{country} be extracted (\code{TRUE}) or also
 those for the neighboring countries (\code{FALSE})?}
@@ -93,7 +93,7 @@ backend provided to \code{\link{foreach}}. Default is
 An object of class \code{\link{trackeRdata}}.
 }
 \description{
-Read all supported container files from a supplied directory.
+Read all supported container files from a supplied directory
 }
 \details{
 Available options for \code{speedunit} currently are

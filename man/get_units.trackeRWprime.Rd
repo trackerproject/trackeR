@@ -2,7 +2,7 @@
 % Please edit documentation in R/units.R
 \name{get_units.trackeRWprime}
 \alias{get_units.trackeRWprime}
-\title{Get the units of the variables in an \code{trackeRWprime} object.}
+\title{Get the units of the variables in an \code{trackeRWprime} object}
 \usage{
 \method{get_units}{trackeRWprime}(object, ...)
 }
@@ -12,5 +12,5 @@
 \item{...}{Currently not used.}
 }
 \description{
-Get the units of the variables in an \code{trackeRWprime} object.
+Get the units of the variables in an \code{trackeRWprime} object
 }

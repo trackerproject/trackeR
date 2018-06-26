@@ -2,20 +2,19 @@
 % Please edit documentation in R/trackeRdata.R
 \name{sort.trackeRdata}
 \alias{sort.trackeRdata}
-\title{Sort the sessions \code{trackeRdata} objects into ascending or
-descending order according to the first session timestamp}
+\title{Sort sessions in \code{\link{trackeRdata}} objects}
 \usage{
 \method{sort}{trackeRdata}(x, decreasing = FALSE, ...)
 }
 \arguments{
-\item{x}{a \code{trackeRdata} object}
+\item{x}{A \code{trackeRdata} object.}
 
-\item{decreasing}{logical. Should the objects be sorted in
+\item{decreasing}{Logical. Should the objects be sorted in
 increasing or decreasing order?}
 
-\item{...}{currently not used}
+\item{...}{Currently not used.}
 }
 \description{
-Sort the sessions \code{trackeRdata} objects into ascending or
-descending order according to the first session timestamp
+Sort the sessions \code{\link{trackeRdata}} objects into ascending
+or descending order according to the first session timestamp.
 }

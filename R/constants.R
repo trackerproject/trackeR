@@ -76,8 +76,8 @@ generate_variable_names <- function() {
 #'     to variable (see details).
 #' @param sport A vector of sports (amongst \code{'cycling'},
 #'     \code{'running'}, \code{'swimming'}) with each element
-#'     corresponding to variable and unit
-#' @param ... Currently not used
+#'     corresponding to variable and unit.
+#' @param ... Currently not used.
 #'
 #' @details
 #'
@@ -182,7 +182,7 @@ generate_units <- function(variable, unit, sport, ...) {
 
 #' Generate default thresholds
 #'
-#' @param ... Currently not used
+#' @param ... Currently not used.
 #' @export
 generate_thresholds <- function(variable, lower, upper, sport, ...) {
     th <- generate_units()

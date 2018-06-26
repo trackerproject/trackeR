@@ -9,17 +9,17 @@ GC2trackeRdata(gc, cycling = TRUE, correct_distances = FALSE,
   lskip = 5, m = 11, silent = FALSE)
 }
 \arguments{
-\item{gc}{output of \code{GC.activity}}
+\item{gc}{Output of \code{GC.activity}.}
 
-\item{cycling}{logical. Does the data stem from cycling?}
+\item{cycling}{Logical. Does the data stem from cycling?}
 
-\item{correct_distances}{logical. Should the distances be corrected
+\item{correct_distances}{Logical. Should the distances be corrected
 for elevation?}
 
 \item{country}{ISO3 country code for downloading altitude data. If
 \code{NULL}, country is derived from longitude and latitude}
 
-\item{mask}{logical. Passed on to
+\item{mask}{Logical. Passed on to
 \code{\link[raster]{getData}}. Should only the altitudes for
 the specified \code{country} be extracted (\code{TRUE}) or also
 those for the neighboring countries (\code{FALSE})?}

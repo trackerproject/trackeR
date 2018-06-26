@@ -2,7 +2,7 @@
 % Please edit documentation in R/trackeRdata_plot.R
 \name{leafletRoute}
 \alias{leafletRoute}
-\title{Plot routes for training sessions.}
+\title{Plot routes for training sessions}
 \usage{
 leafletRoute(x, session = NULL, threshold = TRUE, ...)
 }

@@ -2,19 +2,19 @@
 % Please edit documentation in R/trackeRdata.R
 \name{unique.trackeRdata}
 \alias{unique.trackeRdata}
-\title{Exrtact unique sessions in a \code{trackerRdata} object.}
+\title{Exrtact unique sessions in a \code{trackerRdata} object}
 \usage{
 \method{unique}{trackeRdata}(x, incomparables = FALSE, ...)
 }
 \arguments{
-\item{x}{a \code{trackeRdata} object}
+\item{x}{A \code{trackeRdata} object.}
 
-\item{incomparables}{currently not used}
+\item{incomparables}{Currently not used.}
 
-\item{...}{currently not used}
+\item{...}{Currently not used.}
 }
 \description{
-Exrtact unique sessions in a \code{trackerRdata} object.
+Exrtact unique sessions in a \code{trackerRdata} object
 }
 \details{
 Uniqueness is determined by comparing the first timestamp of the
