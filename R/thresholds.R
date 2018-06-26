@@ -80,7 +80,6 @@ threshold <- function(object, variable, lower, upper, sport, ...) {
             thresholds[ind, ] <- thresholds_new[ind, ]
             thresholds[ind, "changed"] <- TRUE
         }
-
         ## Change thresholds
         for (sp in unique(sports)) {
             th <- subset(thresholds, sport == sp)
@@ -118,9 +117,8 @@ threshold <- function(object, variable, lower, upper, sport, ...) {
         ##         object[[sess]] <- o
         ##     }
         ## }
-
-
     }
+
     thresholds$changed <- NULL
 
     ## update attribute

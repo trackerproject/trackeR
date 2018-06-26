@@ -35,3 +35,11 @@ generateDefaultThresholds <- generate_thresholds
 #' @rdname get_operations
 #' @export
 getOperations <- get_operations
+
+#' @rdname smoother_control.trackeRdata
+#' @export
+smootherControl.trackeRdata <- smoother_control.trackeRdata
+
+#' @rdname plot_route
+#' @export
+plotRoute <- plot_route

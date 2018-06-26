@@ -59,5 +59,5 @@ test_that("change units works as expected []", {
 data("runs", package = "trackeR")
 test_that("threshold works with all vairables", {
     un <- generate_units()
-    change_units(runs, un$variable, un$unit, un$sport)
+    expect_equal(nsessions(change_units(runs, un$variable, un$unit, un$sport)), nsessions(runs))
 })

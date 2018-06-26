@@ -37,9 +37,9 @@ test_that("change_units works with threshods", {
 })
 
 
-test_that("threshold works with all vairables", {
+test_that("threshold works with all variables", {
     th <- generate_thresholds()
-    threshold(runs, th$variable, th$lower, th$upper, th$sport)
+    expect(nsessions(threshold(runs, th$variable, th$lower, th$upper, th$sport)), nsessions(runs))
 })
 
 

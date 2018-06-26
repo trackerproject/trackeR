@@ -14,9 +14,9 @@ test_that("summary method for trackeRdata objects [class, methods, output]", {
     expect_equal(dim(get_units(summ)), c(30, 3), tolerance = tol)
     expect_equal(attr(summ, "moving_threshold"), c(cycling = 2, running = 1, swimming = 0.5), tolerance = tol)
     expect_equal(attr(summ, "unit_reference_sport"), "cycling", tolerance = tol)
-    expect_output(print(ss), "Session|Distance|Duration|Moving time|Average speed|Average speed moving|Work to rest ratio|Moving thresholds")
+    expect_output(print(summ), "Session|Distance|Duration|Moving time|Average speed|Average speed moving|Work to rest ratio|Moving thresholds")
 })
- 
+
 test_that("summary method for trackeRdata objects [change_units]", {
     summ0 <- summary(runs)
     summ1 <- summary(change_units(runs, c("speed", "distance"), c("mi_per_h", "mi"), c("cycling", "cycling")),

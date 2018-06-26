@@ -455,9 +455,9 @@ as.data.frame.trackeRdata <- function(x, ...) {
 #'
 #' @export
 print.trackeRdata <- function(x, duration = "h", ..., digits = 2) {
+    units <- getUnits(x)
     x <- summary(x)
     x <- change_units(x, "duration", "h")
-    units <- getUnits(x)
     sports <- as.character(na.omit(unique(get_sport(x))))
     cat("A trackeRdata object\n")
     cat("Sports:", sports, "\n\n")
@@ -468,9 +468,8 @@ print.trackeRdata <- function(x, duration = "h", ..., digits = 2) {
     cat("Training duration:", round(as.numeric(sum(x$duration)), digits), units(x$duration[1]), "\n\n")
 
     cat("Units\n")
-    o <- getUnits(x)
-    colnames(o) <- NULL
-    print(o, row.names = FALSE, right = FALSE)
+    colnames(units) <- NULL
+    print(units, row.names = FALSE, right = FALSE)
 }
 
 #' @rdname session_times

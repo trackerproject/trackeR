@@ -1,17 +1,31 @@
 #' Plot training sessions in form of trackeRdata objects
 #'
 #' @param x An object of class \code{\link{trackeRdata}}.
-#' @param session A numeric vector of the sessions to be plotted, defaults to all sessions.
+#' @param session A numeric vector of the sessions to be plotted,
+#'     defaults to all sessions.
 #' @param what Which variables should be plotted?
 #' @param threshold Logical. Should thresholds be applied?
 #' @param smooth Logical. Should the data be smoothed?
 #' @param trend Logical. Should a smooth trend be plotted?
-#' @param dates Logical. Should the date of the session be used in the panel header?
-#' @param ... Further arguments to be passed to \code{\link{threshold}} and
+#' @param dates Logical. Should the date of the session be used in the
+#'     panel header?
+#' @param moving_threshold A named vector of 3 speeds to be used for
+#'     thresholding pace, given in the unit of the speed measurements
+#'     in \code{object}. If \code{NULL} (default), the speeds are
+#'     taken to be \code{c(cycling = 2, running = 1, swimming =
+#'     0.5)}. See Details.
+#' @param ... Further arguments to be passed to
+#'     \code{\link{threshold}} and
 #'     \code{\link{smootherControl.trackeRdata}}.
-#' @details Note that a threshold is always applied to the pace. This (upper) threshold
-#'     corresponds to a speed of 1.4 meters per second, the preferred walking speed of
-#'     humans. The lower threshold is 0.
+#' @details
+#'
+#' Note that a threshold is always applied to the pace. This (upper)
+#' threshold corresponds to a speed of 1.4 meters per second, the
+#' preferred walking speed of humans. The lower threshold is 0.
+#'
+#' The units for the variables match those of the sport specified by
+#' \code{unit_reference_sport}.
+#'
 #' @examples
 #' \dontrun{
 #' data('runs', package = 'trackeR')
@@ -34,24 +48,31 @@ plot.trackeRdata <- function(x, session = NULL,
                              trend = TRUE,
                              dates = TRUE,
                              unit_reference_sport = "cycling",
+                             moving_threshold = NULL,
                              ...){
+    units <- get_units(x)
 
-    ## code inspired by autoplot.zoo
     if (is.null(session)) {
         session <- seq_along(x)
     }
-    units <- get_units(x)
+
+    ## Match units to those of unit_reference_sport
     un <- collect_units(units, unit_reference_sport)
     for (va in unique(un$variable)) {
-        units[units$variable == va, "unit"] <- un[un$variable == va, "unit"]
+        units$unit[units$variable == va] <- un$unit[un$variable == va]
+    }
+
+    ## convert moving_threshold
+    if (is.null(moving_threshold)) {
+        moving_threshold <- c(cycling = 2, running = 1, swimming = 0.5)
+        speed_unit <- un$unit[un$variable == "speed"]
+        if (speed_unit != "m_per_s") {
+            conversion <- match.fun(paste("m_per_s", speed_unit, sep = "2"))
+            moving_threshold <- conversion(moving_threshold)
+        }
     }
 
     x <- x[session]
-    sports <- get_sport(x)
-
-##:ess-bp-start::browser@nil:##
-browser(expr=is.null(.ESSBP.[["@37@"]]));##:ess-bp-end:##
-
 
     ## threshold
     if (threshold) {
@@ -69,14 +90,16 @@ browser(expr=is.null(.ESSBP.[["@37@"]]));##:ess-bp-end:##
     }
 
     ## for plotting pace, always apply a threshold
-    ## upper threshold is based on preferred walking speed of 1.4 m/s,
+    ## upper threshold is based on moving thresholds
     ## see https://en.wikipedia.org/wiki/Preferred_walking_speed
-    if ("pace" %in% what){
-        conversionPace <- match.fun(paste("s_per_m", units$unit[units$variable == "pace"], sep = "2"))
-        thPace <- conversionPace(1 / 1.4)
-        x <- threshold(x, variable = "pace", lower = 0, upper = thPace)
-    }
-
+    speed_unit <- strsplit(un$unit[un$variable == "speed"], split = "_per_")[[1]]
+    pace_unit <- paste(speed_unit[2], speed_unit[1], sep = "_per_")
+    convert_pace <- match.fun(paste(pace_unit, un$unit[un$variable == "pace"], sep = "2"))
+    x <- threshold(x,
+                   variable = c("pace", "pace", "pace"),
+                   lower = c(0, 0, 0),
+                   upper = convert_pace(1/moving_threshold),
+                   sport = names(moving_threshold))
 
 
     ## smooth
@@ -129,20 +152,11 @@ browser(expr=is.null(.ESSBP.[["@37@"]]));##:ess-bp-end:##
                   if (singleSession) NULL else ". ~ SessionID"
               }
               else {
-                  if(singleSession) "Series ~ ." else "Series ~ SessionID"
+                  if (singleSession) "Series ~ ." else "Series ~ SessionID"
               }
-    ## lab <- function(variable, value){
-    ##     if (variable == "Series"){
-    ##         ret <- paste0(value, " [", units$unit[units$variable == value], "]")
-    ##     } else {
-    ##         ret <- as.character(value)
-    ##     }
-    ##     return(ret)
-    ## }
-    ## lab <- Vectorize(lab)
-    ## new (todo: make units an argument and move outside of plotting function
+
     lab_data <- function(series) {
-        thisunit <- units$unit[units$variable == series]
+        thisunit <- un$unit[un$variable == series]
         prettyUnit <- prettifyUnits(thisunit)
         paste0(series, "\n[", prettyUnit,"]")
     }
@@ -151,17 +165,21 @@ browser(expr=is.null(.ESSBP.[["@37@"]]));##:ess-bp-end:##
     ## basic plot
     p <- ggplot(data = df, mapping = aes_(x = quote(Index), y = quote(Value))) +
         geom_line(color = grDevices::gray(0.9), na.rm = TRUE) +
-        ylab(if(singleVariable) lab_data(levels(df$Series)) else "") + xlab("Time")
+        ylab(if (singleVariable) lab_data(levels(df$Series)) else "") + xlab("Time")
+
     if (trend & !smooth){
         p <- p + geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"),
                                       se = FALSE, na.rm = TRUE, lwd = 0.5, col = "black")
     }
+
     ## add facet if necessary
     if (!is.null(facets)){
         p <- p + facet_grid(facets, scales = "free", labeller = labeller("Series" = lab_data))
     }
+
     ## add bw theme
-    p <- p + theme_bw() +
+    p <- p +
+        theme_bw() +
         theme(axis.text.x = element_text(angle = 50, hjust = 1),
                        panel.grid.major = element_blank(),
                        panel.grid.minor = element_blank())
@@ -176,7 +194,6 @@ browser(expr=is.null(.ESSBP.[["@37@"]]));##:ess-bp-end:##
             dfs$SessionID <- format(session[dfs$SessionID])
             dfs$SessionID <- gsub(" ", "0", dfs$SessionID)
             dfs$SessionID <- paste0(paste(dfs$SessionID, dfs$Sport, sep = ": "), "\n", format(dfs$Index, "%Y-%m-%d"))
-            ## dfs$SessionID <- paste(dfs$SessionID, format(dfs$Index, "%Y-%m-%d"), sep = ": ")
         }
         else {
             dfs$SessionID <- factor(dfs$SessionID, levels = seq_along(session), labels = session)
@@ -187,6 +204,7 @@ browser(expr=is.null(.ESSBP.[["@37@"]]));##:ess-bp-end:##
             if (all(is.na(subset(dfs, Series == l, select = "Value"))))
                 dfs <- dfs[!(dfs$Series == l), ]
         }
+
         ## add plot layers
         p <- p + geom_line(aes_(x = quote(Index), y = quote(Value)),
                                     data = dfs, col = grDevices::gray(0.75), na.rm = TRUE)
@@ -270,24 +288,33 @@ fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
 #' plotRoute(runs, session = 6:7, source = "google", zoom = c(13, 14))
 #' }
 #' @export
-plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRUE, mfrow = NULL, ...){
+plot_route <- function(x, session = 1, zoom = NULL, speed = TRUE,
+                       threshold = TRUE, mfrow = NULL, ...) {
 
     ## prep
-    if (is.null(session)) session <- seq_along(x)
-    if (!is.null(zoom)) zoom <- rep(zoom, length.out = length(session))
+    if (is.null(session)) {
+        session <- seq_along(x)
+    }
 
+    if (!is.null(zoom)) {
+        zoom <- rep(zoom, length.out = length(session))
+    }
+
+    sports <- get_sport(x)
 
     ## get prepared data.frame
     df <- prepRoute(x, session = session, threshold = threshold, ...)
     centers <- attr(df, "centers")
 
-    if (speed) speedRange <- range(df[["speed"]], na.rm = TRUE)
+    if (speed) {
+        speedRange <- range(df[["speed"]], na.rm = TRUE)
+    }
 
     ## loop over sessions
     plotList <- vector("list", length(session))
     names(plotList) <- as.character(session)
 
-    for (ses in session){
+    for (ses in session) {
 
         dfs <- df[df$SessionID == which(ses == session), , drop = FALSE]
         zooms <- if (is.null(zoom)) centers[centers$SessionID == ses, "zoom"] else zoom[which(ses == session)]
@@ -321,8 +348,7 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
             legend <- gtable::gtable_filter(ggplot_gtable(ggplot_build(p)), "guide-box")
         }
 
-        p <- p + labs(title = paste("Session:", ses))
-                               ## x = "Longitude", y = "Latitude")
+        p <- p + labs(title = paste(ses, ":", sports[ses]))
         plotList[[as.character(ses)]] <- p +  theme(legend.position = "none",
                                                              axis.title.x = element_blank(),
                                                              axis.title.y = element_blank())
@@ -470,19 +496,18 @@ prepRoute <- function(x, session = 1, threshold = TRUE, ...){
     x <- x[session]
 
     ## threshold
-    if (threshold){
+    if (threshold) {
         dots <- list(...)
-        if (all(c("variable", "lower", "upper") %in% names(dots))){
-            ## thresholds provided by user
-            th <- data.frame(variable = dots$variable, lower = dots$lower, upper = dots$upper)
-        } else {
+        if (all(c("variable", "lower", "upper", "sport") %in% names(dots))) {
+            th <- generate_thresholds(dots$variable, dots$lower, dots$upper, dots$sport)
+        }
+        else {
             ## default thresholds
-            cycling <- units$unit[units$variable == "cadence"] == "rev_per_min"
-            th <- generateDefaultThresholds(cycling)
-            th <- change_units(th, variable = units$variable, unit = units$unit)
+            th <- generate_thresholds()
+            th <- change_units(th, variable = units$variable, unit = units$unit, sport = units$sport)
         }
         ## apply thresholds
-        x <- threshold(x, th)
+        x <- threshold(x, th$variable, th$lower, th$upper, th$sport)
     }
 
     ## get data

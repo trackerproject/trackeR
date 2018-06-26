@@ -8,7 +8,7 @@
 #'     athlete is considered moving, given in the unit of the speed
 #'     measurements in \code{object}. If \code{NULL} (default), the
 #'     speeds are taken to be \code{c(cycling = 2, running = 1,
-#'     swimming = 0.5)}. See details.
+#'     swimming = 0.5)}. See Details.
 #' @param unit_reference_sport The sport to inherit units from (default is "cycling").
 #' @param ... Currently not used.
 #'
@@ -54,17 +54,16 @@ summary.trackeRdata <- function(object, session = NULL, moving_threshold = NULL,
     ## Match units to those of unit_reference_sport
     un <- collect_units(units, unit_reference_sport)
     for (va in unique(un$variable)) {
-        units[units$variable == va, "unit"] <- un[un$variable == va, "unit"]
+        units$unit[units$variable == va] <- un$unit[un$variable == va]
     }
 
+    ## convert moving_threshold
     if (is.null(moving_threshold)) {
         moving_threshold <- c(cycling = 2, running = 1, swimming = 0.5)
-        for (sp in names(moving_threshold)) {
-            speed_unit <- units[units$variable == "speed" & units$sport == sp, "unit"]
-            if (speed_unit != "m_per_s") {
-                conversion <- match.fun(paste("m_per_s", speed_unit, sep = "2"))
-                moving_threshold[sp] <- conversion(moving_threshold[sp])
-            }
+        speed_unit <- un$unit[un$variable == "speed"]
+        if (speed_unit != "m_per_s") {
+            conversion <- match.fun(paste("m_per_s", speed_unit, sep = "2"))
+            moving_threshold <- conversion(moving_threshold)
         }
     }
 

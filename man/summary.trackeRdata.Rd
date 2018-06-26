@@ -6,7 +6,7 @@
 \title{Summary of training sessions}
 \usage{
 \method{summary}{trackeRdata}(object, session = NULL,
-  moving_threshold = NULL, unit_reference_sport = "running", ...)
+  moving_threshold = NULL, unit_reference_sport = "cycling", ...)
 }
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}
@@ -18,9 +18,9 @@ defaults to all sessions.}
 athlete is considered moving, given in the unit of the speed
 measurements in \code{object}. If \code{NULL} (default), the
 speeds are taken to be \code{c(cycling = 2, running = 1,
-swimming = 0.5)}. See details.}
+swimming = 0.5)}. See Details.}
 
-\item{unit_reference_sport}{The sport to inherit units from.}
+\item{unit_reference_sport}{The sport to inherit units from (default is "cycling").}
 
 \item{...}{Currently not used.}
 }
