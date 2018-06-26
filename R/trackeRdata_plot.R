@@ -129,11 +129,9 @@ plot.trackeRdata <- function(x, session = NULL,
     }
     else {
         df$SessionID <- paste0(paste(df$SessionID, df$Sport, sep = ": "))
-        ## factor(df$SessionID, levels = seq_along(session), labels = session)
     }
     df <- subset(df, Series %in% what)
     df$Series <- factor(df$Series)
-
 
     ## check that there is data to plot
     for (l in levels(df$Series)) {
@@ -141,19 +139,7 @@ plot.trackeRdata <- function(x, session = NULL,
             df <- df[!(df$Series == l), ]
     }
 
-    ## make facets
-    singleVariable <- nlevels(df$Series) == 1L
-    ## Include the labels even if there is a single session. This will
-    ## have the (undesirable?) effect that sessions which extend
-    ## beyond midnight will be split in two panels at midnight
-    singleSession <- FALSE #length(session) == 1L
-
-    facets <- if (singleVariable) {
-                  if (singleSession) NULL else ". ~ SessionID"
-              }
-              else {
-                  if (singleSession) "Series ~ ." else "Series ~ SessionID"
-              }
+    facets <- "Series ~ SessionID"
 
     lab_data <- function(series) {
         thisunit <- un$unit[un$variable == series]
@@ -165,7 +151,8 @@ plot.trackeRdata <- function(x, session = NULL,
     ## basic plot
     p <- ggplot(data = df, mapping = aes_(x = quote(Index), y = quote(Value))) +
         geom_line(color = grDevices::gray(0.9), na.rm = TRUE) +
-        ylab(if (singleVariable) lab_data(levels(df$Series)) else "") + xlab("Time")
+        ylab("") +
+        xlab("Time")
 
     if (trend & !smooth){
         p <- p + geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"),
@@ -437,7 +424,6 @@ leafletRoute <- function(x, session = NULL, threshold = TRUE, ...){
 
         p <- leaflet::addMarkers(p, group = paste("Session:", i),
                                  lng = dfi$longitude[1], lat = dfi$latitude[1],
-                                 #popup = htmltools::htmlEscape(popupText(session = i)))
                                  popup = popupText(session = i, start = TRUE), icon = startIcon)
         p <- leaflet::addMarkers(p, group = paste("Session:", i),
                                  lng = dfi$longitude[nrow(dfi)], lat = dfi$latitude[nrow(dfi)],
@@ -582,10 +568,34 @@ prepRoute <- function(x, session = 1, threshold = TRUE, ...){
 #' @inheritParams timeline
 #' @rdname timeline
 #' @export
-#'
-timeline.trackeRdata <- function(object, lims = NULL, ...) {
-    s <- summary.trackeRdata(object, ...)
-    timeline.trackeRdataSummary(s, lims = lims)
+timeline.trackeRdata  <- function(object, lims = NULL, ...) {
+    df <- within(session_times(object), {
+        day_s <- as.Date(sessionStart)
+        day_e <-  as.Date(sessionEnd)
+        time_s <- as.POSIXct(as.numeric(difftime(sessionStart, trunc(sessionStart, "days"),
+                                                 units = "secs")),
+                             origin = Sys.Date())
+        time_e <- as.POSIXct(as.numeric(difftime(sessionEnd, trunc(sessionEnd, "days"),
+                                                 units = "secs")),
+                             origin = Sys.Date())
+        sport <- get_sport(object)
+    })
+    if (!is.null(lims)) {
+        lims <- as.POSIXct(paste(Sys.Date(), lims))
+    }
+    day_range <- data.frame(day = seq(min(df$day_s), max(df$day_s), by = "day"))
+    p <- ggplot(df) +
+        ## geom_hline(data = day_range, aes_(yintercept = quote(day)),
+        ##            size = 0.1, alpha = 0.5,
+        ##            col = grDevices::gray(0.25)) +
+        geom_segment(aes_(x = quote(time_s), xend = quote(time_e), y = quote(day_s), yend = quote(day_e), color = quote(sport)))
+    ## take care of breaks, limits on the time axes and style of breakpoints
+    p <- p + scale_x_datetime(date_labels = "%H:%m", date_breaks = "4 hour", limits = lims)
+    p <- p + theme_bw() +
+        theme(axis.text.x = element_text(angle = 50, hjust = 1),
+              legend.position = "top") +
+        xlab("Time") + ylab("Date")
+    p
 }
 
 

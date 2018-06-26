@@ -383,8 +383,7 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, l
         stop("All sessions must have unique starting times. Try date = FALSE instead.")
     p <- p + geom_point(aes_(x = quote(xaxis), y = quote(value), color = quote(type)),
         na.rm = TRUE) + labs(x = xlab, y = "") + guides(color = guide_legend(title = "Type")) +
-        scale_colour_manual(values = c(total = "#76BD58", moving = "#F68BA2",
-            resting = "#5EB3F0"))
+        scale_colour_manual(values = c(total = "#76BD58", moving = "#F68BA2", resting = "#5EB3F0"))
     ## color palette comes from colorspace::rainbow_hcl(3, c = 70)[c(2,1,3)] [1] '#5EB3F0'
     ## '#F68BA2' '#76BD58' an alternative from
     ## http://colorbrewer2.org/#type=qualitative&scheme=Dark2&n=3
@@ -426,7 +425,6 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, l
 
     ## add bw theme and position of legend
     p <- p + theme_bw() + theme(legend.position = "top")
-
     return(p)
 }
 
@@ -435,30 +433,7 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, l
 #' @inheritParams timeline
 #' @rdname timeline
 #' @export
-timeline.trackeRdataSummary <- function(object, lims = NULL, ...) {
-    startdates <- as.Date(object$sessionStart)
-    enddates <- as.Date(object$sessionEnd)
-    ## Hack to extract times
-    endtimes <- object$sessionEnd
-    starttimes <- object$sessionStart
-    endtimes <- as.POSIXct(as.numeric(difftime(endtimes, trunc(endtimes, "days"), units = "secs")),
-        origin = Sys.Date())
-    starttimes <- as.POSIXct(as.numeric(difftime(starttimes, trunc(starttimes, "days"),
-        units = "secs")), origin = Sys.Date())
-    df <- data.frame(sday = startdates, eday = enddates, start = starttimes, end = endtimes)
-    if (!is.null(lims)) {
-        lims <- as.POSIXct(paste(Sys.Date(), lims))
-    }
-    p <- ggplot(df) + ## geom_point(aes(x = start, y = sday), alpha = 0.5) + geom_point(aes(x = end, y =
-    ## eday), alpha = 0.5) +
-    geom_segment(aes_(x = quote(start), xend = quote(end), y = quote(sday),
-        yend = quote(eday)), color = '#428bca', size=1)
-    ## take care of breaks, limits on the time axes and style of breakpoints
-    p <- p + scale_x_datetime(date_labels = "%H:%m", date_breaks = "4 hour", limits = lims)
-    p <- p + theme(axis.text.x = element_text(angle = 50, hjust = 1)) +
-        xlab("Time") + ylab("Date")
-    p + theme_bw()
-}
+timeline.trackeRdataSummary <- timeline.trackeRdata
 
 
 #' @export

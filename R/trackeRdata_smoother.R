@@ -3,13 +3,13 @@
 #' @param object An object of class \code{\link{trackeRdata}}.
 #' @param session The sessions to be smoothed. Default is all sessions.
 #' @param control A list of parameters for controlling the smoothing
-#' process. This is passed to \code{\link{.trackeRdata}}.
+#' process. This is passed to \code{\link{smoother_control.trackeRdata}}.
 #' @param ... Arguments to be used to form the default \code{control}
 #' argument if it is not supplied directly.
 #'
 #' @return An object of class \code{\link{trackeRdata}}.
 #'
-#' @seealso \code{\link{.trackeRdata}}
+#' @seealso \code{\link{smoother_control.trackeRdata}}
 #'
 #' @examples
 #' data('run', package = 'trackeR')
@@ -38,7 +38,7 @@ smoother.trackeRdata <- function(object, session = NULL, control = list(...), ..
 
     ## evaluate control argument
     control$nsessions <- length(session)
-    control <- do.call(".trackeRdata", control)
+    control <- do.call("smoother_control.trackeRdata", control)
 
     ## Check that all what are available
     what <- match(unlist(control$what), names(object[[1]]))
