@@ -35,3 +35,11 @@ test_that("change_units works with threshods", {
         expect_equal(runs_th[[j]][, "speed"]/1000 * 60 * 60, r[[j]][, "speed"])
     }
 })
+
+
+test_that("threshold works with all vairables", {
+    th <- generate_thresholds()
+    threshold(runs, th$variable, th$lower, th$upper, th$sport)
+})
+
+

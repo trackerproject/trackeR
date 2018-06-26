@@ -27,32 +27,45 @@
 #'     smooth = TRUE, width = 15, parallel = FALSE)
 #' }
 #' @export
-plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart_rate"),
-                             threshold = TRUE, smooth = FALSE, trend = TRUE, dates = TRUE, ...){
+plot.trackeRdata <- function(x, session = NULL,
+                             what = c("pace", "heart_rate"),
+                             threshold = TRUE,
+                             smooth = FALSE,
+                             trend = TRUE,
+                             dates = TRUE,
+                             unit_reference_sport = "cycling",
+                             ...){
 
     ## code inspired by autoplot.zoo
-    if (is.null(session)) session <- seq_along(x)
-    units <- getUnits(x)
+    if (is.null(session)) {
+        session <- seq_along(x)
+    }
+    units <- get_units(x)
+    un <- collect_units(units, unit_reference_sport)
+    for (va in unique(un$variable)) {
+        units[units$variable == va, "unit"] <- un[un$variable == va, "unit"]
+    }
 
     x <- x[session]
+    sports <- get_sport(x)
+
+##:ess-bp-start::browser@nil:##
+browser(expr=is.null(.ESSBP.[["@37@"]]));##:ess-bp-end:##
+
 
     ## threshold
-    if (threshold){
+    if (threshold) {
         dots <- list(...)
-        if (all(c("variable", "lower", "upper") %in% names(dots))){
-            ## thresholds provided by user
-            th <- data.frame(variable = dots$variable, lower = dots$lower, upper = dots$upper)
+        if (all(c("variable", "lower", "upper", "sport") %in% names(dots))) {
+            th <- generate_thresholds(dots$variable, dots$lower, dots$upper, dots$sport)
         }
         else {
             ## default thresholds
-            cycling <- units$unit[units$variable == "cadence"] == "rev_per_min"
-            th <- generateDefaultThresholds(cycling)
-            ## th <- th[which(th$variable %in% what),]
-            ## w <- which(units$variable %in% what)
-            th <- change_units(th, variable = units$variable, unit = units$unit)
+            th <- generate_thresholds()
+            th <- change_units(th, variable = units$variable, unit = units$unit, sport = units$sport)
         }
         ## apply thresholds
-        x <- threshold(x, th)
+        x <- threshold(x, th$variable, th$lower, th$upper, th$sport)
     }
 
     ## for plotting pace, always apply a threshold
@@ -64,17 +77,21 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart_rate"),
         x <- threshold(x, variable = "pace", lower = 0, upper = thPace)
     }
 
+
+
     ## smooth
     if (smooth) {
         xo <- x
         if (is.null(get_operations(x)$smooth)) {
             x <- smoother(x, what = what, ...)
-        } else {
+        }
+        else {
             warning("This object has already been smoothed. No additional smoothing takes place.")
             smooth <- FALSE ## it's not the plot function calling smoother
             x <- x
         }
-    } else {
+    }
+    else {
         x <- x
     }
 
@@ -94,8 +111,9 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart_rate"),
     df <- subset(df, Series %in% what)
     df$Series <- factor(df$Series)
 
+
     ## check that there is data to plot
-    for(l in levels(df$Series)){
+    for (l in levels(df$Series)) {
         if (all(is.na(subset(df, Series == l, select = "Value"))))
             df <- df[!(df$Series == l), ]
     }

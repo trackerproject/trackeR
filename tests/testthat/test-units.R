@@ -56,3 +56,8 @@ test_that("change units works as expected []", {
     expect_error(change_units(gpxa, "distance", "m", "running"))
 })
 
+data("runs", package = "trackeR")
+test_that("threshold works with all vairables", {
+    un <- generate_units()
+    change_units(runs, un$variable, un$unit, un$sport)
+})

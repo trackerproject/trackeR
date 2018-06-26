@@ -160,6 +160,10 @@ change_units.trackeRdata <- function(object, variable, unit, sport,...) {
                         th[th$sport == sp & th$variable == va, "unit"] <-
                             un$new_unit[k]
                     }
+                    ## trackeRdata objects do not carry duration so skip
+                    if (va == "duration") {
+                        next
+                    }
                     for (sess in which(sports == sp)) {
                         object[[sess]][, va] <- convert(object[[sess]][, va])
                     }
