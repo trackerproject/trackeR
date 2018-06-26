@@ -58,7 +58,8 @@ NULL
 ## Define global variables
 if (getRversion() >= "2.15.1") {
     utils::globalVariables(c("Series", # plot_selectedWorkouts, ridges.trackeRdata
-                             "j")) # parallelization
+                             "j", # parallelization
+                             "variable","type")) # plot.trackeRdataSummary
 
 }
 
@@ -71,6 +72,10 @@ if (getRversion() >= "2.15.1") {
 #' @param ... Arguments to be passed to methods.
 #' @export
 smoother <- function(object, ...) UseMethod("smoother")
+
+#' @rdname threshold.trackeRdata
+#' @export
+threshold <- function(object, ...) UseMethod("threshold")
 
 #' Generic function for scaling
 #'

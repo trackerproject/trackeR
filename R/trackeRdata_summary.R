@@ -23,7 +23,11 @@
 #' specified by \code{unit_reference_sport}.
 #'
 #'
-#' @return An object of class \code{trackeRdataSummary}.
+#' @return
+#'
+#' An object of class \code{trackeRdataSummary}.
+#'
+#'
 #' @seealso \code{\link{plot.trackeRdataSummary}}
 #' @references
 #'
@@ -332,11 +336,8 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...) {
 #' plot(runSummary, date = FALSE, group = 'total',
 #'     what = c('distance', 'duration', 'avgSpeed'))
 #' @export
-plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, lines = TRUE,
-    ...) {
-    ## the following line is just intended to prevent R CMD check to produce the NOTE 'no
-    ## visible binding for global variable *' because those variables are used in subset()
-    variable <- type <- NULL
+plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL,
+                                    group = NULL, lines = TRUE, ...) {
 
     nsessions <- length(unique(x$session))
     ndates <- length(unique(x$sessionStart))

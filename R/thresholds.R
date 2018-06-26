@@ -44,7 +44,7 @@
 #' runsT <- threshold(runs, variable = 'speed', lower = 0, upper = 12.5)
 #' plot(runsT, session = 4, what = 'speed', threshold = FALSE)
 #' @export
-threshold <- function(object, variable, lower, upper, sport, ...) {
+threshold.trackeRdata <- function(object, variable, lower, upper, sport, ...) {
 
     sports <- get_sport(object)
     units <- get_units(object)
