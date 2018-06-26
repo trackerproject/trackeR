@@ -69,6 +69,8 @@ trackeRdata <- function(dat, units = NULL, sport = NULL, session_threshold = 2,
                         country = NULL, mask = TRUE,
                         lgap = 30, lskip = 5, m = 11,
                         silent = FALSE) {
+    ## file
+    file <- attr(dat, "file")
 
     ## sport
     if (is.null(sport)) {
@@ -76,6 +78,11 @@ trackeRdata <- function(dat, units = NULL, sport = NULL, session_threshold = 2,
     }
     else {
         sport <- match.arg(sport, c("cycling", "swimming", "running"))
+    }
+
+    ## For now throw error. In future, classify sport if it is NA
+    if (is.na(sport)) {
+        stop("could not identify the sport from the filename or the data")
     }
 
     ## prep units
@@ -115,7 +122,8 @@ trackeRdata <- function(dat, units = NULL, sport = NULL, session_threshold = 2,
     attr(trackerdat, "operations") <- list(smooth = NULL, threshold = NULL)
     attr(trackerdat, "units") <- units
     attr(trackerdat, "sport") <- rep(sport, length(trackerdat))
-    attr(trackerdat, "file") <- attr(dat, "file")
+    attr(trackerdat, "file") <- file
+
 
     ## class and return
     class(trackerdat) <- c("trackeRdata", class(trackerdat))
@@ -458,7 +466,7 @@ print.trackeRdata <- function(x, duration = "h", ..., digits = 2) {
     units <- getUnits(x)
     x <- summary(x)
     x <- change_units(x, "duration", "h")
-    sports <- as.character(na.omit(unique(get_sport(x))))
+    sports <- unique(get_sport(x)) ## as.character(na.omit(unique(get_sport(x))))
     cat("A trackeRdata object\n")
     cat("Sports:", sports, "\n\n")
     cat("Training coverage:",

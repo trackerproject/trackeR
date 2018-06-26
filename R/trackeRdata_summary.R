@@ -205,7 +205,7 @@ summary.trackeRdata <- function(object, session = NULL, moving_threshold = NULL,
 print.trackeRdataSummary <- function(x, ..., digits = 2) {
     units <- get_units(x)
     units <- collect_units(units, unit_reference_sport = attr(x, "unit_reference_sport"))
-    sports <- as.character(get_sport(x))
+    sports <- get_sport(x)
 
     for (i in seq_len(length(x$session))) {
         cat("\n *** Session", x$session[i], ":", sports[i], "***\n")
@@ -373,7 +373,8 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL,
     if (date) {
         dat$xaxis <- dat$sessionStart
         xlab <- "Date"
-    } else {
+    }
+    else {
         dat$xaxis <- dat$session
         xlab <- "Session"
     }

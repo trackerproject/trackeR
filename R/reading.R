@@ -56,8 +56,12 @@ readTCX <- function(file, timezone = "",
                        "http://www.garmin.com/xmlschemas/ActivityExtension/v1")
     extensions_ns <- na.omit(sapply(extensions_ns, function(e) names(which(ns == e)[1])))
 
-    ## Sport
+    ## Guess sport from data
     sport <- guess_sport(xml_attr(xml_find_first(doc, paste0("//", activity_ns, ":", "Activity")), "Sport"))
+    ## If not successful, try filename
+    if (is.na(sport)) {
+        sport <- guess_sport(basename(file))
+    }
 
     ## Tp
     tp_xpath <- paste0("//", activity_ns, ":", "Trackpoint")
@@ -187,8 +191,12 @@ readGPX <- function(file, timezone = "",
     extensions_ns <- na.omit(sapply(extensions_ns, function(e) names(which(ns == e)[1])))
 
 
-    ## Sport extraction
+    ## Guess sport from data
     sport <- guess_sport(xml_text(xml_find_first(doc, paste0("//", activity_ns, ":", "name"))))
+    ## If not successful, try filename
+    if (is.na(sport)) {
+        sport <- guess_sport(basename(file))
+    }
 
     ## Trackpoint
     tp_xpath <- paste0("//", activity_ns, ":", "trkpt")
@@ -369,7 +377,7 @@ readDB3 <- function(file, timezone = "", table = "gps_data",
         newdat <- newdat[, allnames$human_names]
 
     attr(newdata, "sport") <- NA
-    attr(file, "file") <- file
+    attr(observations, "file") <- file
 
     return(newdat)
 }
@@ -390,8 +398,12 @@ readJSON <- function(file, timezone = "",
     stime <- as.POSIXct(strptime(paste(stime[1:2], collapse = "T"),
                                  format = "%Y/%m/%dT%H:%M:%S"), tz = timezone)
 
-    ## sport
+    ## Guess sport from data
     sport <- guess_sport(jslist$TAGS$Sport)
+    ## If not successful, try filename
+    if (is.na(sport)) {
+        sport <- guess_sport(basename(file))
+    }
 
     ## tracking data
     if (!("SAMPLES" %in% names(jslist))) stop("No tracking data available.")
@@ -451,7 +463,8 @@ readJSON <- function(file, timezone = "",
         observations <- observations[, allnames$human_names]
 
     attr(observations, "sport") <- sport
-    attr(file, "file") <- file
+
+    attr(observations, "file") <- file
 
     return(observations)
 
