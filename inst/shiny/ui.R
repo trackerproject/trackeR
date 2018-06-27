@@ -24,7 +24,7 @@ ui <- shinydashboard::dashboardPage(
       ),
       div(
         fileInput(
-          "rawDataDirectory", "Choose directory with raw data",
+          "rawDataDirectory", "Choose raw data files",
           multiple = TRUE,
           accept = c(".gpx", ".tcx", ".db3", ".json")
         )

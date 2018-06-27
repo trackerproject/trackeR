@@ -81,30 +81,49 @@ server <- function(input, output, session) {
       data$no_location_data <- sapply(data$object, 
           function(x) all((is.na(x[, 'longitude'])) | (x[, 'longitude'] == 0))
         )
+      sports_options <- trackeR:::sports_options
+      identified_sports <- sports_options %in% unique(trackeR::sport(data$object))
+      data$identified_sports <- sports_options[identified_sports]
     }  
   })
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Selected sessions                                                       ####
 proxy <- DT::dataTableProxy('summary')
-observeEvent(c(
-  plotly::event_data("plotly_selected"),
-  input$summary_rows_selected,
-  input$sports,
-  input$clear_table_selection
-  ), {
-    trackeR:::generate_selected_sessions_object(data, input)
-    
+observeEvent(plotly::event_data("plotly_selected"), {
+  trackeR:::generate_selected_sessions_object(data, input,
+    plot_selection = TRUE
+  )
+  if (length(data$selectedSessions) != length(data$summary$session)) {
+    DT::selectRows(proxy = proxy, selected = as.numeric(data$selectedSessions))
+  } else {
+    DT::selectRows(proxy = proxy, selected = NULL)
+  }
+  trackeR:::update_sport_selection(data, session)
 })
 
-observeEvent(input$highlight_selected_sessions, {
-  DT::selectRows(proxy = proxy, selected = as.numeric(data$selectedSessions))
-  
-})
-### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
-### Selected sessions table                                                 ####
-observeEvent(input$clear_table_selection, {
+observeEvent(input$sports, {
+  shinyjs::js$resetSelection()
+  trackeR:::generate_selected_sessions_object(data, input, sport_selection = TRUE)
+  if (length(data$selectedSessions) != length(data$summary$session)) {
+    DT::selectRows(proxy = proxy, selected = as.numeric(data$selectedSessions))
+  } else {
+    DT::selectRows(proxy = proxy, selected = NULL)
+  }
+}, ignoreNULL = FALSE, ignoreInit = TRUE)
+
+observeEvent(input$summary_rows_selected, {
+    shinyjs::js$resetSelection()
+    trackeR:::generate_selected_sessions_object(data, input, table_selection = TRUE)
+    trackeR:::update_sport_selection(data, session)
+}, ignoreNULL = TRUE)
+
+observeEvent(input$resetSelection, {
+  trackeR:::update_sport_selection(data, session)
+  shinyjs::js$resetSelection()
   DT::selectRows(proxy = proxy, selected = NULL)
+  trackeR:::generate_selected_sessions_object(data, input, no_selection = TRUE)
 })
+
 ##  ............................................................................
 ##  Uploading sample dataset                                                ####
   observeEvent(input$uploadSampleDataset, {

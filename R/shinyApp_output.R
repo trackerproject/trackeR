@@ -31,29 +31,31 @@ render_summary_box <- function(short_name, long_name, data) {
 #' Generate an object with selected sessions
 #' @param data An object of class \code{reactivevalues}.
 #' @param input A shiny object with user input.
-generate_selected_sessions_object <- function(data, input) {
+#' @param plot_selection A logical. Whether session selection made from a plot.
+#' @param sport_selection A logical. Whether session selection made from sport selector.
+#' @param table_selection A logical. Whether session selection made from the summary table.
+#' @param no_selection A logical. Whether no sessions are selected.
+generate_selected_sessions_object <- function(data, input, 
+                                              plot_selection = FALSE,
+                                              sport_selection = FALSE, 
+                                              table_selection = FALSE,
+                                              no_selection = FALSE) {
   
   data$hover <- plotly::event_data("plotly_selected")
-  if (!is.null(input$sports)) {
-    sessions_by_sport <- data$summary$session[sport(data$object) %in% input$sports]
-  } else {
-    sessions_by_sport <- data$summary$session
+  if (sport_selection) {
+    data$selectedSessions <- data$summary$session[sport(data$object) %in% input$sports]
   }
-
-  if (is.null(data$hover) | length(data$hover) == 0) {
-    data$selectedSessions <- intersect(data$summary$session, sessions_by_sport)
+  if (plot_selection) {
+    data$selectedSessions <- unique(na.omit(as.numeric(data$hover$key)))
   }
-  else {
-    # data$selectedSessions <- data$summary$session[na.omit(as.numeric(data$hover$key))]
-    data$selectedSessions <- intersect(
-      unique(na.omit(as.numeric(data$hover$key))),
-      sessions_by_sport
-      # sessions selected from table
-      # input$summary_rows_selected
-    )
-  }
-  if (!is.null(input$summary_rows_selected)) {
+  if (table_selection) {
     data$selectedSessions <- input$summary_rows_selected
+  }
+  if (no_selection) {
+    data$selectedSessions <- data$summary$session
+  }
+  if (length(data$selectedSessions) == 0) {
+    data$selectedSessions <- data$summary$session
   }
 }
 

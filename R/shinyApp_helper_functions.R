@@ -209,7 +209,8 @@ get_javascript <- function() {
     $('#' + boxid).closest('.box').find('[data-widget=collapse]').click();
     };
     // shinyjs.resetClick = function() { Shiny.onInputChange('.clientValue-plotly_selected-A', 'null'); }
-    shinyjs.reset_page = function() { location.reload(); }
+    shinyjs.reset_page = function() { location.reload(); };
+    shinyjs.resetSelection = function() { Shiny.onInputChange('.clientValue-plotly_selected-A', 'null'); }
   "
 }
 
@@ -481,4 +482,15 @@ test_work_capacity <- function(data) {
     running <- NULL
   }
   return(c(cycling, running))
+}
+
+#' Update selection of sports
+#' @param data An object of class \code{reactivevalues}.
+#' @param session A shiny object.
+update_sport_selection <- function(data, session) {
+  shinyWidgets::updateCheckboxGroupButtons(
+    session = session,
+    inputId = "sports", 
+    selected = as.vector(data$identified_sports)
+  )
 }

@@ -340,12 +340,14 @@ create_option_box <- function(sport_options) {
       #   title = tagList("Options"),
       column(
         12,
+        fluidRow(
+          column(2,
         conditionalPanel(
           condition = "output.cond == false",
           shinyWidgets::actionBttn(
             inputId = "return_to_main_page",
             label = "Go back",
-            style = "unite",
+            style = "pill",
             color = "success"
           )
         ),
@@ -354,28 +356,34 @@ create_option_box <- function(sport_options) {
           shinyWidgets::actionBttn(
             inputId = "plotSelectedWorkouts",
             label = "Plot workouts",
-            style = "unite",
+            style = "pill",
             color = "success"
           )
-        ),
+        )), column(4, 
+        shinyWidgets::actionBttn(
+          inputId = "resetSelection",
+          label = "Reset session selection",
+          style = "unite",
+          color = "danger"
+        ))),
         style='padding-bottom:2%;')
     ), fluidRow(
       # ),
-      shinydashboard::box(
+      shinydashboard::box(height = '112px',
         status = "primary",
-        width = 3,
+        width = 2,
         collapsible = TRUE,
         title = tagList("Other tools"),
-        actionButton("showModalUnits", "Change units", icon("balance-scale"))
+        shinyWidgets::actionBttn(inputId = "showModalUnits", label = "Change units", icon = icon("balance-scale"), style = 'unite', color = 'primary')
       ),
       shinydashboard::box(
         status = "primary",
-        width = 3,
+        width = 4,
         collapsible = TRUE,
         title = tagList("Select variables to display"),
         shinyWidgets::pickerInput(
           inputId = "metricsSelected",
-          label = "Select metrics",
+          # label = "Select metrics",
           choices = c(
             "Distance" = "distance",
             "Duration" = "duration",
@@ -395,7 +403,8 @@ create_option_box <- function(sport_options) {
         collapsible = TRUE,
         title = tagList("Classified sports"),
         shinyWidgets::checkboxGroupButtons(
-          inputId = "sports", label = "Select from identified sports: ",
+          inputId = "sports", 
+          # label = "Select from identified sports: ",
           choices = sport_options, selected = sport_options,
           justified = TRUE, status = "info",
           checkIcon = list(yes = icon("ok", lib = "glyphicon"), no = icon("remove", lib = "glyphicon"))
@@ -421,14 +430,6 @@ create_summary_timeline_boxes <- function() {
           shiny::icon("reorder"),
           "Summary of selected workouts"
         ),
-        actionButton(
-          "highlight_selected_sessions",
-          "Highlight selected sessions"
-        ),
-        actionButton(
-          "clear_table_selection",
-          "Clear Table Selection"
-        ),
         DT::dataTableOutput("summary", height = "auto"),
         collapsible = FALSE
       ),
@@ -439,7 +440,7 @@ create_summary_timeline_boxes <- function() {
         collapsible = TRUE,
         collapsed = FALSE,
         title = tagList(shiny::icon("calendar", lib = "glyphicon"), "Workout Timeline"),
-        plotly::plotlyOutput("timeline_plot", height = "400px")
+        plotly::plotlyOutput("timeline_plot", height = "365px")
       )
     ))
   )
