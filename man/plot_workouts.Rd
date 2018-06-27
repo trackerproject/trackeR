@@ -4,7 +4,7 @@
 \alias{plot_workouts}
 \title{Plot an object of class trackeRdataSummary.}
 \usage{
-plot_workouts(sumX, what, plotly = TRUE, shiny = TRUE, date = TRUE,
+plot_workouts(sumX, what, sessions, shiny = TRUE, date = TRUE,
   group = c("total"), lines = TRUE)
 }
 \arguments{
@@ -12,7 +12,7 @@ plot_workouts(sumX, what, plotly = TRUE, shiny = TRUE, date = TRUE,
 
 \item{what}{Name of variables which should be plotted. Default is all.}
 
-\item{plotly}{Logical. Return plotly plots or standard TrackeR plots}
+\item{sessions}{A vector. Selected sessions by session number.}
 
 \item{shiny}{Logical. Whether plots are in a shiny environment.}
 

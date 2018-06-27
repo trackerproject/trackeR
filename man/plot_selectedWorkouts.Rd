@@ -5,8 +5,8 @@
 \title{Plot the profile for each selected session for a given variable (heart rate, altitude, pace).}
 \usage{
 plot_selectedWorkouts(x, session, what, sumX, threshold = TRUE,
-  smooth = FALSE, trend = TRUE, dates = TRUE, plotly = TRUE,
-  changepoints = FALSE, n_changepoints = 6, print_changepoints = FALSE)
+  smooth = FALSE, trend = TRUE, dates = TRUE, changepoints = FALSE,
+  n_changepoints = 6, print_changepoints = FALSE)
 }
 \arguments{
 \item{x}{An object of class \code{\link{trackeRdata}}.}
@@ -24,8 +24,6 @@ plot_selectedWorkouts(x, session, what, sumX, threshold = TRUE,
 \item{trend}{Logical. Should a smooth trend be plotted?}
 
 \item{dates}{Logical. Should the date of the session be used in the panel header?}
-
-\item{plotly}{Logical. Whether return plotly plots or standard TrackeR plot.}
 
 \item{changepoints}{Logical. Whether changepoints should be identified and plotted.}
 

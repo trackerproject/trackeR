@@ -6,7 +6,6 @@
 #' @param group Which group of variables should be plotted? This can either be
 #'     \code{total} or \code{moving}. Default is both.
 #' @param lines Should interpolating lines be plotted?
-#' @param plotly Logical. Return plotly plots or standard TrackeR plots
 #' @param shiny Logical. Whether plots are in a shiny environment.
 #' @param sessions A vector. Selected sessions by session number.
 #' @param ... Currently not used.

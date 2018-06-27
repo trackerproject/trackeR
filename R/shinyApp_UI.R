@@ -104,7 +104,7 @@ create_selected_workout_plot <- function(id, collapsed = FALSE) {
             circle = TRUE, status = "info", up = TRUE,
             icon = icon("wrench"), width = "300px",
 
-            tooltip = tooltipOptions(title = "Click to see inputs !"),
+            tooltip = shinyWidgets::tooltipOptions(title = "Click to see inputs !"),
             div(
               class = "form-group shiny-input-container", id = "processed_path",
               tags$label("Press button to detect changepoints:"),

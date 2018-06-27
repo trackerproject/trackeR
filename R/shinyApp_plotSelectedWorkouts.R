@@ -8,7 +8,6 @@
 #' @param smooth Logical. Should the data be smoothed?
 #' @param trend Logical. Should a smooth trend be plotted?
 #' @param dates Logical. Should the date of the session be used in the panel header?
-#' @param plotly Logical. Whether return plotly plots or standard TrackeR plot.
 #' @param changepoints Logical. Whether changepoints should be identified and plotted.
 #' @param print_changepoints Logical. Whether or not to print changepoint values (when changepoints = TRUE).
 #' @param n_changepoints A numeric. The threshold for the maximum number of changepoints to search for.

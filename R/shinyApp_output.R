@@ -57,6 +57,7 @@ generate_selected_sessions_object <- function(data, input,
   if (length(data$selectedSessions) == 0) {
     data$selectedSessions <- data$summary$session
   }
+  data$selectedSessions <- sort(data$selectedSessions)
 }
 
 #' Render summary table

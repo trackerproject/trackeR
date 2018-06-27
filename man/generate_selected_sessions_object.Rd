@@ -4,12 +4,21 @@
 \alias{generate_selected_sessions_object}
 \title{Generate an object with selected sessions}
 \usage{
-generate_selected_sessions_object(data, input)
+generate_selected_sessions_object(data, input, plot_selection = FALSE,
+  sport_selection = FALSE, table_selection = FALSE, no_selection = FALSE)
 }
 \arguments{
 \item{data}{An object of class \code{reactivevalues}.}
 
 \item{input}{A shiny object with user input.}
+
+\item{plot_selection}{A logical. Whether session selection made from a plot.}
+
+\item{sport_selection}{A logical. Whether session selection made from sport selector.}
+
+\item{table_selection}{A logical. Whether session selection made from the summary table.}
+
+\item{no_selection}{A logical. Whether no sessions are selected.}
 }
 \description{
 Generate an object with selected sessions
