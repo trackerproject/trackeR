@@ -175,6 +175,10 @@ plot.trackeRdataZones <- function(x,
 
     ## facets
     units <- get_units(x)
+
+    if (is.null(unit_reference_sport)) {
+        unit_reference_sport <- find_unit_reference_sport(object)
+    }
     ## Match units to those of unit_reference_sport
     un <- collect_units(units, unit_reference_sport = "running")
     for (va in unique(un$variable)) {

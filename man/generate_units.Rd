@@ -3,7 +3,7 @@
 \name{generate_units}
 \alias{generate_units}
 \alias{generateBaseUnits}
-\title{Generate base units}
+\title{Generate and set base units}
 \usage{
 generate_units(variable, unit, sport, ...)
 
@@ -22,7 +22,7 @@ corresponding to variable and unit.}
 \item{...}{Currently not used.}
 }
 \description{
-Generate base units
+Generate and set base units
 }
 \details{
 The avaialble units are
@@ -53,9 +53,9 @@ The avaialble units are
 default) or \code{F}
 }
 
-\code{generate_units} checks if the supplied combinations of
-\code{variable} and \code{sport} are valid.  If \code{unit} is
-specified, \code{generate_units} will not check if the supplied
-units are correct for the cirresponding combination of
-\code{variable} and \code{sport}.
+Note that \code{generate_units} checks if the supplied combinations
+of \code{variable} and \code{sport} are valid.
+\code{generate_units} will not check if any of the supplied units
+are correct for the corresponding combination of \code{variable}
+and \code{sport}.
 }

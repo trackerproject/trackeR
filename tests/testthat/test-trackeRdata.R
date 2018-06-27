@@ -32,9 +32,9 @@ test_that("trackeRdata extractor methods work [sport]", {
 })
 
 test_that("trackeRdata extractor methods work [session_duration, session_times]", {
-    expect_equal(as.numeric(session_duration(tcx1)), 5642, tolerance = tol)
-    expect_equal(as.numeric(session_duration(tcx2)), c(1640, 3970), tolerance = tol)
-    expect_equal(as.numeric(session_duration(gpx1)), 2095, tolerance = tol)
+    expect_equal(as.numeric(session_duration(tcx1)), 5642/60/60, tolerance = tol)
+    expect_equal(as.numeric(session_duration(tcx2)), c(1640, 3970)/60, tolerance = tol)
+    expect_equal(as.numeric(session_duration(gpx1)), 2095/60, tolerance = tol)
     expect_is(session_times(gpx4), "data.frame")
     expect_equal(nrow(session_times(gpx4)), 4)
     expect_equal(names(session_times(gpx4)), c("sessionStart", "sessionEnd"))

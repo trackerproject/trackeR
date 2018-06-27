@@ -69,7 +69,7 @@ generate_variable_names <- function() {
 }
 
 
-#' Generate base units
+#' Generate and set base units
 #'
 #' @param variable A vector of variables with user-specified units
 #' @param unit A vector with the user-specified units, corresponding
@@ -109,11 +109,11 @@ generate_variable_names <- function() {
 #' default) or \code{F}
 #' }
 #'
-#' \code{generate_units} checks if the supplied combinations of
-#' \code{variable} and \code{sport} are valid.  If \code{unit} is
-#' specified, \code{generate_units} will not check if the supplied
-#' units are correct for the cirresponding combination of
-#' \code{variable} and \code{sport}.
+#' Note that \code{generate_units} checks if the supplied combinations
+#' of \code{variable} and \code{sport} are valid.
+#' \code{generate_units} will not check if any of the supplied units
+#' are correct for the corresponding combination of \code{variable}
+#' and \code{sport}.
 #'
 #' @export
 generate_units <- function(variable,
@@ -136,7 +136,7 @@ generate_units <- function(variable,
                "W",
                "C",
                "min_per_km",
-               "s")
+               "min")
     sports <- c("cycling", "running", "swimming")
     out <- data.frame(variable = rep(varnames, 3),
                       unit = rep(units, 3),

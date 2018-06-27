@@ -6,8 +6,7 @@
 \usage{
 \method{plot}{trackeRdata}(x, session = NULL, what = c("pace",
   "heart_rate"), threshold = TRUE, smooth = FALSE, trend = TRUE,
-  dates = TRUE, unit_reference_sport = "cycling", moving_threshold = NULL,
-  ...)
+  dates = TRUE, unit_reference_sport = NULL, moving_threshold = NULL, ...)
 }
 \arguments{
 \item{x}{An object of class \code{\link{trackeRdata}}.}
@@ -25,6 +24,10 @@ defaults to all sessions.}
 
 \item{dates}{Logical. Should the date of the session be used in the
 panel header?}
+
+\item{unit_reference_sport}{The sport to inherit units from
+(default is taken to be the most frequent sport in
+\code{object}).}
 
 \item{moving_threshold}{A named vector of 3 speeds to be used for
 thresholding pace, given in the unit of the speed measurements

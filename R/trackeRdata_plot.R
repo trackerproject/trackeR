@@ -14,6 +14,9 @@
 #'     in \code{object}. If \code{NULL} (default), the speeds are
 #'     taken to be \code{c(cycling = 2, running = 1, swimming =
 #'     0.5)}. See Details.
+#' @param unit_reference_sport The sport to inherit units from
+#'     (default is taken to be the most frequent sport in
+#'     \code{object}).
 #' @param ... Further arguments to be passed to
 #'     \code{\link{threshold}} and
 #'     \code{\link{smootherControl.trackeRdata}}.
@@ -47,7 +50,7 @@ plot.trackeRdata <- function(x, session = NULL,
                              smooth = FALSE,
                              trend = TRUE,
                              dates = TRUE,
-                             unit_reference_sport = "cycling",
+                             unit_reference_sport = NULL,
                              moving_threshold = NULL,
                              ...){
     units <- get_units(x)
@@ -56,6 +59,9 @@ plot.trackeRdata <- function(x, session = NULL,
         session <- seq_along(x)
     }
 
+    if (is.null(unit_reference_sport)) {
+        unit_reference_sport <- find_unit_reference_sport(x)
+    }
     ## Match units to those of unit_reference_sport
     un <- collect_units(units, unit_reference_sport)
     for (va in unique(un$variable)) {
@@ -99,12 +105,12 @@ plot.trackeRdata <- function(x, session = NULL,
     speed_unit <- strsplit(un$unit[un$variable == "speed"], split = "_per_")[[1]]
     pace_unit <- paste(speed_unit[2], speed_unit[1], sep = "_per_")
     convert_pace <- match.fun(paste(pace_unit, un$unit[un$variable == "pace"], sep = "2"))
+
     x <- threshold(x,
                    variable = c("pace", "pace", "pace"),
                    lower = c(0, 0, 0),
                    upper = convert_pace(1/moving_threshold),
                    sport = names(moving_threshold))
-
 
     ## smooth
     if (smooth) {
@@ -302,7 +308,7 @@ plot_route <- function(x,
     sports <- get_sport(x)
 
     ## get prepared data.frame
-    df <- prepRoute(x, session = session, threshold = threshold, ...)
+    df <- prepare_route(x, session = session, threshold = threshold, ...)
     centers <- attr(df, "centers")
 
     if (speed) {
@@ -393,7 +399,7 @@ leaflet_route <- function(x,
     if (is.null(session)) session <- seq_along(x)
 
     ## get prepared data.frame
-    df <- prepRoute(x, session = session, threshold = threshold, ...)
+    df <- prepare_route(x, session = session, threshold = threshold, ...)
 
     ## prepare markers
     startIcon <- leaflet::makeIcon(
@@ -406,20 +412,21 @@ leaflet_route <- function(x,
     )
 
     ## prepare popups
-    units <- getUnits(x)
     sumX <- summary(x)
-    popupText <- function(session, start = TRUE){
+    units <- getUnits(sumX)
+    un <- collect_units(units, unit_reference_sport = attr(sumX, "unit_reference_sport"))
+    distance_unit_from_pace <- strsplit(un$unit[un$variable == "pace"], split = "_per_")[[1]][2]
+
+    popupText <- function(session, start = TRUE) {
         w <- which(sumX$session == session)
-        unitDist4pace <- strsplit(units$unit[units$variable == "pace"],
-                                  split = "_per_")[[1]][2]
         avgPace <- floor(sumX$avgPace[w] * 100) / 100
 
         paste(
             paste("<b>", ifelse(start, "Start", "End"), "of session", session, "</b>"),
             paste(sumX$sessionStart[w], "-", sumX$sessionEnd[w]),
-            paste("Distance:", round(sumX$distance[w], 2), units$unit[units$variable == "distance"]),
+            paste("Distance:", round(sumX$distance[w], 2), un$unit[un$variable == "distance"]),
             paste("Duration:", round(as.numeric(sumX$duration[w]), 2), units(sumX$duration[w])),
-            paste(paste0("Avg. pace (per 1 ", unitDist4pace, "):"),
+            paste(paste0("Avg. pace (per 1 ", distance_unit_from_pace, "):"),
                   paste(floor(avgPace), round(avgPace %% 1 * 60, 0), sep = ":"), "min:sec"),
             sep = "<br/>"
         )
@@ -488,7 +495,7 @@ leaflet_route <- function(x,
 }
 
 
-prepRoute <- function(x,
+prepare_route <- function(x,
                       session = 1,
                       threshold = TRUE,
                       ...) {
@@ -535,14 +542,10 @@ prepRoute <- function(x,
     zoomLat <- ceiling(0.9*log2(180 * 2 / lengthLat))
     zoom <- max(zoomLon, zoomLat)
 
-
     dfSplit <- centers <- vector("list", length(session))
     names(dfSplit) <- names(centers) <- as.character(session)
 
-    ## centers <- data.frame(session, NA, NA, NA)
-    ## names(centers) <- c("SessionID", "centerLon", "centerLat", "zoom")
-
-    for (i in session){
+    for (i in session) {
         ## get subset for session
         dfSub <- df[df$SessionID == which(i == session), , drop = FALSE]
 

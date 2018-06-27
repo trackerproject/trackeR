@@ -7,7 +7,7 @@ tol <- .Machine$double.eps
 
 
 test_that("summary method for trackeRdata objects [class, methods, output]", {
-    summ <- summary(runs)
+    summ <- summary(runs, unit_reference_sport = "cycling")
     expect_true(inherits(summ, "trackeRdataSummary"))
     expect_equal(nsessions(summ), 27, tolerance = tol)
     expect_true(as.numeric(sum(session_duration(summ))) > 1000)
@@ -18,7 +18,7 @@ test_that("summary method for trackeRdata objects [class, methods, output]", {
 })
 
 test_that("summary method for trackeRdata objects [change_units]", {
-    summ0 <- summary(runs)
+    summ0 <- summary(runs, unit_reference_sport = "cycling")
     summ1 <- summary(change_units(runs, c("speed", "distance"), c("mi_per_h", "mi"), c("cycling", "cycling")),
                      unit_reference_sport = "cycling")
     summ2 <- change_units(summ0, c("speed", "distance"), c("mi_per_h", "mi"))

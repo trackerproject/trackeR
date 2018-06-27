@@ -9,7 +9,9 @@
 #'     measurements in \code{object}. If \code{NULL} (default), the
 #'     speeds are taken to be \code{c(cycling = 2, running = 1,
 #'     swimming = 0.5)}. See Details.
-#' @param unit_reference_sport The sport to inherit units from (default is "cycling").
+#' @param unit_reference_sport The sport to inherit units from
+#'     (default is taken to be the most frequent sport in
+#'     \code{object}).
 #' @param ... Currently not used.
 #'
 #' @details
@@ -52,11 +54,17 @@
 summary.trackeRdata <- function(object,
                                 session = NULL,
                                 moving_threshold = NULL,
-                                unit_reference_sport = "cycling",
+                                unit_reference_sport = NULL,
                                 ...) {
     units <- get_units(object)
     sports <- get_sport(object)
+
+
     files <- attr(object, "file")
+
+    if (is.null(unit_reference_sport)) {
+        unit_reference_sport <- find_unit_reference_sport(object)
+    }
 
     ## Match units to those of unit_reference_sport
     un <- collect_units(units, unit_reference_sport)
@@ -91,11 +99,10 @@ summary.trackeRdata <- function(object,
     ## distance
     distance <- sapply(object, function(x) max(zoo::coredata(x$distance), na.rm = TRUE))
 
-    ## session length (unit set by difftime)
-    duration <- difftime(session_end, session_start)
-    du <- units(duration)
-    duration_unit <- switch(du, secs = "s", mins = "min", hours = "h", days = "d")
-    units[units$variable == "duration", "unit"] <- duration_unit
+    ## session length (unit set by units)
+    duration_unit <- un$unit[un$variable == "duration"]
+    du <- switch(duration_unit, "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days")
+    duration <- difftime(session_end, session_start, units = du)
 
     ## Get session durations moving and convert their units to duration_unit
     duration_moving <- lapply(session, function(sess) {
@@ -273,14 +280,16 @@ print.trackeRdataSummary <- function(x, ..., digits = 2) {
             units$unit[units$variable == "heart_rate"], "\n ")
 
         cat("Work to rest ratio:", round(x$wrRatio[i], digits), "\n")
-
-        mt <- attr(x, "moving_threshold")
-        cat("\n Moving thresholds:",
-            paste0(format(mt, digits = digits), " (", names(mt), ")"),
-            units$unit[units$variable == "speed"], "\n")
-
-        cat("\n")
     }
+    mt <- attr(x, "moving_threshold")
+    cat("\n Moving thresholds:",
+        paste0(format(mt, digits = digits), " (", names(mt), ")"),
+        units$unit[units$variable == "speed"], "\n")
+
+    cat(" Unit reference sport:",
+        attr(x, "unit_reference_sport"), "\n")
+
+    cat("\n")
 }
 
 
@@ -390,8 +399,10 @@ plot.trackeRdataSummary <- function(x,
     p <- ggplot(dat)
     if (date & ndates < nsessions)
         stop("All sessions must have unique starting times. Try date = FALSE instead.")
-    p <- p + geom_point(aes_(x = quote(xaxis), y = quote(value), color = quote(type)),
-        na.rm = TRUE) + labs(x = xlab, y = "") + guides(color = guide_legend(title = "Type")) +
+    p <- p +
+        geom_point(aes_(x = quote(xaxis), y = quote(value), color = quote(type)), na.rm = TRUE) +
+        labs(x = xlab, y = "") +
+        ## guides(color = guide_legend(title = "Type")) +
         scale_colour_manual(values = c(total = "#76BD58", moving = "#F68BA2", resting = "#5EB3F0"))
     ## color palette comes from colorspace::rainbow_hcl(3, c = 70)[c(2,1,3)] [1] '#5EB3F0'
     ## '#F68BA2' '#76BD58' an alternative from
@@ -430,7 +441,8 @@ plot.trackeRdataSummary <- function(x,
     }
     lab_sum <- Vectorize(lab_sum)
 
-    p <- p + facet_grid(facets = "variable ~ .", scales = "free_y", labeller = labeller(variable = lab_sum))  ## +
+    p <- p +
+        facet_grid(facets = "variable ~ .", scales = "free_y", labeller = labeller(variable = lab_sum))  ## +
 
     ## add bw theme and position of legend
     p <- p + theme_bw() + theme(legend.position = "top")
@@ -475,6 +487,9 @@ session_times.trackeRdataSummary <- function(object,
 session_duration.trackeRdataSummary <- function(object,
                                                 session = NULL,
                                                 ...) {
+    if (is.null(session)) {
+        session <- seq_along(object)
+    }
     object[session]$duration
 }
 

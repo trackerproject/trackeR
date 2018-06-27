@@ -195,19 +195,6 @@ change_units.trackeRdata <- function(object,
     }
 }
 
-## Colelcts the units from a reference sport and returns a simple
-## unit-specification df
-collect_units <- function(object,
-                          unit_reference_sport = "running") {
-    unit_reference_sport <- match.arg(unit_reference_sport, c("cycling", "running", "swimming"))
-    units <- object[object$sport == unit_reference_sport, ]
-    ## Add missing variables
-    units <- rbind(units, object[!(object$variable %in% units$variable), ])
-    units$sport <- NULL
-    rownames(units) <- NULL
-    attr(units, "unit_reference_sport") <- unit_reference_sport
-    units
-}
 
 #' Change the units of the variables in an \code{trackeRdataSummary} object
 #'
@@ -704,8 +691,6 @@ m_per_s2mi_per_min <- function(variable) {
 mi_per_min2m_per_s <- function(variable) {
     mi_per_h2m_per_s(variable * 60)
 }
-
-
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
@@ -766,9 +751,6 @@ km_per_h2mi_per_min <- function(variable) {
 mi_per_min2km_per_h <- function(variable) {
     mi_per_h2km_per_h(variable * 60)
 }
-
-
-
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
@@ -817,8 +799,6 @@ ft_per_min2mi_per_min <- function(variable) {
 mi_per_min2ft_per_min <- function(variable) {
     mi2ft(variable)
 }
-
-
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
@@ -855,8 +835,6 @@ ft_per_s2mi_per_min <- function(variable) {
 mi_per_min2ft_per_s <- function(variable) {
     mi2ft(variable/60)
 }
-
-
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
@@ -881,8 +859,6 @@ mi_per_h2mi_per_min <- function(variable) {
 mi_per_min2mi_per_h <- function(variable) {
     variable * 60
 }
-
-
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
@@ -895,10 +871,6 @@ km_per_min2mi_per_min <- function(variable) {
 mi_per_min2km_per_min <- function(variable) {
     mi2km(variable)
 }
-
-
-
-
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
@@ -1006,6 +978,15 @@ min_per_km2min_per_km <- function(variable) {
 #' @export
 min_per_mi2min_per_mi <- function(variable) {
     variable
+}
+h_per_km2min_per_km <- function(variable) {
+    variable * 60
+}
+h_per_mi2min_per_km <- function(variable) {
+    variable * 60 / mi2_km(1)
+}
+h_per_mi2min_per_mi <- function(variable) {
+    variable * 60
 }
 
 

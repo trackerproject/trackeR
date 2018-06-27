@@ -20,7 +20,7 @@ test_that("variables are generated correctly", {
     expect_equal(g[g$variable == "power", "unit"], rep("W", 1))
     expect_equal(g[g$variable == "temperature", "unit"], rep("C", 3))
     expect_equal(g[g$variable == "pace", "unit"], rep("min_per_km", 3))
-    expect_equal(g[g$variable == "duration", "unit"], rep("s", 3))
+    expect_equal(g[g$variable == "duration", "unit"], rep("min", 3))
 })
 
 test_that("thresholds are generated correctly", {
