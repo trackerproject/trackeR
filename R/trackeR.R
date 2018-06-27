@@ -128,9 +128,10 @@ nsessions <- function(object, ...) UseMethod("nsessions")
 #' Generic function for calculating session times
 #'
 #' @param object The object for which to calculate session start and end times.
+#' @param session The sessions for which to extract sports.
 #' @param ... Arguments to be passed to methods.
 #' @export
-session_times <- function(object, ...) UseMethod("session_times")
+session_times <- function(object, session, ...) UseMethod("session_times")
 
 #' Generic function for extracting sports
 #'
@@ -144,6 +145,7 @@ get_sport <- function(object, session, ...) UseMethod("get_sport")
 #' Generic function for calculating session durations
 #'
 #' @param object The object for which to calculate session durations.
+#' @param session The sessions for which to extract sports.
 #' @param ... Arguments to be passed to methods.
 #'
 #' @details
@@ -151,7 +153,7 @@ get_sport <- function(object, session, ...) UseMethod("get_sport")
 #' The times units will be inherited from \code{object}.
 #'
 #' @export
-session_duration <- function(object, ...) UseMethod("session_duration")
+session_duration <- function(object, session, ...) UseMethod("session_duration")
 
 
 #' Generic function for visualising the sessions on a time versus date plot

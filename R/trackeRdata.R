@@ -514,23 +514,25 @@ print.trackeRdata <- function(x,
 #' @rdname session_times
 #' @export
 session_times.trackeRdata <- function(object,
+                                      session = NULL,
                                       ...) {
-    data.frame(sessionStart = as.POSIXct(sapply(object, function(x) min(index(x))), origin = "1970-01-01"),
-               sessionEnd = as.POSIXct(sapply(object, function(x) max(index(x))), origin = "1970-01-01"))
+    if (is.null(session)) {
+        session <- seq_along(object)
+    }
+    out <- data.frame(sessionStart = as.POSIXct(sapply(object, function(x) min(index(x))),
+                                                origin = "1970-01-01"),
+                      sessionEnd = as.POSIXct(sapply(object, function(x) max(index(x))),
+                                              origin = "1970-01-01"))
+    out[session, ]
 }
 
 #' @rdname session_duration
 #' @export
 session_duration.trackeRdata <- function(object,
+                                         session = NULL,
                                          ...) {
-    units0 <- getUnits(object)
-    sport <- get_sport(object)
-    ## FIXME: what happens if sport is NAa
-
-    durUnit <- switch(units0$unit[units0$variable == "duration" & units0$sport == sport],
-                      "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days")
-    with(session_times(object), {
-        difftime(sessionEnd, sessionStart, units = durUnit)
+    with(session_times(object, session = session), {
+        difftime(sessionEnd, sessionStart)
     })
 }
 

@@ -174,15 +174,19 @@ plot.trackeRdataZones <- function(x,
     }
 
     ## facets
-    units <- getUnits(x)
+    units <- get_units(x)
     ## Match units to those of unit_reference_sport
     un <- collect_units(units, unit_reference_sport = "running")
     for (va in unique(un$variable)) {
         units$unit[units$variable == va] <- un$unit[un$variable == va]
     }
 
+    ##:ess-bp-start::browser@nil:##
+browser(expr=is.null(.ESSBP.[["@12@"]]));##:ess-bp-end:##
+
+
     ## Change units to those of unit_reference_sport
-    object <- changeUnits(object, units$variable, units$unit, units$sport)
+    object <- changeUnits(x, units$variable, units$unit, units$sport)
 
     lab_data <- function(series) {
         thisunit <- un$unit[un$variable == series]

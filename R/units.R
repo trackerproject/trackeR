@@ -260,6 +260,33 @@ change_units.trackeRdataSummary <- function(object,
     return(object)
 }
 
+change_units.trackeRdataZones <- function(object,
+                                          variable,
+                                          unit,
+                                          ...) {
+
+    current <- getUnits(object)
+
+    ## change units
+    for (i in variable) {
+        currentUnit <- current$unit[current$variable == i]
+        newUnit <- unit[which(variable == i)]
+        if (currentUnit != newUnit) {
+            conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
+            ## change zone limits
+            object[[i]]$lower <- conversion(object[[i]]$lower)
+            object[[i]]$upper <- conversion(object[[i]]$upper)
+            ## change units attribute
+            current$unit[current$variable == i] <- newUnit
+        }
+    }
+
+    ## update attributes and return
+    attr(object, "units") <- current
+    return(object)
+}
+
+
 #' Change the units of the variables in an \code{distrProfile} object
 #'
 #' @param object An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.
@@ -371,36 +398,6 @@ change_units.trackeRWprime <- function(object,
     attr(object, "units") <- current
     return(object)
 }
-
-change_units.trackeRdataZones <- function(object,
-                                          variable,
-                                          unit,
-                                          ...) {
-
-    current <- getUnits(object)
-
-    ## change units
-    for (i in variable) {
-        currentUnit <- current$unit[current$variable == i]
-        newUnit <- unit[which(variable == i)]
-        if (currentUnit != newUnit) {
-            conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
-            ## change zone limits
-            object[[i]]$lower <- conversion(object[[i]]$lower)
-            object[[i]]$upper <- conversion(object[[i]]$upper)
-            ## change units attribute
-            current$unit[current$variable == i] <- newUnit
-        }
-    }
-
-    ## update attributes and return
-    attr(object, "units") <- current
-    return(object)
-}
-
-
-
-
 
 
 #' Get the operation settings of an \code{trackeRdata} object

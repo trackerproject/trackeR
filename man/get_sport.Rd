@@ -14,7 +14,7 @@ get_sport(object, session, ...)
 
 \method{get_sport}{trackeRdata}(object, session = NULL, ...)
 
-\method{get_sport}{trackeRdataSummary}(object, ...)
+\method{get_sport}{trackeRdataSummary}(object, session = NULL, ...)
 }
 \arguments{
 \item{object}{The object from which to extract sports.}

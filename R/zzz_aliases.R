@@ -43,3 +43,7 @@ smootherControl.trackeRdata <- smoother_control.trackeRdata
 #' @rdname plot_route
 #' @export
 plotRoute <- plot_route
+
+#' @rdname leaflet_route
+#' @export
+leafletRoute <- leaflet_route

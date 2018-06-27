@@ -385,7 +385,7 @@ plot_route <- function(x,
 #' leafletRoute(runs, session = 23:24)
 #' }
 #' @export
-leafletRoute <- function(x,
+leaflet_route <- function(x,
                          session = NULL,
                          threshold = TRUE,
                          ...) {

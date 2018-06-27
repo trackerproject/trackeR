@@ -7,14 +7,16 @@
 \alias{session_duration.trackeRdataSummary}
 \title{Generic function for calculating session durations}
 \usage{
-session_duration(object, ...)
+session_duration(object, session, ...)
 
-\method{session_duration}{trackeRdata}(object, ...)
+\method{session_duration}{trackeRdata}(object, session = NULL, ...)
 
-\method{session_duration}{trackeRdataSummary}(object, ...)
+\method{session_duration}{trackeRdataSummary}(object, session = NULL, ...)
 }
 \arguments{
 \item{object}{The object for which to calculate session durations.}
+
+\item{session}{The sessions for which to extract sports.}
 
 \item{...}{Arguments to be passed to methods.}
 }

@@ -462,22 +462,29 @@ nsessions.trackeRdataSummary <- function(object, ...) {
     nrow(object)
 }
 
-
-#' @rdname get_sport
-#' @export
-get_sport.trackeRdataSummary <- function(object, ...) {
-    object$sport
-}
-
-
 #' @rdname session_times
 #' @export
-session_times.trackeRdataSummary <- function(object, ...) {
-    as.data.frame(object)[c("sessionStart", "sessionEnd")]
+session_times.trackeRdataSummary <- function(object,
+                                             session = NULL,
+                                             ...) {
+    as.data.frame(object[session])[, c("sessionStart", "sessionEnd")]
 }
 
 #' @rdname session_duration
 #' @export
-session_duration.trackeRdataSummary <- function(object, ...) {
-    object$duration
+session_duration.trackeRdataSummary <- function(object,
+                                                session = NULL,
+                                                ...) {
+    object[session]$duration
+}
+
+#' @rdname get_sport
+#' @export
+get_sport.trackeRdataSummary <- function(object,
+                                         session = NULL,
+                                         ...) {
+    if (is.null(session)) {
+        session <- seq_along(object)
+    }
+    object[session]$sport
 }
