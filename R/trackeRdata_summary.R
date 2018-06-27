@@ -338,7 +338,7 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...) {
 #' @param what Name of variables which should be plotted. Default is all.
 #' @param group Which group of variables should be plotted? This can either be
 #'     \code{total} or \code{moving}. Default is both.
-#' @param lines Should interpolating lines be plotted?
+#' @param trend Should a smooth trend be plotted?
 #' @param ... Currently not used.
 #' @seealso \code{\link{summary.trackeRdata}}
 #' @examples
@@ -352,7 +352,7 @@ plot.trackeRdataSummary <- function(x,
                                     date = TRUE,
                                     what = NULL,
                                     group = NULL,
-                                    lines = TRUE,
+                                    trend = TRUE,
                                     ...) {
 
     nsessions <- length(unique(x$session))
@@ -399,11 +399,7 @@ plot.trackeRdataSummary <- function(x,
     p <- ggplot(dat)
     if (date & ndates < nsessions)
         stop("All sessions must have unique starting times. Try date = FALSE instead.")
-    p <- p +
-        geom_point(aes_(x = quote(xaxis), y = quote(value), color = quote(type)), na.rm = TRUE) +
-        labs(x = xlab, y = "") +
-        ## guides(color = guide_legend(title = "Type")) +
-        scale_colour_manual(values = c(total = "#76BD58", moving = "#F68BA2", resting = "#5EB3F0"))
+
     ## color palette comes from colorspace::rainbow_hcl(3, c = 70)[c(2,1,3)] [1] '#5EB3F0'
     ## '#F68BA2' '#76BD58' an alternative from
     ## http://colorbrewer2.org/#type=qualitative&scheme=Dark2&n=3
@@ -412,11 +408,22 @@ plot.trackeRdataSummary <- function(x,
 
     ## possibly add lines for 2 or more sessions
     if (nsessions > 1) {
-        if (lines) {
-            p <- p + geom_line(aes_(x = quote(xaxis), y = quote(value),
-                color = quote(type)), na.rm = TRUE)
+        if (trend) {
+            p <- p + geom_line(stat = "smooth",
+                               method = "gam",
+                               formula = y ~ s(x, bs = "cs", k = 5),
+                               aes_(x = quote(xaxis), y = quote(value), color = quote(type)),
+                               alpha = 0.5, size = 1,
+                               se = FALSE,
+                               na.rm = TRUE)
         }
     }
+
+    p <- p +
+        geom_point(aes_(x = quote(xaxis), y = quote(value), color = quote(type)), alpha = 0.75, na.rm = TRUE) +
+        labs(x = xlab, y = "") +
+        ## guides(color = guide_legend(title = "Type")) +
+        scale_colour_manual(values = c(total = "#76BD58", moving = "#F68BA2", resting = "#5EB3F0"))
 
     ## facets
     lab_sum <- function(series) {
