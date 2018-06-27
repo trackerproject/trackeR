@@ -13,8 +13,8 @@
 #' @param auto_breaks Logical. Should breaks be selected
 #'     automatically? Default is \code{FALSE} and \code{breaks} will
 #'     be ignored if \code{TRUE}.
-#' @param n_zones A numeric. If auto_breaks=TRUE, select number of
-#'     zones for data to be split into.
+#' @param n_zones A numeric. If \code{auto_breaks = TRUE}, select
+#'     number of zones for data to be split into.
 #' @param ... Currently not used.
 #' @return An object of class \code{trackeRdataZones}.
 #' @seealso \code{\link{plot.trackeRdataZones}}
@@ -27,16 +27,20 @@
 #' runZones <- zones(run, what = 'speed', breaks = c(0, 2:6, 12.5))
 #' plot(runZones)
 #' @export
-zones <- function(object, session = NULL, what = c("speed", "heart_rate"), breaks = list(speed = 0:10,
-    heart_rate = c(0, seq(75, 225, by = 50), 250)), parallel = FALSE, auto_breaks = TRUE,
-    n_zones = 9, ...) {
+zones <- function(object,
+                  session = NULL,
+                  what = c("speed", "heart_rate"),
+                  breaks = list(speed = 0:10,  heart_rate = c(0, seq(75, 225, by = 50), 250)),
+                  parallel = FALSE,
+                  auto_breaks = TRUE,
+                  n_zones = 9,
+                  ...) {
 
     ## select sessions
     if (is.null(session)) {
         session <- seq_along(object)
     }
     object <- object[session]
-
 
     if (auto_breaks) {
         breaks <- list()
@@ -72,12 +76,15 @@ zones <- function(object, session = NULL, what = c("speed", "heart_rate"), break
         breaks <- list(breaks)
         names(breaks) <- what
     }
-    if (missing(what) & is.null(names(breaks)))
+    if (missing(what) & is.null(names(breaks))) {
         stop("Variable names need to be provided either in 'what' or the names of 'breaks'.")
-    if (missing(what))
+    }
+    if (missing(what)) {
         what <- names(breaks)
-    if (is.null(names(breaks)))
+    }
+    if (is.null(names(breaks))) {
         names(breaks) <- what
+    }
 
     ## utility function
     zones_for_single_variable <- function(sess, what, breaks) {
@@ -90,10 +97,12 @@ zones <- function(object, session = NULL, what = c("speed", "heart_rate"), break
         attr(td, "units") <- units(dur)
         class(td) <- "difftime"
         units(td) <- "mins"
-        ## td <- as.numeric(td)
 
-        ret <- data.frame(variable = what, zone = 1:(length(breaks) - 1), lower = breaks[-length(breaks)],
-            upper = breaks[-1], time = td, percent = perc)
+        ret <- data.frame(variable = what, zone = 1:(length(breaks) - 1),
+                          lower = breaks[-length(breaks)],
+                          upper = breaks[-1],
+                          time = td,
+                          percent = perc)
         return(ret)
     }
 
@@ -102,7 +111,9 @@ zones <- function(object, session = NULL, what = c("speed", "heart_rate"), break
         sess <- object[[j]]
         zones_for_single_variable(sess, what = i, breaks = breaks[[w]])
     }
+
     ret <- list()
+
     for (i in what) {
         foreach_object <- eval(as.call(c(list(quote(foreach::foreach),
                                               j = seq.int(nsessions(object)),
@@ -120,7 +131,7 @@ zones <- function(object, session = NULL, what = c("speed", "heart_rate"), break
         rownames(ret[[i]]) <- NULL
     }
 
-    attr(ret, "units") <- getUnits(object)
+    attr(ret, "units") <- get_units(object)
     class(ret) <- c("trackeRdataZones", class(ret))
     return(ret)
 }
@@ -135,12 +146,15 @@ zones <- function(object, session = NULL, what = c("speed", "heart_rate"), break
 #' runZones <- zones(run, what = 'speed', breaks = c(0, 2:6, 12.5))
 #' plot(runZones, percent = FALSE)
 #' @export
-plot.trackeRdataZones <- function(x, percent = TRUE, ...) {
+plot.trackeRdataZones <- function(x,
+                                  percent = TRUE,
+                                  ...) {
 
     dat <- do.call("rbind", x)
+
     dat$zoneF <- factor(paste0("[", paste(dat$lower, dat$upper, sep = "-"), ")"), levels = unique(paste0("[",
         paste(dat$lower, dat$upper, sep = "-"), ")")))
-    ## dat$session <- factor(dat$session)
+
     dat$Session <- dat$session  ## rename for legend title
     dat$timeN <- as.numeric(dat$time)
 
@@ -151,22 +165,27 @@ plot.trackeRdataZones <- function(x, percent = TRUE, ...) {
     if (percent) {
         p <- p + geom_bar(aes_(x = quote(zoneF), y = quote(percent),
             fill = quote(Session), group = quote(Session)), stat = "identity", position = position_dodge()) +
-            ylab("Percent")  ## +
-        ## guides(fill = guide_legend(title = 'Session'))
-    } else {
+            ylab("Percent")
+    }
+    else {
         p <- p + geom_bar(aes_(x = quote(zoneF), y = quote(timeN), fill = quote(Session),
             group = quote(Session)), stat = "identity", position = position_dodge()) +
-            ylab(paste0("Time [", units(dat$time), "]"))  ## +
-        ## guides(fill = guide_legend(title = 'Session'))
+            ylab(paste0("Time [", units(dat$time), "]"))
     }
-
-    ## set colors hclpal <- colorspace::rainbow_hcl(n = nl  evels(dat$session), c = 60) p <- p
-    ## + scale_fill_manual(values = hclpal)
 
     ## facets
     units <- getUnits(x)
+    ## Match units to those of unit_reference_sport
+    un <- collect_units(units, unit_reference_sport = "running")
+    for (va in unique(un$variable)) {
+        units$unit[units$variable == va] <- un$unit[un$variable == va]
+    }
+
+    ## Change units to those of unit_reference_sport
+    object <- changeUnits(object, units$variable, units$unit, units$sport)
+
     lab_data <- function(series) {
-        thisunit <- units$unit[units$variable == series]
+        thisunit <- un$unit[un$variable == series]
         prettyUnit <- prettifyUnits(thisunit)
         paste0(series, "\n[", prettyUnit, "]")
     }
@@ -184,6 +203,7 @@ plot.trackeRdataZones <- function(x, percent = TRUE, ...) {
 }
 
 #' @export
-nsessions.trackeRdataZones <- function(object, ...) {
+nsessions.trackeRdataZones <- function(object,
+                                       ...) {
     length(unique(object[[1]]$session))
 }

@@ -53,18 +53,20 @@ being divided in separate training sessions. For breaks within a
 session observations are imputed.
 }
 \details{
-During small breaks within a session, e.g., because the
-    recording device was paused, observations are imputed the
-    following way: 0 for speed, last known position for latitude,
-    longitude and altitude, NA or 0 power for running or cycling
-    session, respectively, and NA for all other
-    variables. Distances are (re-)calculated based on speeds after
-    imputation.
+During small breaks within a session, e.g., because the recording
+device was paused, observations are imputed the following way: 0
+for speed, last known position for latitude, longitude and
+altitude, NA or 0 power for running or cycling session,
+respectively, and NA for all other variables. Distances are
+(re-)calculated based on speeds after imputation.
 
-    \code{trackeRdata} assumes that all observations in \code{dat}
-    are from the same \code{sport}, even if \code{dat} ends up
-    having observations from different sessions (also depending on
-    the value of \code{session_threshold}.
+\code{trackeRdata} assumes that all observations in \code{dat} are
+from the same \code{sport}, even if \code{dat} ends up having
+observations from different sessions (also depending on the value
+of \code{session_threshold}.
+
+if \code{attr(dat, 'sport')} is \code{NA} then the current
+implementation of \code{trackeRdata} returns an error.
 }
 \examples{
 \dontrun{

@@ -20,10 +20,11 @@ readContainer(file, type = c("tcx", "gpx", "db3", "json"),
 \arguments{
 \item{file}{The path to the file.}
 
-\item{type}{The type of the GPS container file. Supported so far are \code{tcx}, \code{db3}, and \code{json}.}
+\item{type}{The type of the GPS container file. Supported so far
+are \code{tcx}, \code{db3}, and \code{json}.}
 
-\item{table}{The name of the table in the database if \code{type} is set to \code{db3},
-ignored otherwise.}
+\item{table}{The name of the table in the database if \code{type}
+is set to \code{db3}, ignored otherwise.}
 
 \item{timezone}{The timezone of the observations as passed on to
 \code{\link[base]{as.POSIXct}}.  Ignored for JSON files.}
@@ -43,19 +44,28 @@ for elevation?}
 the specified \code{country} be extracted (\code{TRUE}) or also
 those for the neighboring countries (\code{FALSE})?}
 
-\item{from_distances}{Logical. Should the speeds be calculated from the distance recordings
-instead of taken from the speed recordings directly. Defaults to \code{TRUE} for \code{tcx}
-and Golden Cheetah's json files and to \code{FALSE} for \code{db3} files.}
+\item{from_distances}{Logical. Should the speeds be calculated from
+the distance recordings instead of taken from the speed
+recordings directly. Defaults to \code{TRUE} for \code{tcx} and
+Golden Cheetah's json files and to \code{FALSE} for \code{db3}
+files.}
 
-\item{speedunit}{Character string indicating the measurement unit of the speeds in the container
-file to be converted into meters per second. Default is \code{m_per_s} when \code{type} is
-\code{tcx} and \code{km_per_h} when \code{type} is \code{db3} or \code{json}. See Details.}
+\item{speedunit}{Character string indicating the measurement unit
+of the speeds in the container file to be converted into meters
+per second. Default is \code{m_per_s} when \code{type} is
+\code{tcx} and \code{km_per_h} when \code{type} is \code{db3}
+or \code{json}. See Details.}
 
-\item{distanceunit}{Character string indicating the measurement unit of the distance in the container
-file to be converted into meters. Default is \code{m} when \code{type} is
-\code{tcx} and \code{km} when \code{type} is \code{db3} or \code{json}. See Details.}
+\item{distanceunit}{Character string indicating the measurement
+unit of the distance in the container file to be converted into
+meters. Default is \code{m} when \code{type} is \code{tcx} and
+\code{km} when \code{type} is \code{db3} or \code{json}. See
+Details.}
 
-\item{sport}{What sport does \code{file} contain data from? Either \code{'cycling'}, \code{'running'}, \code{'swimming'} or \code{NULL} (default), in which case the sport is directly obtained from the \code{\link{readX}} extractors.}
+\item{sport}{What sport does \code{file} contain data from? Either
+\code{'cycling'}, \code{'running'}, \code{'swimming'} or
+\code{NULL} (default), in which case the sport is directly
+obtained from the \code{\link{readX}} extractors.}
 
 \item{lgap}{Time in seconds corresponding to the minimal sampling rate.}
 
@@ -75,10 +85,19 @@ An object of class \code{\link{trackeRdata}}.
 Read a GPS container file
 }
 \details{
-Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_per_s},
-    \code{mi_per_h}, \code{ft_per_min} and \code{ft_per_s}.
-    Available options for \code{distanceunit} currently are \code{km}, \code{m}, \code{mi} and
-    \code{ft}.
+Available options for \code{speedunit} currently are
+\code{km_per_h}, \code{m_per_s}, \code{mi_per_h},
+\code{ft_per_min} and \code{ft_per_s}.  Available options for
+\code{distanceunit} currently are \code{km}, \code{m},
+\code{mi} and \code{ft}.
+
+\code{read_container} try to identify the sport from the data in
+the container file. If that fails, then an attempt is made to guess
+the sport from keywords in the filename. If identification is not
+possible then an error is returned from
+\code{\link{trackeRdata}}. To avoid that error, and if the sport is
+known, append an appropriate keyword to the filename (e.g. 'ride',
+'swim', 'run'). This should fix the error.
 }
 \examples{
 \dontrun{

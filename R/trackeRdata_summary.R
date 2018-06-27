@@ -49,8 +49,11 @@
 #' plot(runSummaryFull, group = c('total', 'moving'),
 #'     what = c('avgSpeed', 'distance', 'duration', 'avgHeartRate'))
 #' @export
-summary.trackeRdata <- function(object, session = NULL, moving_threshold = NULL,
-                                unit_reference_sport = "cycling", ...) {
+summary.trackeRdata <- function(object,
+                                session = NULL,
+                                moving_threshold = NULL,
+                                unit_reference_sport = "cycling",
+                                ...) {
     units <- get_units(object)
     sports <- get_sport(object)
     files <- attr(object, "file")
@@ -336,8 +339,12 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...) {
 #' plot(runSummary, date = FALSE, group = 'total',
 #'     what = c('distance', 'duration', 'avgSpeed'))
 #' @export
-plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL,
-                                    group = NULL, lines = TRUE, ...) {
+plot.trackeRdataSummary <- function(x,
+                                    date = TRUE,
+                                    what = NULL,
+                                    group = NULL,
+                                    lines = TRUE,
+                                    ...) {
 
     nsessions <- length(unique(x$session))
     ndates <- length(unique(x$sessionStart))

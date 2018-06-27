@@ -97,17 +97,15 @@ Read all supported container files from a supplied directory
 }
 \details{
 Available options for \code{speedunit} currently are
-    \code{km_per_h}, \code{m_per_s}, \code{mi_per_h},
-    \code{ft_per_min} and \code{ft_per_s}.  Available options for
-    \code{distanceunit} currently are \code{km}, \code{m},
-    \code{mi} and \code{ft}.
+\code{km_per_h}, \code{m_per_s}, \code{mi_per_h},
+\code{ft_per_min} and \code{ft_per_s}.  Available options for
+\code{distanceunit} currently are \code{km}, \code{m},
+\code{mi} and \code{ft}.
 
-    Reading Golden Cheetah's JSON files is experimental.
-
-    If \code{aggregate = TRUE}, then if \code{sport = NULL} the
-    sport in all sessions is determined by the first file read with
-    a sport specification; else if \code{sport} is one of the other
-    valid options it determines the sport for all sessions.
+If \code{aggregate = TRUE}, then if \code{sport = NULL} the
+sport in all sessions is determined by the first file read with
+a sport specification; else if \code{sport} is one of the other
+valid options it determines the sport for all sessions.
 }
 \seealso{
 \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}, \code{\link{readJSON}}

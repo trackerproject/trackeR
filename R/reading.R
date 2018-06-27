@@ -11,14 +11,24 @@
 #'     unit of the distance in the container file to be converted into
 #'     meters. See Details.
 #' @param ... Currently not used.
-#' @details Available options for \code{speedunit} currently are
-#'     \code{km_per_h}, \code{m_per_s}, \code{mi_per_h},
-#'     \code{ft_per_min} and \code{ft_per_s}. The default is
-#'     \code{m_per_s} for TCX files and \code{km_per_h} for db3 and
-#'     Golden Cheetah's json files.  Available options for
-#'     \code{distanceunit} currently are \code{km}, \code{m},
-#'     \code{mi} and \code{ft}. The default is \code{m} for TCX and
-#'     \code{km} for gpx, db3 and Golden Cheetah's json files.
+#' @details
+#'
+#' Available options for \code{speedunit} currently are
+#' \code{km_per_h}, \code{m_per_s}, \code{mi_per_h},
+#' \code{ft_per_min} and \code{ft_per_s}. The default is
+#' \code{m_per_s} for TCX files and \code{km_per_h} for db3 and
+#' Golden Cheetah's json files.  Available options for
+#' \code{distanceunit} currently are \code{km}, \code{m},
+#' \code{mi} and \code{ft}. The default is \code{m} for TCX and
+#' \code{km} for gpx, db3 and Golden Cheetah's json files.
+#'
+#' \code{readTCX}, \code{readGPX}, \code{readGPX} and \code{readDB3},
+#' try to identify the sport from the data in the container file. If
+#' that fails, then an attempt is made to guess the sport from
+#' keywords in the filename. If identification is not possible then
+#' the \code{file} attribute of the returned object has value
+#' \code{NA}.
+#'
 #' @export
 #' @name readX
 #' @examples
@@ -38,8 +48,11 @@
 #' }
 #'
 #' @export
-readTCX <- function(file, timezone = "",
-                    speedunit = "m_per_s", distanceunit = "m", ...) {
+readTCX <- function(file,
+                    timezone = "",
+                    speedunit = "m_per_s",
+                    distanceunit = "m",
+                    ...) {
 
     doc <- read_xml(file)
     ns <- xml_ns(doc)
@@ -167,8 +180,11 @@ readTCX <- function(file, timezone = "",
 #' @inheritParams readX
 #' @export
 #' @rdname readX
-readGPX <- function(file, timezone = "",
-                    speedunit = "km_per_h", distanceunit = "km", ...) {
+readGPX <- function(file,
+                    timezone = "",
+                    speedunit = "km_per_h",
+                    distanceunit = "km",
+                    ...) {
 
     ## https://developers.strava.com/docs/uploads/ assuming that
     ## regardless if activity is running or cycling cadence will be
@@ -178,7 +194,9 @@ readGPX <- function(file, timezone = "",
     doc <- read_xml(file)
     ns <- xml_ns(doc)
 
-    children_names <- function(x, xpath, ns) {
+    children_names <- function(x,
+                               xpath,
+                               ns) {
         unique(xml_name(xml_children(xml_find_all(x, xpath, ns))))
     }
 
@@ -312,8 +330,11 @@ readGPX <- function(file, timezone = "",
 #' @inheritParams readX
 #' @export
 #' @rdname readX
-readDB3 <- function(file, timezone = "", table = "gps_data",
-                    speedunit = "km_per_h", distanceunit = "km") {
+readDB3 <- function(file,
+                    timezone = "",
+                    table = "gps_data",
+                    speedunit = "km_per_h",
+                    distanceunit = "km") {
 
     db <- RSQLite::dbConnect(RSQLite::SQLite(), file)
     mydf <- RSQLite::dbReadTable(conn = db, name = table)
@@ -387,8 +408,11 @@ readDB3 <- function(file, timezone = "", table = "gps_data",
 #' @details Reading Golden Cheetah's JSON files is experimental.
 #' @export
 #' @rdname readX
-readJSON <- function(file, timezone = "",
-                     speedunit = "km_per_h", distanceunit = "km", ...) {
+readJSON <- function(file,
+                     timezone = "",
+                     speedunit = "km_per_h",
+                     distanceunit = "km",
+                     ...) {
     ## get all data
     jslist <- jsonlite::fromJSON(file)$RIDE
 
@@ -474,28 +498,49 @@ readJSON <- function(file, timezone = "",
 #' Read a GPS container file
 #'
 #' @param file The path to the file.
-#' @param type The type of the GPS container file. Supported so far are \code{tcx}, \code{db3}, and \code{json}.
-#' @param table The name of the table in the database if \code{type} is set to \code{db3},
-#'     ignored otherwise.
-#' @param from_distances Logical. Should the speeds be calculated from the distance recordings
-#'     instead of taken from the speed recordings directly. Defaults to \code{TRUE} for \code{tcx}
-#'     and Golden Cheetah's json files and to \code{FALSE} for \code{db3} files.
-#' @param speedunit Character string indicating the measurement unit of the speeds in the container
-#'     file to be converted into meters per second. Default is \code{m_per_s} when \code{type} is
-#'     \code{tcx} and \code{km_per_h} when \code{type} is \code{db3} or \code{json}. See Details.
-#' @param distanceunit Character string indicating the measurement unit of the distance in the container
-#'     file to be converted into meters. Default is \code{m} when \code{type} is
-#'     \code{tcx} and \code{km} when \code{type} is \code{db3} or \code{json}. See Details.
-#' @param sport What sport does \code{file} contain data from? Either \code{'cycling'}, \code{'running'}, \code{'swimming'} or \code{NULL} (default), in which case the sport is directly obtained from the \code{\link{readX}} extractors.
+#' @param type The type of the GPS container file. Supported so far
+#'     are \code{tcx}, \code{db3}, and \code{json}.
+#' @param table The name of the table in the database if \code{type}
+#'     is set to \code{db3}, ignored otherwise.
+#' @param from_distances Logical. Should the speeds be calculated from
+#'     the distance recordings instead of taken from the speed
+#'     recordings directly. Defaults to \code{TRUE} for \code{tcx} and
+#'     Golden Cheetah's json files and to \code{FALSE} for \code{db3}
+#'     files.
+#' @param speedunit Character string indicating the measurement unit
+#'     of the speeds in the container file to be converted into meters
+#'     per second. Default is \code{m_per_s} when \code{type} is
+#'     \code{tcx} and \code{km_per_h} when \code{type} is \code{db3}
+#'     or \code{json}. See Details.
+#' @param distanceunit Character string indicating the measurement
+#'     unit of the distance in the container file to be converted into
+#'     meters. Default is \code{m} when \code{type} is \code{tcx} and
+#'     \code{km} when \code{type} is \code{db3} or \code{json}. See
+#'     Details.
+#' @param sport What sport does \code{file} contain data from? Either
+#'     \code{'cycling'}, \code{'running'}, \code{'swimming'} or
+#'     \code{NULL} (default), in which case the sport is directly
+#'     obtained from the \code{\link{readX}} extractors.
 #' @inheritParams readX
 #' @inheritParams get_resting_periods
 #' @inheritParams impute_speeds
 #' @inheritParams trackeRdata
 #' @inheritParams sanity_checks
-#' @details  Available options for \code{speedunit} currently are \code{km_per_h}, \code{m_per_s},
-#'     \code{mi_per_h}, \code{ft_per_min} and \code{ft_per_s}.
-#'     Available options for \code{distanceunit} currently are \code{km}, \code{m}, \code{mi} and
-#'     \code{ft}.
+#' @details
+#'
+#' Available options for \code{speedunit} currently are
+#' \code{km_per_h}, \code{m_per_s}, \code{mi_per_h},
+#' \code{ft_per_min} and \code{ft_per_s}.  Available options for
+#' \code{distanceunit} currently are \code{km}, \code{m},
+#' \code{mi} and \code{ft}.
+#'
+#' \code{read_container} try to identify the sport from the data in
+#' the container file. If that fails, then an attempt is made to guess
+#' the sport from keywords in the filename. If identification is not
+#' possible then an error is returned from
+#' \code{\link{trackeRdata}}. To avoid that error, and if the sport is
+#' known, append an appropriate keyword to the filename (e.g. 'ride',
+#' 'swim', 'run'). This should fix the error.
 #'
 #' @return An object of class \code{\link{trackeRdata}}.
 #' @seealso \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}, \code{\link{readJSON}}
@@ -506,15 +551,22 @@ readJSON <- function(file, timezone = "",
 #' filepath <- system.file("extdata", "2013-06-08-090442.TCX", package = "trackeR")
 #' run <- read_container(filepath, type = "tcx", timezone = "GMT")
 #' }
-read_container <- function(file, type = c("tcx", "gpx", "db3", "json"),
-                          table = "gps_data", timezone = "", session_threshold = 2,
-                          correct_distances = FALSE,
-                          country = NULL, mask = TRUE,
-                          from_distances = NULL,
-                          speedunit = NULL, distanceunit = NULL,
-                          sport = NULL,
-                          lgap = 30, lskip = 5, m = 11,
-                          silent = FALSE) {
+read_container <- function(file,
+                           type = c("tcx", "gpx", "db3", "json"),
+                           table = "gps_data",
+                           timezone = "",
+                           session_threshold = 2,
+                           correct_distances = FALSE,
+                           country = NULL,
+                           mask = TRUE,
+                           from_distances = NULL,
+                           speedunit = NULL,
+                           distanceunit = NULL,
+                           sport = NULL,
+                           lgap = 30,
+                           lskip = 5,
+                           m = 11,
+                           silent = FALSE) {
     ## prepare args
     type <- match.arg(tolower(type), choices = c("tcx", "gpx", "db3", "json"))
     if (is.null(from_distances)){
@@ -594,18 +646,18 @@ read_container <- function(file, type = c("tcx", "gpx", "db3", "json"),
 #' @inheritParams impute_speeds
 #' @inheritParams trackeRdata
 #' @inheritParams sanity_checks
-#' @details Available options for \code{speedunit} currently are
-#'     \code{km_per_h}, \code{m_per_s}, \code{mi_per_h},
-#'     \code{ft_per_min} and \code{ft_per_s}.  Available options for
-#'     \code{distanceunit} currently are \code{km}, \code{m},
-#'     \code{mi} and \code{ft}.
+#' @details
 #'
-#'     Reading Golden Cheetah's JSON files is experimental.
+#' Available options for \code{speedunit} currently are
+#' \code{km_per_h}, \code{m_per_s}, \code{mi_per_h},
+#' \code{ft_per_min} and \code{ft_per_s}.  Available options for
+#' \code{distanceunit} currently are \code{km}, \code{m},
+#' \code{mi} and \code{ft}.
 #'
-#'     If \code{aggregate = TRUE}, then if \code{sport = NULL} the
-#'     sport in all sessions is determined by the first file read with
-#'     a sport specification; else if \code{sport} is one of the other
-#'     valid options it determines the sport for all sessions.
+#' If \code{aggregate = TRUE}, then if \code{sport = NULL} the
+#' sport in all sessions is determined by the first file read with
+#' a sport specification; else if \code{sport} is one of the other
+#' valid options it determines the sport for all sessions.
 #'
 #' @return An object of class \code{\link{trackeRdata}}.
 #' @seealso \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}, \code{\link{readJSON}}
@@ -623,7 +675,9 @@ read_directory <- function(directory,
                           speedunit = list(tcx = "m_per_s", gpx = "km_per_h", db3 = "km_per_h", json = "km_per_h"),
                           distanceunit = list(tcx = "m", gpx = "km", db3 = "km", json = "km"),
                           sport = NULL,
-                          lgap = 30, lskip = 5, m = 11,
+                          lgap = 30,
+                          lskip = 5,
+                          m = 11,
                           silent = FALSE,
                           parallel = FALSE,
                           verbose = TRUE) {

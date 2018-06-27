@@ -6,7 +6,8 @@
 #' @param dat Data set to be cleaned up.
 #' @param silent Logical. Should warnings be generated if any of the
 #'     sanity checks on the data are triggered?
-sanity_checks <- function(dat, silent) {
+sanity_checks <- function(dat,
+                          silent) {
     ## replace heart rate 0 with NA
     hr0 <- dat$heart_rate == 0
     if (any(hr0, na.rm = TRUE)) {
@@ -47,7 +48,10 @@ sanity_checks <- function(dat, silent) {
     return(dat)
 }
 
-get_altitude <- function(object, country = NULL, mask = TRUE, ...) {
+get_altitude <- function(object,
+                         country = NULL,
+                         mask = TRUE,
+                         ...) {
     ## are any locations available?
     firstLoc <- min(which(apply(object[, c("longitude", "latitude")], 1, function(x) !any(is.na(x)))))
     if (!is.finite(firstLoc)) {
@@ -71,14 +75,18 @@ get_altitude <- function(object, country = NULL, mask = TRUE, ...) {
     return(as.numeric(altitude))
 }
 
-ll2iso <- function(lon, lat) {
+ll2iso <- function(lon,
+                   lat) {
     country <- as.character(ggmap::revgeocode(c(lon, lat), output = "more")$country)
     ref <- data.frame(raster::getData("ISO3"), stringsAsFactors = FALSE)
     isocode <- ref$ISO3[ref$NAME == country]
     return(isocode)
 }
 
-distance_correction <- function(object, country = NULL, mask = TRUE, ...) {
+distance_correction <- function(object,
+                                country = NULL,
+                                mask = TRUE,
+                                ...) {
     ## get altitude data
     altitudeDwl <- try(get_altitude(object, country = country, mask = mask))
     if (!inherits(altitudeDwl, "try-error")) {
@@ -129,9 +137,13 @@ distance_correction <- function(object, country = NULL, mask = TRUE, ...) {
 #' and Cycling Data from GPS-Enabled Tracking Devices in
 #' R. \emph{Journal of Statistical Software}, \bold{82}(7),
 #' 1--29. doi:10.18637/jss.v082.i07
-impute_speeds <- function(session_data, from_distances = TRUE,
-                          lgap = 30, lskip = 5, m = 11,
-                          sport = "cycling", units = NULL) {
+impute_speeds <- function(session_data,
+                          from_distances = TRUE,
+                          lgap = 30,
+                          lskip = 5,
+                          m = 11,
+                          sport = "cycling",
+                          units = NULL) {
 
 
     ## If there are less than two observations then reurn the observation...
@@ -306,7 +318,9 @@ impute_speeds <- function(session_data, from_distances = TRUE,
 #' @param time Time.
 #' @param timeunit Time unit in speed, e.g., "hours" for speed in *_per_h.
 #' @return Speed in meters per second.
-distance2speed <- function(distance, time, timeunit){
+distance2speed <- function(distance,
+                           time,
+                           timeunit){
     speed <- c(diff(distance) / unclass(difftime(time[-1], time[-length(time)], units = timeunit)), 0)
     ## README: doesn't work if pervious distance is NA, needs to be impute with last known distance.
     return(speed)
@@ -319,7 +333,10 @@ distance2speed <- function(distance, time, timeunit){
 #' @param timeunit Time unit in speed, e.g., "hours" for speed in *_per_h.
 #' @param cumulative Logical. Should the cumulative distances be returned?
 #' @return Distance in meters.
-speed2distance <- function(speed, time, timeunit, cumulative = TRUE){
+speed2distance <- function(speed,
+                           time,
+                           timeunit,
+                           cumulative = TRUE){
     distance <- c(0, speed[-length(speed)] * unclass(difftime(time[-1], time[-length(time)], units = timeunit)))
     if (cumulative) distance <- cumsum(distance)  ## README: cumsum can't handle NAs
     return(distance)
@@ -335,7 +352,8 @@ speed2distance <- function(speed, time, timeunit, cumulative = TRUE){
 #'     for each session and the resting time between sessions, named
 #'     'sessions' and 'restingTime', respectively.
 #' @export
-get_resting_periods <- function(times, session_threshold) {
+get_resting_periods <- function(times,
+                                session_threshold) {
     if (length(times) == 0)
         return(NULL)
     t1 <- times[-length(times)]
@@ -356,7 +374,8 @@ get_resting_periods <- function(times, session_threshold) {
 ## Detects sessions in the output of readX functions according to
 ## session_threshold and returns a multivariate zoo object
 ## session_threshold in hours!
-get_sessions <- function(dat, session_threshold = 2) {
+get_sessions <- function(dat,
+                         session_threshold = 2) {
     ## get session IDs
     dat$sessionID <- NA
     resting <- get_resting_periods(dat$time, session_threshold)

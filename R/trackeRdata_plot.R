@@ -72,7 +72,11 @@ plot.trackeRdata <- function(x, session = NULL,
         }
     }
 
+
     x <- x[session]
+
+    ## Change units to those of unit_reference_sport
+    x <- changeUnits(x, units$variable, units$unit, units$sport)
 
     ## threshold
     if (threshold) {
@@ -231,7 +235,10 @@ prettifyUnits <- Vectorize(prettifyUnit)
 #'     instead of the default wide format?
 #' @param ... Ignored.
 #' @export
-fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
+fortify.trackeRdata <- function(model,
+                                data,
+                                melt = FALSE,
+                                ...){
     ret <- list()
     sports <- get_sport(model)
     for (i in seq_along(model)) {
@@ -275,8 +282,13 @@ fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
 #' plotRoute(runs, session = 6:7, source = "google", zoom = c(13, 14))
 #' }
 #' @export
-plot_route <- function(x, session = 1, zoom = NULL, speed = TRUE,
-                       threshold = TRUE, mfrow = NULL, ...) {
+plot_route <- function(x,
+                       session = 1,
+                       zoom = NULL,
+                       speed = TRUE,
+                       threshold = TRUE,
+                       mfrow = NULL,
+                       ...) {
 
     ## prep
     if (is.null(session)) {
@@ -373,7 +385,10 @@ plot_route <- function(x, session = 1, zoom = NULL, speed = TRUE,
 #' leafletRoute(runs, session = 23:24)
 #' }
 #' @export
-leafletRoute <- function(x, session = NULL, threshold = TRUE, ...){
+leafletRoute <- function(x,
+                         session = NULL,
+                         threshold = TRUE,
+                         ...) {
 
     if (is.null(session)) session <- seq_along(x)
 
@@ -473,7 +488,10 @@ leafletRoute <- function(x, session = NULL, threshold = TRUE, ...){
 }
 
 
-prepRoute <- function(x, session = 1, threshold = TRUE, ...){
+prepRoute <- function(x,
+                      session = 1,
+                      threshold = TRUE,
+                      ...) {
     ## get units for thresholds
     units <- getUnits(x)
 
@@ -568,7 +586,9 @@ prepRoute <- function(x, session = 1, threshold = TRUE, ...){
 #' @inheritParams timeline
 #' @rdname timeline
 #' @export
-timeline.trackeRdata  <- function(object, lims = NULL, ...) {
+timeline.trackeRdata  <- function(object,
+                                  lims = NULL,
+                                  ...) {
     df <- within(session_times(object), {
         day_s <- as.Date(sessionStart)
         day_e <-  as.Date(sessionEnd)
@@ -614,8 +634,11 @@ timeline.trackeRdata  <- function(object, lims = NULL, ...) {
 #' }
 #'
 #' @export
-ridges.trackeRdata <- function(x, session = NULL, what = "speed",
-                               smooth = TRUE, ...) {
+ridges.trackeRdata <- function(x,
+                               session = NULL,
+                               what = "speed",
+                               smooth = TRUE,
+                               ...) {
     x <- distributionProfile(x, session = session, what = what, auto_grid = TRUE)
     if (smooth) {
         x <- smoother(x, what = what, ...)

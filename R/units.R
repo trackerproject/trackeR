@@ -58,7 +58,11 @@ get_units.trackeRfpca <- function(object, ...) {
 
 
 ## not to be exported
-change_units.trackeRthresholds <- function(object, variable, unit, sport, ...) {
+change_units.trackeRthresholds <- function(object,
+                                           variable,
+                                           unit,
+                                           sport,
+                                           ...) {
     no_variable <- missing(variable)
     no_unit <- missing(variable)
     no_sport <- missing(sport)
@@ -104,7 +108,11 @@ change_units.trackeRthresholds <- function(object, variable, unit, sport, ...) {
 #' @param object An object of class \code{\link{trackeRdata}}.
 #' @inheritParams change_units
 #' @export
-change_units.trackeRdata <- function(object, variable, unit, sport,...) {
+change_units.trackeRdata <- function(object,
+                                     variable,
+                                     unit,
+                                     sport,
+                                     ...) {
     ## get current units and thresholds
     units <- get_units(object)
     operations <- get_operations(object)
@@ -189,7 +197,8 @@ change_units.trackeRdata <- function(object, variable, unit, sport,...) {
 
 ## Colelcts the units from a reference sport and returns a simple
 ## unit-specification df
-collect_units <- function(object, unit_reference_sport = "running") {
+collect_units <- function(object,
+                          unit_reference_sport = "running") {
     unit_reference_sport <- match.arg(unit_reference_sport, c("cycling", "running", "swimming"))
     units <- object[object$sport == unit_reference_sport, ]
     ## Add missing variables
@@ -208,7 +217,10 @@ collect_units <- function(object, unit_reference_sport = "running") {
 #' @param unit A vector with the units, corresponding to variable.
 #' @param ... Currently not used.
 #' @export
-change_units.trackeRdataSummary <- function(object, variable, unit, ...) {
+change_units.trackeRdataSummary <- function(object,
+                                            variable,
+                                            unit,
+                                            ...) {
     ## NOTE: variable is expected to contain concepts like 'speed' rather than variable
     ## names like 'avgSpeed' or 'avgSpeedMoving'.
     concept <- variable
@@ -255,7 +267,10 @@ change_units.trackeRdataSummary <- function(object, variable, unit, ...) {
 #' @param unit A vector with the units, corresponding to variable.
 #' @param ... Currently not used.
 #' @export
-change_units.distrProfile <- function(object, variable, unit, ...) {
+change_units.distrProfile <- function(object,
+                                      variable,
+                                      unit,
+                                      ...) {
     current <- getUnits(object)
 
     ## change units
@@ -284,7 +299,10 @@ change_units.distrProfile <- function(object, variable, unit, ...) {
 #' @param unit A vector with the units, corresponding to variable.
 #' @param ... Currently not used.
 #' @export
-change_units.conProfile <- function(object, variable, unit, ...) {
+change_units.conProfile <- function(object,
+                                    variable,
+                                    unit,
+                                    ...) {
     current <- getUnits(object)
 
     ## change units
@@ -313,7 +331,10 @@ change_units.conProfile <- function(object, variable, unit, ...) {
 #' @param unit A vector with the units, corresponding to variable.
 #' @param ... Currently not used.
 #' @export
-change_units.trackeRWprime <- function(object, variable, unit, ...) {
+change_units.trackeRWprime <- function(object,
+                                       variable,
+                                       unit,
+                                       ...) {
     ## get current unit
     current <- getUnits(object)
 
@@ -351,7 +372,10 @@ change_units.trackeRWprime <- function(object, variable, unit, ...) {
     return(object)
 }
 
-change_units.trackeRdataZones <- function(object, variable, unit, ...) {
+change_units.trackeRdataZones <- function(object,
+                                          variable,
+                                          unit,
+                                          ...) {
 
     current <- getUnits(object)
 

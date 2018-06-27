@@ -28,8 +28,8 @@ using the backend provided to \code{\link{foreach}}. Default is
 automatically? Default is \code{FALSE} and \code{breaks} will
 be ignored if \code{TRUE}.}
 
-\item{n_zones}{A numeric. If auto_breaks=TRUE, select number of
-zones for data to be split into.}
+\item{n_zones}{A numeric. If \code{auto_breaks = TRUE}, select
+number of zones for data to be split into.}
 
 \item{...}{Currently not used.}
 }

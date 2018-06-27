@@ -21,7 +21,10 @@
 #' runS <- smoother(run, fun = 'median', width = 20, what = 'speed')
 #' plot(runS, smooth = FALSE)
 #' @export
-smoother.trackeRdata <- function(object, session = NULL, control = list(...), ...) {
+smoother.trackeRdata <- function(object,
+                                 session = NULL,
+                                 control = list(...),
+                                 ...) {
 
     operations <- attr(object, "operations")
 
@@ -101,8 +104,11 @@ smoother.trackeRdata <- function(object, session = NULL, control = list(...), ..
 #'
 #' @seealso \code{\link{smoother.trackeRdata}}
 #' @export
-smoother_control.trackeRdata <- function(fun = "mean", width = 10, parallel = FALSE,
-    what = c("speed", "heart_rate"), nsessions = NA, ...) {
+smoother_control.trackeRdata <- function(fun = "mean",
+                                         width = 10,
+                                         parallel = FALSE,
+                                         what = c("speed", "heart_rate"),
+                                         nsessions = NA, ...) {
     # Basic checks for the arguments
     if (!is.character(fun)) {
         stop("'fun' should be a character string")

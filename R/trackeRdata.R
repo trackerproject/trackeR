@@ -22,18 +22,22 @@
 #' @inheritParams sanity_checks
 #' @inheritParams get_resting_periods
 #' @inheritParams impute_speeds
-#' @details During small breaks within a session, e.g., because the
-#'     recording device was paused, observations are imputed the
-#'     following way: 0 for speed, last known position for latitude,
-#'     longitude and altitude, NA or 0 power for running or cycling
-#'     session, respectively, and NA for all other
-#'     variables. Distances are (re-)calculated based on speeds after
-#'     imputation.
+#' @details
 #'
-#'     \code{trackeRdata} assumes that all observations in \code{dat}
-#'     are from the same \code{sport}, even if \code{dat} ends up
-#'     having observations from different sessions (also depending on
-#'     the value of \code{session_threshold}.
+#' During small breaks within a session, e.g., because the recording
+#' device was paused, observations are imputed the following way: 0
+#' for speed, last known position for latitude, longitude and
+#' altitude, NA or 0 power for running or cycling session,
+#' respectively, and NA for all other variables. Distances are
+#' (re-)calculated based on speeds after imputation.
+#'
+#' \code{trackeRdata} assumes that all observations in \code{dat} are
+#' from the same \code{sport}, even if \code{dat} ends up having
+#' observations from different sessions (also depending on the value
+#' of \code{session_threshold}.
+#'
+#' if \code{attr(dat, 'sport')} is \code{NA} then the current
+#' implementation of \code{trackeRdata} returns an error.
 #'
 #' @seealso \code{\link{readContainer}} for reading .tcx and .db3
 #'     files directly into \code{trackeRdata} objects.
@@ -64,10 +68,17 @@
 #' run <- readContainer(filepath, type = 'tcx', timezone = 'GMT')
 #' }
 #' @export
-trackeRdata <- function(dat, units = NULL, sport = NULL, session_threshold = 2,
-                        correct_distances = FALSE, from_distances = TRUE,
-                        country = NULL, mask = TRUE,
-                        lgap = 30, lskip = 5, m = 11,
+trackeRdata <- function(dat,
+                        units = NULL,
+                        sport = NULL,
+                        session_threshold = 2,
+                        correct_distances = FALSE,
+                        from_distances = TRUE,
+                        country = NULL,
+                        mask = TRUE,
+                        lgap = 30,
+                        lskip = 5,
+                        m = 11,
                         silent = FALSE) {
     ## file
     file <- attr(dat, "file")
@@ -131,7 +142,8 @@ trackeRdata <- function(dat, units = NULL, sport = NULL, session_threshold = 2,
 }
 
 #' @export
-c.trackeRdata <- function(..., recursive = FALSE) {
+c.trackeRdata <- function(...,
+                          recursive = FALSE) {
     ## FIXME: recursive argument
 
     input <- list(...)
@@ -251,7 +263,9 @@ c.trackeRdata <- function(..., recursive = FALSE) {
 #' @param ... Currently not used.
 #'
 #' @export
-sort.trackeRdata <- function(x, decreasing = FALSE, ...) {
+sort.trackeRdata <- function(x,
+                             decreasing = FALSE,
+                             ...) {
     oo <- order(sapply(x, function(session) index(session)[1]))
     if (decreasing) {
         ret <- x[rev(oo)]
@@ -274,7 +288,9 @@ sort.trackeRdata <- function(x, decreasing = FALSE, ...) {
 #' sessions in the \code{trackeRdata} object.
 #'
 #' @export
-unique.trackeRdata <- function(x, incomparables = FALSE, ...) {
+unique.trackeRdata <- function(x,
+                               incomparables = FALSE,
+                               ...) {
     ## NOTE: Consider determining uniqueness according to file name?
     start <- sapply(x, function(session) index(session)[1])
     inds <- !duplicated(start, incomparables = FALSE)
@@ -353,14 +369,17 @@ unique.trackeRdata <- function(x, incomparables = FALSE, ...) {
 #' @param file The file to which \code{object} is to be appended.
 #' @param ... Currently not used.
 #' @export
-append.trackeRdata <- function(object, file, ...) {
+append.trackeRdata <- function(object,
+                               file,
+                               ...) {
     old <- load(file)
     new <- c(old, object)
     save(new, file)
 }
 
 #' @export
-nsessions.trackeRdata <- function(object, ...) {
+nsessions.trackeRdata <- function(object,
+                                  ...) {
     length(object)
 }
 
@@ -375,8 +394,16 @@ nsessions.trackeRdata <- function(object, ...) {
 #' @inheritParams impute_speeds
 #' @seealso \code{\link{trackeRdata}}
 #' @export
-GC2trackeRdata <- function(gc, cycling = TRUE, correct_distances = FALSE, country = NULL,
-    mask = TRUE, from_distances = FALSE, lgap = 30, lskip = 5, m = 11, silent = FALSE) {
+GC2trackeRdata <- function(gc,
+                           cycling = TRUE,
+                           correct_distances = FALSE,
+                           country = NULL,
+                           mask = TRUE,
+                           from_distances = FALSE,
+                           lgap = 30,
+                           lskip = 5,
+                           m = 11,
+                           silent = FALSE) {
 
     units <- data.frame(
         variable = c("latitude", "longitude", "altitude", "distance", "heart_rate",
@@ -436,7 +463,8 @@ GC2trackeRdata <- function(gc, cycling = TRUE, correct_distances = FALSE, countr
 
 ## as.data.frame(x, row.names = NULL, optional = FALSE, ...)
 #' @export
-as.data.frame.trackeRdata <- function(x, ...) {
+as.data.frame.trackeRdata <- function(x,
+                                      ...) {
 
     ret <- vector(length = length(x), "list")
 
@@ -462,7 +490,10 @@ as.data.frame.trackeRdata <- function(x, ...) {
 #' \code{\link{trackeRdata}} object.
 #'
 #' @export
-print.trackeRdata <- function(x, duration = "h", ..., digits = 2) {
+print.trackeRdata <- function(x,
+                              duration = "h",
+                              ...,
+                              digits = 2) {
     units <- getUnits(x)
     x <- summary(x)
     x <- change_units(x, "duration", "h")
@@ -482,14 +513,16 @@ print.trackeRdata <- function(x, duration = "h", ..., digits = 2) {
 
 #' @rdname session_times
 #' @export
-session_times.trackeRdata <- function(object, ...) {
+session_times.trackeRdata <- function(object,
+                                      ...) {
     data.frame(sessionStart = as.POSIXct(sapply(object, function(x) min(index(x))), origin = "1970-01-01"),
                sessionEnd = as.POSIXct(sapply(object, function(x) max(index(x))), origin = "1970-01-01"))
 }
 
 #' @rdname session_duration
 #' @export
-session_duration.trackeRdata <- function(object, ...) {
+session_duration.trackeRdata <- function(object,
+                                         ...) {
     units0 <- getUnits(object)
     sport <- get_sport(object)
     ## FIXME: what happens if sport is NAa
@@ -503,7 +536,9 @@ session_duration.trackeRdata <- function(object, ...) {
 
 #' @rdname get_sport
 #' @export
-get_sport.trackeRdata <- function(object, session = NULL, ...) {
+get_sport.trackeRdata <- function(object,
+                                  session = NULL,
+                                  ...) {
     if (is.null(session)) {
         session <- seq_along(object)
     }

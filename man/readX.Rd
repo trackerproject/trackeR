@@ -46,13 +46,20 @@ format
 }
 \details{
 Available options for \code{speedunit} currently are
-    \code{km_per_h}, \code{m_per_s}, \code{mi_per_h},
-    \code{ft_per_min} and \code{ft_per_s}. The default is
-    \code{m_per_s} for TCX files and \code{km_per_h} for db3 and
-    Golden Cheetah's json files.  Available options for
-    \code{distanceunit} currently are \code{km}, \code{m},
-    \code{mi} and \code{ft}. The default is \code{m} for TCX and
-    \code{km} for gpx, db3 and Golden Cheetah's json files.
+\code{km_per_h}, \code{m_per_s}, \code{mi_per_h},
+\code{ft_per_min} and \code{ft_per_s}. The default is
+\code{m_per_s} for TCX files and \code{km_per_h} for db3 and
+Golden Cheetah's json files.  Available options for
+\code{distanceunit} currently are \code{km}, \code{m},
+\code{mi} and \code{ft}. The default is \code{m} for TCX and
+\code{km} for gpx, db3 and Golden Cheetah's json files.
+
+\code{readTCX}, \code{readGPX}, \code{readGPX} and \code{readDB3},
+try to identify the sport from the data in the container file. If
+that fails, then an attempt is made to guess the sport from
+keywords in the filename. If identification is not possible then
+the \code{file} attribute of the returned object has value
+\code{NA}.
 
 Reading Golden Cheetah's JSON files is experimental.
 }

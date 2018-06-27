@@ -6,15 +6,17 @@ guess_sport <- function(sport) {
         NA
     }
     else {
-        sport
+        ## In case of many matches, return the sport from the first match only
+        sport[1]
     }
 }
 
-removeColon <- function(x){
+removeColon <- function(x) {
     sapply(strsplit(x, split = ":"), paste, collapse = "")
 }
 
-convertTCXTimes2POSIXct <- function(x, timezone = ""){
+convertTCXTimes2POSIXct <- function(x,
+                                    timezone = ""){
 
     ## get first non-NA element to determine the format
     formatSample <- x[which.min(is.na(x))]
@@ -79,6 +81,8 @@ convertTCXTimes2POSIXct <- function(x, timezone = ""){
 
 ## Is the date within a certain period (including both start and end)?  Output is a
 ## logical vector for all dates.
-is_in_period <- function(dates, start, end) {
+is_in_period <- function(dates,
+                         start,
+                         end) {
     (dates >= start) & (dates <= end)
 }

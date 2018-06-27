@@ -116,7 +116,10 @@ generate_variable_names <- function() {
 #' \code{variable} and \code{sport}.
 #'
 #' @export
-generate_units <- function(variable, unit, sport, ...) {
+generate_units <- function(variable,
+                           unit,
+                           sport,
+                           ...) {
     ## Get the variable names
     varnames <- generate_variable_names()$human_names
     ## Remove time and add duration
@@ -184,7 +187,11 @@ generate_units <- function(variable, unit, sport, ...) {
 #'
 #' @param ... Currently not used.
 #' @export
-generate_thresholds <- function(variable, lower, upper, sport, ...) {
+generate_thresholds <- function(variable,
+                                lower,
+                                upper,
+                                sport,
+                                ...) {
     th <- generate_units()
     n_variables <- nrow(th)
     th$lower <- c(c(-90, -180, -500, 0, 0, 0, 0, 0, -30, 0, 0), # cycling
