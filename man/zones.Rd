@@ -6,7 +6,8 @@
 \usage{
 zones(object, session = NULL, what = c("speed", "heart_rate"),
   breaks = list(speed = 0:10, heart_rate = c(0, seq(75, 225, by = 50), 250)),
-  parallel = FALSE, auto_breaks = TRUE, n_zones = 9, ...)
+  parallel = FALSE, auto_breaks = TRUE, n_zones = 9,
+  unit_reference_sport = NULL, ...)
 }
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}
@@ -30,6 +31,10 @@ be ignored if \code{TRUE}.}
 
 \item{n_zones}{A numeric. If \code{auto_breaks = TRUE}, select
 number of zones for data to be split into.}
+
+\item{unit_reference_sport}{The sport to inherit units from
+(default is taken to be the most frequent sport in
+\code{object}).}
 
 \item{...}{Currently not used.}
 }

@@ -166,7 +166,7 @@ summary.trackeRdata <- function(object,
     summaries <- sapply(seq_along(object), function(j) {
         sp <- sports[j]
         weightedMeans(object[[j]],
-                      which = c("cadence_running", "cadence_cycling", "power", "heart_rate", "altitude"),
+                      which = c("cadence_running", "cadence_cycling", "power", "heart_rate", "altitude", "temperature"),
                       th = moving_threshold[sp])
     })
 
@@ -191,6 +191,7 @@ summary.trackeRdata <- function(object,
                       avgPower = summaries["power", ],
                       avgPowerMoving = summaries["power_moving", ],
                       avgHeartRate = summaries["heart_rate", ],
+                      avgTemperature = summaries["temperature", ],
                       avgHeartRateMoving = summaries["heart_rate_moving", ],
                       avgHeartRateResting = summaries["heart_rate_resting", ],
                       wrRatio = work2rest,
@@ -278,6 +279,9 @@ print.trackeRdataSummary <- function(x, ..., digits = 2) {
 
         cat("Average heart rate resting:", round(x$avgHeartRateResting[i], digits = digits),
             units$unit[units$variable == "heart_rate"], "\n ")
+
+        cat("Average temperature:", round(x$avgTemperature[i], digits = digits), units$unit[units$variable ==
+            "temperature"], "\n ")
 
         cat("Work to rest ratio:", round(x$wrRatio[i], digits), "\n")
     }

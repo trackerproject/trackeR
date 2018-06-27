@@ -64,7 +64,7 @@ change_units.trackeRthresholds <- function(object,
                                            sport,
                                            ...) {
     no_variable <- missing(variable)
-    no_unit <- missing(variable)
+    no_unit <- missing(unit)
     no_sport <- missing(sport)
 
     if (no_sport & no_unit & no_variable) {
@@ -126,7 +126,7 @@ change_units.trackeRdata <- function(object,
     th <- operations$threshold
 
     no_variable <- missing(variable)
-    no_unit <- missing(variable)
+    no_unit <- missing(unit)
     no_sport <- missing(sport)
 
     if (no_sport & no_unit & no_variable) {
@@ -146,8 +146,6 @@ change_units.trackeRdata <- function(object,
             }
 
             units$new_unit[inds] <- inputs$unit
-            ## Remove duration (only for trackeRdataSummary objects)
-            ## units <- units[!(units$variable == "duration"), ]
             units$fun <- paste(units$unit, units$new_unit, sep = "2")
             units$changed <- units$unit != units$new_unit
 
@@ -208,43 +206,61 @@ change_units.trackeRdataSummary <- function(object,
                                             variable,
                                             unit,
                                             ...) {
-    ## NOTE: variable is expected to contain concepts like 'speed' rather than variable
-    ## names like 'avgSpeed' or 'avgSpeedMoving'.
-    concept <- variable
-    units <- get_units(object)
-    current <- collect_units(units, unit_reference_sport = attr(object, "unit_reference_sport"))
 
-    mt <- attr(object, "moving_threshold")
-    object <- as.data.frame(object)
+    no_variable <- missing(variable)
+    no_unit <- missing(unit)
 
-    for (i in concept) {
-        variables <- names(object)[grep(pattern = i, names(object), ignore.case = TRUE)]
-        currentUnit <- current$unit[current$variable == i]  ## $concept
-        newUnit <- unit[which(concept == i)]
-        if (currentUnit != newUnit) {
-            conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
-            ## convert summary statistics
-            for (v in variables) {
-                object[, v] <- conversion(object[, v])
+    if (no_unit & no_variable) {
+        return(object)
+    }
+    else {
+        ## NOTE: variable is expected to contain concepts like 'speed' rather than variable
+        ## names like 'avgSpeed' or 'avgSpeedMoving'.
+        concept <- variable
+        units <- get_units(object)
+        current <- collect_units(units, unit_reference_sport = attr(object, "unit_reference_sport"))
+        p <- length(variable)
+
+        if (length(unit) == p) {
+            ## no need for collect_units as this is already done in summary
+
+            mt <- attr(object, "moving_threshold")
+            object <- as.data.frame(object)
+
+            for (i in concept) {
+                variables <- names(object)[grep(pattern = i, names(object), ignore.case = TRUE)]
+                currentUnit <- current$unit[current$variable == i]  ## $concept
+                newUnit <- unit[which(concept == i)]
+                if (currentUnit != newUnit) {
+                    conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
+                    ## convert summary statistics
+                    for (v in variables) {
+                        object[, v] <- conversion(object[, v])
+                    }
+                    ## convert moving threshold
+                    if (i == "speed")
+                        mt <- conversion(mt)
+                    ## update units
+                    current$unit[current$variable == i] <- newUnit
+                }
+
             }
-            ## convert moving threshold
-            if (i == "speed")
-                mt <- conversion(mt)
-            ## update units
-            current$unit[current$variable == i] <- newUnit
+
+            ## update units in units
+            for (va in current$variable) {
+                units$unit[units$variable == va] <- current$unit[current$variable == va]
+            }
+
+            ## update units attribute and return
+            attr(object, "units") <- units
+            attr(object, "moving_threshold") <- mt
+            class(object) <- c("trackeRdataSummary", class(object))
+            return(object)
         }
-
+        else {
+            stop("variable, unit and sport should have the same length.")
+        }
     }
-
-    for (va in current$variable) {
-        units$unit[units$variable == va] <- current$unit[current$variable == va]
-    }
-
-    ## update units attribute and return
-    attr(object, "units") <- units
-    attr(object, "moving_threshold") <- mt
-    class(object) <- c("trackeRdataSummary", class(object))
-    return(object)
 }
 
 change_units.trackeRdataZones <- function(object,
@@ -252,25 +268,54 @@ change_units.trackeRdataZones <- function(object,
                                           unit,
                                           ...) {
 
-    current <- getUnits(object)
+    no_variable <- missing(variable)
+    no_unit <- missing(unit)
 
-    ## change units
-    for (i in variable) {
-        currentUnit <- current$unit[current$variable == i]
-        newUnit <- unit[which(variable == i)]
-        if (currentUnit != newUnit) {
-            conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
-            ## change zone limits
-            object[[i]]$lower <- conversion(object[[i]]$lower)
-            object[[i]]$upper <- conversion(object[[i]]$upper)
-            ## change units attribute
-            current$unit[current$variable == i] <- newUnit
-        }
+    if (no_unit & no_variable) {
+        return(object)
     }
+    else {
+        ## NOTE: variable is expected to contain concepts like 'speed' rather than variable
+        ## names like 'avgSpeed' or 'avgSpeedMoving'.
+        units <- get_units(object)
+        current <- collect_units(units, unit_reference_sport = attr(object, "unit_reference_sport"))
+        p <- length(variable)
 
-    ## update attributes and return
-    attr(object, "units") <- current
-    return(object)
+        if (length(unit) == p) {
+            ## no need for collect_units as this is already done in summary
+
+            mt <- attr(object, "moving_threshold")
+
+            for (i in variable) {
+                variables <- names(object)[grep(pattern = i, names(object), ignore.case = TRUE)]
+                currentUnit <- current$unit[current$variable == i]
+                newUnit <- unit[which(variable == i)]
+                if (currentUnit != newUnit) {
+                    conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
+                    ## change zone limits
+                    object[[i]]$lower <- conversion(object[[i]]$lower)
+                    object[[i]]$upper <- conversion(object[[i]]$upper)
+                    ## convert moving threshold
+                    if (i == "speed")
+                        mt <- conversion(mt)
+                    ## update units
+                    current$unit[current$variable == i] <- newUnit
+                }
+            }
+
+            ## update units in units
+            for (va in current$variable) {
+                units$unit[units$variable == va] <- current$unit[current$variable == va]
+            }
+
+            attr(object, "units") <- units
+            attr(object, "moving_threshold") <- mt
+        }
+        else {
+            stop("variable, unit and sport should have the same length.")
+        }
+
+    }
 }
 
 

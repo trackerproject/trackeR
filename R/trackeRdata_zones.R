@@ -15,6 +15,9 @@
 #'     be ignored if \code{TRUE}.
 #' @param n_zones A numeric. If \code{auto_breaks = TRUE}, select
 #'     number of zones for data to be split into.
+#' @param unit_reference_sport The sport to inherit units from
+#'     (default is taken to be the most frequent sport in
+#'     \code{object}).
 #' @param ... Currently not used.
 #' @return An object of class \code{trackeRdataZones}.
 #' @seealso \code{\link{plot.trackeRdataZones}}
@@ -34,6 +37,7 @@ zones <- function(object,
                   parallel = FALSE,
                   auto_breaks = TRUE,
                   n_zones = 9,
+                  unit_reference_sport = NULL,
                   ...) {
 
     ## select sessions
@@ -86,6 +90,21 @@ zones <- function(object,
         names(breaks) <- what
     }
 
+    ## facets
+    units <- get_units(object)
+
+    if (is.null(unit_reference_sport)) {
+        unit_reference_sport <- find_unit_reference_sport(object)
+    }
+    ## Match units to those of unit_reference_sport
+    un <- collect_units(units, unit_reference_sport = unit_reference_sport)
+    for (va in unique(un$variable)) {
+        units$unit[units$variable == va] <- un$unit[un$variable == va]
+    }
+
+    duration_unit <- un$unit[un$variable == "duration"]
+    du <- switch(duration_unit, "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days")
+
     ## utility function
     zones_for_single_variable <- function(sess, what, breaks) {
         dur <- timeAboveThreshold(sess[, "speed"], 0, ge = TRUE)  ## use what or speed?
@@ -96,7 +115,7 @@ zones <- function(object,
         ## set time spent in zones to minutes
         attr(td, "units") <- units(dur)
         class(td) <- "difftime"
-        units(td) <- "mins"
+        units(td) <- du
 
         ret <- data.frame(variable = what, zone = 1:(length(breaks) - 1),
                           lower = breaks[-length(breaks)],
@@ -131,6 +150,7 @@ zones <- function(object,
         rownames(ret[[i]]) <- NULL
     }
 
+    attr(ret, "unit_reference_sport") <- unit_reference_sport
     attr(ret, "units") <- get_units(object)
     class(ret) <- c("trackeRdataZones", class(ret))
     return(ret)
@@ -173,25 +193,23 @@ plot.trackeRdataZones <- function(x,
             ylab(paste0("Time [", units(dat$time), "]"))
     }
 
-    ## facets
-    units <- get_units(x)
 
-    if (is.null(unit_reference_sport)) {
-        unit_reference_sport <- find_unit_reference_sport(object)
-    }
+    units <- get_units(x)
     ## Match units to those of unit_reference_sport
-    un <- collect_units(units, unit_reference_sport = "running")
+    un <- collect_units(units, unit_reference_sport = attr(x, "unit_reference_sport"))
     for (va in unique(un$variable)) {
         units$unit[units$variable == va] <- un$unit[un$variable == va]
     }
 
-    ##:ess-bp-start::browser@nil:##
-browser(expr=is.null(.ESSBP.[["@12@"]]));##:ess-bp-end:##
-
-
     ## Change units to those of unit_reference_sport
-    object <- changeUnits(x, units$variable, units$unit, units$sport)
+    object <- changeUnits(x, un$variable, un$unit, un$sport)
 
+
+    duration_unit <- un$unit[un$variable == "duration"]
+    du <- switch(duration_unit, "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days")
+
+
+    ## facets
     lab_data <- function(series) {
         thisunit <- un$unit[un$variable == series]
         prettyUnit <- prettifyUnits(thisunit)
