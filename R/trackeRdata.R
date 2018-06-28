@@ -547,3 +547,111 @@ get_sport.trackeRdata <- function(object,
     attr(object, "sport")[session]
 }
 
+#' Get the units of the variables in an \code{trackeRdata} object
+#'
+#' @param object An object of class \code{\link{trackeRdata}}.
+#' @param ... Currently not used.
+#' @export
+get_units.trackeRdata <- function(object, ...) {
+    attr(object, "units")
+}
+
+#' Change the units of the variables in an \code{trackeRdata} object
+#'
+#' @param object An object of class \code{\link{trackeRdata}}.
+#' @inheritParams change_units
+#' @export
+change_units.trackeRdata <- function(object,
+                                     variable,
+                                     unit,
+                                     sport,
+                                     ...) {
+    ## get current units and thresholds
+    units <- get_units(object)
+    operations <- get_operations(object)
+    sports <- get_sport(object)
+
+    is_na_sports <- is.na(sport)
+    if (any(is.na(sports))) {
+        stop("cannot change units. The sport for sessions", which(is_na_sports), "has not been identified. See ?set_sport on how to set a sport for those sessions.")
+    }
+
+    th <- operations$threshold
+
+    no_variable <- missing(variable)
+    no_unit <- missing(unit)
+    no_sport <- missing(sport)
+
+    if (no_sport & no_unit & no_variable) {
+        return(object)
+    }
+    else {
+        p <- length(sport)
+        if (length(unit) == p & length(variable) == p) {
+            inputs <- data.frame(sport = sport, variable = variable, unit = unit, stringsAsFactors = FALSE)
+            inds <- match(paste(inputs$sport, inputs$variable, sep = "-"),
+                          paste(units$sport, units$variable, sep = "-"),
+                          nomatch = 0)
+            units$new_unit <- units$unit
+            ## If variable/sport/units combinations do not exist then the object is returned
+            if (all(inds == 0)) {
+                stop("some of the supplied combinations of sport and variable do not exist.")
+            }
+
+            units$new_unit[inds] <- inputs$unit
+            units$fun <- paste(units$unit, units$new_unit, sep = "2")
+            units$changed <- units$unit != units$new_unit
+
+            ## Check for crappy units
+            ch <- sapply(units$fun, match.fun)
+
+            for (sp in unique(sports)) {
+                un <- subset(units, sport == sp)
+                for (k in which(un$changed)) {
+                    convert <- match.fun(un$fun[k])
+                    va <- un$variable[k]
+                    ## Do thresholds if they exist
+                    if (!is.null(th)) {
+                        th[th$sport == sp & th$variable == va, "lower"] <-
+                            convert(th[th$sport == sp & th$variable == va, "lower"])
+                        th[th$sport == sp & th$variable == va, "upper"] <-
+                            convert(th[th$sport == sp & th$variable == va, "upper"])
+                        th[th$sport == sp & th$variable == va, "unit"] <-
+                            un$new_unit[k]
+                    }
+                    ## trackeRdata objects do not carry duration so skip
+                    if (va == "duration") {
+                        next
+                    }
+                    for (sess in which(sports == sp)) {
+                        object[[sess]][, va] <- convert(object[[sess]][, va])
+                    }
+                }
+            }
+
+            ## Clean up units
+            units$unit <- units$new_unit
+            units$fun <- units$new_unit <- units$changed <- NULL
+
+            ## update attributes and return
+            attr(object, "units") <- units
+            operations$threshold <- th
+            attr(object, "operations") <- operations
+            return(object)
+
+        }
+        else {
+            stop("variable, unit and sport should have the same length.")
+        }
+    }
+}
+
+
+#' Get the operation settings of an \code{trackeRdata} object
+#'
+#' @param object An object of class \code{\link{trackeRdata}}.
+#' @param ... Currently not used.
+#' @export
+get_operations.trackeRdata <- function(object, ...) {
+    attr(object, "operations")
+}

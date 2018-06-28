@@ -25,11 +25,12 @@
 #' \item distance [0, Inf] meters
 #' \item cadence_running [0, Inf] steps per min
 #' \item cadence_cycling [0, Inf] revolutions per min
-#' \item distance [0, Inf] meters
+#' \item speed [0, Inf] meters
 #' \item heart rate [0, 250] bpm
 #' \item power [0, Inf] W
 #' \item pace [0, Inf] min per km
 #' \item duration [0, Inf] seconds
+#' \item temperature [-20, 60] C
 #' }
 #' after they have been tranformed to the units of the \code{object}
 #'
@@ -131,4 +132,55 @@ threshold.trackeRdata <- function(object,
     attr(object, "operations") <- operations
 
     return(object)
+}
+
+## not to be exported
+get_units.trackeRthresholds <- function(object, ...) {
+    object[, c("variable", "unit")]
+}
+
+
+## not to be exported
+change_units.trackeRthresholds <- function(object,
+                                           variable,
+                                           unit,
+                                           sport,
+                                           ...) {
+    no_variable <- missing(variable)
+    no_unit <- missing(unit)
+    no_sport <- missing(sport)
+
+    if (no_sport & no_unit & no_variable) {
+        return(object)
+    }
+    else {
+        p <- length(sport)
+        if (length(unit) == p & length(variable) == p) {
+            inputs <- data.frame(sport = sport, variable = variable, unit = unit, stringsAsFactors = FALSE)
+            inds <- match(paste(inputs$sport, inputs$variable, sep = "-"),
+                          paste(object$sport, object$variable, sep = "-"),
+                          nomatch = 0)
+            object$new_unit <- object$unit
+            ## If variable/sport/units combinations do not exist then the object is returned
+            if (all(inds == 0)) {
+                stop("some of the supplied combinations of sport and variable do not exist.")
+            }
+
+            object$new_unit[inds] <- inputs$unit
+            object$fun <- paste(object$unit, object$new_unit, sep = "2")
+
+            ## Check for crappy units is inherent below
+            for (i in seq.int(nrow(object))) {
+                convert <- match.fun(object$fun[i])
+                object[i, "lower"] <- convert(object[i, "lower"])
+                object[i, "upper"] <- convert(object[i, "upper"])
+            }
+            object$unit <- object$new_unit
+            object$fun <- object$new_unit <- NULL
+            return(object)
+        }
+        else {
+            stop("variable, unit and sport should have the same length.")
+        }
+    }
 }

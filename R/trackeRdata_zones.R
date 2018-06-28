@@ -233,3 +233,76 @@ nsessions.trackeRdataZones <- function(object,
                                        ...) {
     length(unique(object[[1]]$session))
 }
+
+#' Get the units of the variables in an \code{trackeRdataZones} object
+#'
+#' @param object An object of class \code{trackeRdataZones}.
+#' @param ... Currently not used.
+#' @export
+get_units.trackeRdataZones <- function(object, ...) {
+    attr(object, "units")
+}
+
+
+#' Change the units of the variables in an \code{trackeRdataZones} object
+#'
+#' @param object An object of class \code{trackeRdataZones}.
+#' @param variable A vector of variables to be changed. Note, these are expected to be
+#'     concepts like 'speed' rather than variable names like 'avgSpeed' or 'avgSpeedMoving'.
+#' @param unit A vector with the units, corresponding to variable.
+#' @param ... Currently not used.
+#' @export
+change_units.trackeRdataZones <- function(object,
+                                          variable,
+                                          unit,
+                                          ...) {
+
+    no_variable <- missing(variable)
+    no_unit <- missing(unit)
+
+    if (no_unit & no_variable) {
+        return(object)
+    }
+    else {
+        ## NOTE: variable is expected to contain concepts like 'speed' rather than variable
+        ## names like 'avgSpeed' or 'avgSpeedMoving'.
+        units <- get_units(object)
+        current <- collect_units(units, unit_reference_sport = attr(object, "unit_reference_sport"))
+        p <- length(variable)
+
+        if (length(unit) == p) {
+            ## no need for collect_units as this is already done in summary
+
+            mt <- attr(object, "moving_threshold")
+
+            for (i in variable) {
+                variables <- names(object)[grep(pattern = i, names(object), ignore.case = TRUE)]
+                currentUnit <- current$unit[current$variable == i]
+                newUnit <- unit[which(variable == i)]
+                if (currentUnit != newUnit) {
+                    conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
+                    ## change zone limits
+                    object[[i]]$lower <- conversion(object[[i]]$lower)
+                    object[[i]]$upper <- conversion(object[[i]]$upper)
+                    ## convert moving threshold
+                    if (i == "speed")
+                        mt <- conversion(mt)
+                    ## update units
+                    current$unit[current$variable == i] <- newUnit
+                }
+            }
+
+            ## update units in units
+            for (va in current$variable) {
+                units$unit[units$variable == va] <- current$unit[current$variable == va]
+            }
+
+            attr(object, "units") <- units
+            attr(object, "moving_threshold") <- mt
+        }
+        else {
+            stop("variable, unit and sport should have the same length.")
+        }
+
+    }
+}

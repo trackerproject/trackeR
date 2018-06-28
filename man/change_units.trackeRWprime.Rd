@@ -2,12 +2,12 @@
 % Please edit documentation in R/units.R
 \name{change_units.trackeRWprime}
 \alias{change_units.trackeRWprime}
-\title{Change the units of the variables in an \code{trackeRdata} object}
+\title{Change the units of the variables in an \code{trackeRWprime} object}
 \usage{
 \method{change_units}{trackeRWprime}(object, variable, unit, ...)
 }
 \arguments{
-\item{object}{An object of class \code{\link{trackeRdata}}.}
+\item{object}{An object of class \code{\link{trackeRWprime}}.}
 
 \item{variable}{A vector of variables to be changed.}
 
@@ -16,5 +16,5 @@
 \item{...}{Currently not used.}
 }
 \description{
-Change the units of the variables in an \code{trackeRdata} object
+Change the units of the variables in an \code{trackeRWprime} object
 }

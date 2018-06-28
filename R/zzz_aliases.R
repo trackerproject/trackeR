@@ -47,3 +47,7 @@ plotRoute <- plot_route
 #' @rdname leaflet_route
 #' @export
 leafletRoute <- leaflet_route
+
+#' @rdname concentration_profile
+#' @export
+concentrationProfile <- concentration_profile

@@ -514,3 +514,84 @@ get_sport.trackeRdataSummary <- function(object,
     }
     object[session]$sport
 }
+
+#' Get the units of the variables in an \code{trackeRdataSummary} object
+#'
+#' @param object An object of class \code{trackeRdataSummary}.
+#' @param ... Currently not used.
+#' @export
+get_units.trackeRdataSummary <- function(object, ...) {
+    attr(object, "units")
+}
+
+
+#' Change the units of the variables in an \code{trackeRdataSummary} object
+#'
+#' @param object An object of class \code{trackeRdataSummary}.
+#' @param variable A vector of variables to be changed. Note, these are expected to be
+#'     concepts like 'speed' rather than variable names like 'avgSpeed' or 'avgSpeedMoving'.
+#' @param unit A vector with the units, corresponding to variable.
+#' @param ... Currently not used.
+#' @export
+change_units.trackeRdataSummary <- function(object,
+                                            variable,
+                                            unit,
+                                            ...) {
+
+    no_variable <- missing(variable)
+    no_unit <- missing(unit)
+
+    if (no_unit & no_variable) {
+        return(object)
+    }
+    else {
+        ## NOTE: variable is expected to contain concepts like 'speed' rather than variable
+        ## names like 'avgSpeed' or 'avgSpeedMoving'.
+        concept <- variable
+        units <- get_units(object)
+        current <- collect_units(units, unit_reference_sport = attr(object, "unit_reference_sport"))
+        p <- length(variable)
+
+        if (length(unit) == p) {
+            ## no need for collect_units as this is already done in summary
+
+            mt <- attr(object, "moving_threshold")
+            object <- as.data.frame(object)
+
+            for (i in concept) {
+                variables <- names(object)[grep(pattern = i, names(object), ignore.case = TRUE)]
+                currentUnit <- current$unit[current$variable == i]  ## $concept
+                newUnit <- unit[which(concept == i)]
+                if (currentUnit != newUnit) {
+                    conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
+                    ## convert summary statistics
+                    for (v in variables) {
+                        object[, v] <- conversion(object[, v])
+                    }
+                    ## convert moving threshold
+                    if (i == "speed")
+                        mt <- conversion(mt)
+                    ## update units
+                    current$unit[current$variable == i] <- newUnit
+                }
+
+            }
+
+            ## update units in units
+            for (va in current$variable) {
+                units$unit[units$variable == va] <- current$unit[current$variable == va]
+            }
+
+            ## update units attribute and return
+            attr(object, "units") <- units
+            attr(object, "moving_threshold") <- mt
+            class(object) <- c("trackeRdataSummary", class(object))
+            return(object)
+        }
+        else {
+            stop("variable, unit and sport should have the same length.")
+        }
+    }
+}
+
+
