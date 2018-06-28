@@ -233,7 +233,6 @@ scaled.distrProfile <- function(object, session  = NULL, what = c("speed", "hear
 #' @param threshold The threshold.
 #' @param ge Logical. Should time include the thereshold (greater or equal to threshold) or not (greater only)?
 timeAboveThreshold <- function(object, threshold = -1, ge = TRUE) {
-
     n <- length(object)
     if (ge){
         aboveThreshold <- object >= threshold
@@ -241,20 +240,8 @@ timeAboveThreshold <- function(object, threshold = -1, ge = TRUE) {
         aboveThreshold <- object > threshold
     }
     missing <- is.na(object)
-
     dt <- diff(index(object))
     sum(dt[aboveThreshold[-n] & !missing[-n]])
-
-    ## indices <- seq_along(object)
-    ## times <- index(object)
-    ## if (ge)
-    ##     indicesAboveThreshold <- indices[object >= threshold & !is.na(object >= threshold)]
-    ## else
-    ##     indicesAboveThreshold <- indices[object > threshold & !is.na(object > threshold)]
-    ## timesAboveThreshold <- times[indicesAboveThreshold]
-    ## n <- length(indicesAboveThreshold)
-    ## sum(diff(timesAboveThreshold)[diff(indicesAboveThreshold) == 1])
-
 }
 
 
@@ -459,7 +446,8 @@ smoother.distrProfile <- function(object, session = NULL, control = list(...), .
                 ret[[i]] <- zoo(smoothedProfile, order.by = index(object[[i]]))
                 ## README: originally used order.by = dsm$x which is the same as arg x of decreasingSmoother if len = NULL.
             }
-        } else {
+        }
+        else {
             cl <- parallel::makePSOCKcluster(rep("localhost", control$cores))
             ## parallel::parLapply(cl, ...)
             for (i in what){
@@ -477,7 +465,8 @@ smoother.distrProfile <- function(object, session = NULL, control = list(...), .
             }
             parallel::stopCluster(cl)
         }
-    } else {
+    }
+    else {
         ## lapply(...)
         for (i in what){
             nc <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
@@ -578,6 +567,26 @@ decreasingSmoother <- function(x, y, k = 30, len = NULL, sp = NULL,
     #class(res) <- "decreasingSmoother"
     res
 }
+
+## An alternative to decreasingSmoother
+## decreasingSmoother <- function(x, y, k = 30, len = NULL, sp = NULL, a = 0.0001) {
+##     ## bring y in [0, 1]
+##     my <- max(y)
+##     y <- y/my
+##     ## transform to real
+##     y <- log((y + a)/(1 - y + a))
+##     dat <- data.frame(x, y)
+##     scamFormula <- stats::as.formula(paste0("y ~ s(x, k = ", k, ", bs = 'mpd')"))
+##     gamfit <- scam::scam(scamFormula, family = gaussian(link = "identity"), data = dat)
+##     y <- stats::predict(gamfit, type = "response", newdata = data.frame(x = x))
+##     ## Transform back
+##     y <- (plogis(y) * (1 + 2*a) - a) * my
+##     res <- list(x = x,
+##                 y = y)
+##     #class(res) <- "decreasingSmoother"
+##     res
+## }
+
 
 
 #' Append training profiles.
