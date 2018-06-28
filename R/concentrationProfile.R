@@ -26,7 +26,7 @@
 #' plot(cProfile, smooth = FALSE)
 #' plot(cProfile)
 #' @export
-concentrationProfile <- function(object, session = NULL, what = c("speed", "heart_rate"),
+concentration_profile <- function(object, session = NULL, what = c("speed", "heart_rate"),
     ...) {
     units <- getUnits(object)
     operations <- get_operations(object)

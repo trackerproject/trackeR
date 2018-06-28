@@ -43,11 +43,12 @@ are all unspecified, the following default thresholds are employed
 \item distance [0, Inf] meters
 \item cadence_running [0, Inf] steps per min
 \item cadence_cycling [0, Inf] revolutions per min
-\item distance [0, Inf] meters
+\item speed [0, Inf] meters
 \item heart rate [0, 250] bpm
 \item power [0, Inf] W
 \item pace [0, Inf] min per km
 \item duration [0, Inf] seconds
+\item temperature [-20, 60] C
 }
 after they have been tranformed to the units of the \code{object}
 
