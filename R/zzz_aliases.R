@@ -60,3 +60,7 @@ distributionProfile <- distribution_profile
 #' @rdname decreasing_smoother
 #' @export
 decreasingSmoother <- decreasing_smoother
+
+#' @rdname smoother_control.distrProfile
+#' @export
+smootherControl.distrProfile <- smoother_control.distrProfile

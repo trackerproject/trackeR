@@ -16,7 +16,7 @@ smoothed. Defaults to all sessions.}
 
 \item{control}{A list of parameters for controlling the smoothing
 process.  This is passed to
-\code{\link{smootherControl.distrProfile}}.}
+\code{\link{smoother_control.distrProfile}}.}
 
 \item{...}{Arguments to be used to form the default \code{control}
 argument if it is not supplied directly.}
@@ -28,5 +28,5 @@ before smoothing. The smoothed distribution profiles are then
 transformed to concentration profiles.
 }
 \seealso{
-\code{\link{smootherControl.distrProfile}}
+\code{\link{smoother_control.distrProfile}}
 }

@@ -292,10 +292,10 @@ c2d <- function(cp) {
 #'     smoothed. Defaults to all sessions.
 #' @param control A list of parameters for controlling the smoothing
 #'     process.  This is passed to
-#'     \code{\link{smootherControl.distrProfile}}.
+#'     \code{\link{smoother_control.distrProfile}}.
 #' @param ... Arguments to be used to form the default \code{control}
 #'     argument if it is not supplied directly.
-#' @seealso \code{\link{smootherControl.distrProfile}}
+#' @seealso \code{\link{smoother_control.distrProfile}}
 #' @export
 smoother.conProfile <- function(object, session = NULL, control = list(...), ...) {
     units <- getUnits(object)
@@ -320,7 +320,7 @@ smoother.conProfile <- function(object, session = NULL, control = list(...), ...
     attr(DP, "units") <- units
 
     ## evaluate control argument
-    control <- do.call("smootherControl.distrProfile", control)
+    control <- do.call("smoother_control.distrProfile", control)
 
     ## smooth distribution profile
     smoothDP <- smoother(DP, session = session, control)

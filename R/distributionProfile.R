@@ -221,7 +221,7 @@ fortify.distrProfile <- function(model, data, melt = FALSE, ...){
 #' @param smooth Logical. Should unsmoothed profiles be smoothed
 #'     before plotting?
 #' @param ... Further arguments to be passed to
-#'     \code{\link{smootherControl.distrProfile}}.
+#'     \code{\link{smoother_control.distrProfile}}.
 #' @examples
 #' data('runs', package = 'trackeR')
 #' dProfile <- distributionProfile(runs, session = 1:2,
@@ -326,10 +326,10 @@ plot.distrProfile <- function(x, session = NULL,
 #'     smoothed. Defaults to all sessions.
 #' @param control A list of parameters for controlling the smoothing
 #'     process.  This is passed to
-#'     \code{\link{smootherControl.distrProfile}}.
+#'     \code{\link{smoother_control.distrProfile}}.
 #' @param ... Arguments to be used to form the default \code{control}
 #'     argument if it is not supplied directly.
-#' @seealso \code{\link{smootherControl.distrProfile}}
+#' @seealso \code{\link{smoother_control.distrProfile}}
 #' @references
 #'
 #' Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
@@ -351,7 +351,7 @@ smoother.distrProfile <- function(object,
                                   ...) {
     units <- getUnits(object)
     ## evaluate control argument
-    control <- do.call("smootherControl.distrProfile", control)
+    control <- do.call("smoother_control.distrProfile", control)
     ## select sessions
     availSessions <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
     if (is.null(session)) {
@@ -416,27 +416,13 @@ smoother.distrProfile <- function(object,
 #' @inheritParams decreasing_smoother
 #' @param parallel Logical. Should computation be carried out in
 #'     parallel?
-#' @param cores Number of cores for parallel computing. If NULL, the
-#'     number of cores is set to the value of \code{options("corese")}
-#'     (on Windows) or \code{options("mc.cores")} (elsewhere), or, if
-#'     the relevant option is unspecified, to half the number of cores
-#'     detected.
 #' @export
-smootherControl.distrProfile <- function(what = c("speed", "heart_rate"),
+smoother_control.distrProfile <- function(what = c("speed", "heart_rate"),
                                          k = 30,
                                          sp = NULL,
-                                         parallel = FALSE,
-                                         cores = NULL) {
+                                         parallel = FALSE) {
     if (is.vector(what)) {
         what <- list(what)
-    }
-    if (is.null(cores)){
-        dc <- parallel::detectCores()
-        if (.Platform$OS.type != "windows"){
-            cores <- getOption("mc.cores", max(floor(dc/2), 1L))
-        } else {
-            cores <- getOption("cores", max(floor(dc/2), 1L))
-        }
     }
     list(what = what, k = k, sp = sp, parallel = parallel, cores = cores)
 }

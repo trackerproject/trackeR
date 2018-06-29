@@ -23,7 +23,7 @@ panel?}
 before plotting?}
 
 \item{...}{Further arguments to be passed to
-\code{\link{smootherControl.distrProfile}}.}
+\code{\link{smoother_control.distrProfile}}.}
 }
 \description{
 Plot distribution profiles.

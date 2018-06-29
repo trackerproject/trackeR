@@ -16,7 +16,7 @@ smoothed. Defaults to all sessions.}
 
 \item{control}{A list of parameters for controlling the smoothing
 process.  This is passed to
-\code{\link{smootherControl.distrProfile}}.}
+\code{\link{smoother_control.distrProfile}}.}
 
 \item{...}{Arguments to be used to form the default \code{control}
 argument if it is not supplied directly.}
@@ -40,5 +40,5 @@ of Statistical Software}, \bold{82}(7),
 1--29. doi:10.18637/jss.v082.i07
 }
 \seealso{
-\code{\link{smootherControl.distrProfile}}
+\code{\link{smoother_control.distrProfile}}
 }

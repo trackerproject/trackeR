@@ -20,7 +20,7 @@ defaults to all sessions.}
 before plotting?}
 
 \item{...}{Further arguments to be passed to
-\code{\link{smootherControl.distrProfile}}.}
+\code{\link{smoother_control.distrProfile}}.}
 }
 \description{
 Ridgeline plots for \code{distrProfile} objects

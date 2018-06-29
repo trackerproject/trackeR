@@ -195,3 +195,4 @@ funPCA <- function(object, ...) UseMethod("funPCA")
 #' @param ... Arguments to be passed to methods.
 ridges <- function(x, ...) UseMethod("ridges")
 
+
