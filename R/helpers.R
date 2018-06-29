@@ -106,3 +106,56 @@ is_in_period <- function(dates,
                          end) {
     (dates >= start) & (dates <= end)
 }
+
+## Produce clean grids potentially exceeding the maximum
+clean_grid <- function (minimum, maximum) {
+    if (is.na(minimum) | is.na(maximum)) {
+        return(NULL)
+    }
+    value_range <- as.character(ceiling(maximum - minimum))
+    range_size <- nchar(value_range)
+    round_table <- list('1' = 5,
+                        '2' = 5,
+                        '3' = 1e+01,
+                        '4' = 1e+02,
+                        '5' = 1e+03,
+                        '6' = 1e+04,
+                        '7' = 1e+05,
+                        '8' = 1e+06)
+    minimum <- floor(minimum/round_table[[range_size]]) * round_table[[range_size]]
+    maximum <- ceiling(maximum/round_table[[range_size]]) * round_table[[range_size]]
+    break_points <- seq(minimum, maximum, by = (maximum - minimum) / 200)
+    break_points
+}
+
+## object is a trackeRdata object
+compute_limits <- function(object, a = 0.0001) {
+    limits <- lapply(object, function(sess) {
+        sess <- as.data.frame(sess)
+        all_na <- apply(sess, 2, function(x) all(is.na(x)))
+        apply(sess, 2, quantile, probs = c(a, 1 - a), na.rm = TRUE)
+    })
+    low <- apply(sapply(limits, function(x) x[1, ]), 1, function(x) if (all(is.na(x))) NA else min(x, na.rm = TRUE))
+    upp <- apply(sapply(limits, function(x) x[2, ]), 1, function(x) if (all(is.na(x))) NA else max(x, na.rm = TRUE))
+    data.frame(low = low, upp = upp)
+}
+
+
+#' Time spent above a certain threshold
+#'
+#' @param object A (univariate) zoo object.
+#' @param threshold The threshold.
+#' @param ge Logical. Should time include the thereshold (greater or equal to threshold) or not (greater only)?
+timeAboveThreshold <- function(object, threshold = -1, ge = TRUE) {
+    n <- length(object)
+    if (ge){
+        aboveThreshold <- object >= threshold
+    } else {
+        aboveThreshold <- object > threshold
+    }
+    missing <- is.na(object)
+    dt <- diff(index(object))
+    sum(dt[aboveThreshold[-n] & !missing[-n]])
+}
+
+

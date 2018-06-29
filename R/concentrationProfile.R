@@ -26,8 +26,10 @@
 #' plot(cProfile, smooth = FALSE)
 #' plot(cProfile)
 #' @export
-concentration_profile <- function(object, session = NULL, what = c("speed", "heart_rate"),
-    ...) {
+concentration_profile <- function(object,
+                                  session = NULL,
+                                  what = c("speed", "heart_rate"),
+                                  ...) {
     units <- getUnits(object)
     operations <- get_operations(object)
 
@@ -59,16 +61,41 @@ concentration_profile <- function(object, session = NULL, what = c("speed", "hea
 }
 
 ## Experimental concentration profile
-cp <- function(object, session = NULL, what = c("speed", "heart_rate"),
-               limits = list(speed = c(0, 12.5), heart_rate = c(0, 250)),
-               parallel = FALSE, cores = NULL, auto_grid = TRUE) {
+cp <- function(object,
+               session = NULL,
+               what = c("speed", "heart_rate"),
+               limits = NULL,
+               parallel = FALSE,
+               unit_reference_sport = NULL) {
 
-    units <- getUnits(object)
-    if (is.null(session))
+    units <- get_units(object)
+
+
+    if (is.null(session)) {
         session <- 1:length(object)
+    }
     object <- object[session]
 
     CP <- NULL
+
+    ## If limits is NULL the limits are selected automatically using
+    ## the same idea as auto_grid in dp
+    if (is.null(limits)) {
+        stop("limits = NULL will work in the future")
+        df <- fortify(object, melt = FALSE)
+        for (feature in what) {
+            if (all(is.na(df[[feature]]))) {
+                warning(paste('No data for', feature))
+                what <- what[!(what %in% feature)]
+            }
+        }
+        for (feature in what) {
+            maximum <- ceiling(quantile(df[feature], 0.99999, na.rm = TRUE))
+            minimum <- if (feature == 'heart_rate') 35 else 0
+            limits[[feature]] <- c(minimum, maximum)
+        }
+    }
+
 
     cp_fun <- function(j, w) {
         sess <- object[[j]]
@@ -303,115 +330,6 @@ smoother.conProfile <- function(object, session = NULL, control = list(...), ...
 
     return(smoothCP)
 }
-
-
-#' @inheritParams append
-#' @inheritParams append.distrProfile
-#' @rdname append.xprofile
-#' @export
-append.conProfile <- function(object, file, ...) {
-    old <- load(file)
-    new <- c(old, object)
-    save(new, file)
-}
-
-
-## FIXME: what about appending more 'types of profiles' (aka variables)? different
-## function?
-#' @export
-c.conProfile <- function(..., recursive = FALSE) {
-
-    input <- list(...)
-    ninput <- length(input)
-    if (ninput < 2)
-        return(input[[1]])
-
-    ## all input objects need to contain profiles for the variables in the first input
-    ## object missing profiles are not filled up with NA (yet? FIXME?)  additional profiles
-    ## are discarded.
-    allNames <- lapply(input, names)
-    if (!all(sapply(allNames, function(x) all(allNames[[1]] %in% x))))
-        stop(paste0("All objects need to contain distribution profiles for the variables contained in the first object: ",
-            paste(allNames[[1]], collapse = ", "), "."))
-
-    nsessionsInput <- sapply(input, length)
-    operations <- get_operations(input[[1]])
-
-    ## check/change smoother attribute
-
-    ## if all smoother settings are NULL, skip whole aggregation process
-    if (!all(sapply(input, function(x) is.null(get_operations(x)$smooth)))) {
-
-        ## if the settings for the first session are NULL, create a new reference setup
-        if (is.null(get_operations(input[[1]])$smooth)) {
-            operations$smooth <- list(what = NA, k = NA, sp = NA, parallel = FALSE, cores = NULL,
-                nsessions = NULL)
-        }
-
-        whats <- lapply(input, function(x) unique(get_operations(x)$smooth$what))
-        ks <- lapply(input, function(x) unique(get_operations(x)$smooth$k))
-        sps <- lapply(input, function(x) unique(get_operations(x)$smooth$sp))
-        changeWhat <- any(!sapply(whats, function(x) isTRUE(all.equal(whats[[1]], x))))
-        changeK <- any(!sapply(ks, function(x) isTRUE(all.equal(ks[[1]], x))))
-        changeSp <- any(!sapply(sps, function(x) isTRUE(all.equal(sps[[1]], x))))
-        changeO <- changeWhat | changeK | changeSp
-        if (changeO) {
-            whats <- lapply(input, function(x) get_operations(x)$smooth$what)
-            whats[sapply(whats, is.null)] <- list(operations$smooth$what[1])
-            whats <- do.call("c", whats)
-
-            ks <- lapply(input, function(x) get_operations(x)$smooth$k)
-            ks[sapply(ks, is.null)] <- operations$smooth$k[1]
-            ks <- do.call("c", ks)
-
-            sps <- lapply(input, function(x) get_operations(x)$smooth$sp)
-            sps[sapply(sps, is.null)] <- list(operations$smooth$sp[1])
-            sps <- do.call("c", sps)
-
-            nsessions <- lapply(input, function(x) get_operations(x)$smooth$nsessions)
-            nsessions[sapply(nsessions, is.null)] <- nsessionsInput[sapply(nsessions, is.null)]
-            nsessions <- do.call("c", nsessions)
-
-            operations$smooth$what <- whats
-            operations$smooth$k <- ks
-            operations$smooth$sp <- sps
-            operations$smooth$nsessions <- nsessions
-        } else {
-            nsessions <- lapply(input, function(x) get_operations(x)$smooth$nsessions)
-            nsessions[sapply(nsessions, is.null)] <- nsessionsInput[sapply(nsessions, is.null)]
-            operations$smooth$nsessions <- sum(do.call("c", nsessions))
-        }
-    }
-
-    units1 <- getUnits(input[[1]])
-    units <- lapply(input, attr, "units")
-    changeU <- !all(sapply(units, function(x) isTRUE(all.equal(units1, x))))
-    if (changeU) {
-        warning("The profiles for at least one variable have different units. The units of the first profile for each variable are applied to all profiles of that variable.")
-        ## change units
-        for (i in 2:ninput) {
-            input[[i]] <- change_units(input[[i]], variable = units1$variable, unit = units1$unit)
-
-        }
-    }
-
-    ret <- list()
-    what <- names(input[[1]])
-    for (i in what) {
-        input_i <- lapply(input, function(x) x[[i]])
-        ## FIXME: needs some tolerance for cases where the underlying grid is the same apart
-        ## from minor numerical differences.
-        ret[[i]] <- do.call("merge", input_i)
-        attr(ret[[i]], "dimnames") <- list(NULL, paste0("Session", 1:ncol(ret[[i]])))
-    }
-
-    class(ret) <- c("conProfile", class(ret))
-    attr(ret, "operations") <- operations
-    attr(ret, "units") <- units1
-    return(ret)
-}
-
-## FIXME: implement [] method
 
 #' @export
 nsessions.conProfile <- function(object, ...) {

@@ -51,3 +51,12 @@ leafletRoute <- leaflet_route
 #' @rdname concentration_profile
 #' @export
 concentrationProfile <- concentration_profile
+
+
+#' @rdname distribution_profile
+#' @export
+distributionProfile <- distribution_profile
+
+#' @rdname decreasing_smoother
+#' @export
+decreasingSmoother <- decreasing_smoother

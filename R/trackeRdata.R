@@ -112,14 +112,15 @@ trackeRdata <- function(dat,
     trackerdat <- trackerdat[!empty]
 
     ## correct GPS distances for elevation
-    if (correct_distances)
+    if (correct_distances) {
         trackerdat <- lapply(trackerdat, distance_correction, country = country, mask = mask)
+    }
 
     ## impute speeds in each session
     trackerdat <- lapply(trackerdat, impute_speeds, from_distances = from_distances, lgap = lgap,
                          lskip = lskip, m = m, sport = sport, units = units)
 
-    ## compute pace
+    ## compute pace and add limits
     pace_inv <- strsplit(units$unit[units$variable == "pace" & units$sport == sport], split = "_per_")[[1]][2:1]
     pace_inv <- paste(pace_inv, collapse = "_per_")
     conversion <- match.fun(paste(units$unit[units$variable == "speed" & units$sport == sport], pace_inv, sep = "2"))
@@ -129,7 +130,17 @@ trackeRdata <- function(dat,
         return(x)
     })
 
+    ## limits <- lapply(trackerdat, function(sess) {
+    ##     get_limits(as.data.frame(sess), a = 0.001)
+    ## })
+    ## low <- do.call("cbind", lapply(limits, "[[", "lower"))
+    ## upp <- do.call("cbind", lapply(limits, "[[", "upper"))
+    ## low <- apply(low, 1, function(x) if (all(is.na(x))) NA else min(x, na.rm = TRUE))
+    ## upp <- apply(upp, 1, function(x) if (all(is.na(x))) NA else max(x, na.rm = TRUE))
+
     ## Set attributes
+    ## attr(trackerdat, "lower") <- low
+    ## attr(trackerdat, "upper") <- upp
     attr(trackerdat, "operations") <- list(smooth = NULL, threshold = NULL)
     attr(trackerdat, "units") <- units
     attr(trackerdat, "sport") <- rep(sport, length(trackerdat))
@@ -214,7 +225,7 @@ c.trackeRdata <- function(...,
         }
         ## change thresholds
         for (i in 2:ninput) {
-            input[[i]] <- threshold(input[[i]], th)
+            input[[i]] <- threshold(input[[i]], th$variable, th$lower, th$upper)
         }
     }
 
@@ -225,9 +236,8 @@ c.trackeRdata <- function(...,
     if (changeU) {
         warning("The sessions have different units. The units from the first session have been applied to all sessions.")
         ## change units
-        ## FIXME Change units by sport!!! for runs, cycling, swims
         for (i in 2:ninput) {
-            input[[i]] <- change_units(input[[i]], variable = units1$variable, unit = units1$unit)
+            input[[i]] <- change_units(input[[i]], variable = units1$variable, unit = units1$unit, sport = units1$sport)
         }
     }
 
@@ -240,8 +250,16 @@ c.trackeRdata <- function(...,
         ret[starti[i]:endi[i]] <- input[[i]]
     }
 
+    ## ## merge limits
+    ## low <- sapply(input, attr, which = "lower")
+    ## upp <- sapply(input, attr, which = "upper")
+    ## low <- apply(low, 1, function(x) if (all(is.na(x))) NA else min(x, na.rm = TRUE))
+    ## upp <- apply(upp, 1, function(x) if (all(is.na(x))) NA else max(x, na.rm = TRUE))
+
     ## class and other attributes
     class(ret) <- c("trackeRdata", "list")
+    ## attr(ret, "lower") <- low
+    ## attr(ret, "upper") <- upp
     attr(ret, "units") <- units1
     attr(ret, "sport") <- unlist(sapply(input, attr, which = "sport"))
     attr(ret, "file") <- unlist(sapply(input, attr, which = "file"))
@@ -354,6 +372,8 @@ unique.trackeRdata <- function(x,
 
     ## class and attributes
     class(ret) <- c("trackeRdata", "list")
+    attr(ret, "lower") <- attr(x, "lower")
+    attr(ret, "upper") <- attr(x, "upper")
     attr(ret, "units") <- units
     attr(ret, "operations") <- operations
     attr(ret, "sport") <- sport[i]

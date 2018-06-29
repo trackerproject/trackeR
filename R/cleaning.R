@@ -145,7 +145,6 @@ impute_speeds <- function(session_data,
                           sport = "cycling",
                           units = NULL) {
 
-
     ## If there are less than two observations then reurn the observation...
     if (length(session_data) < 2) {
         return(session_data)
@@ -178,7 +177,6 @@ impute_speeds <- function(session_data,
             session_data <- session_data[!is.na(session_data$distance)]
             if (distUnit != distUnitSpeed){
                 conversion <- match.fun(paste(distUnit, distUnitSpeed, sep = "2"))
-
                 dist <- conversion(coredata(session_data$distance))
             }
             else {
@@ -391,9 +389,9 @@ get_sessions <- function(dat,
     sessions <- unique(dat$sessionID)
     trackerdat <- vector("list", length = max(sessions))
     for (i in sessions) {
-        dati <- subset(dat, dat$sessionID == i)
-        extra <- which(names(dati) %in% c("time", "sessionID"))
-        trackerdat[[i]] <- zoo(dati[, -extra], order.by = dati$time)
+        cdat <- subset(dat, dat$sessionID == i)
+        extra <- which(names(cdat) %in% c("time", "sessionID"))
+        trackerdat[[i]] <- zoo(cdat[, -extra], order.by = cdat$time)
     }
 
     ## remove empty sessions

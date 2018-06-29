@@ -128,7 +128,7 @@ zones <- function(object,
     ## get time in zones
     zones_fun <- function(j, w) {
         sess <- object[[j]]
-        zones_for_single_variable(sess, what = i, breaks = breaks[[w]])
+        zones_for_single_variable(sess, what = w, breaks = breaks[[w]])
     }
 
     ret <- list()
