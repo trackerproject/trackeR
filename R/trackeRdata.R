@@ -511,20 +511,19 @@ as.data.frame.trackeRdata <- function(x,
 #'
 #' @export
 print.trackeRdata <- function(x,
-                              duration = "h",
-                              ...,
-                              digits = 2) {
+                              duration_unit = "h",
+                              digits = 2,
+                              ...) {
     units <- getUnits(x)
-    x <- summary(x)
-    x <- change_units(x, "duration", "h")
-    sports <- unique(get_sport(x)) ## as.character(na.omit(unique(get_sport(x))))
+    times <- session_times(x)
+    d <- session_duration(x, duration_unit = duration_unit)
     cat("A trackeRdata object\n")
-    cat("Sports:", sports, "\n\n")
+    cat("Sports:", unique(get_sport(x)), "\n\n")
     cat("Training coverage:",
-        "from", format(min(x$sessionStart), format = "%Y-%m-%d %H:%M:%S"),
-        "to", format(max(x$sessionEnd), format = "%Y-%m-%d %H:%M:%S"), "\n")
-    cat("Number of sessions:", nrow(x), "\n")
-    cat("Training duration:", round(as.numeric(sum(x$duration)), digits), units(x$duration[1]), "\n\n")
+        "from", format(min(times$sessionStart), format = "%Y-%m-%d %H:%M:%S"),
+        "to", format(max(times$sessionEnd), format = "%Y-%m-%d %H:%M:%S"), "\n")
+    cat("Number of sessions:", nsessions(x), "\n")
+    cat("Training duration:", round(as.numeric(sum(d)), digits), duration_unit, "\n\n")
 
     cat("Units\n")
     colnames(units) <- NULL
@@ -550,9 +549,20 @@ session_times.trackeRdata <- function(object,
 #' @export
 session_duration.trackeRdata <- function(object,
                                          session = NULL,
+                                         duration_unit = "h",
                                          ...) {
+    ## Match units to those of unit_reference_sport
+    ## units <- get_units(object)
+    ## if (is.null(unit_reference_sport)) {
+    ##     unit_reference_sport <- find_unit_reference_sport(object)
+    ## }
+    ## un <- collect_units(units, unit_reference_sport)
+    ## ## Get duration unit
+    ## duration_unit <- un$unit[un$variable == "duration"]
+    du <- switch(duration_unit, "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days")
+
     with(session_times(object, session = session), {
-        difftime(sessionEnd, sessionStart)
+        difftime(sessionEnd, sessionStart, unit = du)
     })
 }
 
