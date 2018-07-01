@@ -1,12 +1,53 @@
 #' Generate training concentration profiles.
 #'
+#' @aliases conProfile
+#'
 #' @param object An object of class \code{distrProfile} as returned by
 #'     \code{\link{distributionProfile}}.
 #' @param what The variables for which the concentration profiles
-#'     should be generated.
+#'     should be computed. Defaults (\code{NULL}) to all variables in
+#'     \code{object}.
 #' @inheritParams distributionProfile
 #' @param ... Currently not used.
-#' @return An object of class \code{conProfile}.
+#' @return
+#'
+#' An object of class \code{conProfile}.
+#'
+#' Object:
+#'
+#' A named list with one or more components, corresponding to the
+#' value of \code{what}. Each component is a matrix of dimension
+#' \code{g} times \code{n}, where \code{g} is the length of the grids
+#' set in \code{grid} (or 200 if \code{grid = NULL}) and \code{n} is
+#' the number of sessions requested in the \code{session} argument.
+#'
+#' Attributes:
+#'
+#' Each \code{distrProfile} object carries the following attributes
+#'
+#' \itemize{
+#'
+#' \item \code{sport}: the sports corresponding to the columns of each
+#' list component
+#'
+#' \item \code{session_times}: the session start and end times
+#' correspoding to the columns of each list component
+#'
+#' \item \code{unit_reference_sport}: the sport where the units have
+#' been inherited from
+#'
+#' \item \code{operations}: a list with the operations that have been
+#' applied to the object. See \code{\link{get_operations.distrProfile}}
+#'
+#' \item \code{units}: an object listing the units used for the
+#' calculation of distribution profiles. These is the output of
+#' \code{\link{get_units}} on the corresponding
+#' \code{\link{trackeRdata}} object, after inheriting units from
+#' \code{unit_reference_sport}.
+#'
+#' }
+#'
+#'
 #' @references
 #'
 #' Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
@@ -28,24 +69,13 @@
 #' @export
 concentration_profile <- function(object,
                                   session = NULL,
-                                  what = c("speed", "heart_rate"),
+                                  what = NULL,
                                   ...) {
-    units <- getUnits(object)
-    operations <- get_operations(object)
 
-    ## select variables
-    what <- what[what %in% names(object)]
-    object <- object[what]  ## FIXME: implement [] method profiles/variables instead of sessions
-    attr(object, "operations") <- operations
-    attr(object, "units") <- units
-    class(object) <- "distrProfile"
-
+    object <- get_profile(object, session = session, what = what)
+    what <- names(object)
     ## select sessions
-    availSessions <- if (is.null(ncol(object[[1]])))
-        1 else ncol(object[[1]])
-    if (is.null(session))
-        session <- 1:availSessions
-    for (i in what) object[[i]] <- object[[i]][, session]
+    nc <- nsessions(object)
 
     ## get concentration profile
     CP <- list()
@@ -54,11 +84,209 @@ concentration_profile <- function(object,
     }
 
     ## class and return
-    attr(CP, "operations") <- operations
-    attr(CP, "units") <- units
+    operations <- get_operations(object)
+    attr(CP, "sport") <- get_sport(object)
+    attr(CP, "session_times") <- attr(object, "session_times")
+    attr(CP, "unit_reference_sport") <- attr(object, "unit_reference_sport")
+    attr(CP, "operations") <- c(operations, list(scale = TRUE))
+    attr(CP, "units") <- get_units(object)
     class(CP) <- "conProfile"
     return(CP)
 }
+
+#' Plot concentration profiles.
+#'
+#' @param x An object of class \code{distrProfile} as returned by
+#'     \code{\link{concentration_profile}}.
+#' @param session A numeric vector of the sessions to be plotted,
+#'     defaults to all sessions.
+#' @param what Which variables should be plotted? Defaults to all
+#'     variables in \code{object} (\code{what = NULL}).
+#' @param multiple Logical. Should all sessions be plotted in one
+#'     panel?
+#' @param smooth Logical. Should unsmoothed profiles be smoothed
+#'     before plotting?
+#' @param ... Further arguments to be passed to
+#'     \code{\link{smoother_control.distrProfile}}.
+#'
+#' @examples
+#' data('runs', package = 'trackeR')
+#' dProfile <- distributionProfile(runs, session = 1:3, what = 'speed',
+#'                                 grid = seq(0, 12.5, by = 0.05))
+#' cProfile <- concentrationProfile(dProfile)
+#' plot(cProfile, smooth = FALSE)
+#' plot(cProfile)
+#' @export
+plot.conProfile <- function(x,
+                            session = NULL,
+                            what = NULL,
+                            multiple = FALSE,
+                            smooth = FALSE,
+                            ...) {
+    x <- get_profile(x, session = session, what = what)
+    ## smooth
+    if (smooth) {
+        x <- smoother(x, ...)
+    }
+    ## duration unit; sport does not matter here as units have been uniformised already
+    units <- get_units(x)
+    duration_unit <- units$unit[units$sport == "running" & units$variable == "duration"]
+    ## fortify
+    df <- fortify(x, melt = TRUE)
+    df$Series <- as.numeric(sapply(strsplit(as.character(df$Series), "session"), function(x) x[2]))
+    df$Profile <- factor(df$Profile)
+    ## make basic plot and facets
+    lab_data <- function(series) {
+        thisunit <- units$unit[units$sport == "running" & units$variable == series]
+        prettyUnit <- prettifyUnits(thisunit)
+        paste0(series, " [", prettyUnit,"]")
+    }
+    lab_data <- Vectorize(lab_data)
+    if (multiple) {
+        p <- ggplot(data = df, aes_(x = quote(Index), y = quote(Value),
+                                    group = quote(Series), color = quote(Series)))
+        facets <- ". ~ Profile"
+    }
+    else {
+        p <- ggplot(data = df, mapping = aes_(x = quote(Index), y = quote(Value)))
+        facets <- "Series ~ Profile"
+    }
+    p + geom_line(na.rm = TRUE) +
+        facet_grid(facets, scales = "free_x", labeller = labeller("Profile" = lab_data)) +
+        ylab(paste0("dtime", " [", duration_unit, "]")) +
+        xlab("") +
+        theme_bw() +
+        scale_colour_continuous(name = "session")
+}
+
+
+#' Transform concentration profile to distribution profile.
+#'
+#' @param cp Single concentration profile as a zoo object.
+c2d <- function(cp) {
+    ct <- cp * c(diff(index(cp)), 0)
+    ret <- cumsum(coredata(ct))
+    dp <- -(ret - ret[length(ret)])
+    dp <- zoo(dp, order.by = index(cp))
+    return(dp)
+}
+
+#' Smoother for concentration profiles.
+#'
+#' To ensure positivity of the smoothed concentration profiles, the
+#' concentration profiles are transformed to distribution profiles
+#' before smoothing. The smoothed distribution profiles are then
+#' transformed to concentration profiles.
+#'
+#' @param object An object of class \code{conProfile} as returned by
+#'     \code{\link{concentration_profile}}.
+#' @param session A numeric vector of the sessions to be selected and
+#'     smoothed. Defaults to all sessions.
+#' @param what A character version of the variables to be selected and
+#'     smoothed. Defaults to all variables in \code{object}
+#'     (\code{what = NULL}).
+#' @param control A list of parameters for controlling the smoothing
+#'     process.  This is passed to
+#'     \code{\link{smoother_control.distrProfile}}.
+#' @param ... Arguments to be used to form the default \code{control}
+#'     argument if it is not supplied directly.
+#'
+#' @seealso \code{\link{smoother_control.distrProfile}}
+#' @export
+smoother.conProfile <- function(object,
+                                session = NULL,
+                                what = NULL,
+                                control = list(...),
+                                ...) {
+
+    object <- get_profile(object, session = session, what = what)
+
+    ## transform to distribution profile
+    DP <- list()
+    for (i in names(object)) {
+        if (is.null(ncol(object[[i]]))) {
+            DP[[i]] <- c2d(object[[i]])
+        }
+        else {
+            dp <- matrix(NA, nrow = nrow(object[[i]]), ncol = ncol(object[[i]]))
+            colnames(dp) <- attr(object[[i]], "dimnames")[[2]]
+            for (j in seq_len(ncol(dp))) {
+                dpj <- c2d(object[[i]][, j])
+                dp[, j] <- dpj
+            }
+            DP[[i]] <- zoo(dp, order.by = index(dpj))
+        }
+    }
+    attr(DP, "sport") <- get_sport(object)
+    attr(DP, "session_times") <- attr(object, "session_times")
+    attr(DP, "unit_reference_sport") <- attr(object, "unit_reference_sport")
+    attr(DP, "operations") <- get_operations(object)
+    attr(DP, "units") <- get_units(object)
+    class(DP) <- "distrProfile"
+
+    ## evaluate control argument
+    control <- do.call("smoother_control.distrProfile", control)
+
+    ## smooth distribution profile
+    smoothDP <- smoother(DP, control = control)
+
+    ## get concentration profile
+    smoothCP <- concentration_profile(smoothDP)
+
+    return(smoothCP)
+}
+
+#' Ridgeline plots for \code{distrProfile} objects
+#'
+#' @inheritParams plot.conProfile
+#'
+#' @examples
+#' \dontrun{
+#'
+#' data('runs', package = 'trackeR')
+#' dProfile <- distributionProfile(runs, what = c('speed', 'heart_rate'), auto_grid = TRUE)
+#' cProfile <- concentrationProfile(dProfile)
+#' ridges(cProfile, what = "speed")
+#' ridges(cProfile, what = "heart_rate")
+#' }
+#'
+ridges.conProfile <- function(x,
+                              session = NULL,
+                              what = NULL,
+                              smooth = FALSE,
+                              ...) {
+    x <- get_profile(x, session = session, what = what)
+    ## smooth
+    if (smooth) {
+        x <- smoother(x, ...)
+    }
+    ## duration unit; sport does not matter here as units have been uniformised already
+    units <- get_units(x)
+    duration_unit <- units$unit[units$sport == "running" & units$variable == "duration"]
+    ## fortify
+    df <- fortify(x, melt = TRUE)
+    df$Series <- as.numeric(sapply(strsplit(as.character(df$Series), "session"), function(x) x[2]))
+    df$Profile <- factor(df$Profile)
+    ## make basic plot and facets
+    lab_data <- function(series) {
+        thisunit <- units$unit[units$sport == "running" & units$variable == series]
+        prettyUnit <- prettifyUnits(thisunit)
+        paste0(series, " [", prettyUnit,"]")
+    }
+    lab_data <- Vectorize(lab_data)
+    sc <- 0.02
+    ggplot(df) +
+        ggridges::geom_ridgeline(aes_(x = quote(Index), y = quote(Series), height = quote(Value), group = quote(Series), scale = sc, fill = quote(Sport)), alpha = 0.5, color = gray(0.25, alpha = 0.1)) +
+        ggridges::theme_ridges() +
+        scale_fill_manual(values = c(cycling = "#76BD58", running = "#F68BA2", swimming = "#5EB3F0")) +
+        theme(panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank()) +
+        facet_grid(. ~ Profile, scales = "free_x", labeller = labeller("Profile" = lab_data)) +
+        xlab("") + ylab("Session")
+}
+
+
+
 
 ## Experimental concentration profile
 cp <- function(object,
@@ -134,286 +362,15 @@ cp <- function(object,
 }
 
 
-
-#' Fortify a conProfile object for plotting with ggplot2.
-#'
-#' @param model The \code{conProfile} object.
-#' @inheritParams fortify.distrProfile
+#' @rdname get_sport
 #' @export
-fortify.conProfile <- function(model, data, melt = FALSE, ...) {
-    ret <- list()
-    for (i in seq_along(model)) {
-
-        ret[[i]] <- zoo::fortify.zoo(model[[i]], melt = melt)
-        ret[[i]]$Profile <- names(model)[i]
+get_sport.conProfile <- function(object,
+                                   session = NULL,
+                                   ...) {
+    if (is.null(session)) {
+        nc <- ncol(object[[1]])
+        nc <- if (is.null(nc)) 1 else nc
+        session <- seq.int(nc)
     }
-    ret <- do.call("rbind", ret)
-    return(ret)
+    attr(object, "sport")[session]
 }
-
-
-## README: more examples, especially for the behaviour of session?
-#' Plot concentration profiles.
-#'
-#' @param x An object of class \code{conProfile} as returned by
-#'     \code{\link{concentrationProfile}}.
-#' @param session A vector of the sessions to be plotted, defaults to
-#'     all sessions.  Either a character vector with the session
-#'     names, e.g., c('Session3', 'Session4') or a numeric vector with
-#'     the relative position of the session(s).
-#' @param what Which variables should be plotted?
-#' @param multiple Logical. Should all sessions be plotted in one
-#'     panel?
-#' @param smooth Logical. Should unsmoothed profiles be smoothed
-#'     before plotting?
-#' @param ... Currently not used.
-#' @examples
-#' data('runs', package = 'trackeR')
-#' dProfile <- distributionProfile(runs, session = 1:3, what = 'speed',
-#'                                 grid = seq(0, 12.5, by = 0.05))
-#' cProfile <- concentrationProfile(dProfile)
-#' plot(cProfile, smooth = FALSE)
-#' plot(cProfile)
-#' @export
-plot.conProfile <- function(x, session = NULL, what = c("speed", "heart_rate"), multiple = FALSE,
-    smooth = TRUE, ...) {
-    ## code inspired by autoplot.zoo
-    units <- getUnits(x)
-    operations <- get_operations(x)
-
-    ## select variables
-    what <- what[what %in% names(x)]
-    x <- x[what]  ## FIXME: implement [] method for profiles/variables instead of sessions
-    class(x) <- "conProfile"
-    attr(x, "operations") <- operations
-    attr(x, "unit") <- units
-
-    ## select sessions if (is.null(session)) { session <- attr(x[[1]], 'dimnames')[[2]]
-    ## #1:ncol(x[[1]]) } else { if(is.numeric(session)) session <- attr(x[[1]],
-    ## 'dimnames')[[2]][session] }
-    availSessions <- if (is.null(ncol(x[[1]])))
-        1 else ncol(x[[1]])
-    if (is.null(session))
-        session <- 1:availSessions
-    for (i in what) x[[i]] <- x[[i]][, session]
-
-    ## smooth
-    if (smooth) {
-        if (!is.null(operations$smooth)) {
-            warning("This object has already been smoothed. No additional smoothing takes place.")
-        } else {
-            x <- smoother(x, what = what, ...)
-        }
-    }
-
-    ## get data
-    rownames(x) <- NULL
-    df <- fortify(x, melt = TRUE)
-    ## if (length(session) > 1L) df <- subset(df, Series %in% session) df <- subset(df,
-    ## Profile %in% what) HACK: If there is only one session (=series) to be plotted, give
-    ## it a proper name for multiple = TRUE.
-    if (length(session) < 2) {
-        df$Series <- session  ## paste0('Session', session)
-        ## df$Series <- factor(df$Series)
-    } else {
-        df$Series <- as.numeric(sapply(strsplit(as.character(df$Series), "Session"), function(x) x[2]))
-    }
-    df$Profile <- factor(df$Profile)
-
-    ## ## check that there is data to plot for(l in levels(df$Series)){ if
-    ## (all(is.na(subset(df, Series == l, select = 'Value')))) df <- df[!(df$Series == l), ]
-    ## }
-
-    ## make basic plot and facets
-    singleVariable <- nlevels(df$Profile) == 1L
-    singleSession <- nlevels(df$Series) == 1L
-    lab_data <- function(series) {
-        thisunit <- units$unit[units$variable == series]
-        prettyUnit <- prettifyUnits(thisunit)
-        paste0(series, " [", prettyUnit, "]")
-    }
-    lab_data <- Vectorize(lab_data)
-
-    if (multiple) {
-        p <- ggplot(data = df, mapping = aes_(x = quote(Index), y = quote(Value),
-            group = quote(Series), color = quote(Series))) + geom_line(na.rm = TRUE) +
-            ylab("dtime") + xlab(if (singleVariable)
-            lab_data(levels(df$Profile)) else "")
-        facets <- if (singleVariable)
-            NULL else ". ~ Profile"
-    } else {
-        p <- ggplot(data = df, mapping = aes_(x = quote(Index), y = quote(Value))) +
-            geom_line(na.rm = TRUE) + ylab("dtime") + xlab(if (singleVariable)
-            lab_data(levels(df$Profile)) else "")
-
-        facets <- if (singleVariable) {
-            if (singleSession)
-                NULL else "Series ~ ."
-        } else {
-            if (singleSession)
-                ". ~ Profile" else "Series ~ Profile"
-        }
-    }
-
-    ## add facets if necessary
-    if (!is.null(facets)) {
-        p <- p + facet_grid(facets, scales = "free_x", labeller = labeller(Profile = lab_data))
-    }
-
-    ## add bw theme
-    p <- p + theme_bw() + scale_colour_continuous(name = "Session")
-
-    return(p)
-}
-
-
-#' Transform concentration profile to distribution profile.
-#'
-#' @param cp Single concentration profile as a zoo object.
-c2d <- function(cp) {
-    ct <- cp * c(diff(index(cp)), 0)
-    ret <- cumsum(coredata(ct))
-    dp <- -(ret - ret[length(ret)])
-    dp <- zoo(dp, order.by = index(cp))
-    return(dp)
-}
-
-
-#' Smoother for concentration profiles.
-#'
-#' To ensure positivity of the smoothed concentration profiles, the
-#' concentration profiles are transformed to distribution profiles
-#' before smoothing. The smoothed distribution profiles are then
-#' transformed to concentration profiles.
-#'
-#' @param object An object of class \code{conProfile} as returned by
-#'     \code{\link{concentrationProfile}}.
-#' @param session A numeric vector of the sessions to be selected and
-#'     smoothed. Defaults to all sessions.
-#' @param control A list of parameters for controlling the smoothing
-#'     process.  This is passed to
-#'     \code{\link{smoother_control.distrProfile}}.
-#' @param ... Arguments to be used to form the default \code{control}
-#'     argument if it is not supplied directly.
-#' @seealso \code{\link{smoother_control.distrProfile}}
-#' @export
-smoother.conProfile <- function(object, session = NULL, control = list(...), ...) {
-    units <- getUnits(object)
-
-    ## transform to distribution profile
-    DP <- list()
-    for (i in names(object)) {
-        if (is.null(ncol(object[[i]]))) {
-            DP[[i]] <- c2d(object[[i]])
-        } else {
-            dp <- matrix(NA, nrow = nrow(object[[i]]), ncol = ncol(object[[i]]))
-            colnames(dp) <- attr(object[[i]], "dimnames")[[2]]
-            for (j in seq_len(ncol(dp))) {
-                dpj <- c2d(object[[i]][, j])
-                dp[, j] <- dpj
-            }
-            DP[[i]] <- zoo(dp, order.by = index(dpj))
-        }
-    }
-    class(DP) <- "distrProfile"
-    attr(DP, "operations") <- list(smooth = NULL)
-    attr(DP, "units") <- units
-
-    ## evaluate control argument
-    control <- do.call("smoother_control.distrProfile", control)
-
-    ## smooth distribution profile
-    smoothDP <- smoother(DP, session = session, control)
-
-    ## get concentration profile
-    smoothCP <- concentrationProfile(smoothDP, what = unlist(control$what))
-
-    return(smoothCP)
-}
-
-#' @export
-nsessions.conProfile <- function(object, ...) {
-    if (is.null(ncol(object[[1]])))
-        1 else ncol(object[[1]])
-}
-
-#' Ridgeline plots for \code{distrProfile} objects
-#'
-#' @inheritParams plot.conProfile
-#'
-#' @examples
-#' \dontrun{
-#'
-#' data('runs', package = 'trackeR')
-#' dProfile <- distributionProfile(runs, what = c('speed', 'heart_rate'), auto_grid = TRUE)
-#' cProfile <- concentrationProfile(dProfile)
-#' ridges(cProfile, what = "speed")
-#' ridges(cProfile, what = "heart_rate")
-#' }
-#'
-ridges.conProfile <- function(x, session = NULL, what = c("speed"),
-                              smooth = TRUE, ...){
-
-    units <- getUnits(x)
-    operations <- get_operations(x)
-
-    ## select variables
-    what <- what[what %in% names(x)]
-    if (length(what) > 1) {
-        warning(paste("Only", what[1], "is plotted"))
-        what <- what[1]
-    }
-    x <- x[what]  ## FIXME: implement [] method for profiles/variables instead of sessions
-    class(x) <- "conProfile"
-    attr(x, "operations") <- operations
-    attr(x, "unit") <- units
-
-    ## select sessions if (is.null(session)) { session <- attr(x[[1]], 'dimnames')[[2]]
-    ## #1:ncol(x[[1]]) } else { if(is.numeric(session)) session <- attr(x[[1]],
-    ## 'dimnames')[[2]][session] }
-    availSessions <- if (is.null(ncol(x[[1]])))
-        1 else ncol(x[[1]])
-    if (is.null(session))
-        session <- 1:availSessions
-    for (i in what) x[[i]] <- x[[i]][, session]
-
-    ## smooth
-    if (smooth) {
-        if (!is.null(operations$smooth)) {
-            warning("This object has already been smoothed. No additional smoothing takes place.")
-        } else {
-            x <- smoother(x, what = what, ...)
-        }
-    }
-
-    ## get data
-    rownames(x) <- NULL
-    df <- fortify(x, melt = TRUE)
-    ## if (length(session) > 1L) df <- subset(df, Series %in% session) df <- subset(df,
-    ## Profile %in% what) HACK: If there is only one session (=series) to be plotted, give
-    ## it a proper name for multiple = TRUE.
-    if (length(session) < 2) {
-        df$Series <- session  ## paste0('Session', session)
-        ## df$Series <- factor(df$Series)
-    } else {
-        df$Series <- as.numeric(sapply(strsplit(as.character(df$Series), "Session"), function(x) x[2]))
-    }
-    df$Profile <- factor(df$Profile)
-
-
-    singleSession <- nlevels(df$Series) == 1L
-    lab_data <- function(series){
-        thisunit <- units$unit[units$variable == series]
-        prettyUnit <- prettifyUnits(thisunit)
-        paste0(series, " [", prettyUnit,"]")
-    }
-    lab_data <- Vectorize(lab_data)
-
-    sc <- 2/max(df$Value)
-    ggplot(df) +
-        ggridges::geom_ridgeline(aes_(x = quote(Index), y = quote(Series), height = quote(Value), group = quote(Series), scale = sc), alpha = 0.5) +
-            ggridges::theme_ridges() +
-            labs(x = lab_data(what), y = "Session")
-
-}
-

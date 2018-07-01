@@ -4,17 +4,18 @@
 \alias{plot.distrProfile}
 \title{Plot distribution profiles.}
 \usage{
-\method{plot}{distrProfile}(x, session = NULL, what = c("speed",
-  "heart_rate"), multiple = FALSE, smooth = FALSE, ...)
+\method{plot}{distrProfile}(x, session = NULL, what = NULL,
+  multiple = FALSE, smooth = FALSE, ...)
 }
 \arguments{
 \item{x}{An object of class \code{distrProfile} as returned by
-\code{\link{distributionProfile}}.}
+\code{\link{distribution_profile}}.}
 
 \item{session}{A numeric vector of the sessions to be plotted,
 defaults to all sessions.}
 
-\item{what}{Which variables should be plotted?}
+\item{what}{Which variables should be plotted? Defaults to all
+variables in \code{object} (\code{what = NULL}).}
 
 \item{multiple}{Logical. Should all sessions be plotted in one
 panel?}
@@ -30,7 +31,7 @@ Plot distribution profiles.
 }
 \examples{
 data('runs', package = 'trackeR')
-dProfile <- distributionProfile(runs, session = 1:2,
+dProfile <- distribution_profile(runs, session = 1:2,
     what = "speed", grid = seq(0, 12.5, by = 0.05))
 plot(dProfile, smooth = FALSE)
 plot(dProfile, smooth = FALSE, multiple = TRUE)

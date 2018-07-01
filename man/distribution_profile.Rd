@@ -6,12 +6,11 @@
 \alias{distributionProfile}
 \title{Generate training distribution profiles}
 \usage{
-distribution_profile(object, session = NULL, what = c("speed",
-  "heart_rate"), grid = NULL, parallel = FALSE,
-  unit_reference_sport = NULL)
+distribution_profile(object, session = NULL, what = NULL, grid = NULL,
+  parallel = FALSE, unit_reference_sport = NULL)
 
-distributionProfile(object, session = NULL, what = c("speed", "heart_rate"),
-  grid = NULL, parallel = FALSE, unit_reference_sport = NULL)
+distributionProfile(object, session = NULL, what = NULL, grid = NULL,
+  parallel = FALSE, unit_reference_sport = NULL)
 }
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}
@@ -20,7 +19,8 @@ distributionProfile(object, session = NULL, what = c("speed", "heart_rate"),
 defaults to all sessions.}
 
 \item{what}{The variables for which the distribution profiles
-should be generated.}
+should be generated. Defaults to all variables in
+\code{object} (\code{what = NULL}).}
 
 \item{grid}{A named list containing the grid values for the
 variables in \code{what}. If \code{NULL} (default) the grids
@@ -38,7 +38,7 @@ Object:
 A named list with one or more components, corresponding to the
 value of \code{what}. Each component is a matrix of dimension
 \code{g} times \code{n}, where \code{g} is the length of the grids
-set in \code{grid} (or 200 if \code{grid = NULL}) and \code{n} is
+set in \code{grid} (or 201 if \code{grid = NULL}) and \code{n} is
 the number of sessions requested in the \code{session} argument.
 
 Attributes:

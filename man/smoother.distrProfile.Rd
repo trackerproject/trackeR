@@ -4,18 +4,19 @@
 \alias{smoother.distrProfile}
 \title{Smoother for distribution profiles.}
 \usage{
-\method{smoother}{distrProfile}(object, session = NULL, what = c("speed",
-  "heart_rate"), control = list(...), ...)
+\method{smoother}{distrProfile}(object, session = NULL, what = NULL,
+  control = list(...), ...)
 }
 \arguments{
 \item{object}{An object of class \code{distrProfile} as returned by
-\code{\link{distributionProfile}}.}
+\code{\link{distribution_profile}}.}
 
 \item{session}{A numeric vector of the sessions to be selected and
 smoothed. Defaults to all sessions.}
 
 \item{what}{A character version of the variables to be selected and
-smoothed. Defaults to \code{c('speed', 'heart_rate')}.}
+smoothed. Defaults to all variables in \code{object}
+(\code{what = NULL}).}
 
 \item{control}{A list of parameters for controlling the smoothing
 process.  This is passed to

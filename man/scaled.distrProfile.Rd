@@ -4,8 +4,7 @@
 \alias{scaled.distrProfile}
 \title{Scale the distribution profile relative to its maximum value}
 \usage{
-\method{scaled}{distrProfile}(object, session = NULL, what = c("speed",
-  "heart_rate"), ...)
+\method{scaled}{distrProfile}(object, session = NULL, what = NULL, ...)
 }
 \arguments{
 \item{object}{An object of class \code{distrProfile} as returned by
@@ -15,7 +14,8 @@
 scaled. Defaults to all sessions.}
 
 \item{what}{A character version of the variables to be selected and
-scaled. Defaults to \code{c('speed', 'heart_rate')}.}
+scaled. Defaults to all variables in \code{object} (\code{what
+= NULL}).}
 
 \item{...}{Currently not used.}
 }

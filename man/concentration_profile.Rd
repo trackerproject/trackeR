@@ -2,14 +2,13 @@
 % Please edit documentation in R/concentrationProfile.R, R/zzz_aliases.R
 \name{concentration_profile}
 \alias{concentration_profile}
+\alias{conProfile}
 \alias{concentrationProfile}
 \title{Generate training concentration profiles.}
 \usage{
-concentration_profile(object, session = NULL, what = c("speed",
-  "heart_rate"), ...)
+concentration_profile(object, session = NULL, what = NULL, ...)
 
-concentrationProfile(object, session = NULL, what = c("speed",
-  "heart_rate"), ...)
+concentrationProfile(object, session = NULL, what = NULL, ...)
 }
 \arguments{
 \item{object}{An object of class \code{distrProfile} as returned by
@@ -19,12 +18,47 @@ concentrationProfile(object, session = NULL, what = c("speed",
 defaults to all sessions.}
 
 \item{what}{The variables for which the concentration profiles
-should be generated.}
+should be computed. Defaults (\code{NULL}) to all variables in
+\code{object}.}
 
 \item{...}{Currently not used.}
 }
 \value{
 An object of class \code{conProfile}.
+
+Object:
+
+A named list with one or more components, corresponding to the
+value of \code{what}. Each component is a matrix of dimension
+\code{g} times \code{n}, where \code{g} is the length of the grids
+set in \code{grid} (or 200 if \code{grid = NULL}) and \code{n} is
+the number of sessions requested in the \code{session} argument.
+
+Attributes:
+
+Each \code{distrProfile} object carries the following attributes
+
+\itemize{
+
+\item \code{sport}: the sports corresponding to the columns of each
+list component
+
+\item \code{session_times}: the session start and end times
+correspoding to the columns of each list component
+
+\item \code{unit_reference_sport}: the sport where the units have
+been inherited from
+
+\item \code{operations}: a list with the operations that have been
+applied to the object. See \code{\link{get_operations.distrProfile}}
+
+\item \code{units}: an object listing the units used for the
+calculation of distribution profiles. These is the output of
+\code{\link{get_units}} on the corresponding
+\code{\link{trackeRdata}} object, after inheriting units from
+\code{unit_reference_sport}.
+
+}
 }
 \description{
 Generate training concentration profiles.

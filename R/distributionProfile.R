@@ -5,7 +5,8 @@
 #' @param session A numeric vector of the sessions to be used,
 #'     defaults to all sessions.
 #' @param what The variables for which the distribution profiles
-#'     should be generated.
+#'     should be generated. Defaults to all variables in
+#'     \code{object} (\code{what = NULL}).
 #' @param grid A named list containing the grid values for the
 #'     variables in \code{what}. If \code{NULL} (default) the grids
 #'     for the variables in \code{what} are inferred from
@@ -21,7 +22,7 @@
 #' A named list with one or more components, corresponding to the
 #' value of \code{what}. Each component is a matrix of dimension
 #' \code{g} times \code{n}, where \code{g} is the length of the grids
-#' set in \code{grid} (or 200 if \code{grid = NULL}) and \code{n} is
+#' set in \code{grid} (or 201 if \code{grid = NULL}) and \code{n} is
 #' the number of sessions requested in the \code{session} argument.
 #'
 #' Attributes:
@@ -69,13 +70,16 @@
 #' @export
 distribution_profile <- function(object,
                                  session = NULL,
-                                 what = c("speed", "heart_rate"),
+                                 what = NULL,
                                  grid = NULL,
                                  parallel = FALSE,
                                  unit_reference_sport = NULL) {
     times <- session_times(object)
     if (is.null(session)) {
         session <- 1:length(object)
+    }
+    if (is.null(what)) {
+        what <- colnames(kantas[[1]])
     }
     object <- object[session]
     if (is.null(grid)) {
@@ -163,8 +167,15 @@ distribution_profile <- function(object,
         else {
             dp_for_var <- foreach::`%do%`(foreach_object, dp_fun(j, i))
         }
+        if (nrow(dp_for_var) == 1) {
+            warning("no data for ", i)
+            next
+        }
         DP[[i]] <- zoo(dp_for_var, order.by = grid[[i]])
         names(DP[[i]]) <- paste0("session", session)
+    }
+    if (length(DP) == 0) {
+        stop("no usable data found")
     }
     operations <- list(smooth = NULL)
     attr(DP, "sport") <- get_sport(object)
@@ -183,14 +194,15 @@ distribution_profile <- function(object,
 #' @param session A numeric vector of the sessions to be selected and
 #'     scaled. Defaults to all sessions.
 #' @param what A character version of the variables to be selected and
-#'     scaled. Defaults to \code{c('speed', 'heart_rate')}.
+#'     scaled. Defaults to all variables in \code{object} (\code{what
+#'     = NULL}).
 #' @param ... Currently not used.
 #'
 #' @export
 scaled.distrProfile <- function(object,
                                 session = NULL,
-                                what = c("speed", "heart_rate"),
-                                ...){
+                                what = NULL,
+                                ...) {
     object <- get_profile(object, session = session, what = what)
     what <- names(object)
     ## scale
@@ -202,11 +214,6 @@ scaled.distrProfile <- function(object,
         colnames(scaledProfile) <- attr(object[[i]], "dimnames")[[2]]
         ret[[i]] <- zoo(scaledProfile, order.by = index(object[[i]]))
     }
-    unsmoothed <- names(object)[!(names(object) %in% what)]
-    for (i in unsmoothed) {
-        ret[[i]] <- object[[i]]
-    }
-
     ## class and return
     operations <- get_operations(object)
     attr(ret, "sport") <- get_sport(object)
@@ -234,7 +241,7 @@ fortify.distrProfile <- function(model,
     ret <- list()
     sport <- get_sport(model)
     times <- attr(model, "session_times")
-    for (i in seq_along(model)){
+    for (i in seq_along(model)) {
         ret[[i]] <- zoo::fortify.zoo(model[[i]], melt = melt, stringsAsFactors = FALSE)
         ret[[i]]$Profile <- names(model)[i]
         ret[[i]]$Sport <- rep(sport, each = nrow(model[[i]]))
@@ -245,13 +252,22 @@ fortify.distrProfile <- function(model,
 }
 
 
+#' Fortify a \code{\link{conProfile}} object for plotting with ggplot2.
+#'
+#' @param model The \code{\link{conProfile}} object.
+#' @inheritParams fortify.distrProfile
+#' @export
+fortify.conProfile <- fortify.distrProfile
+
+
 #' Plot distribution profiles.
 #'
 #' @param x An object of class \code{distrProfile} as returned by
-#'     \code{\link{distributionProfile}}.
+#'     \code{\link{distribution_profile}}.
 #' @param session A numeric vector of the sessions to be plotted,
 #'     defaults to all sessions.
-#' @param what Which variables should be plotted?
+#' @param what Which variables should be plotted? Defaults to all
+#'     variables in \code{object} (\code{what = NULL}).
 #' @param multiple Logical. Should all sessions be plotted in one
 #'     panel?
 #' @param smooth Logical. Should unsmoothed profiles be smoothed
@@ -260,25 +276,20 @@ fortify.distrProfile <- function(model,
 #'     \code{\link{smoother_control.distrProfile}}.
 #' @examples
 #' data('runs', package = 'trackeR')
-#' dProfile <- distributionProfile(runs, session = 1:2,
+#' dProfile <- distribution_profile(runs, session = 1:2,
 #'     what = "speed", grid = seq(0, 12.5, by = 0.05))
 #' plot(dProfile, smooth = FALSE)
 #' plot(dProfile, smooth = FALSE, multiple = TRUE)
 #' plot(dProfile, multiple = TRUE)
 #' @export
 plot.distrProfile <- function(x, session = NULL,
-                              what = c("speed", "heart_rate"),
+                              what = NULL,
                               multiple = FALSE,
                               smooth = FALSE, ...) {
     x <- get_profile(x, session = session, what = what)
     ## smooth
     if (smooth) {
-        if (!is.null(operations$smooth)){
-            warning("this object has already been smoothed. No additional smoothing takes place.")
-        }
-        else {
-            x <- smoother(x, what = what, ...)
-        }
+        x <- smoother(x, ...)
     }
     ## duration unit; sport does not matter here as units have been uniformised already
     units <- get_units(x)
@@ -318,17 +329,19 @@ plot.distrProfile <- function(x, session = NULL,
 #' distribution profile is positive and monotone decreasing.
 #'
 #' @param object An object of class \code{distrProfile} as returned by
-#'     \code{\link{distributionProfile}}.
+#'     \code{\link{distribution_profile}}.
 #' @param session A numeric vector of the sessions to be selected and
 #'     smoothed. Defaults to all sessions.
 #' @param what A character version of the variables to be selected and
-#'     smoothed. Defaults to \code{c('speed', 'heart_rate')}.
+#'     smoothed. Defaults to all variables in \code{object}
+#'     (\code{what = NULL}).
 #' @param control A list of parameters for controlling the smoothing
 #'     process.  This is passed to
 #'     \code{\link{smoother_control.distrProfile}}.
 #' @param ... Arguments to be used to form the default \code{control}
 #'     argument if it is not supplied directly.
 #' @seealso \code{\link{smoother_control.distrProfile}}
+#'
 #' @references
 #'
 #' Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
@@ -347,12 +360,17 @@ plot.distrProfile <- function(x, session = NULL,
 #' @export
 smoother.distrProfile <- function(object,
                                   session = NULL,
-                                  what = c("speed", "heart_rate"),
+                                  what = NULL,
                                   control = list(...),
                                   ...) {
     ## evaluate control argument
     control <- do.call("smoother_control.distrProfile", control)
     object <- get_profile(object, session = session, what = what)
+    operations <- get_operations(object)
+    if (!is.null(operations$smooth)) {
+        warning("this object has already been smoothed. No additional smoothing takes place.")
+        return(object)
+    }
     what <- names(object)
     ## smooth
     smooth_fun <- function(j, w) {
@@ -376,10 +394,6 @@ smoother.distrProfile <- function(object,
         }
         colnames(sp) <- attr(object[[i]], "dimnames")[[2]]
         ret[[i]] <- zoo(sp, order.by = index(object[[i]]))
-    }
-    unsmoothed <- names(object)[!(names(object) %in% what)]
-    for (i in unsmoothed) {
-        ret[[i]] <- object[[i]]
     }
     ## class and return
     operations <- list()
@@ -439,10 +453,15 @@ decreasing_smoother <- function(x, y, k = 30, len = NULL, sp = NULL) {
     res
 }
 
+#' @rdname nsessions
 #' @export
 nsessions.distrProfile <- function(object, ...) {
     if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
 }
+
+#' @rdname nsessions
+#' @export
+nsessions.conProfile <- nsessions.distrProfile
 
 
 #' Ridgeline plots for \code{distrProfile} objects
@@ -453,25 +472,20 @@ nsessions.distrProfile <- function(object, ...) {
 #' \dontrun{
 #'
 #' data('runs', package = 'trackeR')
-#' dProfile <- distributionProfile(runs, what = c("speed", "heart_rate"), auto_grid = TRUE)
+#' dProfile <- distribution_profile(runs, what = c("speed", "heart_rate"), auto_grid = TRUE)
 #' ridges(dProfile)
 #'
 #' }
 #' @export
 ridges.distrProfile <- function(x,
                                 session = NULL,
-                                what = c("speed"),
+                                what = NULL,
                                 smooth = FALSE,
                                 ...){
     x <- get_profile(x, session = session, what = what)
     ## smooth
     if (smooth) {
-        if (!is.null(operations$smooth)){
-            warning("this object has already been smoothed. No additional smoothing takes place.")
-        }
-        else {
-            x <- smoother(x, what = what, ...)
-        }
+        x <- smoother(x, ...)
     }
     ## duration unit; sport does not matter here as units have been uniformised already
     units <- get_units(x)
@@ -495,7 +509,7 @@ ridges.distrProfile <- function(x,
         theme(panel.grid.major = element_blank(),
               panel.grid.minor = element_blank()) +
         facet_grid(. ~ Profile, scales = "free_x", labeller = labeller("Profile" = lab_data)) +
-        xlab("")
+        xlab("") + ylab("Session")
 }
 
 
@@ -513,25 +527,20 @@ get_sport.distrProfile <- function(object,
 }
 
 
-#' Extract specific distribution and concentration profiles from
-#' \code{\link{distrProfile}} and \code{\link{conProfile}} objects
-#'
-#' @param object An object of class \code{distrProfile} as returned by
-#'     \code{\link{distributionProfile}}.
-#' @param session A numeric vector of the sessions to selected.
-#'     Defaults to all sessions.
-#' @param what A character version of the variables to be
-#'     selected. Defaults to \code{c('speed', 'heart_rate')}.
+#' @rdname get_profile
 #' @export
-get_profile <- function(object,
-                        session = NULL,
-                        what = c("speed", "heart_rate"),
-                        ...) {
+get_profile.distrProfile <- function(object,
+                                      session = NULL,
+                                      what = NULL,
+                                      ...) {
     sports <- get_sport(object)
     operations <- get_operations(object)
     units <- get_units(object)
     times <- attr(object, "session_times")
     urs <- attr(object, "unit_reference_sport")
+    if (is.null(what)) {
+        what <- names(object)
+    }
     ## select variables
     inds <- what %in% names(object)
     if (all(!inds)) {
@@ -548,9 +557,11 @@ get_profile <- function(object,
     if (is.null(session)) {
         session <- seq.int(nsess)
     }
+
     for (i in what) {
         object[[i]] <- object[[i]][, session, drop = FALSE]
     }
+
     ## Re class
     attr(object, "sport") <- sports[session]
     attr(object, "session_times") <- times[session, ]
@@ -561,3 +572,81 @@ get_profile <- function(object,
     object
 }
 
+
+
+#' @rdname get_profile
+#' @export
+get_profile.conProfile <- function(object,
+                                   session = NULL,
+                                   what = NULL,
+                                   ...) {
+
+    object <- get_profile.distrProfile(object, session, what, ...)
+    class(object) <- "conProfile"
+    object
+}
+
+
+#' Change the units of the variables in an \code{distrProfile} object
+#'
+#' @param object An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.
+#' @param variable A vector of variables to be changed.
+#' @param unit A vector with the units, corresponding to variable.
+#' @param ... Currently not used.
+#' @export
+change_units.distrProfile <- function(object,
+                                      variable,
+                                      unit,
+                                      ...) {
+
+    no_variable <- missing(variable)
+    no_unit <- missing(unit)
+
+    if (no_unit & no_variable) {
+        return(object)
+    }
+    else {
+        units <- get_units(object)
+        current <- collect_units(units, unit_reference_sport = attr(object, "unit_reference_sport"))
+        p <- length(variable)
+
+        if (length(unit) == p) {
+            ## change units
+            for (i in variable) {
+                currentUnit <- current$unit[current$variable == i]
+                newUnit <- unit[which(variable == i)]
+                if (currentUnit != newUnit) {
+                    conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
+                    ## change grid
+                    newIndex <- conversion(index(object[[i]]))
+                    object[[i]] <- zoo(coredata(object[[i]]), order.by = newIndex)
+                    ## change units attribute
+                    current$unit[current$variable == i] <- newUnit
+                }
+            }
+
+            ## update units in units
+            for (va in current$variable) {
+                units$unit[units$variable == va] <- current$unit[current$variable == va]
+            }
+
+            attr(object, "units") <- units
+            return(object)
+
+        }
+        else {
+            stop("variable and unit should have the same length.")
+        }
+    }
+}
+
+
+
+#' Change the units of the variables in an \code{\link{conProfile}} object
+#'
+#' @param object An object of class \code{\link{conProfile}} as returned by \code{\link{concentrationProfile}}.
+#' @param variable A vector of variables to be changed.
+#' @param unit A vector with the units, corresponding to variable.
+#' @param ... Currently not used.
+#' @export
+change_units.conProfile <- change_units.distrProfile

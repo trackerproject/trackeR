@@ -589,7 +589,7 @@ change_units.trackeRdataSummary <- function(object,
             return(object)
         }
         else {
-            stop("variable, unit and sport should have the same length.")
+            stop("variable and unit should have the same length.")
         }
     }
 }

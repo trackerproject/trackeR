@@ -14,7 +14,8 @@
 defaults to all sessions.}
 
 \item{what}{The variables for which the distribution profiles
-should be generated.}
+should be generated. Defaults to all variables in
+\code{object} (\code{what = NULL}).}
 
 \item{smooth}{Logical. Should the concentration profiles be smoothed before plotting?}
 
