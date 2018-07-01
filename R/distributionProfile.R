@@ -382,7 +382,6 @@ smoother.distrProfile <- function(object,
         ret[[i]] <- object[[i]]
     }
     ## class and return
-    control$what <- what
     operations <- list()
     operations$smooth <- control
     attr(ret, "sport") <- get_sport(object)
