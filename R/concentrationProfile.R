@@ -354,14 +354,13 @@ nsessions.conProfile <- function(object, ...) {
 ridges.conProfile <- function(x, session = NULL, what = c("speed"),
                               smooth = TRUE, ...){
 
-    ## code inspired by autoplot.zoo
     units <- getUnits(x)
     operations <- get_operations(x)
 
     ## select variables
     what <- what[what %in% names(x)]
     if (length(what) > 1) {
-        warnings(paste("Only", what[1], "is plotted"))
+        warning(paste("Only", what[1], "is plotted"))
         what <- what[1]
     }
     x <- x[what]  ## FIXME: implement [] method for profiles/variables instead of sessions

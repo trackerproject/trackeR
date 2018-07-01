@@ -4,8 +4,8 @@
 \alias{smoother.distrProfile}
 \title{Smoother for distribution profiles.}
 \usage{
-\method{smoother}{distrProfile}(object, session = NULL, control = list(...),
-  ...)
+\method{smoother}{distrProfile}(object, session = NULL, what = c("speed",
+  "heart_rate"), control = list(...), ...)
 }
 \arguments{
 \item{object}{An object of class \code{distrProfile} as returned by
@@ -13,6 +13,9 @@
 
 \item{session}{A numeric vector of the sessions to be selected and
 smoothed. Defaults to all sessions.}
+
+\item{what}{A character version of the variables to be selected and
+smoothed. Defaults to \code{c('speed', 'heart_rate')}.}
 
 \item{control}{A list of parameters for controlling the smoothing
 process.  This is passed to
@@ -34,6 +37,7 @@ arXiv:1506.01388.
 
 Pya, N. and Wood S. (2015). Shape Constrained Additive
 Models. Statistics and Computing, 25(3), 543--559.  Frick, H.,
+
 Kosmidis, I. (2017). trackeR: Infrastructure for Running and
 Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal
 of Statistical Software}, \bold{82}(7),

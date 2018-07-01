@@ -9,7 +9,8 @@
 \usage{
 session_duration(object, session, ...)
 
-\method{session_duration}{trackeRdata}(object, session = NULL, ...)
+\method{session_duration}{trackeRdata}(object, session = NULL,
+  duration_unit = "h", ...)
 
 \method{session_duration}{trackeRdataSummary}(object, session = NULL, ...)
 }

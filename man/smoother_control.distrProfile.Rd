@@ -7,16 +7,11 @@
 \code{\link{smoother.distrProfile}}. Typically used to construct a
 control argument for \code{\link{smoother.distrProfile}}.}
 \usage{
-smoother_control.distrProfile(what = c("speed", "heart_rate"), k = 30,
-  sp = NULL, parallel = FALSE)
+smoother_control.distrProfile(k = 30, sp = NULL, parallel = FALSE)
 
-smootherControl.distrProfile(what = c("speed", "heart_rate"), k = 30,
-  sp = NULL, parallel = FALSE)
+smootherControl.distrProfile(k = 30, sp = NULL, parallel = FALSE)
 }
 \arguments{
-\item{what}{Vector of the names of the variables which should be
-smoothed.}
-
 \item{k}{Number of knots.}
 
 \item{sp}{A vector of smoothing parameters passed on to \code{\link[scam]{scam}}.}

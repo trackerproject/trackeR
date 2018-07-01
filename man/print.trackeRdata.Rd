@@ -4,14 +4,14 @@
 \alias{print.trackeRdata}
 \title{\code{\link{print}} method for \code{\link{trackeRdata}} objects}
 \usage{
-\method{print}{trackeRdata}(x, duration = "h", ..., digits = 2)
+\method{print}{trackeRdata}(x, duration_unit = "h", digits = 2, ...)
 }
 \arguments{
 \item{x}{An object of class \code{\link{trackeRdata}}.}
 
-\item{...}{Currently not used; only for compatibility with generic \code{\link{summary}} method only.}
-
 \item{digits}{Number of digits to be printed.}
+
+\item{...}{Currently not used; only for compatibility with generic \code{\link{summary}} method only.}
 }
 \description{
 \code{\link{print}} method for \code{\link{trackeRdata}} objects

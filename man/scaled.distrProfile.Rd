@@ -11,10 +11,11 @@
 \item{object}{An object of class \code{distrProfile} as returned by
 \code{\link{distributionProfile}}.}
 
-\item{session}{A numeric vector of the sessions to be plotted,
-defaults to all sessions.}
+\item{session}{A numeric vector of the sessions to be selected and
+scaled. Defaults to all sessions.}
 
-\item{what}{Which variables should be scaled?}
+\item{what}{A character version of the variables to be selected and
+scaled. Defaults to \code{c('speed', 'heart_rate')}.}
 
 \item{...}{Currently not used.}
 }
