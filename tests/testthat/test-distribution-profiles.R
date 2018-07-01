@@ -49,5 +49,10 @@ test_that("disitrbution_profile works as expected [computation and methods]", {
     expect_equal(att$sport[-2], atts$sport)
     expect_equal(att$session_times[-2, ], atts$session_times)
 
+    expect_equal(class(dp), "distrProfile")
+    expect_equal(class(sm_dp), "distrProfile")
+    expect_equal(class(sc_dp), "distrProfile")
+    expect_equal(class(dps), "distrProfile")
+
 })
 
