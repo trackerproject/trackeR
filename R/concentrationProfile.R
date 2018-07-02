@@ -309,6 +309,7 @@ get_sport.conProfile <- function(object,
 
 #' @rdname concentration_profile.distrProfile
 #'
+#' @inheritParams concentration_profile.distrProfile
 #' @param object An object of class \code{\link{trackeRdata}}.
 #' @param session A numeric vector of the sessions to be used,
 #'     defaults to all sessions.
@@ -331,7 +332,8 @@ concentration_profile.trackeRdata <- function(object,
                                               limits = NULL,
                                               parallel = FALSE,
                                               unit_reference_sport = NULL,
-                                              scale = FALSE) {
+                                              scale = FALSE,
+                                              ...) {
     times <- session_times(object)
     if (is.null(session)) {
         session <- 1:length(object)

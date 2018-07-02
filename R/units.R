@@ -29,55 +29,6 @@ get_units.trackeRfpca <- function(object, ...) {
     attr(object, "units")
 }
 
-#' Change the units of the variables in an \code{trackeRWprime} object
-#'
-#' @param object An object of class \code{\link{trackeRWprime}}.
-#' @param variable A vector of variables to be changed.
-#' @param unit A vector with the units, corresponding to variable.
-#' @param ... Currently not used.
-#' @export
-change_units.trackeRWprime <- function(object,
-                                       variable,
-                                       unit,
-                                       ...) {
-    ## get current unit
-    current <- getUnits(object)
-
-    if (missing(variable))
-        variable <- ifelse(attr(object, "cycling"), "power", "speed")
-    if (missing(unit) & !missing(variable)) {
-        unit <- variable
-        variable <- ifelse(attr(object, "cycling"), "power", "speed")
-    }
-    if (attr(object, "cycling")) {
-        if (variable != "power")
-            stop("can only change measurement units for power.")
-    } else {
-        if (variable != "speed")
-            stop("can only change measurement units for speed.")
-    }
-
-    ## change units
-    for (i in variable) {
-        currentUnit <- current$unit[current$variable == i]
-        newUnit <- unit[which(variable == i)]
-        if (currentUnit != newUnit) {
-            conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
-            ## change data
-            for (session in seq_along(object)) {
-                object[[session]][, "movement"] <- conversion(object[[session]][, "movement"])
-            }
-            ## change units attribute
-            current$unit[current$variable == i] <- newUnit
-        }
-    }
-
-    ## update attributes and return
-    attr(object, "units") <- current
-    return(object)
-}
-
-
 #' Get the operation settings of an \code{distrProfile} object
 #'
 #' @param object An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.

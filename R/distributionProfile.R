@@ -68,7 +68,7 @@
 #'
 #' @examples
 #' data('run', package = 'trackeR')
-#' dProfile <- distributionProfile(run, what = c("speed", "cadence"), grid = seq(0, 12.5, by = 0.05))
+#' dProfile <- distribution_profile(run, what = c("speed", "cadence_running"))
 #' plot(dProfile, smooth = FALSE)
 #' @export
 distribution_profile <- function(object,
@@ -141,7 +141,7 @@ distribution_profile <- function(object,
     dp <- function(sess, grid) {
         values <- coredata(sess)
         timestamps <- index(sess)
-        len <- difftime(max(timestamps), min(timestamps), unit = du)
+        len <- difftime(max(timestamps), min(timestamps), units = du)
         ## Remove NA
         missing <- is.na(values)
         values <- values[!missing]
@@ -169,11 +169,12 @@ distribution_profile <- function(object,
                                               j = seq.int(nsessions(object)),
                                               .combine = "cbind"))))
         if (parallel) {
-            dp_for_var <- foreach::`%dopar%`(foreach_object, dp_fun(j, i))
+            dp_for_var <- foreach::`%dopar%`(foreach_object, cbind(dp_fun(j, i)))
         }
         else {
-            dp_for_var <- foreach::`%do%`(foreach_object, dp_fun(j, i))
+            dp_for_var <- foreach::`%do%`(foreach_object, cbind(dp_fun(j, i)))
         }
+
         if (nrow(dp_for_var) == 1) {
             warning("no data for ", i)
             next
@@ -483,7 +484,7 @@ nsessions.conProfile <- nsessions.distrProfile
 #' \dontrun{
 #'
 #' data('runs', package = 'trackeR')
-#' dProfile <- distribution_profile(runs, what = c("speed", "heart_rate"), auto_grid = TRUE)
+#' dProfile <- distribution_profile(runs, what = c("speed", "heart_rate"))
 #' ridges(dProfile)
 #'
 #' }

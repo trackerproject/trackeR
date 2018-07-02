@@ -1,4 +1,4 @@
-filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX", package = "trackeR")
+filepath <- system.file("extdata/tcx", "2013-06-30-084200.TCX", package = "trackeR")
 run <- read_container(filepath,
                       type = "tcx",
                       timezone = "GMT",

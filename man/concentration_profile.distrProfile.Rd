@@ -11,7 +11,7 @@
 
 \method{concentration_profile}{trackeRdata}(object, session = NULL,
   what = NULL, limits = NULL, parallel = FALSE,
-  unit_reference_sport = NULL, scale = FALSE)
+  unit_reference_sport = NULL, scale = FALSE, ...)
 }
 \arguments{
 \item{object}{An object of class \code{distrProfile} as returned by

@@ -75,7 +75,7 @@ Generate training distribution profiles
 }
 \examples{
 data('run', package = 'trackeR')
-dProfile <- distributionProfile(run, what = c("speed", "cadence"), grid = seq(0, 12.5, by = 0.05))
+dProfile <- distribution_profile(run, what = c("speed", "cadence_running"))
 plot(dProfile, smooth = FALSE)
 }
 \references{

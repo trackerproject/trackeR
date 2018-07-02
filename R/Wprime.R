@@ -124,6 +124,8 @@ Wexp <- function(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower 
 
 #' W': work capacity above critical power/speed.
 #'
+#' @aliases trackeRWprime
+#'
 #' Based on the critical power model for cycling (Monod and Scherrer,
 #' 1965), W' (read W prime) describes the finite work capacity above
 #' critical power (Skiba et al., 2012).  While W' is depleted during
@@ -410,4 +412,52 @@ nsessions.trackeRWprime <- function(object, ...) {
 #' @export
 get_sport.trackeRWprime <- function(object, ...) {
     attr(object, "sport")
+}
+
+
+#' Change the units of the variables in an \code{\link{trackeRWprime}} object
+#'
+#' @param object An object of class \code{\link{trackeRWprime}}.
+#' @param variable A vector of variables to be changed.
+#' @param unit A vector with the units, corresponding to variable.
+#' @param ... Currently not used.
+#' @export
+change_units.trackeRWprime <- function(object,
+                                       variable,
+                                       unit,
+                                       ...) {
+    ## get current unit
+    current <- getUnits(object)
+    if (missing(variable))
+        variable <- ifelse(attr(object, "cycling"), "power", "speed")
+    if (missing(unit) & !missing(variable)) {
+        unit <- variable
+        variable <- ifelse(attr(object, "cycling"), "power", "speed")
+    }
+    if (attr(object, "cycling")) {
+        if (variable != "power")
+            stop("can only change measurement units for power.")
+    } else {
+        if (variable != "speed")
+            stop("can only change measurement units for speed.")
+    }
+
+    ## change units
+    for (i in variable) {
+        currentUnit <- current$unit[current$variable == i]
+        newUnit <- unit[which(variable == i)]
+        if (currentUnit != newUnit) {
+            conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
+            ## change data
+            for (session in seq_along(object)) {
+                object[[session]][, "movement"] <- conversion(object[[session]][, "movement"])
+            }
+            ## change units attribute
+            current$unit[current$variable == i] <- newUnit
+        }
+    }
+
+    ## update attributes and return
+    attr(object, "units") <- current
+    return(object)
 }

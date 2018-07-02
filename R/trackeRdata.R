@@ -562,7 +562,7 @@ session_duration.trackeRdata <- function(object,
     du <- switch(duration_unit, "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days")
 
     with(session_times(object, session = session), {
-        difftime(sessionEnd, sessionStart, unit = du)
+        difftime(sessionEnd, sessionStart, units = du)
     })
 }
 

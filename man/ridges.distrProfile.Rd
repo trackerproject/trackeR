@@ -30,7 +30,7 @@ Ridgeline plots for \code{distrProfile} objects
 \dontrun{
 
 data('runs', package = 'trackeR')
-dProfile <- distribution_profile(runs, what = c("speed", "heart_rate"), auto_grid = TRUE)
+dProfile <- distribution_profile(runs, what = c("speed", "heart_rate"))
 ridges(dProfile)
 
 }
