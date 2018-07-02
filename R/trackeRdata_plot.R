@@ -603,14 +603,12 @@ timeline.trackeRdata  <- function(object,
                              origin = Sys.Date())
         sport <- get_sport(object)
     })
+
     if (!is.null(lims)) {
         lims <- as.POSIXct(paste(Sys.Date(), lims))
     }
     day_range <- data.frame(day = seq(min(df$day_s), max(df$day_s), by = "day"))
     p <- ggplot(df) +
-        ## geom_hline(data = day_range, aes_(yintercept = quote(day)),
-        ##            size = 0.1, alpha = 0.5,
-        ##            col = grDevices::gray(0.25)) +
         geom_segment(aes_(x = quote(time_s), xend = quote(time_e), y = quote(day_s), yend = quote(day_e), color = quote(sport)))
     ## take care of breaks, limits on the time axes and style of breakpoints
     p <- p + scale_x_datetime(date_labels = "%H:%m", date_breaks = "4 hour", limits = lims)

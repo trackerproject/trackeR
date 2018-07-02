@@ -490,6 +490,9 @@ nsessions.trackeRdataSummary <- function(object, ...) {
 session_times.trackeRdataSummary <- function(object,
                                              session = NULL,
                                              ...) {
+    if (is.null(session)) {
+        session <- seq_along(object)
+    }
     as.data.frame(object[session])[, c("sessionStart", "sessionEnd")]
 }
 

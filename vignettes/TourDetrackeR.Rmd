@@ -40,7 +40,7 @@ for JSON files from [Golden Cheetah](http://www.goldencheetah.org/) via *readJSO
 
 ```{r, runDF, message = FALSE}
 library("trackeR")
-filepath <- system.file("extdata", "2013-05-16-120907.TCX", package = "trackeR")
+filepath <- system.file("extdata/tcx/", "2013-06-01-183220.TCX", package = "trackeR")
 runDF <- readTCX(file = filepath, timezone = "GMT")
 ```
 
@@ -58,15 +58,15 @@ for further analyses.
 runTr0 <- trackeRdata(runDF)
 ```
 
-The *readContainer*() function combines the two steps of importing the data and constructing
+The *read_container*() function combines the two steps of importing the data and constructing
 the *trackeRdata* object.
 
 ```{r, runTr1}
-runTr1 <- readContainer(filepath, type = "tcx", timezone = "GMT")
+runTr1 <- read_container(filepath, type = "tcx", timezone = "GMT")
 identical(runTr0, runTr1)
 ```
 
-The *readDirectory*() function can be used to read `all` supported files in a directory and
+The *read_directory*() function can be used to read `all` supported files in a directory and
 produce the corresponding *trackeRdata* objects.
 
 
@@ -96,13 +96,13 @@ The route taken during a training session can also be plotted on maps from vario
 e.g., from Google or OpenStreetMap. This can be done either on a static map
 
 ```{r, plotRoute, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 7}
-plotRoute(runs, session = 1, source = "google")
+plot_route(runs, session = 1, source = "google")
 ```
 
 or on an interactive map.
 
 ```{r, leafletRoute, fig.width = 7, fig.height = 7}
-leafletRoute(runs, session = c(1, 6, 12))
+leaflet_route(runs, session = c(1, 6, 12))
 ```
 
 
@@ -111,10 +111,10 @@ leafletRoute(runs, session = c(1, 6, 12))
 
 The summary of sessions includes basic statistics like duration,
 time spent moving, average speed, pace, and heart rate. The speed threshold used to
-distinguish moving from resting can be set by the argument *movingThreshold*.
+distinguish moving from resting can be set by the argument *moving_threshold*.
 
 ```{r, summary}
-summary(runs, session = 1, movingThreshold = 1)
+summary(runs, session = 1, moving_threshold = c(cycling = 2, running = 1, swimming = 0.5))
 ```
 
 It is usually desirable to visualise summaries from multiple sessions. This can be done
@@ -122,16 +122,16 @@ using the *plot* method for summary objects. Below, we produce such a plot for a
 heart rate, average speed, distance, and duration.
 
 ```{r, plot_summary, fig.width = 7, fig.height = 7}
-runsSummary <- summary(runs)
-plot(runsSummary, group = c("total", "moving"),
-  what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
+runs_summary <- summary(runs)
+plot(runs_summary, group = c("total", "moving"),
+     what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
 ```
 
 The timeline plot is useful to visualise the date and time that the sessions took place and
 provide information of their relative duration.
 
 ```{r, timeline, fig.width = 7, fig.height = 7}
-timeline(runsSummary)
+timeline(runs_summary)
 ```
 
 
@@ -142,8 +142,8 @@ The time spent training in certain zones, e.g., speed zones, can also be calcula
 visualised.
 
 ```{r, plot_zones, fig.width = 7, fig.height = 5}
-runZones <- zones(runs[1:4], what = "speed", breaks = c(0, 2:6, 12.5))
-plot(runZones)
+run_zones <- zones(runs[1:4], what = "speed", breaks = c(0, 2:6, 12.5))
+plot(run_zones)
 ```
 
 
@@ -175,22 +175,24 @@ Here, the distribution profiles for the first 4 sessions are calculated for spee
 thresholds ranging from 0 to 12.5 m/s in increments of 0.05 m/s.
 
 ```{r, distProfile, fig.width = 7, fig.height = 5}
-dProfile <- distributionProfile(runs, session = 1:4, what = "speed",
-  grid = list(speed = seq(0, 12.5, by = 0.05)))
-plot(dProfile, multiple = TRUE)
+d_profile <- distribution_profile(runs, session = 1:4, what = "speed",
+                                  grid = list(speed = seq(0, 12.5, by = 0.05)))
+plot(d_profile, multiple = TRUE)
 ```
 
-Sessions 4 and 1 are longer than session 2 and 3, as visible by the higher amount of time
-spent exercising above 0 m/s. However sessions 3 and 4 show a larger amount of time spent
-exercising above 4 m/s than the other sessions. This is easier to spot in the concentration
-profiles which are the negative derivative of the distribution profiles.
-The concentration profile for session 3 has a mode at around 3.5 meters per second and
-another one above 4 meters per second, showing that this session involved training at a
-combination of low and high speeds.
+Sessions 4 and 1 are longer than session 2 and 3, as visible by the
+higher amount of time spent exercising above 0 m/s. Sessions 3 and 4
+show a larger amount of time spent exercising above 4 m/s than the
+other sessions. This is easier to spot in the concentration profiles
+which are the negative derivative of the distribution profiles.  The
+concentration profile for session 3 has a mode at around 3.5 meters
+per second and another one above 4 meters per second, showing that
+this session involved training at a combination of low and high
+speeds.
 
 ```{r, conProfile, fig.width = 7, fig.height = 5}
-cProfile <- concentrationProfile(dProfile, what = "speed")
-plot(cProfile, multiple = TRUE)
+c_profile <- concentrationProfile(d_profile, what = "speed")
+plot(c_profile, multiple = TRUE, smooth = TRUE)
 ```
 
 More details on distribution and concentration profiles can be found in the comprehensive
@@ -207,10 +209,10 @@ The concentration profiles for all session
 
 ```{r, prep_profiles, fig.width = 7, fig.height = 5}
 runsT <- threshold(runs)
-dpRuns <- distributionProfile(runsT, what = "speed")
-dpRunsS <- smoother(dpRuns, cores = 2)
-cpRuns <- concentrationProfile(dpRunsS)
-plot(cpRuns, multiple = TRUE, smooth = FALSE)
+dp_runs <- distribution_profile(runsT, what = "speed")
+dp_runs_S <- smoother(dp_runs)
+cp_runs <- concentration_profile(dp_runs_S)
+plot(cp_runs, multiple = TRUE, smooth = FALSE)
 ```
 
 vary in their shape (unimodal or multimodal), height, and location (revealing
@@ -218,7 +220,7 @@ concentrations at higher or lower speeds). The function *funPCA*() can be used
 to fit a functional PCA, here with 4 principal components.
 
 ```{r, funPCA}
-cpPCA <- funPCA(cpRuns, what = "speed", nharm = 4)
+cpPCA <- funPCA(cp_runs, what = "speed", nharm = 4)
 ```
 
 For the speed concentration profiles here, the first two components cover
@@ -238,7 +240,7 @@ average speed moving.
 ## plot scores vs summary statistics
 scoresSP <- data.frame(cpPCA$scores)
 names(scoresSP) <- paste0("speed_pc", 1:4)
-d <- cbind(runsSummary, scoresSP)
+d <- cbind(runs_summary, scoresSP)
 
 library("ggplot2")
 ## pc1 ~ session duration (moving)

@@ -190,7 +190,7 @@ distribution_profile <- function(object,
     attr(DP, "unit_reference_sport") <- unit_reference_sport
     attr(DP, "operations") <- operations
     attr(DP, "units") <- units
-    attr(DP, "limits") <- limits[what]
+    attr(DP, "limits") <- if (is.null(grid)) limits[what] else lapply(grid, range)[what]
     class(DP) <- "distrProfile"
     return(DP)
 }
