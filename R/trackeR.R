@@ -39,10 +39,18 @@
 #' version 1.0.0.
 #'
 #'
-#' @references Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal of Statistical Software}, \bold{82}(7), 1--29. doi:10.18637/jss.v082.i07
+#' @references
+#'
+#' Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running
+#' and Cycling Data from GPS-Enabled Tracking Devices in
+#' R. \emph{Journal of Statistical Software}, \bold{82}(7),
+#' 1--29. doi:10.18637/jss.v082.i07
+#'
 #' Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
-#'     Endurance Runners to Training and Physiological Effects via Multi-Resolution
-#'     Elastic Net. \emph{ArXiv e-print} arXiv:1506.01388.
+#' Endurance Runners to Training and Physiological Effects via
+#' Multi-Resolution Elastic Net. \emph{ArXiv e-print}
+#' arXiv:1506.01388.
+#'
 #' @docType package
 #' @name trackeR
 #' @import zoo
@@ -131,9 +139,10 @@ nsessions <- function(object, ...) UseMethod("nsessions")
 #'
 #' @param object The object for which to calculate session start and end times.
 #' @param session The sessions for which to extract sports.
+#' @param duration_unit The unit durations should be returned.
 #' @param ... Arguments to be passed to methods.
 #' @export
-session_times <- function(object, session, ...) UseMethod("session_times")
+session_times <- function(object, session, duration_unit, ...) UseMethod("session_times")
 
 #' Generic function for extracting sports
 #'
