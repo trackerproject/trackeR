@@ -39,6 +39,9 @@
 #' \item \code{operations}: a list with the operations that have been
 #' applied to the object. See \code{\link{get_operations.distrProfile}}
 #'
+#' \item \code{limits}: The variable limits that have been used for the
+#' computation of the concentration profiles.
+#'
 #' \item \code{units}: an object listing the units used for the
 #' calculation of distribution profiles. These is the output of
 #' \code{\link{get_units}} on the corresponding
@@ -90,6 +93,7 @@ concentration_profile.distrProfile <- function(object,
     attr(CP, "unit_reference_sport") <- attr(object, "unit_reference_sport")
     attr(CP, "operations") <- operations
     attr(CP, "units") <- get_units(object)
+    attr(CP, "limits") <- attr(object, "limits")
     class(CP) <- "conProfile"
     return(CP)
 }
@@ -223,6 +227,7 @@ smoother.conProfile <- function(object,
     attr(DP, "unit_reference_sport") <- attr(object, "unit_reference_sport")
     attr(DP, "operations") <- get_operations(object)
     attr(DP, "units") <- get_units(object)
+    attr(DP, "limits") <- attr(object, "limits")[what]
     class(DP) <- "distrProfile"
 
     ## evaluate control argument
@@ -303,6 +308,22 @@ get_sport.conProfile <- function(object,
 
 
 #' @rdname concentration_profile.distrProfile
+#'
+#' @param object An object of class \code{\link{trackeRdata}}.
+#' @param session A numeric vector of the sessions to be used,
+#'     defaults to all sessions.
+#' @param what The variables for which the distribution profiles
+#'     should be generated. Defaults to all variables in \code{object}
+#'     (\code{what = NULL}).
+#' @param grid A named list containing the grid values for the
+#'     variables in \code{what}. If \code{NULL} (default) the grids
+#'     for the variables in \code{what} are inferred from
+#'     \code{object}.
+#' @param parallel Logical. Should computation be carried out in
+#'     parallel? Default is \code{FALSE}.
+#' @param scale Logical. If \code{FALSE} (default) then the integral
+#'     of the profiles over the real line matches the session length.
+#'
 #' @export
 concentration_profile.trackeRdata <- function(object,
                                               session = NULL,
@@ -319,19 +340,6 @@ concentration_profile.trackeRdata <- function(object,
         what <- colnames(kantas[[1]])
     }
     object <- object[session]
-    if (is.null(limits)) {
-        ## Fortify can be extremely slow for large objects...
-        limits0 <- compute_limits(object, a = 0.05)
-        limits <- lapply(seq.int(nrow(limits0)), function(j) unlist(limits0[j, ]))
-        names(limits) <- rownames(limits0)
-        for (feature in what) {
-            if (all(is.na(limits[[feature]]))) {
-                warning(paste('no data for', feature))
-                what <- what[!(what %in% feature)]
-                limits[[feature]] <- NULL
-            }
-        }
-    }
 
     units <- get_units(object)
     if (is.null(unit_reference_sport)) {
@@ -342,7 +350,21 @@ concentration_profile.trackeRdata <- function(object,
     for (va in unique(un$variable)) {
         units$unit[units$variable == va] <- un$unit[un$variable == va]
     }
+    ## Change units according to unit_reference_sport
     object <- change_units(object, units$variable, units$unit, units$sport)
+
+    if (is.null(limits)) {
+        ## Fortify can be extremely slow for large objects...
+        limits <- compute_limits(object, a = 0.05)
+        for (feature in what) {
+            if (all(is.na(limits[[feature]]))) {
+                warning(paste('no data for', feature))
+                what <- what[!(what %in% feature)]
+                limits[[feature]] <- NULL
+            }
+        }
+    }
+
     ## check supplied args
     ## if it's a list, it has to either has to be named and contain all element in what or
     ## has to have the same length as what, then it's assumed that the order is the same.
@@ -394,15 +416,15 @@ concentration_profile.trackeRdata <- function(object,
                                               .combine = "cbind"))))
         if (parallel) {
             setup_parallel()
-            times <- foreach::`%dopar%`(foreach_object, cp_fun(j, i))
+            ccp <- foreach::`%dopar%`(foreach_object, cp_fun(j, i))
         }
         else {
-            times <- foreach::`%do%`(foreach_object, cp_fun(j, i))
+            ccp <- foreach::`%do%`(foreach_object, cp_fun(j, i))
         }
 
-        times <- zoo(times, order.by = seq(from = limits[[i]][1], to = limits[[i]][2], length.out = 512))
-        names(times) <- paste0("session", session)
-        CP[[i]] <- times
+        ccp <- zoo(ccp, order.by = seq(from = limits[[i]][1], to = limits[[i]][2], length.out = 512))
+        names(ccp) <- paste0("session", session)
+        CP[[i]] <- ccp
     }
 
     ## class and return
@@ -412,6 +434,7 @@ concentration_profile.trackeRdata <- function(object,
     attr(CP, "unit_reference_sport") <- unit_reference_sport
     attr(CP, "operations") <- operations
     attr(CP, "units") <- units
+    attr(CP, "limits") <- limits[what]
     class(CP) <- "conProfile"
     return(CP)
 }

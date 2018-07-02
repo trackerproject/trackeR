@@ -32,10 +32,6 @@ number of zones for data to be split into.}
 \code{object}).}
 
 \item{...}{Currently not used.}
-
-\item{auto_breaks}{Logical. Should breaks be selected
-automatically? Default is \code{FALSE} and \code{breaks} will
-be ignored if \code{TRUE}.}
 }
 \value{
 An object of class \code{trackeRdataZones}.

@@ -43,6 +43,9 @@
 #' \item \code{operations}: a list with the operations that have been
 #' applied to the object. See \code{\link{get_operations.distrProfile}}
 #'
+#' \item \code{limits}: The variable limits that have been used for the
+#' computation of the distribution profiles
+#'
 #' \item \code{units}: an object listing the units used for the
 #' calculation of distribution profiles. These is the output of
 #' \code{\link{get_units}} on the corresponding
@@ -82,19 +85,6 @@ distribution_profile <- function(object,
         what <- colnames(kantas[[1]])
     }
     object <- object[session]
-    if (is.null(grid)) {
-        ## Fortify can be extremely slow for large objects...
-        limits <- compute_limits(object, a = 0.01)
-        for (feature in what) {
-            if (all(is.na(limits[feature, ]))) {
-                warning(paste('no data for', feature))
-                what <- what[!(what %in% feature)]
-            }
-        }
-        for (feature in what) {
-            grid[[feature]] <- clean_grid(limits[feature, "low"], limits[feature, "upp"])
-        }
-    }
     units <- get_units(object)
     if (is.null(unit_reference_sport)) {
         unit_reference_sport <- find_unit_reference_sport(object)
@@ -104,7 +94,23 @@ distribution_profile <- function(object,
     for (va in unique(un$variable)) {
         units$unit[units$variable == va] <- un$unit[un$variable == va]
     }
+    ## Change units according to unit_reference_sport
     object <- change_units(object, units$variable, units$unit, units$sport)
+
+    if (is.null(grid)) {
+        ## Fortify can be extremely slow for large objects...
+        limits <- compute_limits(object, a = 0.01)
+        for (feature in what) {
+            if (all(is.na(limits[[feature]]))) {
+                warning(paste('no data for', feature))
+                what <- what[!(what %in% feature)]
+            }
+        }
+        for (feature in what) {
+            grid[[feature]] <- clean_grid(limits[[feature]][1], limits[[feature]][2])
+        }
+    }
+
     ## check supplied args
     ## if it's a list, it has to either has to be named and contain all element in what or
     ## has to have the same length as what, then it's assumed that the order is the same.
@@ -184,6 +190,7 @@ distribution_profile <- function(object,
     attr(DP, "unit_reference_sport") <- unit_reference_sport
     attr(DP, "operations") <- operations
     attr(DP, "units") <- units
+    attr(DP, "limits") <- limits[what]
     class(DP) <- "distrProfile"
     return(DP)
 }
@@ -223,6 +230,7 @@ scaled.distrProfile <- function(object,
     attr(ret, "unit_reference_sport") <- attr(object, "unit_reference_sport")
     attr(ret, "operations") <- operations
     attr(ret, "units") <- get_units(object)
+    attr(ret, "limits") <- attr(object, "limits")[what]
     class(ret) <- "distrProfile"
     return(ret)
 }
@@ -405,6 +413,7 @@ smoother.distrProfile <- function(object,
     attr(ret, "unit_reference_sport") <- attr(object, "unit_reference_sport")
     attr(ret, "operations") <- operations
     attr(ret, "units") <- get_units(object)
+    attr(ret, "limits") <- attr(object, "limits")[what]
     class(ret) <- "distrProfile"
     return(ret)
 }
@@ -540,6 +549,7 @@ get_profile.distrProfile <- function(object,
     units <- get_units(object)
     times <- attr(object, "session_times")
     urs <- attr(object, "unit_reference_sport")
+    limits <- attr(object, "limits")
     if (is.null(what)) {
         what <- names(object)
     }
@@ -570,6 +580,7 @@ get_profile.distrProfile <- function(object,
     attr(object, "unit_reference_sport") <- urs
     attr(object, "operations") <- operations
     attr(object, "units") <- units
+    attr(object, "limits") <- limits[what]
     class(object) <- "distrProfile"
     object
 }

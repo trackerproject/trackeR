@@ -210,7 +210,10 @@ ridges <- function(x, ...) UseMethod("ridges")
 #' @export
 get_profile <- function(object, session, what, ...) UseMethod("get_profile")
 
-#' @rdname concentration_profile.distrProfile
+
+#' Generic method for concentration profiles
+#'
+#' @seealso concentration_profile.distrProfile
 #' @export
 concentration_profile <- function(object,
                                   session = NULL,

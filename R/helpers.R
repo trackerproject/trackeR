@@ -128,7 +128,20 @@ clean_grid <- function (minimum, maximum) {
     break_points
 }
 
-## object is a trackeRdata object
+#' Compute variable limits from a \code{\link{trackeRdata}} object
+#'
+#' @param object A \code{\link{trackeRdata}} object
+#' @param a The level at which quantiles will be computed are \code{a}
+#'     and \code{1 - a}. Default is \code{a = 0.0001}
+#'
+#' @details
+#'
+#' \code{compute_limits} computes limits by finding the \code{a} and
+#' \code{1 - a} quantiles for each variable in each session, and then
+#' taking the minimum and maximum of the \code{a} and \code{1 - a},
+#' respectively, across sessions.
+#'
+#' @export
 compute_limits <- function(object, a = 0.0001) {
     limits <- lapply(object, function(sess) {
         sess <- as.data.frame(sess)
@@ -139,7 +152,11 @@ compute_limits <- function(object, a = 0.0001) {
     upp <- apply(sapply(limits, function(x) x[2, ]), 1, function(x) if (all(is.na(x))) NA else max(x, na.rm = TRUE))
     inds <- low == upp
     low[inds] <- upp[inds] <- NA
-    data.frame(low = low, upp = upp)
+    out <- lapply(seq.int(length(low)), function(v) {
+        unname(c(low[v], upp[v]))
+    })
+    names(out) <- names(low)
+    out
 }
 
 

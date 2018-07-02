@@ -10,9 +10,6 @@
 #'     parallel? If \code{TRUE} computation is performed in parallel
 #'     using the backend provided to \code{\link{foreach}}. Default is
 #'     \code{FALSE}.
-#' @param auto_breaks Logical. Should breaks be selected
-#'     automatically? Default is \code{FALSE} and \code{breaks} will
-#'     be ignored if \code{TRUE}.
 #' @param n_zones A numeric. If \code{auto_breaks = TRUE}, select
 #'     number of zones for data to be split into.
 #' @param unit_reference_sport The sport to inherit units from
@@ -35,7 +32,6 @@ zones <- function(object,
                   what = c("speed", "heart_rate"),
                   breaks = NULL, #list(speed = 0:10,  heart_rate = c(0, seq(75, 225, by = 50), 250)),
                   parallel = FALSE,
-                  ## auto_breaks = TRUE,
                   n_zones = 9,
                   unit_reference_sport = NULL,
                   ...) {
@@ -46,12 +42,35 @@ zones <- function(object,
     }
     object <- object[session]
 
-    if (auto_breaks) {
-        breaks <- list()
+    units <- get_units(object)
 
-        df <- fortify(object, melt = FALSE)
+    if (is.null(unit_reference_sport)) {
+        unit_reference_sport <- find_unit_reference_sport(object)
+    }
+    ## Match units to those of unit_reference_sport
+    un <- collect_units(units, unit_reference_sport = unit_reference_sport)
+    for (va in unique(un$variable)) {
+        units$unit[units$variable == va] <- un$unit[un$variable == va]
+    }
+    ## Change units according to unit_reference_sport
+    object <- change_units(object, units$variable, units$unit, units$sport)
 
-        find_step_size <- function (maximum, minimum = 0) {
+    duration_unit <- un$unit[un$variable == "duration"]
+    du <- switch(duration_unit, "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days")
+
+
+    if (is.null(breaks)) {
+
+        limits <- compute_limits(object)
+        for (feature in what) {
+            if (all(is.na(limits[[feature]]))) {
+                warning(paste('no data for', feature))
+                what <- what[!(what %in% feature)]
+                limits[[feature]] <- NULL
+            }
+        }
+
+        break_points <- function (maximum, minimum = 0) {
             value_range <- as.character(ceiling(maximum - minimum))
             range_size <- nchar(value_range)
             round_table <- list('1' = 5, '2' = 5, '3' = 10, '4' = 100,
@@ -62,16 +81,11 @@ zones <- function(object,
             break_points
         }
 
+
         for (feature in what) {
-            if (all(is.na(df[[feature]]))) {
-                warning(paste('No data for', feature))
-                what <- what[!(what %in% feature)]
-            }
-        }
-        for (feature in what) {
-            maximum <- ceiling(quantile(df[feature], 0.98, na.rm = TRUE))
-            minimum <- if (feature == 'heart_rate') 60 else floor(quantile(df[feature], 0.01, na.rm = TRUE))
-            breaks[[feature]] <- find_step_size(maximum, minimum)
+            maximum <- ceiling(limits[[feature]][2])
+            minimum <- floor(limits[[feature]][1])
+            breaks[[feature]] <- break_points(maximum, minimum)
         }
     }
 
@@ -91,20 +105,6 @@ zones <- function(object,
     }
 
     ## facets
-    units <- get_units(object)
-
-    if (is.null(unit_reference_sport)) {
-        unit_reference_sport <- find_unit_reference_sport(object)
-    }
-    ## Match units to those of unit_reference_sport
-    un <- collect_units(units, unit_reference_sport = unit_reference_sport)
-    for (va in unique(un$variable)) {
-        units$unit[units$variable == va] <- un$unit[un$variable == va]
-    }
-
-    duration_unit <- un$unit[un$variable == "duration"]
-    du <- switch(duration_unit, "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days")
-
     ## utility function
     zones_for_single_variable <- function(sess, what, breaks) {
         dur <- timeAboveThreshold(sess[, "speed"], 0, ge = TRUE)  ## use what or speed?

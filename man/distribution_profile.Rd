@@ -59,6 +59,9 @@ been inherited from
 \item \code{operations}: a list with the operations that have been
 applied to the object. See \code{\link{get_operations.distrProfile}}
 
+\item \code{limits}: The variable limits that have been used for the
+computation of the distribution profiles
+
 \item \code{units}: an object listing the units used for the
 calculation of distribution profiles. These is the output of
 \code{\link{get_units}} on the corresponding
