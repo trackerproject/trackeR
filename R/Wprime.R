@@ -219,21 +219,21 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), 
         stop("Wprime applies only for running or only for cycling sessions")
     }
 
-    cycling <- units$unit[units$variable == "cadence"] == "rev_per_min"
+    cycling <- all(sports == "cycling")
     ps <- ifelse(cycling, "power", "speed")
     if (cycling) {
-        if (units$unit[units$variable == "power"] != "W") {
+        if (units$unit[units$variable == "power" & units$sport == "cycling"] != "W") {
             object <- change_units(object, variable = "power", unit = "W")
             units <- getUnits(object)
-            conversion <- match.fun(paste(units$unit[units$variable == "power"], "W", sep = "2"))
+            conversion <- match.fun(paste(units$unit[units$variable == "power" & units$sport == "cycling"], "W", sep = "2"))
             cp <- conversion(cp)
         }
     }
     else {
-        if (units$unit[units$variable == "speed"] != "m_per_s") {
+        if (units$unit[units$variable == "speed" & units$sport == "running"] != "m_per_s") {
             object <- change_units(object, variable = "speed", unit = "m_per_s")
             units <- getUnits(object)
-            conversion <- match.fun(paste(units$unit[units$variable == "speed"], "m_per_s",
+            conversion <- match.fun(paste(units$unit[units$variable == "speed" & units$sport == "running"], "m_per_s",
                 sep = "2"))
             cp <- conversion(cp)
         }
@@ -269,7 +269,7 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), 
     ## FIXME: fixme here to accommodate for multi-sport environment
     attr(ret, "cycling") <- cycling
     attr(ret, "sport") <- sports
-    attr(ret, "unit") <- units[units$variable == ps, ]
+    attr(ret, "unit") <- units[units$variable == ps & units$sport == unique(sports), ]
     class(ret) <- "trackeRWprime"
     return(ret)
 }
@@ -355,11 +355,12 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, .
         ## lines for power/speed and W'
         p <- p + geom_line(aes_(group = quote(Series), col = quote(Series)),
             na.rm = TRUE) + scale_colour_manual(name = "", labels = mylabels,
-            values = c("gray", "blue"))
+            values = c("gray", "black"))
         ## add line for cp
         p <- p + geom_hline(data = data.frame(cp = cp), aes(yintercept = cp),
-            col = "black")
-    } else {
+            col = gray(0.25))
+    }
+    else {
         ## basic plot
         p <- ggplot(data = subset(df, Series == "wprime"), mapping = aes_(x = quote(Index),
             y = quote(Value))) + ylab(paste("W'", quantity, Wunit)) + xlab("Time")
