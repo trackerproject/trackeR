@@ -3,11 +3,14 @@
 #' @param object An object of class \code{\link{trackeRdata}}.
 #' @param session The sessions to be smoothed. Default is all sessions.
 #' @param control A list of parameters for controlling the smoothing
-#' process. This is passed to \code{\link{smootherControl.trackeRdata}}.
+#' process. This is passed to \code{\link{smoother_control.trackeRdata}}.
 #' @param ... Arguments to be used to form the default \code{control}
 #' argument if it is not supplied directly.
+#'
 #' @return An object of class \code{\link{trackeRdata}}.
-#' @seealso \code{\link{smootherControl.trackeRdata}}
+#'
+#' @seealso \code{\link{smoother_control.trackeRdata}}
+#'
 #' @examples
 #' data('run', package = 'trackeR')
 #' ## unsmoothed speeds
@@ -18,7 +21,10 @@
 #' runS <- smoother(run, fun = 'median', width = 20, what = 'speed')
 #' plot(runS, smooth = FALSE)
 #' @export
-smoother.trackeRdata <- function(object, session = NULL, control = list(...), ...) {
+smoother.trackeRdata <- function(object,
+                                 session = NULL,
+                                 control = list(...),
+                                 ...) {
 
     operations <- attr(object, "operations")
 
@@ -28,13 +34,14 @@ smoother.trackeRdata <- function(object, session = NULL, control = list(...), ..
     }
 
     ## select sessions
-    if (is.null(session))
+    if (is.null(session)) {
         session <- seq_len(length(object))
+    }
     object <- object[session]
 
     ## evaluate control argument
     control$nsessions <- length(session)
-    control <- do.call("smootherControl.trackeRdata", control)
+    control <- do.call("smoother_control.trackeRdata", control)
 
     ## Check that all what are available
     what <- match(unlist(control$what), names(object[[1]]))
@@ -71,7 +78,7 @@ smoother.trackeRdata <- function(object, session = NULL, control = list(...), ..
     operations$smooth <- control
     attr(objectNew, "operations") <- operations
     attr(objectNew, "units") <- getUnits(object)
-    attr(objectNew, "sport") <- sport(object)
+    attr(objectNew, "sport") <- get_sport(object)
     attr(objectNew, "file") <- attr(object, "file")
     return(objectNew)
 
@@ -94,10 +101,14 @@ smoother.trackeRdata <- function(object, session = NULL, control = list(...), ..
 #'     corresponds to all sessions belonging to the same group. Used
 #'     only internally.
 #' @param ... Currently not used.
+#'
 #' @seealso \code{\link{smoother.trackeRdata}}
 #' @export
-smootherControl.trackeRdata <- function(fun = "mean", width = 10, parallel = FALSE,
-    what = c("speed", "heart.rate"), nsessions = NA, ...) {
+smoother_control.trackeRdata <- function(fun = "mean",
+                                         width = 10,
+                                         parallel = FALSE,
+                                         what = c("speed", "heart_rate"),
+                                         nsessions = NA, ...) {
     # Basic checks for the arguments
     if (!is.character(fun)) {
         stop("'fun' should be a character string")

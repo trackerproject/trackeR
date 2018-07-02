@@ -359,7 +359,7 @@ create_option_box <- function(sport_options) {
             style = "pill",
             color = "success"
           )
-        )), column(4, 
+        )), column(4,
         shinyWidgets::actionBttn(
           inputId = "resetSelection",
           label = "Reset session selection",
@@ -403,7 +403,7 @@ create_option_box <- function(sport_options) {
         collapsible = TRUE,
         title = tagList("Classified sports"),
         shinyWidgets::checkboxGroupButtons(
-          inputId = "sports", 
+          inputId = "sports",
           # label = "Select from identified sports: ",
           choices = sport_options, selected = sport_options,
           justified = TRUE, status = "info",

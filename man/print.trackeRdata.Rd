@@ -2,24 +2,22 @@
 % Please edit documentation in R/trackeRdata.R
 \name{print.trackeRdata}
 \alias{print.trackeRdata}
-\title{print method for \code{\link{trackeRdata}} objects}
+\title{\code{\link{print}} method for \code{\link{trackeRdata}} objects}
 \usage{
-\method{print}{trackeRdata}(x, duration = "h", ..., digits = 2)
+\method{print}{trackeRdata}(x, duration_unit = "h", digits = 2, ...)
 }
 \arguments{
 \item{x}{An object of class \code{\link{trackeRdata}}.}
 
-\item{duration}{A character. The unit of duration of a session.
-\code{\link{trackeRdata}} object}
-
-\item{...}{Not used, for compatibility with generic summary method only.}
-
 \item{digits}{Number of digits to be printed.}
+
+\item{...}{Currently not used; only for compatibility with generic \code{\link{summary}} method only.}
 }
 \description{
-print method for \code{\link{trackeRdata}} objects
+\code{\link{print}} method for \code{\link{trackeRdata}} objects
 }
 \details{
 The print method returns training coverage, number of sessions and
 total training duration from the data in the
+\code{\link{trackeRdata}} object.
 }

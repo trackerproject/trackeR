@@ -8,11 +8,14 @@
   smooth = TRUE, ...)
 }
 \arguments{
-\item{x}{a \code{trackeRdata} object.}
+\item{x}{A \code{trackeRdata} object.}
 
-\item{session}{A numeric vector of the sessions to be used, defaults to all sessions.}
+\item{session}{A numeric vector of the sessions to be used,
+defaults to all sessions.}
 
-\item{what}{The variables for which the distribution profiles should be generated.}
+\item{what}{The variables for which the distribution profiles
+should be generated. Defaults to all variables in
+\code{object} (\code{what = NULL}).}
 
 \item{smooth}{Logical. Should the concentration profiles be smoothed before plotting?}
 

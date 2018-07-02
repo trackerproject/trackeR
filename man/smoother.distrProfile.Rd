@@ -4,32 +4,46 @@
 \alias{smoother.distrProfile}
 \title{Smoother for distribution profiles.}
 \usage{
-\method{smoother}{distrProfile}(object, session = NULL, control = list(...),
-  ...)
+\method{smoother}{distrProfile}(object, session = NULL, what = NULL,
+  control = list(...), ...)
 }
 \arguments{
-\item{object}{An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.}
+\item{object}{An object of class \code{distrProfile} as returned by
+\code{\link{distribution_profile}}.}
 
-\item{session}{A numeric vector of the sessions to be selected and smoothed. Defaults to all sessions.}
+\item{session}{A numeric vector of the sessions to be selected and
+smoothed. Defaults to all sessions.}
 
-\item{control}{A list of parameters for controlling the smoothing process.
-This is passed to \code{\link{smootherControl.distrProfile}}.}
+\item{what}{A character version of the variables to be selected and
+smoothed. Defaults to all variables in \code{object}
+(\code{what = NULL}).}
 
-\item{...}{Arguments to be used to form the default \code{control} argument if it is not supplied directly.}
+\item{control}{A list of parameters for controlling the smoothing
+process.  This is passed to
+\code{\link{smoother_control.distrProfile}}.}
+
+\item{...}{Arguments to be used to form the default \code{control}
+argument if it is not supplied directly.}
 }
 \description{
-The distribution profiles are smoothed using a shape constrained additive model with Poisson
-responses to ensure that the smoothed distribution profile is positive and monotone decreasing.
+The distribution profiles are smoothed using a shape constrained
+additive model with Poisson responses to ensure that the smoothed
+distribution profile is positive and monotone decreasing.
 }
 \references{
 Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
-    Endurance Runners to Training and Physiological Effects via Multi-Resolution
-    Elastic Net. \emph{ArXiv e-print} arXiv:1506.01388.
+Endurance Runners to Training and Physiological Effects via
+Multi-Resolution Elastic Net. \emph{ArXiv e-print}
+arXiv:1506.01388.
 
-    Pya, N. and Wood S. (2015). Shape Constrained Additive Models. Statistics and
-    Computing, 25(3), 543--559.
-    Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal of Statistical Software}, \bold{82}(7), 1--29. doi:10.18637/jss.v082.i07
+Pya, N. and Wood S. (2015). Shape Constrained Additive
+Models. Statistics and Computing, 25(3), 543--559.  Frick, H.,
+
+Kosmidis, I. (2017). trackeR: Infrastructure for Running and
+Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal
+of Statistical Software}, \bold{82}(7),
+1--29. doi:10.18637/jss.v082.i07
 }
 \seealso{
-\code{\link{smootherControl.distrProfile}}
+\code{\link{smoother_control.distrProfile}}
 }

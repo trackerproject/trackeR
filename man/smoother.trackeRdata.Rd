@@ -13,7 +13,7 @@
 \item{session}{The sessions to be smoothed. Default is all sessions.}
 
 \item{control}{A list of parameters for controlling the smoothing
-process. This is passed to \code{\link{smootherControl.trackeRdata}}.}
+process. This is passed to \code{\link{smoother_control.trackeRdata}}.}
 
 \item{...}{Arguments to be used to form the default \code{control}
 argument if it is not supplied directly.}
@@ -35,5 +35,5 @@ runS <- smoother(run, fun = 'median', width = 20, what = 'speed')
 plot(runS, smooth = FALSE)
 }
 \seealso{
-\code{\link{smootherControl.trackeRdata}}
+\code{\link{smoother_control.trackeRdata}}
 }

@@ -2,16 +2,17 @@
 % Please edit documentation in R/trackeRdata_plot.R
 \name{plot.trackeRdata}
 \alias{plot.trackeRdata}
-\title{Plot training sessions in form of trackeRdata objects.}
+\title{Plot training sessions in form of trackeRdata objects}
 \usage{
 \method{plot}{trackeRdata}(x, session = NULL, what = c("pace",
-  "heart.rate"), threshold = TRUE, smooth = FALSE, trend = TRUE,
-  dates = TRUE, ...)
+  "heart_rate"), threshold = TRUE, smooth = FALSE, trend = TRUE,
+  dates = TRUE, unit_reference_sport = NULL, moving_threshold = NULL, ...)
 }
 \arguments{
 \item{x}{An object of class \code{\link{trackeRdata}}.}
 
-\item{session}{A numeric vector of the sessions to be plotted, defaults to all sessions.}
+\item{session}{A numeric vector of the sessions to be plotted,
+defaults to all sessions.}
 
 \item{what}{Which variables should be plotted?}
 
@@ -21,18 +22,33 @@
 
 \item{trend}{Logical. Should a smooth trend be plotted?}
 
-\item{dates}{Logical. Should the date of the session be used in the panel header?}
+\item{dates}{Logical. Should the date of the session be used in the
+panel header?}
 
-\item{...}{Further arguments to be passed to \code{\link{threshold}} and
+\item{unit_reference_sport}{The sport to inherit units from
+(default is taken to be the most frequent sport in
+\code{object}).}
+
+\item{moving_threshold}{A named vector of 3 speeds to be used for
+thresholding pace, given in the unit of the speed measurements
+in \code{object}. If \code{NULL} (default), the speeds are
+taken to be \code{c(cycling = 2, running = 1, swimming =
+0.5)}. See Details.}
+
+\item{...}{Further arguments to be passed to
+\code{\link{threshold}} and
 \code{\link{smootherControl.trackeRdata}}.}
 }
 \description{
-Plot training sessions in form of trackeRdata objects.
+Plot training sessions in form of trackeRdata objects
 }
 \details{
-Note that a threshold is always applied to the pace. This (upper) threshold
-    corresponds to a speed of 1.4 meters per second, the preferred walking speed of
-    humans. The lower threshold is 0.
+Note that a threshold is always applied to the pace. This (upper)
+threshold corresponds to a speed of 1.4 meters per second, the
+preferred walking speed of humans. The lower threshold is 0.
+
+The units for the variables match those of the sport specified by
+\code{unit_reference_sport}.
 }
 \examples{
 \dontrun{

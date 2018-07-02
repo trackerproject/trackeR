@@ -124,6 +124,8 @@ Wexp <- function(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower 
 
 #' W': work capacity above critical power/speed.
 #'
+#' @aliases trackeRWprime
+#'
 #' Based on the critical power model for cycling (Monod and Scherrer,
 #' 1965), W' (read W prime) describes the finite work capacity above
 #' critical power (Skiba et al., 2012).  While W' is depleted during
@@ -210,7 +212,7 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), 
     if (is.null(session))
         session <- 1:length(object)
     object <- object[session]
-    sports <- sport(object)
+    sports <- get_sport(object)
 
     ## FIXME: change here to accommodate multisport environment for
     ## now, do not allow computation of Wprime if user does not
@@ -219,22 +221,21 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), 
         stop("Wprime applies only for running or only for cycling sessions")
     }
 
-    # cycling <- units$unit[units$variable == "cadence"] == "rev_per_min"
-    cycling <- unique(sports) == 'cycling'
+    cycling <- all(sports == "cycling")
     ps <- ifelse(cycling, "power", "speed")
     if (cycling) {
-        if (units$unit[units$variable == "power"] != "W") {
-            object <- changeUnits(object, variable = "power", unit = "W")
+        if (units$unit[units$variable == "power" & units$sport == "cycling"] != "W") {
+            object <- change_units(object, variable = "power", unit = "W")
             units <- getUnits(object)
-            conversion <- match.fun(paste(units$unit[units$variable == "power"], "W", sep = "2"))
+            conversion <- match.fun(paste(units$unit[units$variable == "power" & units$sport == "cycling"], "W", sep = "2"))
             cp <- conversion(cp)
         }
     }
     else {
-        if (units$unit[units$variable == "speed"] != "m_per_s") {
-            object <- changeUnits(object, variable = "speed", unit = "m_per_s")
+        if (units$unit[units$variable == "speed" & units$sport == "running"] != "m_per_s") {
+            object <- change_units(object, variable = "speed", unit = "m_per_s")
             units <- getUnits(object)
-            conversion <- match.fun(paste(units$unit[units$variable == "speed"], "m_per_s",
+            conversion <- match.fun(paste(units$unit[units$variable == "speed" & units$sport == "running"], "m_per_s",
                 sep = "2"))
             cp <- conversion(cp)
         }
@@ -270,7 +271,7 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), 
     ## FIXME: fixme here to accommodate for multi-sport environment
     attr(ret, "cycling") <- cycling
     attr(ret, "sport") <- sports
-    attr(ret, "unit") <- units[units$variable == ps, ]
+    attr(ret, "unit") <- units[units$variable == ps & units$sport == unique(sports), ]
     class(ret) <- "trackeRWprime"
     return(ret)
 }
@@ -315,8 +316,6 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, .
                 na.rm = TRUE)
             w <- w * sdMov  #sd(coredata(z$movement), na.rm = TRUE)
             z$wprime <- w + mMov
-            # max(mMov, abs(min(w, na.rm = TRUE))) max(mean(coredata(z$movement), na.rm = TRUE),
-            # abs(min(w, na.rm = TRUE)))
             return(z)
         })
     }
@@ -358,11 +357,12 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, .
         ## lines for power/speed and W'
         p <- p + geom_line(aes_(group = quote(Series), col = quote(Series)),
             na.rm = TRUE) + scale_colour_manual(name = "", labels = mylabels,
-            values = c("gray", "blue"))
+            values = c("gray", "black"))
         ## add line for cp
         p <- p + geom_hline(data = data.frame(cp = cp), aes(yintercept = cp),
-            col = "black")
-    } else {
+            col = gray(0.25))
+    }
+    else {
         ## basic plot
         p <- ggplot(data = subset(df, Series == "wprime"), mapping = aes_(x = quote(Index),
             y = quote(Value))) + ylab(paste("W'", quantity, Wunit)) + xlab("Time")
@@ -391,7 +391,7 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, .
 #' @export
 fortify.trackeRWprime <- function(model, data, melt = FALSE, ...) {
     ret <- list()
-    sports <- sport(model)
+    sports <- get_sport(model)
     for (i in seq_along(model)) {
         ret[[i]] <- zoo::fortify.zoo(model[[i]], melt = melt)
         ret[[i]]$SessionID <- i
@@ -408,8 +408,56 @@ nsessions.trackeRWprime <- function(object, ...) {
 }
 
 
-#' @rdname sport
+#' @rdname get_sport
 #' @export
-sport.trackeRWprime <- function(object, ...) {
+get_sport.trackeRWprime <- function(object, ...) {
     attr(object, "sport")
+}
+
+
+#' Change the units of the variables in an \code{\link{trackeRWprime}} object
+#'
+#' @param object An object of class \code{\link{trackeRWprime}}.
+#' @param variable A vector of variables to be changed.
+#' @param unit A vector with the units, corresponding to variable.
+#' @param ... Currently not used.
+#' @export
+change_units.trackeRWprime <- function(object,
+                                       variable,
+                                       unit,
+                                       ...) {
+    ## get current unit
+    current <- getUnits(object)
+    if (missing(variable))
+        variable <- ifelse(attr(object, "cycling"), "power", "speed")
+    if (missing(unit) & !missing(variable)) {
+        unit <- variable
+        variable <- ifelse(attr(object, "cycling"), "power", "speed")
+    }
+    if (attr(object, "cycling")) {
+        if (variable != "power")
+            stop("can only change measurement units for power.")
+    } else {
+        if (variable != "speed")
+            stop("can only change measurement units for speed.")
+    }
+
+    ## change units
+    for (i in variable) {
+        currentUnit <- current$unit[current$variable == i]
+        newUnit <- unit[which(variable == i)]
+        if (currentUnit != newUnit) {
+            conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
+            ## change data
+            for (session in seq_along(object)) {
+                object[[session]][, "movement"] <- conversion(object[[session]][, "movement"])
+            }
+            ## change units attribute
+            current$unit[current$variable == i] <- newUnit
+        }
+    }
+
+    ## update attributes and return
+    attr(object, "units") <- current
+    return(object)
 }

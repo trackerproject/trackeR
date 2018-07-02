@@ -3,14 +3,14 @@
 #' @param feature A character representing the feature whose units we want to generate.
 #' @param data An object of class \code{trackeRdataSummary} or \code{trackeRdata}.
 #' @param whole_text Generate only unit (e.g "[bpm]") or whole text (e.g. "Heart Rate [bpm]").
-#' @param transform_feature If TRUE, expected format of \code{feature} is such as "avgCadence", "avgPower". If FALSE, expected format is "pace", "cadence", "heart.rate" or "altitude".
+#' @param transform_feature If TRUE, expected format of \code{feature} is such as "avgCadence", "avgPower". If FALSE, expected format is "pace", "cadence", "heart_rate" or "altitude".
 lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE) {
   feature <- as.character(feature)
   units <- getUnits(data)
   if (transform_feature) {
     concept <- switch(feature, "avgPace" = "pace", "avgSpeed" = "speed",
       "distance" = "distance", "duration" = "duration",
-      "avgPower" = "power", "avgCadence" = "cadence", "avgHeartRate" = "heart.rate"
+      "avgPower" = "power", "avgCadence" = "cadence", "avgHeartRate" = "heart_rate"
     )
   }
   else {
@@ -35,7 +35,7 @@ lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE) 
       ret <- switch(feature,
         "pace" = paste0("Pace \n[", prettyUnit, "]"),
         "cadence" = paste0("Cadence \n[", prettyUnit, "]"),
-        "heart.rate" = paste0("Heart Rate \n[", prettyUnit, "]"),
+        "heart_rate" = paste0("Heart Rate \n[", prettyUnit, "]"),
         "altitude" = paste0("Altitude \n[", prettyUnit, "]"),
         "speed" = paste0("Speed \n[", prettyUnit, "]")
       )
@@ -59,7 +59,7 @@ lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE) 
       ret <- switch(feature,
         "pace" = prettyUnit,
         "cadence" = prettyUnit,
-        "heart.rate" = prettyUnit,
+        "heart_rate" = prettyUnit,
         "altitude" = prettyUnit,
         "speed" = prettyUnit
       )
@@ -131,7 +131,7 @@ choices <- function() {
 #' Generate metrics to test if they have data
 metrics <- function() {
    c(
-    "Heart Rate" = "heart.rate",
+    "Heart Rate" = "heart_rate",
     "Altitude" = "altitude",
     "Speed" = "speed",
     "Cadence" = "cadence",
@@ -144,7 +144,7 @@ metrics <- function() {
 #' Update panel with metrics to plot
 #' @param session A shiny object.
 #' @param choices A vector. A list of features to plot, see \code{\link{choices}}.
-#' @param has_data A vector with boolean expressions representing which features have data. 
+#' @param has_data A vector with boolean expressions representing which features have data.
 update_metrics_to_plot_workouts <- function(session, choices, has_data) {
   updateSelectizeInput(
     session = session,
@@ -197,7 +197,7 @@ show_warning_window <- function() {
 }
 
 #' Calculate plot height for either time in zones or work capacity
-#' @param metrics A vector of metrics that will be plotted. 
+#' @param metrics A vector of metrics that will be plotted.
 calculate_plot_height <- function(metrics) {
   paste0(250 * length(metrics), "px")
 }
@@ -226,7 +226,7 @@ classify_sessions_by_sport <- function(data) {
   merged_df[is.na(merged_df)] <- 0
   merged_df <- scale(merged_df)
   classified_sports <- class::knn(
-    merged_df[1:n_train,], merged_df[(n_train + 1):nrow(merged_df),], 
+    merged_df[1:n_train,], merged_df[(n_train + 1):nrow(merged_df),],
     sport_classification_train[,'sport'], k=5
     )
 
@@ -418,7 +418,7 @@ plot_work_capacities <- function(x, session, cp) {
   }
 }
 
-#' Show a modal window to inform a user that no data was selected 
+#' Show a modal window to inform a user that no data was selected
 show_warning_no_data_selected <- function() {
   showModal(modalDialog(
     title = "trackeR dashboard message",
@@ -435,12 +435,12 @@ show_warning_no_data_selected <- function() {
 }
 
 #' Classify sessions by sport, process dataset, generate download handler,
-#' generate selected sessions object, update what metrics are available 
+#' generate selected sessions object, update what metrics are available
 #' to plot and other minor actions.
 #' @param data An object of class \code{reactivevalues}.
 #' @param output A shiny object.
 #' @param session A shiny object.
-#' @param choices A vector. See \code{\link{choices}}. 
+#' @param choices A vector. See \code{\link{choices}}.
 generate_objects <- function(data, output, session, choices) {
   process_dataset(data)
   ## Update sport attribute of data$object with classified sports
@@ -464,11 +464,11 @@ sports_options <- c(
 #' @param data An object of class \code{reactivevalues}.
 test_work_capacity <- function(data) {
   selected_sports <- unique(sport(data$object[data$selectedSessions]))
-  is_data_power <- !all(sapply(data$object[data$selectedSessions], function(x){ 
+  is_data_power <- !all(sapply(data$object[data$selectedSessions], function(x){
     all((is.na(x[, "power"])) | (x[, "power"] == 0))
     }
   ))
-  
+
   # Test for power if cycling
   if (('cycling' %in% selected_sports) & (is_data_power)) {
     cycling <- 'cycling'
@@ -490,7 +490,7 @@ test_work_capacity <- function(data) {
 update_sport_selection <- function(data, session) {
   shinyWidgets::updateCheckboxGroupButtons(
     session = session,
-    inputId = "sports", 
+    inputId = "sports",
     selected = as.vector(data$identified_sports)
   )
 }

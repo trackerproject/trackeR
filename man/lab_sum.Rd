@@ -13,7 +13,7 @@ lab_sum(feature, data, whole_text = TRUE, transform_feature = TRUE)
 
 \item{whole_text}{Generate only unit (e.g "[bpm]") or whole text (e.g. "Heart Rate [bpm]").}
 
-\item{transform_feature}{If TRUE, expected format of \code{feature} is such as "avgCadence", "avgPower". If FALSE, expected format is "pace", "cadence", "heart.rate" or "altitude".}
+\item{transform_feature}{If TRUE, expected format of \code{feature} is such as "avgCadence", "avgPower". If FALSE, expected format is "pace", "cadence", "heart_rate" or "altitude".}
 }
 \description{
 Generate a character of formatted units, either only the unit (e.g "[bpm]") or whole text (e.g. "Heart Rate [bpm]").

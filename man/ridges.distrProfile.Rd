@@ -4,19 +4,24 @@
 \alias{ridges.distrProfile}
 \title{Ridgeline plots for \code{distrProfile} objects}
 \usage{
-\method{ridges}{distrProfile}(x, session = NULL, what = c("speed"),
-  smooth = TRUE, ...)
+\method{ridges}{distrProfile}(x, session = NULL, what = NULL,
+  smooth = FALSE, ...)
 }
 \arguments{
-\item{x}{An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.}
+\item{x}{An object of class \code{distrProfile} as returned by
+\code{\link{distribution_profile}}.}
 
-\item{session}{A numeric vector of the sessions to be plotted, defaults to all sessions.}
+\item{session}{A numeric vector of the sessions to be plotted,
+defaults to all sessions.}
 
-\item{what}{Which variables should be plotted?}
+\item{what}{Which variables should be plotted? Defaults to all
+variables in \code{object} (\code{what = NULL}).}
 
-\item{smooth}{Logical. Should unsmoothed profiles be smoothed before plotting?}
+\item{smooth}{Logical. Should unsmoothed profiles be smoothed
+before plotting?}
 
-\item{...}{Further arguments to be passed to \code{\link{smootherControl.distrProfile}}.}
+\item{...}{Further arguments to be passed to
+\code{\link{smoother_control.distrProfile}}.}
 }
 \description{
 Ridgeline plots for \code{distrProfile} objects
@@ -25,7 +30,7 @@ Ridgeline plots for \code{distrProfile} objects
 \dontrun{
 
 data('runs', package = 'trackeR')
-dProfile <- distributionProfile(runs, what = c("speed", "heart.rate"), auto_grid = TRUE)
+dProfile <- distribution_profile(runs, what = c("speed", "heart_rate"))
 ridges(dProfile)
 
 }

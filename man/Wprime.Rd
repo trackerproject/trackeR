@@ -2,6 +2,71 @@
 % Please edit documentation in R/Wprime.R
 \name{Wprime}
 \alias{Wprime}
+\alias{trackeRWprime}
+\alias{Based}
+\alias{on}
+\alias{the}
+\alias{critical}
+\alias{power}
+\alias{model}
+\alias{for}
+\alias{cycling}
+\alias{(Monod}
+\alias{and}
+\alias{Scherrer,}
+\alias{1965),}
+\alias{W'}
+\alias{(read}
+\alias{W}
+\alias{prime)}
+\alias{describes}
+\alias{finite}
+\alias{work}
+\alias{capacity}
+\alias{above}
+\alias{(Skiba}
+\alias{et}
+\alias{al.,}
+\alias{2012).}
+\alias{While}
+\alias{is}
+\alias{depleted}
+\alias{during}
+\alias{exercise}
+\alias{power,}
+\alias{it}
+\alias{replenished}
+\alias{below}
+\alias{power.}
+\alias{Thus,}
+\alias{of}
+\alias{interest}
+\alias{how}
+\alias{much}
+\alias{this}
+\alias{has}
+\alias{been}
+\alias{not}
+\alias{yet}
+\alias{replinished}
+\alias{again,}
+\alias{named}
+\alias{expended,}
+\alias{or}
+\alias{still}
+\alias{available,}
+\alias{balance.}
+\alias{This}
+\alias{principal}
+\alias{applied}
+\alias{to}
+\alias{runners}
+\alias{by}
+\alias{subsituting}
+\alias{with}
+\alias{speed}
+\alias{speed,}
+\alias{respectively}
 \title{W': work capacity above critical power/speed.}
 \usage{
 Wprime(object, session = NULL, quantity = c("expended", "balance"), w0, cp,
@@ -42,16 +107,7 @@ using the backend provided to \code{\link{foreach}}. Default is
 An object of class \code{trackeRWprime}.
 }
 \description{
-Based on the critical power model for cycling (Monod and Scherrer,
-1965), W' (read W prime) describes the finite work capacity above
-critical power (Skiba et al., 2012).  While W' is depleted during
-exercise above critical power, it is replenished during exercise
-below critical power. Thus, it is of interest how much of this work
-capacity has been depleted and not yet been replinished again,
-named W' expended, or how much of this work capacity is still
-available, named W' balance.  This principal is applied to runners
-by subsituting power and critical power with speed and critical
-speed, respectively (Skiba et al., 2012).
+W': work capacity above critical power/speed.
 }
 \details{
 #' Skiba et al. (2015) and Skiba et al. (2012) both describe an

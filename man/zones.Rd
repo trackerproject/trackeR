@@ -4,9 +4,9 @@
 \alias{zones}
 \title{Time spent in training zones.}
 \usage{
-zones(object, session = NULL, what = c("speed", "heart.rate"),
-  breaks = list(speed = 0:10, heart.rate = c(0, seq(75, 225, by = 50), 250)),
-  parallel = FALSE, auto_breaks = TRUE, n_zones = 9, ...)
+zones(object, session = NULL, what = c("speed", "heart_rate"),
+  breaks = NULL, parallel = FALSE, n_zones = 9,
+  unit_reference_sport = NULL, ...)
 }
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}
@@ -24,12 +24,12 @@ parallel? If \code{TRUE} computation is performed in parallel
 using the backend provided to \code{\link{foreach}}. Default is
 \code{FALSE}.}
 
-\item{auto_breaks}{Logical. Should breaks be selected
-automatically? Default is \code{FALSE} and \code{breaks} will
-be ignored if \code{TRUE}.}
+\item{n_zones}{A numeric. If \code{auto_breaks = TRUE}, select
+number of zones for data to be split into.}
 
-\item{n_zones}{A numeric. If auto_breaks=TRUE, select number of
-zones for data to be split into.}
+\item{unit_reference_sport}{The sport to inherit units from
+(default is taken to be the most frequent sport in
+\code{object}).}
 
 \item{...}{Currently not used.}
 }

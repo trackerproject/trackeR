@@ -2,7 +2,7 @@
 % Please edit documentation in R/trackeRdata_plot.R
 \name{fortify.trackeRdata}
 \alias{fortify.trackeRdata}
-\title{Fortify a trackeRdata object for plotting with ggplot2.}
+\title{Fortify a trackeRdata object for plotting with ggplot2}
 \usage{
 \method{fortify}{trackeRdata}(model, data, melt = FALSE, ...)
 }
@@ -17,5 +17,5 @@ instead of the default wide format?}
 \item{...}{Ignored.}
 }
 \description{
-Fortify a trackeRdata object for plotting with ggplot2.
+Fortify a trackeRdata object for plotting with ggplot2
 }

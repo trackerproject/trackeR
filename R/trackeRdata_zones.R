@@ -10,11 +10,11 @@
 #'     parallel? If \code{TRUE} computation is performed in parallel
 #'     using the backend provided to \code{\link{foreach}}. Default is
 #'     \code{FALSE}.
-#' @param auto_breaks Logical. Should breaks be selected
-#'     automatically? Default is \code{FALSE} and \code{breaks} will
-#'     be ignored if \code{TRUE}.
-#' @param n_zones A numeric. If auto_breaks=TRUE, select number of
-#'     zones for data to be split into.
+#' @param n_zones A numeric. If \code{auto_breaks = TRUE}, select
+#'     number of zones for data to be split into.
+#' @param unit_reference_sport The sport to inherit units from
+#'     (default is taken to be the most frequent sport in
+#'     \code{object}).
 #' @param ... Currently not used.
 #' @return An object of class \code{trackeRdataZones}.
 #' @seealso \code{\link{plot.trackeRdataZones}}
@@ -27,9 +27,14 @@
 #' runZones <- zones(run, what = 'speed', breaks = c(0, 2:6, 12.5))
 #' plot(runZones)
 #' @export
-zones <- function(object, session = NULL, what = c("speed", "heart.rate"), breaks = list(speed = 0:10,
-    heart.rate = c(0, seq(75, 225, by = 50), 250)), parallel = FALSE, auto_breaks = TRUE,
-    n_zones = 9, ...) {
+zones <- function(object,
+                  session = NULL,
+                  what = c("speed", "heart_rate"),
+                  breaks = NULL, #list(speed = 0:10,  heart_rate = c(0, seq(75, 225, by = 50), 250)),
+                  parallel = FALSE,
+                  n_zones = 9,
+                  unit_reference_sport = NULL,
+                  ...) {
 
     ## select sessions
     if (is.null(session)) {
@@ -37,13 +42,35 @@ zones <- function(object, session = NULL, what = c("speed", "heart.rate"), break
     }
     object <- object[session]
 
+    units <- get_units(object)
 
-    if (auto_breaks) {
-        breaks <- list()
+    if (is.null(unit_reference_sport)) {
+        unit_reference_sport <- find_unit_reference_sport(object)
+    }
+    ## Match units to those of unit_reference_sport
+    un <- collect_units(units, unit_reference_sport = unit_reference_sport)
+    for (va in unique(un$variable)) {
+        units$unit[units$variable == va] <- un$unit[un$variable == va]
+    }
+    ## Change units according to unit_reference_sport
+    object <- change_units(object, units$variable, units$unit, units$sport)
 
-        df <- fortify(object, melt = FALSE)
+    duration_unit <- un$unit[un$variable == "duration"]
+    du <- switch(duration_unit, "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days")
 
-        find_step_size <- function (maximum, minimum = 0) {
+
+    if (is.null(breaks)) {
+
+        limits <- compute_limits(object)
+        for (feature in what) {
+            if (all(is.na(limits[[feature]]))) {
+                warning(paste('no data for', feature))
+                what <- what[!(what %in% feature)]
+                limits[[feature]] <- NULL
+            }
+        }
+
+        break_points <- function (maximum, minimum = 0) {
             value_range <- as.character(ceiling(maximum - minimum))
             range_size <- nchar(value_range)
             round_table <- list('1' = 5, '2' = 5, '3' = 10, '4' = 100,
@@ -54,16 +81,11 @@ zones <- function(object, session = NULL, what = c("speed", "heart.rate"), break
             break_points
         }
 
+
         for (feature in what) {
-            if (all(is.na(df[[feature]]))) {
-                warning(paste('No data for', feature))
-                what <- what[!(what %in% feature)]
-            }
-        }
-        for (feature in what) {
-            maximum <- ceiling(quantile(df[feature], 0.98, na.rm = TRUE))
-            minimum <- if (feature == 'heart.rate') 60 else floor(quantile(df[feature], 0.01, na.rm = TRUE))
-            breaks[[feature]] <- find_step_size(maximum, minimum)
+            maximum <- ceiling(limits[[feature]][2])
+            minimum <- floor(limits[[feature]][1])
+            breaks[[feature]] <- break_points(maximum, minimum)
         }
     }
 
@@ -72,13 +94,17 @@ zones <- function(object, session = NULL, what = c("speed", "heart.rate"), break
         breaks <- list(breaks)
         names(breaks) <- what
     }
-    if (missing(what) & is.null(names(breaks)))
+    if (missing(what) & is.null(names(breaks))) {
         stop("Variable names need to be provided either in 'what' or the names of 'breaks'.")
-    if (missing(what))
+    }
+    if (missing(what)) {
         what <- names(breaks)
-    if (is.null(names(breaks)))
+    }
+    if (is.null(names(breaks))) {
         names(breaks) <- what
+    }
 
+    ## facets
     ## utility function
     zones_for_single_variable <- function(sess, what, breaks) {
         dur <- timeAboveThreshold(sess[, "speed"], 0, ge = TRUE)  ## use what or speed?
@@ -89,20 +115,24 @@ zones <- function(object, session = NULL, what = c("speed", "heart.rate"), break
         ## set time spent in zones to minutes
         attr(td, "units") <- units(dur)
         class(td) <- "difftime"
-        units(td) <- "mins"
-        ## td <- as.numeric(td)
+        units(td) <- du
 
-        ret <- data.frame(variable = what, zone = 1:(length(breaks) - 1), lower = breaks[-length(breaks)],
-            upper = breaks[-1], time = td, percent = perc)
+        ret <- data.frame(variable = what, zone = 1:(length(breaks) - 1),
+                          lower = breaks[-length(breaks)],
+                          upper = breaks[-1],
+                          time = td,
+                          percent = perc)
         return(ret)
     }
 
     ## get time in zones
     zones_fun <- function(j, w) {
         sess <- object[[j]]
-        zones_for_single_variable(sess, what = i, breaks = breaks[[w]])
+        zones_for_single_variable(sess, what = w, breaks = breaks[[w]])
     }
+
     ret <- list()
+
     for (i in what) {
         foreach_object <- eval(as.call(c(list(quote(foreach::foreach),
                                               j = seq.int(nsessions(object)),
@@ -120,7 +150,8 @@ zones <- function(object, session = NULL, what = c("speed", "heart.rate"), break
         rownames(ret[[i]]) <- NULL
     }
 
-    attr(ret, "units") <- getUnits(object)
+    attr(ret, "unit_reference_sport") <- unit_reference_sport
+    attr(ret, "units") <- get_units(object)
     class(ret) <- c("trackeRdataZones", class(ret))
     return(ret)
 }
@@ -135,12 +166,15 @@ zones <- function(object, session = NULL, what = c("speed", "heart.rate"), break
 #' runZones <- zones(run, what = 'speed', breaks = c(0, 2:6, 12.5))
 #' plot(runZones, percent = FALSE)
 #' @export
-plot.trackeRdataZones <- function(x, percent = TRUE, ...) {
+plot.trackeRdataZones <- function(x,
+                                  percent = TRUE,
+                                  ...) {
 
     dat <- do.call("rbind", x)
+
     dat$zoneF <- factor(paste0("[", paste(dat$lower, dat$upper, sep = "-"), ")"), levels = unique(paste0("[",
         paste(dat$lower, dat$upper, sep = "-"), ")")))
-    ## dat$session <- factor(dat$session)
+
     dat$Session <- dat$session  ## rename for legend title
     dat$timeN <- as.numeric(dat$time)
 
@@ -151,22 +185,33 @@ plot.trackeRdataZones <- function(x, percent = TRUE, ...) {
     if (percent) {
         p <- p + geom_bar(aes_(x = quote(zoneF), y = quote(percent),
             fill = quote(Session), group = quote(Session)), stat = "identity", position = position_dodge()) +
-            ylab("Percent")  ## +
-        ## guides(fill = guide_legend(title = 'Session'))
-    } else {
+            ylab("Percent")
+    }
+    else {
         p <- p + geom_bar(aes_(x = quote(zoneF), y = quote(timeN), fill = quote(Session),
             group = quote(Session)), stat = "identity", position = position_dodge()) +
-            ylab(paste0("Time [", units(dat$time), "]"))  ## +
-        ## guides(fill = guide_legend(title = 'Session'))
+            ylab(paste0("Time [", units(dat$time), "]"))
     }
 
-    ## set colors hclpal <- colorspace::rainbow_hcl(n = nl  evels(dat$session), c = 60) p <- p
-    ## + scale_fill_manual(values = hclpal)
+
+    units <- get_units(x)
+    ## Match units to those of unit_reference_sport
+    un <- collect_units(units, unit_reference_sport = attr(x, "unit_reference_sport"))
+    for (va in unique(un$variable)) {
+        units$unit[units$variable == va] <- un$unit[un$variable == va]
+    }
+
+    ## Change units to those of unit_reference_sport
+    object <- changeUnits(x, un$variable, un$unit, un$sport)
+
+
+    duration_unit <- un$unit[un$variable == "duration"]
+    du <- switch(duration_unit, "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days")
+
 
     ## facets
-    units <- getUnits(x)
     lab_data <- function(series) {
-        thisunit <- units$unit[units$variable == series]
+        thisunit <- un$unit[un$variable == series]
         prettyUnit <- prettifyUnits(thisunit)
         paste0(series, "\n[", prettyUnit, "]")
     }
@@ -184,6 +229,80 @@ plot.trackeRdataZones <- function(x, percent = TRUE, ...) {
 }
 
 #' @export
-nsessions.trackeRdataZones <- function(object, ...) {
+nsessions.trackeRdataZones <- function(object,
+                                       ...) {
     length(unique(object[[1]]$session))
+}
+
+#' Get the units of the variables in an \code{trackeRdataZones} object
+#'
+#' @param object An object of class \code{trackeRdataZones}.
+#' @param ... Currently not used.
+#' @export
+get_units.trackeRdataZones <- function(object, ...) {
+    attr(object, "units")
+}
+
+
+#' Change the units of the variables in an \code{trackeRdataZones} object
+#'
+#' @param object An object of class \code{trackeRdataZones}.
+#' @param variable A vector of variables to be changed. Note, these are expected to be
+#'     concepts like 'speed' rather than variable names like 'avgSpeed' or 'avgSpeedMoving'.
+#' @param unit A vector with the units, corresponding to variable.
+#' @param ... Currently not used.
+#' @export
+change_units.trackeRdataZones <- function(object,
+                                          variable,
+                                          unit,
+                                          ...) {
+
+    no_variable <- missing(variable)
+    no_unit <- missing(unit)
+
+    if (no_unit & no_variable) {
+        return(object)
+    }
+    else {
+        ## NOTE: variable is expected to contain concepts like 'speed' rather than variable
+        ## names like 'avgSpeed' or 'avgSpeedMoving'.
+        units <- get_units(object)
+        current <- collect_units(units, unit_reference_sport = attr(object, "unit_reference_sport"))
+        p <- length(variable)
+
+        if (length(unit) == p) {
+            ## no need for collect_units as this is already done in summary
+
+            mt <- attr(object, "moving_threshold")
+
+            for (i in variable) {
+                variables <- names(object)[grep(pattern = i, names(object), ignore.case = TRUE)]
+                currentUnit <- current$unit[current$variable == i]
+                newUnit <- unit[which(variable == i)]
+                if (currentUnit != newUnit) {
+                    conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
+                    ## change zone limits
+                    object[[i]]$lower <- conversion(object[[i]]$lower)
+                    object[[i]]$upper <- conversion(object[[i]]$upper)
+                    ## convert moving threshold
+                    if (i == "speed")
+                        mt <- conversion(mt)
+                    ## update units
+                    current$unit[current$variable == i] <- newUnit
+                }
+            }
+
+            ## update units in units
+            for (va in current$variable) {
+                units$unit[units$variable == va] <- current$unit[current$variable == va]
+            }
+
+            attr(object, "units") <- units
+            attr(object, "moving_threshold") <- mt
+        }
+        else {
+            stop("variable, unit and sport should have the same length.")
+        }
+
+    }
 }

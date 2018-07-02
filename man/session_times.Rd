@@ -5,19 +5,23 @@
 \alias{session_times}
 \alias{session_times.trackeRdata}
 \alias{session_times.trackeRdataSummary}
-\title{Generic function for calculating session times.}
+\title{Generic function for calculating session times}
 \usage{
-session_times(object, ...)
+session_times(object, session, duration_unit, ...)
 
-\method{session_times}{trackeRdata}(object, ...)
+\method{session_times}{trackeRdata}(object, session = NULL, ...)
 
-\method{session_times}{trackeRdataSummary}(object, ...)
+\method{session_times}{trackeRdataSummary}(object, session = NULL, ...)
 }
 \arguments{
 \item{object}{The object for which to calculate session start and end times.}
 
+\item{session}{The sessions for which to extract sports.}
+
+\item{duration_unit}{The unit durations should be returned.}
+
 \item{...}{Arguments to be passed to methods.}
 }
 \description{
-Generic function for calculating session times.
+Generic function for calculating session times
 }

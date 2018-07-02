@@ -2,7 +2,7 @@
 % Please edit documentation in R/trackeR.R
 \name{scaled}
 \alias{scaled}
-\title{Generic function for scaling.}
+\title{Generic function for scaling}
 \usage{
 scaled(object, ...)
 }
@@ -12,5 +12,5 @@ scaled(object, ...)
 \item{...}{Arguments to be passed to methods.}
 }
 \description{
-Generic function for scaling.
+Generic function for scaling
 }

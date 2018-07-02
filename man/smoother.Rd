@@ -2,7 +2,7 @@
 % Please edit documentation in R/trackeR.R
 \name{smoother}
 \alias{smoother}
-\title{Generic function for smoothing.}
+\title{Generic function for smoothing}
 \usage{
 smoother(object, ...)
 }
@@ -12,5 +12,5 @@ smoother(object, ...)
 \item{...}{Arguments to be passed to methods.}
 }
 \description{
-Generic function for smoothing.
+Generic function for smoothing
 }
