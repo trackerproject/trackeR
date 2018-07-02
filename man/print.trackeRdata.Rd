@@ -9,6 +9,8 @@
 \arguments{
 \item{x}{An object of class \code{\link{trackeRdata}}.}
 
+\item{duration_unit}{The unit of duration in the resulting output. Default is \code{h} (hours).}
+
 \item{digits}{Number of digits to be printed.}
 
 \item{...}{Currently not used; only for compatibility with generic \code{\link{summary}} method only.}

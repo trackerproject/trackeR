@@ -7,7 +7,7 @@
 \alias{session_duration.trackeRdataSummary}
 \title{Generic function for calculating session durations}
 \usage{
-session_duration(object, session, ...)
+session_duration(object, session, duration_unit, ...)
 
 \method{session_duration}{trackeRdata}(object, session = NULL,
   duration_unit = "h", ...)
@@ -18,6 +18,8 @@ session_duration(object, session, ...)
 \item{object}{The object for which to calculate session durations.}
 
 \item{session}{The sessions for which to extract sports.}
+
+\item{duration_unit}{The unit of duration.}
 
 \item{...}{Arguments to be passed to methods.}
 }

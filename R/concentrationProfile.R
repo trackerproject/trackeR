@@ -440,3 +440,13 @@ concentration_profile.trackeRdata <- function(object,
     class(CP) <- "conProfile"
     return(CP)
 }
+
+
+#' Get the operation settings of an \code{conProfile} object
+#'
+#' @param object An object of class \code{conProfile} as returned by \code{\link{concentrationProfile}}.
+#' @param ... Currently not used.
+#' @export
+get_operations.conProfile <- function(object, ...) {
+    attr(object, "operations")
+}

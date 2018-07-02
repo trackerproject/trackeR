@@ -3,7 +3,7 @@
 \name{generate_objects}
 \alias{generate_objects}
 \title{Classify sessions by sport, process dataset, generate download handler,
-generate selected sessions object, update what metrics are available 
+generate selected sessions object, update what metrics are available
 to plot and other minor actions.}
 \usage{
 generate_objects(data, output, session, choices)
@@ -19,6 +19,6 @@ generate_objects(data, output, session, choices)
 }
 \description{
 Classify sessions by sport, process dataset, generate download handler,
-generate selected sessions object, update what metrics are available 
+generate selected sessions object, update what metrics are available
 to plot and other minor actions.
 }

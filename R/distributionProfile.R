@@ -664,3 +664,12 @@ change_units.distrProfile <- function(object,
 #' @param ... Currently not used.
 #' @export
 change_units.conProfile <- change_units.distrProfile
+
+#' Get the operation settings of an \code{distrProfile} object
+#'
+#' @param object An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.
+#' @param ... Currently not used.
+#' @export
+get_operations.distrProfile <- function(object, ...) {
+    attr(object, "operations")
+}
