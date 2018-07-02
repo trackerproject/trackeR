@@ -314,8 +314,6 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, .
                 na.rm = TRUE)
             w <- w * sdMov  #sd(coredata(z$movement), na.rm = TRUE)
             z$wprime <- w + mMov
-            # max(mMov, abs(min(w, na.rm = TRUE))) max(mean(coredata(z$movement), na.rm = TRUE),
-            # abs(min(w, na.rm = TRUE)))
             return(z)
         })
     }

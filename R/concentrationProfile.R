@@ -23,7 +23,7 @@
 #'
 #' Attributes:
 #'
-#' Each \code{distrProfile} object carries the following attributes
+#' Each \code{conProfile} object has the following attributes:
 #'
 #' \itemize{
 #'
@@ -67,10 +67,10 @@
 #' plot(cProfile, smooth = FALSE)
 #' plot(cProfile)
 #' @export
-concentration_profile <- function(object,
-                                  session = NULL,
-                                  what = NULL,
-                                  ...) {
+concentration_profile.distrProfile <- function(object,
+                                               session = NULL,
+                                               what = NULL,
+                                               ...) {
 
     object <- get_profile(object, session = session, what = what)
     what <- names(object)
@@ -88,7 +88,7 @@ concentration_profile <- function(object,
     attr(CP, "sport") <- get_sport(object)
     attr(CP, "session_times") <- attr(object, "session_times")
     attr(CP, "unit_reference_sport") <- attr(object, "unit_reference_sport")
-    attr(CP, "operations") <- c(operations, list(scale = TRUE))
+    attr(CP, "operations") <- operations
     attr(CP, "units") <- get_units(object)
     class(CP) <- "conProfile"
     return(CP)
@@ -135,6 +135,7 @@ plot.conProfile <- function(x,
     df <- fortify(x, melt = TRUE)
     df$Series <- as.numeric(sapply(strsplit(as.character(df$Series), "session"), function(x) x[2]))
     df$Profile <- factor(df$Profile)
+
     ## make basic plot and facets
     lab_data <- function(series) {
         thisunit <- units$unit[units$sport == "running" & units$variable == series]
@@ -286,44 +287,93 @@ ridges.conProfile <- function(x,
 }
 
 
+#' @rdname get_sport
+#' @export
+get_sport.conProfile <- function(object,
+                                   session = NULL,
+                                   ...) {
+    if (is.null(session)) {
+        nc <- ncol(object[[1]])
+        nc <- if (is.null(nc)) 1 else nc
+        session <- seq.int(nc)
+    }
+    attr(object, "sport")[session]
+}
 
 
-## Experimental concentration profile
-cp <- function(object,
-               session = NULL,
-               what = c("speed", "heart_rate"),
-               limits = NULL,
-               parallel = FALSE,
-               unit_reference_sport = NULL) {
 
-    units <- get_units(object)
-
-
+#' @rdname concentration_profile.distrProfile
+#' @export
+concentration_profile.trackeRdata <- function(object,
+                                              session = NULL,
+                                              what = NULL,
+                                              limits = NULL,
+                                              parallel = FALSE,
+                                              unit_reference_sport = NULL,
+                                              scale = FALSE) {
+    times <- session_times(object)
     if (is.null(session)) {
         session <- 1:length(object)
     }
+    if (is.null(what)) {
+        what <- colnames(kantas[[1]])
+    }
     object <- object[session]
-
-    CP <- NULL
-
-    ## If limits is NULL the limits are selected automatically using
-    ## the same idea as auto_grid in dp
     if (is.null(limits)) {
-        stop("limits = NULL will work in the future")
-        df <- fortify(object, melt = FALSE)
+        ## Fortify can be extremely slow for large objects...
+        limits0 <- compute_limits(object, a = 0.05)
+        limits <- lapply(seq.int(nrow(limits0)), function(j) unlist(limits0[j, ]))
+        names(limits) <- rownames(limits0)
         for (feature in what) {
-            if (all(is.na(df[[feature]]))) {
-                warning(paste('No data for', feature))
+            if (all(is.na(limits[[feature]]))) {
+                warning(paste('no data for', feature))
                 what <- what[!(what %in% feature)]
+                limits[[feature]] <- NULL
             }
-        }
-        for (feature in what) {
-            maximum <- ceiling(quantile(df[feature], 0.99999, na.rm = TRUE))
-            minimum <- if (feature == 'heart_rate') 35 else 0
-            limits[[feature]] <- c(minimum, maximum)
         }
     }
 
+    units <- get_units(object)
+    if (is.null(unit_reference_sport)) {
+        unit_reference_sport <- find_unit_reference_sport(object)
+    }
+    ## Match units to those of unit_reference_sport
+    un <- collect_units(units, unit_reference_sport)
+    for (va in unique(un$variable)) {
+        units$unit[units$variable == va] <- un$unit[un$variable == va]
+    }
+    object <- change_units(object, units$variable, units$unit, units$sport)
+    ## check supplied args
+    ## if it's a list, it has to either has to be named and contain all element in what or
+    ## has to have the same length as what, then it's assumed that the order is the same.
+    if (is.list(limits)) {
+        if (is.null(names(limits)) & length(what) == length(limits)) {
+            names(limits) <- what
+        }
+        if (is.null(names(limits))) {
+            stop("can't match variables in argument 'what' and their limits. Please provide a named list.")
+        }
+        if (any(is.na(match(what, names(limits))))) {
+            stop("please provide a limits for all variables in argument 'what'.")
+        }
+        limits <- limits[what]
+    }
+    else {
+        if (length(what) == 1L & is.vector(limits)) {
+            limits <- list(limits)
+            names(limits) <- what
+        }
+        else {
+            stop("arguments 'what' and 'limits' don't match.")
+        }
+    }
+    stopifnot(!any(is.na(match(what, names(limits)))))
+    duration_unit <- un$unit[un$variable == "duration"]
+    du <- switch(duration_unit, "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days")
+
+    durations <- session_duration(object, duration_unit = duration_unit)
+
+    CP <- NULL
 
     cp_fun <- function(j, w) {
         sess <- object[[j]]
@@ -332,9 +382,11 @@ cp <- function(object,
             rep(NA, 512)
         }
         else {
-            density(values, na.rm = TRUE, from = limits[[w]][1], to = limits[[w]][2], n = 512)$y
+            out <- density(values, na.rm = TRUE, from = limits[[w]][1], to = limits[[w]][2], n = 512)$y
+            out * ifelse(scale, 1, durations[j])
         }
     }
+
 
     for (i in what) {
         foreach_object <- eval(as.call(c(list(quote(foreach::foreach),
@@ -349,28 +401,17 @@ cp <- function(object,
         }
 
         times <- zoo(times, order.by = seq(from = limits[[i]][1], to = limits[[i]][2], length.out = 512))
-        names(times) <- paste0("Session", session)
+        names(times) <- paste0("session", session)
         CP[[i]] <- times
     }
 
     ## class and return
-    operations <- list(smooth = TRUE)
+    operations <- list(smooth = "density", scale = scale)
+    attr(CP, "sport") <- get_sport(object)
+    attr(CP, "session_times") <- times[session, ]
+    attr(CP, "unit_reference_sport") <- unit_reference_sport
     attr(CP, "operations") <- operations
     attr(CP, "units") <- units
     class(CP) <- "conProfile"
     return(CP)
-}
-
-
-#' @rdname get_sport
-#' @export
-get_sport.conProfile <- function(object,
-                                   session = NULL,
-                                   ...) {
-    if (is.null(session)) {
-        nc <- ncol(object[[1]])
-        nc <- if (is.null(nc)) 1 else nc
-        session <- seq.int(nc)
-    }
-    attr(object, "sport")[session]
 }

@@ -33,9 +33,9 @@
 zones <- function(object,
                   session = NULL,
                   what = c("speed", "heart_rate"),
-                  breaks = list(speed = 0:10,  heart_rate = c(0, seq(75, 225, by = 50), 250)),
+                  breaks = NULL, #list(speed = 0:10,  heart_rate = c(0, seq(75, 225, by = 50), 250)),
                   parallel = FALSE,
-                  auto_breaks = TRUE,
+                  ## auto_breaks = TRUE,
                   n_zones = 9,
                   unit_reference_sport = NULL,
                   ...) {

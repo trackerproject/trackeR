@@ -43,7 +43,7 @@ the number of sessions requested in the \code{session} argument.
 
 Attributes:
 
-Each \code{distrProfile} object carries the following attributes
+Each \code{distrProfile} object has the following attributes:
 
 \itemize{
 

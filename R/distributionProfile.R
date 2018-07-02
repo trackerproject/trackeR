@@ -27,7 +27,7 @@
 #'
 #' Attributes:
 #'
-#' Each \code{distrProfile} object carries the following attributes
+#' Each \code{distrProfile} object has the following attributes:
 #'
 #' \itemize{
 #'
@@ -104,6 +104,7 @@ distribution_profile <- function(object,
     for (va in unique(un$variable)) {
         units$unit[units$variable == va] <- un$unit[un$variable == va]
     }
+    object <- change_units(object, units$variable, units$unit, units$sport)
     ## check supplied args
     ## if it's a list, it has to either has to be named and contain all element in what or
     ## has to have the same length as what, then it's assumed that the order is the same.
@@ -177,7 +178,7 @@ distribution_profile <- function(object,
     if (length(DP) == 0) {
         stop("no usable data found")
     }
-    operations <- list(smooth = NULL)
+    operations <- list(smooth = NULL, scale = FALSE)
     attr(DP, "sport") <- get_sport(object)
     attr(DP, "session_times") <- times[session, ]
     attr(DP, "unit_reference_sport") <- unit_reference_sport
@@ -216,10 +217,11 @@ scaled.distrProfile <- function(object,
     }
     ## class and return
     operations <- get_operations(object)
+    operations$scale <- TRUE
     attr(ret, "sport") <- get_sport(object)
     attr(ret, "session_times") <- attr(object, "session_times")
     attr(ret, "unit_reference_sport") <- attr(object, "unit_reference_sport")
-    attr(ret, "operations") <- c(operations, list(scale = TRUE))
+    attr(ret, "operations") <- operations
     attr(ret, "units") <- get_units(object)
     class(ret) <- "distrProfile"
     return(ret)
@@ -396,7 +398,7 @@ smoother.distrProfile <- function(object,
         ret[[i]] <- zoo(sp, order.by = index(object[[i]]))
     }
     ## class and return
-    operations <- list()
+    operations <- get_operations(object)
     operations$smooth <- control
     attr(ret, "sport") <- get_sport(object)
     attr(ret, "session_times") <- attr(object, "session_times")

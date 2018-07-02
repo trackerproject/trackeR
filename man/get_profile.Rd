@@ -4,7 +4,7 @@
 \alias{get_profile.distrProfile}
 \alias{get_profile.conProfile}
 \alias{get_profile}
-\title{Generic function to extract distribution and concentration profiles}
+\title{Generic function to subset distribution and concentration profiles}
 \usage{
 \method{get_profile}{distrProfile}(object, session = NULL, what = NULL, ...)
 
@@ -27,5 +27,5 @@ selected. Defaults to all variables in \code{object}
 \item{...}{Current no used.}
 }
 \description{
-Generic function to extract distribution and concentration profiles
+Generic function to subset distribution and concentration profiles
 }

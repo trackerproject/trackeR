@@ -137,6 +137,8 @@ compute_limits <- function(object, a = 0.0001) {
     })
     low <- apply(sapply(limits, function(x) x[1, ]), 1, function(x) if (all(is.na(x))) NA else min(x, na.rm = TRUE))
     upp <- apply(sapply(limits, function(x) x[2, ]), 1, function(x) if (all(is.na(x))) NA else max(x, na.rm = TRUE))
+    inds <- low == upp
+    low[inds] <- upp[inds] <- NA
     data.frame(low = low, upp = upp)
 }
 

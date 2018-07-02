@@ -5,8 +5,7 @@
 \title{Time spent in training zones.}
 \usage{
 zones(object, session = NULL, what = c("speed", "heart_rate"),
-  breaks = list(speed = 0:10, heart_rate = c(0, seq(75, 225, by = 50), 250)),
-  parallel = FALSE, auto_breaks = TRUE, n_zones = 9,
+  breaks = NULL, parallel = FALSE, n_zones = 9,
   unit_reference_sport = NULL, ...)
 }
 \arguments{
@@ -25,10 +24,6 @@ parallel? If \code{TRUE} computation is performed in parallel
 using the backend provided to \code{\link{foreach}}. Default is
 \code{FALSE}.}
 
-\item{auto_breaks}{Logical. Should breaks be selected
-automatically? Default is \code{FALSE} and \code{breaks} will
-be ignored if \code{TRUE}.}
-
 \item{n_zones}{A numeric. If \code{auto_breaks = TRUE}, select
 number of zones for data to be split into.}
 
@@ -37,6 +32,10 @@ number of zones for data to be split into.}
 \code{object}).}
 
 \item{...}{Currently not used.}
+
+\item{auto_breaks}{Logical. Should breaks be selected
+automatically? Default is \code{FALSE} and \code{breaks} will
+be ignored if \code{TRUE}.}
 }
 \value{
 An object of class \code{trackeRdataZones}.

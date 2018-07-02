@@ -196,7 +196,7 @@ funPCA <- function(object, ...) UseMethod("funPCA")
 ridges <- function(x, ...) UseMethod("ridges")
 
 
-#' Generic function to extract distribution and concentration profiles
+#' Generic function to subset distribution and concentration profiles
 #'
 #' @param object An object of class \code{distrProfile} or \code{conProfile}
 #'     as returned by \code{\link{distribution_profile}} and
@@ -209,3 +209,12 @@ ridges <- function(x, ...) UseMethod("ridges")
 #' @param ... Current no used.
 #' @export
 get_profile <- function(object, session, what, ...) UseMethod("get_profile")
+
+#' @rdname concentration_profile.distrProfile
+#' @export
+concentration_profile <- function(object,
+                                  session = NULL,
+                                  what = NULL,
+                                  ...) {
+    UseMethod("concentration_profile")
+}
