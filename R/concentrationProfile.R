@@ -250,7 +250,7 @@ smoother.conProfile <- function(object,
 #' \dontrun{
 #'
 #' data('runs', package = 'trackeR')
-#' dProfile <- distributionProfile(runs, what = c('speed', 'heart_rate'), auto_grid = TRUE)
+#' dProfile <- distributionProfile(runs, what = c('speed', 'heart_rate'))
 #' cProfile <- concentrationProfile(dProfile)
 #' ridges(cProfile, what = "speed")
 #' ridges(cProfile, what = "heart_rate")
@@ -339,7 +339,7 @@ concentration_profile.trackeRdata <- function(object,
         session <- 1:length(object)
     }
     if (is.null(what)) {
-        what <- colnames(kantas[[1]])
+        what <- colnames(object[[1]])
     }
     object <- object[session]
 

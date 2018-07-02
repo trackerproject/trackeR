@@ -35,7 +35,8 @@
 #' Department of Statistical Science, University College London under
 #' the supervision of Ioannis Kosmidis.
 #'
-#' Hannah Frick maintained trackeR from up until version 1.0.0.
+#' Hannah Frick maintained trackeR from its first release up and since
+#' version 1.0.0.
 #'
 #'
 #' @references Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal of Statistical Software}, \bold{82}(7), 1--29. doi:10.18637/jss.v082.i07
@@ -48,7 +49,8 @@
 #' @import shiny
 #' @import xml2
 #' @import ggplot2
-#' @importFrom stats quantile
+#' @importFrom stats quantile gaussian plogis
+#' @importFrom grDevices gray
 #' @importFrom plotly "%>%"
 #' @importFrom graphics plot
 #' @importFrom stats na.omit start density
@@ -213,6 +215,13 @@ get_profile <- function(object, session, what, ...) UseMethod("get_profile")
 
 #' Generic method for concentration profiles
 #'
+#' @param object An object of class \code{\link{trackeRdata}} or \code{\link{distrProfile}}.
+#' @param session A numeric vector of the sessions to be used,
+#'     defaults to all sessions.
+#' @param what The variables for which the distribution profiles
+#'     should be generated. Defaults to all variables in \code{object}
+#'     (\code{what = NULL}).
+#' @param ... Currently not used.
 #' @seealso concentration_profile.distrProfile
 #' @export
 concentration_profile <- function(object,

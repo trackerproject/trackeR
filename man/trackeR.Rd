@@ -30,7 +30,8 @@ Hornak was completing his undergraduate research project in the
 Department of Statistical Science, University College London under
 the supervision of Ioannis Kosmidis.
 
-Hannah Frick maintained trackeR from up until version 1.0.0.
+Hannah Frick maintained trackeR from its first release up until
+version 1.0.0.
 }
 \section{Note}{
 

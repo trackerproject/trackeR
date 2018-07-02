@@ -16,7 +16,7 @@ readGPX(file, timezone = "", speedunit = "km_per_h", distanceunit = "km",
   ...)
 
 readDB3(file, timezone = "", table = "gps_data", speedunit = "km_per_h",
-  distanceunit = "km")
+  distanceunit = "km", ...)
 
 readJSON(file, timezone = "", speedunit = "km_per_h", distanceunit = "km",
   ...)

@@ -9,6 +9,18 @@ concentration_profile(object, session = NULL, what = NULL, ...)
 
 concentrationProfile(object, session = NULL, what = NULL, ...)
 }
+\arguments{
+\item{object}{An object of class \code{\link{trackeRdata}} or \code{\link{distrProfile}}.}
+
+\item{session}{A numeric vector of the sessions to be used,
+defaults to all sessions.}
+
+\item{what}{The variables for which the distribution profiles
+should be generated. Defaults to all variables in \code{object}
+(\code{what = NULL}).}
+
+\item{...}{Currently not used.}
+}
 \description{
 Generic method for concentration profiles
 }

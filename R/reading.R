@@ -334,7 +334,10 @@ readDB3 <- function(file,
                     timezone = "",
                     table = "gps_data",
                     speedunit = "km_per_h",
-                    distanceunit = "km") {
+                    distanceunit = "km",
+                    ...) {
+
+    sport <- guess_sport(basename(file))
 
     db <- RSQLite::dbConnect(RSQLite::SQLite(), file)
     mydf <- RSQLite::dbReadTable(conn = db, name = table)
@@ -359,6 +362,7 @@ readDB3 <- function(file,
     newdat$time <- as.POSIXct(newdat$time*24*60*60, origin = "1899-12-30", tz = timezone)
 
     is_cadence <- grepl("cadence", names(observations))
+
     if (any(is_cadence)) {
         if (is.na(sport)) {
             observations[is_cadence] <- NULL
@@ -397,7 +401,7 @@ readDB3 <- function(file,
     if (any(names(newdat) != allnames$human_names))
         newdat <- newdat[, allnames$human_names]
 
-    attr(newdata, "sport") <- NA
+    attr(newdata, "sport") <- sport
     attr(observations, "file") <- file
 
     return(newdat)

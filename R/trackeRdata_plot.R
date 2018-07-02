@@ -640,7 +640,7 @@ ridges.trackeRdata <- function(x,
                                what = "speed",
                                smooth = TRUE,
                                ...) {
-    x <- distributionProfile(x, session = session, what = what, auto_grid = TRUE)
+    x <- distributionProfile(x, session = session, what = what)
     if (smooth) {
         x <- smoother(x, what = what, ...)
     }

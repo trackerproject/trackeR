@@ -82,7 +82,7 @@ distribution_profile <- function(object,
         session <- 1:length(object)
     }
     if (is.null(what)) {
-        what <- colnames(kantas[[1]])
+        what <- colnames(object[[1]])
     }
     object <- object[session]
     units <- get_units(object)
