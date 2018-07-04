@@ -13,8 +13,8 @@ read_directory_shiny <- function(directory,
                                  parallel = FALSE,
                                  verbose = FALSE) {
 
-    read_expression <- quote({
 
+    read_expression <- quote({
         tcxFiles <- list.files(directory, pattern = "tcx", ignore.case = TRUE, full.names = TRUE,
                                no.. = TRUE)
         gpxFiles <- list.files(directory, pattern = "gpx", ignore.case = TRUE, full.names = TRUE,
@@ -43,11 +43,22 @@ read_directory_shiny <- function(directory,
                 if (verbose) {
                     cat("Reading file", allFiles[j], paste0("(file ", j, " out of ", lall, ")"), "...\n")
                 }
-                try(do.call(what = paste0("read", toupper(currentType)),
-                            args = list(file = allFiles[j],
-                                        timezone = timezone,
-                                        speedunit = speedunit[[currentType]],
-                                        distanceunit = distanceunit[[currentType]])))
+                try(read_container(file = allFiles[j],
+                                   type = currentType,
+                                   table = table,
+                                   timezone = timezone,
+                                   session_threshold = session_threshold,
+                                   correct_distances = correct_distances,
+                                   country = country,
+                                   mask = mask,
+                                   from_distances = from_distances,
+                                   speedunit = speedunit[[currentType]],
+                                   distanceunit = distanceunit[[currentType]],
+                                   sport = sport,
+                                   lgap = lgap,
+                                   lskip = lskip,
+                                   m = m,
+                                   silent = silent))
             }
 
             foreach_object <- eval(as.call(c(list(quote(foreach::foreach), j = seq.int(lall)))))
@@ -58,45 +69,27 @@ read_directory_shiny <- function(directory,
             else {
                 allData <- foreach::`%do%`(foreach_object, read_fun(j))
             }
-
-
+            allData <- do.call("c", allData[!sapply(allData, inherits, what = "try-error")])
         })
         withProgress(expr = in_expression, message = 'Loading data', value = 0, quoted = TRUE)
         if (verbose) {
             cat("Cleaning up...")
         }
-        sports <- sapply(allData, attr, which = "sport")
-        sport_to_use <- na.omit(sports)[1]
-        if (length(unique(sports)) > 1) {
-            warning(directory, "has files from multiple sports and aggregate = TRUE. Assumming that all files are ", sport_to_use)
-        }
 
-        allData <- do.call("rbind", allData[!sapply(allData, inherits, what = "try-error")])
-        from_distances <- if (is.null(from_distances)) TRUE else from_distances
-        allData <- trackeRdata(allData,
-                               session_threshold = session_threshold,
-                               correct_distances = correct_distances,
-                               country = country,
-                               mask = mask,
-                               from_distances = from_distances,
-                               sport = sport,
-                               lgap = lgap,
-                               lskip = lskip,
-                               m = m,
-                               silent = silent)
         if (verbose) {
             cat("Done\n")
         }
 
         ## clean and return
         allData <- allData[!sapply(allData, is.null)]
+        if (aggregate) {
+            attr(allData, "file") <- rep(NA, length(allData))
+        }
         allData
     })
 
-
     out <- reactive(read_expression, quoted = TRUE)
     return(out())
-
 }
 
 
