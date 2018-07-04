@@ -258,11 +258,10 @@ c.trackeRdata <- function(...,
 
     ## class and other attributes
     class(ret) <- c("trackeRdata", "list")
-    ## attr(ret, "lower") <- low
-    ## attr(ret, "upper") <- upp
+    files <- unlist(sapply(input, attr, which = "file"))
     attr(ret, "units") <- units1
     attr(ret, "sport") <- unlist(sapply(input, attr, which = "sport"))
-    attr(ret, "file") <- unlist(sapply(input, attr, which = "file"))
+    attr(ret, "file") <- rep(files, nsessionsInput)
     ## operations$smooth
     attr(ret, "operations") <- operations
 

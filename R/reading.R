@@ -761,22 +761,23 @@ read_directory <- function(directory,
             if (verbose) {
                 cat("Reading file", allFiles[j], paste0("(file ", j, " out of ", lall, ")"), "...\n")
             }
-            try(read_container(file = allFiles[j],
-                               type = currentType,
-                               table = table,
-                               timezone = timezone,
-                               session_threshold = session_threshold,
-                               correct_distances = correct_distances,
-                               country = country,
-                               mask = mask,
-                               from_distances = from_distances,
-                               speedunit = speedunit[[currentType]],
-                               distanceunit = distanceunit[[currentType]],
-                               sport = sport,
-                               lgap = lgap,
-                               lskip = lskip,
-                               m = m,
-                               silent = silent))
+            out <- try(read_container(file = allFiles[j],
+                                      type = currentType,
+                                      table = table,
+                                      timezone = timezone,
+                                      session_threshold = session_threshold,
+                                      correct_distances = correct_distances,
+                                      country = country,
+                                      mask = mask,
+                                      from_distances = from_distances,
+                                      speedunit = speedunit[[currentType]],
+                                      distanceunit = distanceunit[[currentType]],
+                                      sport = sport,
+                                      lgap = lgap,
+                                      lskip = lskip,
+                                      m = m,
+                                      silent = silent), silent = silent)
+            out
         }
 
         foreach_object <- eval(as.call(c(list(quote(foreach::foreach), j = seq.int(lall)))))
