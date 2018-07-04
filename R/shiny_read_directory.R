@@ -72,13 +72,13 @@ read_directory_shiny <- function(directory,
         }
 
         allData <- do.call("rbind", allData[!sapply(allData, inherits, what = "try-error")])
-        fromDistances <- if (is.null(fromDistances)) TRUE else fromDistances
+        from_distances <- if (is.null(from_distances)) TRUE else from_distances
         allData <- trackeRdata(allData,
-                               sessionThreshold = sessionThreshold,
-                               correctDistances = correctDistances,
+                               session_threshold = session_threshold,
+                               correct_distances = correct_distances,
                                country = country,
                                mask = mask,
-                               fromDistances = fromDistances,
+                               from_distances = from_distances,
                                sport = sport,
                                lgap = lgap,
                                lskip = lskip,

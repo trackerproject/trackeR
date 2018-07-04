@@ -225,7 +225,7 @@ c.trackeRdata <- function(...,
         }
         ## change thresholds
         for (i in 2:ninput) {
-            input[[i]] <- threshold(input[[i]], th$variable, th$lower, th$upper)
+            input[[i]] <- threshold(input[[i]], th$variable, th$lower, th$upper, th$sport)
         }
     }
 

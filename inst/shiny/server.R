@@ -19,10 +19,13 @@ options(shiny.maxRequestSize = 30 * 1024^3)
 #   ____________________________________________________________________________
 #   Server                                                                  ####
 server <- function(input, output, session) {
+  # Ensure that when button for changepoints clicked, the window does not 
+  # dissapear by a click in the window.
   shinyjs::runjs(
     "$(document).on('click', '.dropdown-menu', function (e) {
-  e.stopPropagation();
-});")
+    e.stopPropagation();
+  });"
+  )
   # Main object where most data is stored
   data <- reactiveValues(
     summary = NULL, object = NULL,
@@ -42,7 +45,6 @@ server <- function(input, output, session) {
     if (no_raw_directory_selected & no_processed_file_selected) {
       trackeR:::show_warning_no_data_selected()
     } else {
-      
       processed_data <- raw_data <- NULL
       if (!no_processed_file_selected) {
         if (input$processedDataPath$datapath != previous_file_paths$processed) {
@@ -62,12 +64,12 @@ server <- function(input, output, session) {
         ), "/")
         # Process raw data
         raw_data <- callModule(
-          module = trackeR:::readDirectory_shiny,
+          module = trackeR:::read_directory_shiny,
           id = "datafile",
           directory = directory,
           timezone = "GMT",
           parallel = TRUE,
-          correctDistances = FALSE
+          correct_distances = FALSE
         )
       }
       previous_file_paths$processed <- input$processedDataPath$datapath
@@ -78,18 +80,21 @@ server <- function(input, output, session) {
                                                          data$object)), decreasing = FALSE)
       ## See helper file
       trackeR:::generate_objects(data, output, session, choices)
+      data$limits <- trackeR::compute_limits(data$object, a = 0.05)
       data$no_location_data <- sapply(data$object, 
           function(x) all((is.na(x[, 'longitude'])) | (x[, 'longitude'] == 0))
         )
       sports_options <- trackeR:::sports_options
-      identified_sports <- sports_options %in% unique(trackeR::sport(data$object))
+      identified_sports <- sports_options %in% unique(trackeR::get_sport(data$object))
       data$identified_sports <- sports_options[identified_sports]
     }  
   })
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Selected sessions                                                       ####
 proxy <- DT::dataTableProxy('summary')
+# Sessions selected from plots using box/lasso selection
 observeEvent(plotly::event_data("plotly_selected"), {
+  
   trackeR:::generate_selected_sessions_object(data, input,
     plot_selection = TRUE
   )
@@ -101,9 +106,12 @@ observeEvent(plotly::event_data("plotly_selected"), {
   trackeR:::update_sport_selection(data, session)
 })
 
+# Sessions selected by sport using radio buttons
 observeEvent(input$sports, {
+  
   shinyjs::js$resetSelection()
   trackeR:::generate_selected_sessions_object(data, input, sport_selection = TRUE)
+  
   if (length(data$selectedSessions) != length(data$summary$session)) {
     DT::selectRows(proxy = proxy, selected = as.numeric(data$selectedSessions))
   } else {
@@ -111,12 +119,17 @@ observeEvent(input$sports, {
   }
 }, ignoreNULL = FALSE, ignoreInit = TRUE)
 
-observeEvent(input$summary_rows_selected, {
+# Sessions selected through summary table
+observeEvent(input$summary_rows_selected,  {
+  
+    # trackeR:::update_sport_selection(data, session)
     shinyjs::js$resetSelection()
-    trackeR:::generate_selected_sessions_object(data, input, table_selection = TRUE)
-    trackeR:::update_sport_selection(data, session)
+    trackeR:::generate_selected_sessions_object(data, input, 
+                                                table_selection = TRUE)
+    
 }, ignoreNULL = TRUE)
 
+# Reset button clicked
 observeEvent(input$resetSelection, {
   trackeR:::update_sport_selection(data, session)
   shinyjs::js$resetSelection()
@@ -144,8 +157,8 @@ observeEvent(input$resetSelection, {
     }
   })
   observeEvent(input$updateUnits, {
-    data$object <- trackeR:::change_units(data, input, "object")
-    data$summary <- trackeR:::change_units(data, input, "summary")
+    data$object <- trackeR:::change_object_units(data, input, "object")
+    data$summary <- trackeR:::change_object_units(data, input, "summary")
     removeModal()
   })
 
@@ -165,8 +178,13 @@ observeEvent(input$resetSelection, {
       # Re-render all plots
       # removeUI(selector = ".main_plots", immediate = TRUE, multiple = TRUE)
       sports_options <- trackeR:::sports_options
-      identified_sports <- sports_options %in% unique(trackeR::sport(data$object))
-      trackeR:::create_option_box(sports_options[identified_sports])
+      identified_sports <- sports_options %in% unique(trackeR::get_sport(data$object))
+      metrics_available <- c(choices[sapply(choices, function(x) {
+        data$hasData[[x]]
+      })])
+      trackeR:::create_option_box(sport_options = sports_options[identified_sports],
+                                  metrics_available = metrics_available)
+
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Summary table                                                           ####
       trackeR:::create_summary_timeline_boxes()
@@ -187,14 +205,21 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
 
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Map                                                                     ####
+      # Check if there is internet connection
+      test_connection <- try(RCurl::getURL("www.google.com"), silent = TRUE)
+      if (class(test_connection) == "try-error") {
+        is_internet_connection <- FALSE
+      } else {
+        is_internet_connection <- TRUE
+      }
       # do not generate map if no location data for at least one session
       # TODO allow to plot only sessions that do have location data
-      if (!any(data$no_location_data)) {
+      if ((!any(data$no_location_data)) & (is_internet_connection)) {
         trackeR:::create_map()
         
         preped_route_map <- reactive({
           session <- seq_along(data$object)
-          prepRoute(data$object,
+          prepare_route(data$object,
                     session = session, threshold = TRUE)
         })
         output$map <- plotly::renderPlotly({
@@ -260,11 +285,11 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
 
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Generate individual sessions plots (except work capacity)               ####
-    metrics_to_collapse <- c("speed", "heart.rate", "altitude")
+    metrics_to_expand <- c("speed", "heart_rate", "altitude")
     # First generate all plots irrespective if data available
     for (i in c(metrics)) {
-      collapse <- if (i %in% metrics_to_collapse) FALSE else TRUE
-      i <- if (i == 'heart.rate') "heart_rate" else i
+      collapse <- if (i %in% metrics_to_expand) FALSE else TRUE
+      i <- if (i == 'heart_rate') "heart_rate" else i
       trackeR:::create_selected_workout_plot(id = i, collapsed = collapse)
     }
     
@@ -325,7 +350,7 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
     
     sapply(c('cycling', 'running'), function(sport_id) {
       output[[paste0(sport_id, "_work_capacity_plot")]] <- renderUI({
-        n_sessions <- sum(trackeR::sport(data$summary[data$selectedSessions]) %in% sport_id)
+        n_sessions <- sum(trackeR::get_sport(data$summary[data$selectedSessions]) %in% sport_id)
         plot_width <- if (n_sessions > 2) {
           paste0(toString(500 * n_sessions), "px")
         } else {
@@ -351,7 +376,7 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
       # If button to change units is pressed re-render plot with new units
       change_power[[sport_id]]
 
-      work_capacity_sessions <- trackeR::sport(data$summary[data$selectedSessions]) %in% sport_id
+      work_capacity_sessions <- trackeR::get_sport(data$summary[data$selectedSessions]) %in% sport_id
       trackeR:::plot_work_capacity(
         x = data$object, session = data$selectedSessions[work_capacity_sessions],
         cp = isolate(as.numeric(input[[paste0('critical_power_', sport_id)]]))
@@ -457,7 +482,8 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
       trackeR:::plot_concentration_profiles(
         x = data$object,
         session = data$selectedSessions,
-        what = input$profileMetricsPlot
+        what = input$profileMetricsPlot, 
+        limits = data$limits
       )
     })
   }, once = TRUE)

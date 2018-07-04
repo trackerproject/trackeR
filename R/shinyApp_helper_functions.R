@@ -9,8 +9,9 @@ lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE) 
   units <- getUnits(data)
   if (transform_feature) {
     concept <- switch(feature, "avgPace" = "pace", "avgSpeed" = "speed",
-      "distance" = "distance", "duration" = "duration",
-      "avgPower" = "power", "avgCadence" = "cadence", "avgHeartRate" = "heart_rate"
+    "distance" = "distance", "duration" = "duration",
+    "avgPower" = "power", "avgCadenceRunning" = "cadence_running",
+    "avgHeartRate" = "heart_rate", "avgCadenceCycling" = "cadence_cycling",
     )
   }
   else {
@@ -25,7 +26,8 @@ lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE) 
         "duration" = paste0("Duration \n[", prettyUnit, "]"),
         "avgSpeed" = paste0("Average Speed \n[", prettyUnit, "]"),
         "avgPace" = paste0("Average Pace \n[", prettyUnit, "]"),
-        "avgCadence" = paste0("Average Cadence \n[", prettyUnit, "]"),
+        "avgCadenceRunning" = paste0("Cadence Running \n[", prettyUnit, "]"),
+        "avgCadenceCycling" = paste0("Cadence Cycling \n[", prettyUnit, "]"),
         "avgPower" = paste0("Average Power \n[", prettyUnit, "]"),
         "avgHeartRate" = paste0("Average Heart Rate \n[", prettyUnit, "]"),
         "wrRatio" = "work-to-rest \n ratio"
@@ -34,13 +36,14 @@ lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE) 
     else {
       ret <- switch(feature,
         "pace" = paste0("Pace \n[", prettyUnit, "]"),
-        "cadence" = paste0("Cadence \n[", prettyUnit, "]"),
+        "cadence_cycling" = paste0("Cadence Cycling \n[", prettyUnit, "]"),
+        "cadence_running" = paste0("Cadence Running \n[", prettyUnit, "]"),
         "heart_rate" = paste0("Heart Rate \n[", prettyUnit, "]"),
         "altitude" = paste0("Altitude \n[", prettyUnit, "]"),
-        "speed" = paste0("Speed \n[", prettyUnit, "]")
+        "speed" = paste0("Speed \n[", prettyUnit, "]"),
+        "power" = paste0("Power \n[", prettyUnit, "]")
       )
     }
-    ret
   }
   else {
     if (transform_feature) {
@@ -49,7 +52,8 @@ lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE) 
         "duration" = prettyUnit,
         "avgSpeed" = prettyUnit,
         "avgPace" = prettyUnit,
-        "avgCadence" = prettyUnit,
+        "avgCadenceRunning" = prettyUnit,
+        "avgCadenceCycling" = prettyUnit,
         "avgPower" = prettyUnit,
         "avgHeartRate" = prettyUnit,
         "wrRatio" = "work-to-rest ratio"
@@ -58,14 +62,16 @@ lab_sum <- function(feature, data, whole_text = TRUE, transform_feature = TRUE) 
     else {
       ret <- switch(feature,
         "pace" = prettyUnit,
-        "cadence" = prettyUnit,
+        "cadence_running" = prettyUnit,
+        "cadence_cycling" = prettyUnit,
         "heart_rate" = prettyUnit,
         "altitude" = prettyUnit,
-        "speed" = prettyUnit
+        "speed" = prettyUnit,
+        "power" = prettyUnit
       )
     }
-    ret
   }
+  unique(ret)
 }
 
 #' Generate an icon for a given feature.
@@ -77,7 +83,8 @@ create_icon <- function(feature) {
     "duration" = "clock-o",
     "avgSpeed" = "line-chart",
     "avgPace" = "tachometer",
-    "avgCadence" = "spinner",
+    "avgCadenceRunning" = "tachometer",
+    "avgCadenceCycling" = "tachometer",
     "avgPower" = "flash",
     "avgHeartRate" = "heartbeat",
     "wrRatio" = "fire"
@@ -99,18 +106,34 @@ get_selected_units <- function(feature, data) {
 #' @param data An object of class \code{reactivevalues}.
 #' @param input An object of class \code{reactivevalues}.
 #' @param object A character of either 'summary' or 'object' to specify which objects' units to change.
-change_units <- function(data, input, object) {
-  unused_variables <- c("latitude", "longitude", "heart.rate", "duration", "temperature")
-  allUnits <- getUnits(data$object)$variable[!(getUnits(data$object)$variable %in% unused_variables)]
-
+change_object_units <- function(data, input, object) {
+  
+  # unused_variables <- c("latitude", "longitude", "heart.rate", "duration", "temperature")
+  # allUnits <- get_units(data$object)$variable[!(get_units(data$object)$variable %in% unused_variables)]
+  all_units <- c('altitude', 'distance', 'speed', 'pace')
   units <- c()
-  for (i in allUnits) {
+  for (i in all_units) {
     units <- c(units, input[[paste0(i, "Units")]])
   }
-  data_updated <- changeUnits(data[[object]], variable = allUnits, unit = units)
-  if(object == 'summary'){
-    data_updated <- changeUnits(data_updated , variable='duration', unit=input[['durationUnits']])
+  if (object == 'object') {
+    
+  data_updated <- change_units(data[[object]], variable = rep(all_units, 3), 
+                               unit = rep(units, 3),
+                               sport = rep(c("cycling", "running", "swimming"), 
+                                           each = 4))
+  data_updated <- change_units(data_updated, variable = 'power', 
+                               unit = input$powerUnits,
+                               sport = "cycling")
   }
+  if (object == "summary") {
+    
+    data_updated <- change_units(data[[object]], variable = all_units, 
+                                 unit = units)
+    data_updated <- change_units(data_updated, variable = 'power', 
+                                 unit = input$powerUnits)
+    data_updated <- change_units(data_updated, variable = "duration", unit = input[["durationUnits"]])
+  }
+  
   return(data_updated)
 }
 
@@ -121,21 +144,22 @@ choices <- function() {
     "Duration" = "duration",
     "Average speed" = "avgSpeed",
     "Average pace" = "avgPace",
-    "Average cadence" = "avgCadence",
+    "Average cadence running" = "avgCadenceRunning",
+    "Average cadence cycling" = "avgCadenceCycling",
     "Average power" = "avgPower",
-    "Average heart rate" = "avgHeartRate",
+    "Average heart rate" = "avgHeartRateMoving",
     "Work to rest ratio" = "wrRatio"
-    )
+  )
 }
 
 #' Generate metrics to test if they have data
 metrics <- function() {
-   c(
+  c(
     "Heart Rate" = "heart_rate",
     "Altitude" = "altitude",
     "Speed" = "speed",
-    "Cadence" = "cadence",
-    # TODO decide on whether to implement a power plot as well, give that
+    "Cadence running" = "cadence_running",
+    "Cadence cycling" = "cadence_cycling",
     "Power" = "power",
     "Pace" = "pace"
   )
@@ -146,12 +170,13 @@ metrics <- function() {
 #' @param choices A vector. A list of features to plot, see \code{\link{choices}}.
 #' @param has_data A vector with boolean expressions representing which features have data.
 update_metrics_to_plot_workouts <- function(session, choices, has_data) {
-  updateSelectizeInput(
+  shinyWidgets::updatePickerInput(
     session = session,
     inputId = "metricsSelected",
-    choices = choices[sapply(choices, function(x) { has_data[[x]] })],
-    server = TRUE,
-    selected = c("distance", "duration", 'avgSpeed')
+    choices = c(choices[sapply(choices, function(x) {
+      has_data[[x]]
+    })]),
+    selected = c("distance", "duration", "avgSpeed")
   )
 }
 
@@ -174,25 +199,25 @@ update_metrics_to_plot_selected_workouts <- function(id, session, metrics, has_d
 #' @param data An object of class \code{reactivevalues}.
 download_handler <- function(data) {
   downloadHandler(
-      filename = function() {
-        paste0("trackeR-dashboard-data", Sys.Date(), ".rds")
-      },
-      content = function(file) {
-        saveRDS(data$object, file)
-      }
-    )
+    filename = function() {
+      paste0("trackeR-dashboard-data", Sys.Date(), ".rds")
+    },
+    content = function(file) {
+      saveRDS(data$object, file)
+    }
+  )
 }
 
 #' Show warning window when no data uploaded
 show_warning_window <- function() {
   showModal(modalDialog(
-  title = "trackeR dashboard message",
-  div(tags$b(
-    "Load processed and/or raw data",
-    class = "warningMessage"
-  )),
-  easyClose = TRUE,
-  size = "s"
+    title = "trackeR dashboard message",
+    div(tags$b(
+      "Load processed and/or raw data",
+      class = "warningMessage"
+    )),
+    easyClose = TRUE,
+    size = "s"
   ))
 }
 
@@ -217,43 +242,64 @@ get_javascript <- function() {
 #' Classify sessions by sport using the KNN model and 'sport_classification_train' dataset as a training set
 #' @param data An object of class \code{reactivevalues}.
 classify_sessions_by_sport <- function(data) {
-  filepath <- system.file('inst/extdata/sport_classification_train.csv', package = 'trackeR')
+  filepath <- system.file("inst/extdata/sport_classification_train.csv", package = "trackeR")
   sport_classification_train <- read.csv(filepath)
   n_train <- nrow(sport_classification_train)
-  merged_df <- rbind(sport_classification_train[,c('avgPaceMoving','distance')],
-                     data.frame(avgPaceMoving = data$summary$avgPaceMoving,
-                                distance = data$summary$distance))
+  merged_df <- rbind(
+    sport_classification_train[, c("avgPaceMoving", "distance")],
+    data.frame(
+      avgPaceMoving = data$summary$avgPaceMoving,
+      distance = data$summary$distance
+    )
+  )
   merged_df[is.na(merged_df)] <- 0
   merged_df <- scale(merged_df)
   classified_sports <- class::knn(
-    merged_df[1:n_train,], merged_df[(n_train + 1):nrow(merged_df),],
-    sport_classification_train[,'sport'], k=5
-    )
+    merged_df[1:n_train, ], merged_df[(n_train + 1):nrow(merged_df), ],
+    sport_classification_train[, "sport"],
+    k = 5
+  )
 
-  sports <- sport(data$object)
-  for(i in c(1:length(sports))){
-    if(is.na(sports[i])){
+  sports <- trackeR::get_sport(data$object)
+  for (i in c(1:length(sports))) {
+    if (is.na(sports[i])) {
       sports[i] <- switch(as.vector(classified_sports)[i],
-                          'Swim' = 'swimming',
-                          'Ride' = 'cycling',
-                          'Run' = 'running')
+        "Swim" = "swimming",
+        "Ride" = "cycling",
+        "Run" = "running"
+      )
     }
   }
-  attr(data$object, 'sport') <- sports
+  attr(data$object, "sport") <- sports
 }
 
 
 #' Process \code{trackeRdata} object by: setting thresholds to remove wrong values, change units, set a moving threshold and test which variables contain data
 #' @param data An object of class \code{reactivevalues}.
-process_dataset <- function(data){
+process_dataset <- function(data) {
   data$object <- threshold(data$object)
-  data$object <- threshold(data$object, variable = 'distance', lower = 0, upper = 500000)
-  data$object <- changeUnits(data$object, variable = c("distance", 'pace', 'speed'),
-                              unit = c("km", 'min_per_km', 'km_per_h'))
+  data$object <- threshold(data$object,
+    variable = rep("distance", 3),
+    lower = rep(0, 3), upper = rep(500000, 3),
+    sport = c("cycling", "running", "swimming")
+  )
+
+  data$object <- change_units(data$object,
+    variable = rep(c(
+      "distance", "pace",
+      "speed"
+    ), 3),
+    unit = rep(c("km", "min_per_km", "km_per_h"), 3),
+    sport = rep(c("cycling", "running", "swimming"),
+      each = 3
+    )
+  )
   # Create trackeRdataSummary object
   data$summary <- summary(data$object, movingThreshold = 0.4)
-  data$summary <- changeUnits(data$summary, variable = c('duration'),
-                              unit = c('h'))
+  data$summary <- change_units(data$summary,
+    variable = "duration",
+    unit = "h"
+  )
   # Test if data in each element of trackeRdataSummary object
   data$hasData <- lapply(data$summary, function(session_summaries) {
     !all(is.na(session_summaries) | session_summaries == 0)
@@ -265,7 +311,7 @@ process_dataset <- function(data){
 # for better user experience
 # Need to use with the corresponding `withBusyIndicator` server function
 withBusyIndicatorUI <- function(button) {
-  id <- button[['attribs']][['id']]
+  id <- button[["attribs"]][["id"]]
   div(
     `data-for-btn` = id,
     button,
@@ -277,11 +323,13 @@ withBusyIndicatorUI <- function(button) {
       )
     ),
     shinyjs::hidden(
-      div(class = "btn-err",
-          div(icon("exclamation-circle"),
-              tags$b("Error: "),
-              span(class = "btn-err-msg")
-          )
+      div(
+        class = "btn-err",
+        div(
+          icon("exclamation-circle"),
+          tags$b("Error: "),
+          span(class = "btn-err-msg")
+        )
       )
     )
   )
@@ -351,7 +399,7 @@ color: #333;
 "
 
 # Update map based on current selection
-update_map <- function(plot_df, session, data){
+update_map <- function(plot_df, session, data) {
   plotly::plotlyProxy("map", session) %>% plotly::plotlyProxyInvoke(
     "restyle",
     list(line.color = "rgba(238, 118, 0, 1)"), as.list(which(data$sessions_map %in% data$selectedSessions) - 1)
@@ -398,20 +446,25 @@ update_map <- function(plot_df, session, data){
 #' @param session A numeric vector of the sessions to be used, defaults to all sessions.
 #' @param cp A numeric. Critical power/speed, i.e., the power/speed which can be maintained for longer period of time.
 plot_work_capacities <- function(x, session, cp) {
-  sports <- unique(sport(x[session]))
+  sports <- unique(get_sport(x[session]))
   # Work capacity only for running and cycling
-  sports <- intersect(c('running', 'cycling'), sports)
+  sports <- intersect(c("running", "cycling"), sports)
   if (length(sports) == 1) {
     return(plot_work_capacity(x = x, session = session, cp = cp))
   } else {
-    cycling_sessions <- session[sport(x[session]) == 'cycling']
-    plot_cycling <- plot_work_capacity(x = x, session = c(cycling_sessions, -1),
-                                                 cp = cp)
-    running_sessions <- session[sport(x[session]) == 'running']
-    plot_running <- plot_work_capacity(x = x, session = running_sessions,
-                                                 cp = cp)
+    cycling_sessions <- session[get_sport(x[session]) == "cycling"]
+    plot_cycling <- plot_work_capacity(
+      x = x, session = c(cycling_sessions, -1),
+      cp = cp
+    )
+    running_sessions <- session[get_sport(x[session]) == "running"]
+    plot_running <- plot_work_capacity(
+      x = x, session = running_sessions,
+      cp = cp
+    )
     plots <- do.call(plotly::subplot, c(
-      list(plot_cycling, plot_running), nrows = 2,
+      list(plot_cycling, plot_running),
+      nrows = 2,
       margin = 0.05, shareY = FALSE, titleX = TRUE, titleY = TRUE
     ))
     return(plots)
@@ -450,7 +503,8 @@ generate_objects <- function(data, output, session, choices) {
   data$selectedSessions <- data$summary$session
   data$sessions_map <- rep(data$summary$session, times = 1, each = 2)
   shinyjs::click("createDashboard")
-  update_metrics_to_plot_workouts(session, choices, data$hasData)
+  # TODO incorporate update
+  # update_metrics_to_plot_workouts(session, choices, data$hasData)
 }
 
 #' Currently available sports in the trackeRdashboard.
@@ -463,21 +517,20 @@ sports_options <- c(
 #' Test whether we can plot work capacity for at least one of cycling or running.
 #' @param data An object of class \code{reactivevalues}.
 test_work_capacity <- function(data) {
-  selected_sports <- unique(sport(data$object[data$selectedSessions]))
-  is_data_power <- !all(sapply(data$object[data$selectedSessions], function(x){
+  selected_sports <- unique(get_sport(data$object[data$selectedSessions]))
+  is_data_power <- !all(sapply(data$object[data$selectedSessions], function(x) {
     all((is.na(x[, "power"])) | (x[, "power"] == 0))
-    }
-  ))
+  }))
 
   # Test for power if cycling
-  if (('cycling' %in% selected_sports) & (is_data_power)) {
-    cycling <- 'cycling'
+  if (("cycling" %in% selected_sports) & (is_data_power)) {
+    cycling <- "cycling"
   } else {
     cycling <- NULL
   }
   # Test if running selected
-  if ('running' %in% selected_sports) {
-    running <- 'running'
+  if ("running" %in% selected_sports) {
+    running <- "running"
   } else {
     running <- NULL
   }
@@ -492,5 +545,21 @@ update_sport_selection <- function(data, session) {
     session = session,
     inputId = "sports",
     selected = as.vector(data$identified_sports)
+  )
+}
+
+#' Convert name
+#' @param what A character. The metric to convert.
+convert_to_name <- function(what) {
+  switch(what,
+    "distance" = "Distance",
+    "duration" = "Duration",
+    "avgSpeed" = "Average Speed",
+    "avgPace" = "Average Pace",
+    "avgCadenceRunning" = "Cadence Running",
+    "avgCadenceCycling" = "Cadence Cycling",
+    "avgPower" = "Average Power",
+    "avgHeartRate" = "Average Heart Rate",
+    "wrRatio" = "work-to-rest ratio"
   )
 }

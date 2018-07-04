@@ -47,7 +47,8 @@ create_workout_plots <- function(feature) {
     "duration" = "Duration",
     "avgSpeed" = "Average Speed",
     "avgPace" = "Average Pace",
-    "avgCadence" = "Average Cadence",
+    "avgCadenceRunning" = "Average Cadence Running",
+    "avgCadenceCycling" = "Average Cadence Cycling",
     "avgPower" = "Average Power",
     "avgHeartRate" = "Average Heart Rate",
     "wrRatio" = "Work-to-rest Ratio"
@@ -92,12 +93,13 @@ create_selected_workout_plot <- function(id, collapsed = FALSE) {
           collapsed = collapsed,
           title = tagList(
             shiny::icon("gear"),
-            switch(id, "pace" = paste0("Pace"),
-            "heart.rate" = paste0("Heart Rate"),
-            "altitude" = paste0("Altitude"),
-            "power" = paste0("Power"),
-            "speed" = paste0("Speed"),
-            "cadence" = paste0("Cadence")
+            switch(id, "pace" = "Pace",
+            "heart_rate" = "Heart Rate",
+            "altitude" = "Altitude",
+            "power" = "Power",
+            "speed" = "Speed",
+            "cadence_running" = "Cadence Running",
+            "cadence_cycling" = "Cadence Cycling"
             )
           ),
           shinyWidgets::dropdownButton(
@@ -328,7 +330,7 @@ create_zones_box <- function(inputId, plotId, choices) {
 
 #' Create a return button from selected workouts plot
 #' @param sport_options A vector of sports identified from the uploaded sessions.
-create_option_box <- function(sport_options) {
+create_option_box <- function(sport_options, metrics_available) {
   insertUI(
     selector = ".content",
     where = "afterBegin",
@@ -374,7 +376,7 @@ create_option_box <- function(sport_options) {
         width = 2,
         collapsible = TRUE,
         title = tagList("Other tools"),
-        shinyWidgets::actionBttn(inputId = "showModalUnits", label = "Change units", icon = icon("balance-scale"), style = 'unite', color = 'primary')
+        shinyWidgets::actionBttn(inputId = "showModalUnits", label = "Change units", icon = icon("balance-scale"), style = 'unite', color = 'primary', size = 'sm')
       ),
       shinydashboard::box(
         status = "primary",
@@ -384,17 +386,8 @@ create_option_box <- function(sport_options) {
         shinyWidgets::pickerInput(
           inputId = "metricsSelected",
           # label = "Select metrics",
-          choices = c(
-            "Distance" = "distance",
-            "Duration" = "duration",
-            "Average speed" = "avgSpeed",
-            "Average pace" = "avgPace",
-            "Average cadence" = "avgCadence",
-            "Average power" = "avgPower",
-            "Average heart rate" = "avgHeartRate",
-            "Work to rest ratio" = "wrRatio"
-          ), options = list(`actions-box` = TRUE, `style` = "btn-info"),
-          multiple = TRUE, selected = c("distance", "duration", "avgPace")
+          choices = metrics_available, options = list(`actions-box` = TRUE, `style` = "btn-info"),
+          multiple = TRUE, selected = c("distance", "duration", 'avgPace')
         )
       ),
       shinydashboard::box(
@@ -404,7 +397,6 @@ create_option_box <- function(sport_options) {
         title = tagList("Classified sports"),
         shinyWidgets::checkboxGroupButtons(
           inputId = "sports",
-          # label = "Select from identified sports: ",
           choices = sport_options, selected = sport_options,
           justified = TRUE, status = "info",
           checkIcon = list(yes = icon("ok", lib = "glyphicon"), no = icon("remove", lib = "glyphicon"))
@@ -452,7 +444,7 @@ create_summary_timeline_boxes <- function() {
 show_change_unit_window <- function(data) {
   showModal(modalDialog(
     title = "Change units",
-    radioButtons(
+    shinyWidgets::awesomeRadio(
       "altitudeUnits", "Altitude:",
       c(
         "m" = "m",
@@ -460,10 +452,11 @@ show_change_unit_window <- function(data) {
         "mi" = "mi",
         "ft" = "ft"
       ),
+      checkbox = TRUE,
       inline = TRUE,
       selected = get_selected_units("altitude", data)
     ),
-    radioButtons(
+    shinyWidgets::awesomeRadio(
       "distanceUnits", "Distance:",
       c(
         "m" = "m",
@@ -471,10 +464,11 @@ show_change_unit_window <- function(data) {
         "mi" = "mi",
         "ft" = "ft"
       ),
+      checkbox = TRUE,
       inline = TRUE,
       selected = get_selected_units("distance", data)
     ),
-    radioButtons(
+    shinyWidgets::awesomeRadio(
       "speedUnits", "Speed:",
       c(
         "m/s" = "m_per_s",
@@ -483,46 +477,41 @@ show_change_unit_window <- function(data) {
         "ft/s" = "ft_per_s",
         "mi/h" = "mi_per_h"
       ),
+      checkbox = TRUE,
       inline = TRUE,
       selected = get_selected_units("speed", data)
     ),
-    radioButtons(
-      "cadenceUnits", "Cadence:",
-      c(
-        "steps/min" = "steps_per_min",
-        "revolutions/min" = "rev_per_min"
-      ),
-      inline = TRUE,
-      selected = get_selected_units("cadence", data)
-    ),
-    radioButtons(
-      "powerUnits", "Power:",
-      c(
-        "W" = "W",
-        "kW" = "kW"
-      ),
-      inline = TRUE,
-      selected = get_selected_units("power", data)
-    ),
-    radioButtons(
+    shinyWidgets::awesomeRadio(
       "paceUnits", "Pace:",
       c(
         "min/km" = "min_per_km",
         "min/mi" = "min_per_mi",
         "s/min" = "s_per_m"
       ),
+      checkbox = TRUE,
       inline = TRUE,
       selected = get_selected_units("pace", data)
     ),
-    radioButtons(
+    shinyWidgets::awesomeRadio(
       "durationUnits", "Duration:",
       c(
         "seconds" = "s",
         "minutes" = "min",
         "hours" = "h"
       ),
+      checkbox = TRUE,
       inline = TRUE,
       selected = get_selected_units("duration", data)
+    ),
+    shinyWidgets::awesomeRadio(
+      "powerUnits", "Power:",
+      c(
+        "W" = "W",
+        "kW" = "kW"
+      ),
+      checkbox = TRUE,
+      inline = TRUE,
+      selected = get_selected_units("power", data)
     ),
     footer = tagList(
       modalButton("Cancel"),

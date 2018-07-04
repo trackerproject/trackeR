@@ -8,7 +8,7 @@
 #' @param cp A numeric. Critical power/speed, i.e., the power/speed which can be maintained for longer period of time.
 plot_work_capacity <- function(x, session, dates = TRUE, scaled = TRUE, cp = 4) {
   units <- getUnits(x)
-  sports <- sport(x)[session]
+  sports <- get_sport(x)[session]
   
   if ((length(unique(sports)) != 1) | (sum(c("running", "cycling") %in% na.omit(unique(sports))) != 1)) {
     stop("Wprime applies only for running or only for cycling sessions")

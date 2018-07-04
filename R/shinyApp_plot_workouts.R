@@ -13,16 +13,23 @@
 
 plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
                           group = c("total"), lines = TRUE) {
-  feature <- lab_sum(feature = what, data = sumX)
-  units_text <- lab_sum(feature = what, data = sumX, whole_text = FALSE)
-
+  
+  if (what != 'wrRatio') {
+    feature <- lab_sum(feature = what, data = sumX)
+    units_text <- lab_sum(feature = what, data = sumX, whole_text = FALSE)
+  } else { 
+    feature <- "Work-to-rest ratio"
+    units_text <- NULL
+    }
+##  ............................................................................
+##  Copied from core trackeR                                                ####
   ## the following line is just intended to prevent R CMD check to produce the NOTE 'no
   ## visible binding for global variable *' because those variables are used in subset()
   variable <- type <- NULL
 
   nsessions <- length(unique(sumX$session))
   ndates <- length(unique(sumX$sessionStart))
-  units <- getUnits(sumX)
+  units <- get_units(sumX)
 
   ## subsets on variables and type
   dat <- fortify(sumX, melt = TRUE)
@@ -57,17 +64,12 @@ plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
     xlab <- "Session"
   }
 
+  
+##  ............................................................................
+##  Unique trackeR dashboard code                                           ####
+
   # d <- if(shiny) plotly::event_data("plotly_selected") else NULL
-  what <- switch(what,
-    "distance" = "Distance",
-    "duration" = "Duration",
-    "avgSpeed" = "Average Speed",
-    "avgPace" = "Average Pace",
-    "avgCadence" = "Average Cadence",
-    "avgPower" = "Average Power",
-    "avgHeartRate" = "Average Heart Rate",
-    "wrRatio" = "work-to-rest ratio"
-  )
+
   # print(d)
   p <- plotly::plot_ly(
     dat,
@@ -75,7 +77,7 @@ plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
     text = ~ paste(
       "Session:", session, "\n",
       "Date:", format(sessionStart, format = "%Y-%m-%d"),
-      "\n", what, ":", round(value, 2), units_text
+      "\n", trackeR:::convert_to_name(what), ":", round(value, 2), units_text
     )
   ) %>%
     plotly::add_markers(key = dat$session, color = I("deepskyblue3")) %>%
@@ -83,8 +85,13 @@ plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
                       line = list(shape = "spline", smoothing = 0.5))
   if (shiny) {
     if (length(unique(sessions)) != nsessions) {
-      m <- dat[dat$session %in% unique(sessions), ]
-      p <- plotly::add_markers(p,
+      
+      m <- as.data.frame(dat[dat$session %in% unique(sessions), ])
+      # FIX for some reason cant plot when only 2 sessions selected
+      if (nrow(m) == 2) {
+        m <- rbind(m, m)
+      }
+      p <- plotly::add_markers(p, 
         data = m, color = I("darkorange3"),
         size = I(8)
       )

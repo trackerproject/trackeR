@@ -14,103 +14,136 @@
 
 plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smooth = FALSE,
                                   trend = TRUE, dates = TRUE, changepoints = FALSE,
-                                  n_changepoints = 6, print_changepoints = FALSE) {
-  sports <- sport(x)[session]
-  var_name_units <- lab_sum(
-    feature = what, data = sumX,
-    transform_feature = FALSE
-  )
+                                  n_changepoints = 6, print_changepoints = FALSE,
+                                  unit_reference_sport = NULL, moving_threshold = NULL) {
+  
+  sports <- get_sport(x)[session]
 
-  var_units <- lab_sum(
-    feature = what, data = sumX,
-    whole_text = FALSE, transform_feature = FALSE
-  )
+  var_name_units <- lab_sum( 
+    feature = what, data = sumX, 
+    transform_feature = FALSE  
+  ) 
+    
+  var_units <- lab_sum( 
+    feature = what, data = sumX, 
+    whole_text = FALSE, transform_feature = FALSE 
+  ) 
 
-  ## code inspired by autoplot.zoo
-  if (is.null(session)) session <- seq_along(x)
-  units <- getUnits(x)
-
+  
+##  ............................................................................
+##  Copied from core trackeR                                                ####
+  units <- get_units(x)
+  
+  if (is.null(session)) {
+    session <- seq_along(x)
+  }
+  
+  if (is.null(unit_reference_sport)) {
+    unit_reference_sport <- find_unit_reference_sport(x)
+  }
+  ## Match units to those of unit_reference_sport
+  un <- collect_units(units, unit_reference_sport)
+  for (va in unique(un$variable)) {
+    units$unit[units$variable == va] <- un$unit[un$variable == va]
+  }
+  
+  ## convert moving_threshold
+  if (is.null(moving_threshold)) {
+    moving_threshold <- c(cycling = 2, running = 1, swimming = 0.5)
+    speed_unit <- un$unit[un$variable == "speed"]
+    if (speed_unit != "m_per_s") {
+      conversion <- match.fun(paste("m_per_s", speed_unit, sep = "2"))
+      moving_threshold <- conversion(moving_threshold)
+    }
+  }
+  
   x <- x[session]
-  # Smooth the data
-  x <- smoother(x)
+  
+  ## Change units to those of unit_reference_sport
+  x <- change_units(x, units$variable, units$unit, units$sport)
+  
   ## threshold
   if (threshold) {
     dots <- list()
-    if (all(c("variable", "lower", "upper") %in% names(dots))) {
-      ## thresholds provided by user
-      th <- data.frame(variable = dots$variable, lower = dots$lower, upper = dots$upper)
+    if (all(c("variable", "lower", "upper", "sport") %in% names(dots))) {
+      th <- generate_thresholds(dots$variable, dots$lower, dots$upper, dots$sport)
     } else {
       ## default thresholds
-      cycling <- units$unit[units$variable == "cadence"] == "rev_per_min"
-      th <- generateDefaultThresholds(cycling)
-      ## th <- th[which(th$variable %in% what),]
-      ## w <- which(units$variable %in% what)
-      th <- changeUnits(th, variable = units$variable, unit = units$unit)
+      th <- generate_thresholds()
+      th <- change_units(th, variable = units$variable, unit = units$unit, sport = units$sport)
     }
     ## apply thresholds
-    x <- threshold(x, th)
+    x <- threshold(x, th$variable, th$lower, th$upper, th$sport)
   }
-
+  
   ## for plotting pace, always apply a threshold
-  ## upper threshold is based on preferred walking speed of 1.4 m/s,
+  ## upper threshold is based on moving thresholds
   ## see https://en.wikipedia.org/wiki/Preferred_walking_speed
-  if ("pace" %in% what) {
-    conversionPace <- match.fun(paste("s_per_m", units$unit[units$variable == "pace"], sep = "2"))
-    thPace <- conversionPace(1 / 1.4)
-    x <- threshold(x, variable = "pace", lower = 0, upper = thPace)
-  }
-
+  
+  speed_unit <- strsplit(un$unit[un$variable == "speed"], split = "_per_")[[1]]
+  pace_unit <- paste(speed_unit[2], speed_unit[1], sep = "_per_")
+  convert_pace <- match.fun(paste(pace_unit, un$unit[un$variable == "pace"], sep = "2"))
+  
+  x <- threshold(x,
+                 variable = c("pace", "pace", "pace"),
+                 lower = c(0, 0, 0),
+                 upper = convert_pace(1/moving_threshold),
+                 sport = names(moving_threshold))
+  
   ## smooth
   if (smooth) {
     xo <- x
-    if (is.null(getOperations(x)$smooth)) {
+    if (is.null(get_operations(x)$smooth)) {
       x <- smoother(x, what = what)
-    } else {
+    }
+    else {
       warning("This object has already been smoothed. No additional smoothing takes place.")
       smooth <- FALSE ## it's not the plot function calling smoother
       x <- x
     }
-  } else {
+  }
+  else {
     x <- x
   }
-
+  
   ## get data
   df <- if (smooth) fortify(xo, melt = TRUE) else fortify(x, melt = TRUE)
-
-  df$id <- session[df$SessionID]
+  df$id <- session[df$SessionID] 
+  
   ## prepare session id for panel header
   if (dates) {
     df$SessionID <- format(session[df$SessionID])
     df$SessionID <- gsub(" ", "0", df$SessionID)
-    df$SessionID <- paste(df$SessionID, format(df$Index, "%Y-%m-%d"), sep = ": ")
+    df$SessionID <- paste0(paste(df$SessionID, df$Sport, sep = ": "), "\n", format(df$Index, "%Y-%m-%d"))
   }
   else {
-    df$SessionID <- factor(df$SessionID, levels = seq_along(session), labels = session)
+    df$SessionID <- paste0(paste(df$SessionID, df$Sport, sep = ": "))
   }
   df <- subset(df, Series %in% what)
-  df$Series <- as.character(df$Series)
-  df$numericDate <- as.numeric(df$Index)
-  N <- length(unique(df$id))
-
-  ranges <- NULL
-  for (i in unique(df$id)) {
-    df_subset <- df[df$id == i, ]
-    values <- df_subset[df_subset$Series == what, "Value"]
-    no_values <- all(is.na(values))
-    if (no_values) {
-      current_range <- c(NA, NA)
-    }
-    else {
-      current_range <- range(values, na.rm = TRUE)
-    }
-    ranges <- rbind(ranges, current_range)
+  
+  df$Series <- as.character(df$Series) 
+  df$numericDate <- as.numeric(df$Index) 
+  
+  ## check that there is data to plot
+  for (l in levels(df$Series)) {
+    if (all(is.na(subset(df, Series == l, select = "Value"))))
+      df <- df[!(df$Series == l), ]
   }
-  if (na_ranges <- all(is.na(ranges))) {
-    maximal_range <- c(-1, 1)
-  } else {
-    maximal_range <- c(min(ranges[, 1], na.rm = TRUE), max(ranges[, 2], na.rm = TRUE))
+  
+  facets <- "Series ~ SessionID"
+  
+  lab_data <- function(series) {
+    thisunit <- un$unit[un$variable == series]
+    prettyUnit <- prettifyUnits(thisunit)
+    paste0(series, "\n[", prettyUnit,"]")
   }
+  
 
+  
+##  ............................................................................
+##  trackeR dashboard unique code                                           ####
+  
+  var_name_units <- unique(var_name_units)
   plot_stored <- list()
   images <- list()
   smoothed_values <- list(maximum = numeric(), minimum = numeric())
@@ -196,7 +229,8 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
       # xaxis = axis_list, yaxis = c(axis_list, list(range = maximal_range * 1.02))
     }
     else {
-      df_subset$Value <- if (na_ranges) 0 else mean(maximal_range)
+      maximal_range <- c(-1, 1)
+      df_subset$Value <- 0
       a <- plotly::plot_ly(
         df_subset,
         x = ~ Index, y = ~ Value, hoverinfo = "none",
@@ -246,5 +280,6 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
 
   return(plotly::subplot(plot_stored, nrows = 1, shareY = TRUE, margin = 0.003) %>%
     plotly::config(displayModeBar = FALSE) %>%
-    plotly::layout(showlegend = FALSE, yaxis = y, xaxis = x, images = images, hovermode = "x", shapes = shapes))
+    plotly::layout(showlegend = FALSE, yaxis = y, xaxis = x, images = images, 
+                   hovermode = "x", shapes = shapes))
 }

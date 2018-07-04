@@ -5,13 +5,13 @@
 render_summary_box <- function(short_name, long_name, data) {
   box_text <- function(what, subtitle, icon, data) {
     value <- reactive({
+      
       value <- data$summary[data$selectedSessions][[what]]
       value <- round(mean(value[is.finite(value)], na.rm = TRUE), 1)
       if (is.na(value)) {
         "not available"
-      }
-      else {
-        paste0(value, " ", lab_sum(what, data$summary, FALSE))
+      } else {
+        paste0(value, " ", unique(lab_sum(what, data$summary, FALSE)))
       }
     })
     color <- if (value() == "not available") "olive" else "light-blue"
@@ -43,7 +43,7 @@ generate_selected_sessions_object <- function(data, input,
   
   data$hover <- plotly::event_data("plotly_selected")
   if (sport_selection) {
-    data$selectedSessions <- data$summary$session[sport(data$object) %in% input$sports]
+    data$selectedSessions <- data$summary$session[get_sport(data$object) %in% input$sports]
   }
   if (plot_selection) {
     data$selectedSessions <- unique(na.omit(as.numeric(data$hover$key)))
@@ -88,7 +88,7 @@ render_summary_table <- function(data, input) {
           lab_sum("duration", data = data$summary, whole_text = FALSE)
         ),
       "Sport" =
-        sport(data$object)
+        get_sport(data$object)
     )
     DT::datatable(
       dataSelected,

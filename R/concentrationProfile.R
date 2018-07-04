@@ -100,7 +100,7 @@ concentration_profile.distrProfile <- function(object,
 
 #' Plot concentration profiles.
 #'
-#' @param x An object of class \code{distrProfile} as returned by
+#' @param x An object of class \code{conProfile} as returned by
 #'     \code{\link{concentration_profile}}.
 #' @param session A numeric vector of the sessions to be plotted,
 #'     defaults to all sessions.

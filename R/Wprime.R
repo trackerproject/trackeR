@@ -225,7 +225,7 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), 
     ps <- ifelse(cycling, "power", "speed")
     if (cycling) {
         if (units$unit[units$variable == "power" & units$sport == "cycling"] != "W") {
-            object <- change_units(object, variable = "power", unit = "W")
+            object <- change_units(object, variable = "power", unit = "W", sport = unique(sports))
             units <- getUnits(object)
             conversion <- match.fun(paste(units$unit[units$variable == "power" & units$sport == "cycling"], "W", sep = "2"))
             cp <- conversion(cp)
@@ -233,7 +233,7 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), 
     }
     else {
         if (units$unit[units$variable == "speed" & units$sport == "running"] != "m_per_s") {
-            object <- change_units(object, variable = "speed", unit = "m_per_s")
+            object <- change_units(object, variable = "speed", unit = "m_per_s", sport = unique(sports))
             units <- getUnits(object)
             conversion <- match.fun(paste(units$unit[units$variable == "speed" & units$sport == "running"], "m_per_s",
                 sep = "2"))

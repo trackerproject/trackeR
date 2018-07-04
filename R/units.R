@@ -579,6 +579,18 @@ min_per_mi2min_per_km <- function(variable) {
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
+min_per_ft2min_per_km <- function(variable) {
+  variable/0.0003048
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+min_per_ft2min_per_mi <- function(variable) {
+  variable/0.000189393939
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
 s_per_m2s_per_m <- function(variable) {
     variable
 }
