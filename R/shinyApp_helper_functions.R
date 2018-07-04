@@ -147,7 +147,7 @@ choices <- function() {
     "Average cadence running" = "avgCadenceRunning",
     "Average cadence cycling" = "avgCadenceCycling",
     "Average power" = "avgPower",
-    "Average heart rate" = "avgHeartRateMoving",
+    "Average heart rate" = "avgHeartRate",
     "Work to rest ratio" = "wrRatio"
   )
 }

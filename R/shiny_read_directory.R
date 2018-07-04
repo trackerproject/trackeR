@@ -12,9 +12,7 @@ read_directory_shiny <- function(directory,
                                  silent = TRUE,
                                  parallel = FALSE,
                                  verbose = FALSE) {
-
-
-    read_expression <- quote({
+  read_expression <- quote({
         tcxFiles <- list.files(directory, pattern = "tcx", ignore.case = TRUE, full.names = TRUE,
                                no.. = TRUE)
         gpxFiles <- list.files(directory, pattern = "gpx", ignore.case = TRUE, full.names = TRUE,
@@ -40,10 +38,9 @@ read_directory_shiny <- function(directory,
 
             read_fun <- function(j) {
                 currentType <- fileType[j]
-                if (verbose) {
-                    cat("Reading file", allFiles[j], paste0("(file ", j, " out of ", lall, ")"), "...\n")
-                }
-                try(read_container(file = allFiles[j],
+                incProgress(1/lall, detail = paste(j, "out of", lall, paste0("(", currentType, ")")))
+                
+                out <- try(read_container(file = allFiles[j],
                                    type = currentType,
                                    table = table,
                                    timezone = timezone,
@@ -59,6 +56,8 @@ read_directory_shiny <- function(directory,
                                    lskip = lskip,
                                    m = m,
                                    silent = silent))
+                
+                out
             }
 
             foreach_object <- eval(as.call(c(list(quote(foreach::foreach), j = seq.int(lall)))))
@@ -69,7 +68,9 @@ read_directory_shiny <- function(directory,
             else {
                 allData <- foreach::`%do%`(foreach_object, read_fun(j))
             }
+            
             allData <- do.call("c", allData[!sapply(allData, inherits, what = "try-error")])
+            
         })
         withProgress(expr = in_expression, message = 'Loading data', value = 0, quoted = TRUE)
         if (verbose) {
@@ -82,14 +83,10 @@ read_directory_shiny <- function(directory,
 
         ## clean and return
         allData <- allData[!sapply(allData, is.null)]
-        if (aggregate) {
-            attr(allData, "file") <- rep(NA, length(allData))
-        }
         allData
-    })
-
-    out <- reactive(read_expression, quoted = TRUE)
-    return(out())
+  })
+  out <- reactive(read_expression, quote = TRUE)
+  return(out())
 }
 
 

@@ -63,9 +63,7 @@ server <- function(input, output, session) {
           )
         ), "/")
         # Process raw data
-        raw_data <- callModule(
-          module = trackeR:::read_directory_shiny,
-          id = "datafile",
+        raw_data <- trackeR:::read_directory_shiny(
           directory = directory,
           timezone = "GMT",
           parallel = TRUE,
