@@ -4,7 +4,7 @@
 \alias{create_option_box}
 \title{Create a return button from selected workouts plot}
 \usage{
-create_option_box(sport_options)
+create_option_box(sport_options, metrics_available)
 }
 \arguments{
 \item{sport_options}{A vector of sports identified from the uploaded sessions.}

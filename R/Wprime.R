@@ -294,7 +294,7 @@ plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, .
     sports <- attr(x, "sport")
     cp <- attr(x, "cp")
     cycling <- attr(x, "cycling")
-    Wunit <- if (cycling) "[J]" else "[m]"
+    Wunit <- if (cycling) "[W]" else "[m]"
     mylabels <- c(paste0(ifelse(cycling, "Power", "Speed"),
                          " [",
                          prettifyUnits(attr(x, "unit")$unit), "]"),

@@ -150,7 +150,7 @@ create_selected_workout_plot <- function(id, collapsed = FALSE) {
 #' Create work capacity plot
 #' @param id A character. The ID of the plot.
 #' @param collapsed A logical. Whether or not the UI box should be collapsed.
-create_work_capacity_plot <- function(id, collapsed = FALSE) {
+create_work_capacity_plot <- function(id, collapsed = TRUE) {
   insertUI(
     selector = ".content",
     where = "beforeEnd",
@@ -243,7 +243,8 @@ create_work_capacity_plot <- function(id, collapsed = FALSE) {
 #' @param inputId A character. The ID of the user input for the metrics that should be plotted
 #' @param plotId A character. The ID of the plot.
 #' @param choices A vector of the metrics a user can select to be plotted, selected from \code{\link{metrics}}.
-create_profiles_box <- function(inputId, plotId, choices) {
+#' @param collapsed A logical. Whether or not the UI box should be collapsed.
+create_profiles_box <- function(inputId, plotId, choices, collapsed = FALSE) {
   ## Other metrics - Work capacity, Distribution profile, Concentration profile
   insertUI(
     selector = ".content",
@@ -256,7 +257,7 @@ create_profiles_box <- function(inputId, plotId, choices) {
           status = "primary",
           width = 12,
           collapsible = TRUE,
-          collapsed = FALSE,
+          collapsed = collapsed,
           title = tagList(shiny::icon("gear"), "Concentration profiles"),
           fluidRow(
             column(
@@ -330,6 +331,7 @@ create_zones_box <- function(inputId, plotId, choices) {
 
 #' Create a return button from selected workouts plot
 #' @param sport_options A vector of sports identified from the uploaded sessions.
+#' @param metrics_available A vector of metrics that are found in the dataset.
 create_option_box <- function(sport_options, metrics_available) {
   insertUI(
     selector = ".content",
@@ -376,7 +378,9 @@ create_option_box <- function(sport_options, metrics_available) {
         width = 2,
         collapsible = TRUE,
         title = tagList("Other tools"),
-        shinyWidgets::actionBttn(inputId = "showModalUnits", label = "Change units", icon = icon("balance-scale"), style = 'unite', color = 'primary', size = 'sm')
+        shinyWidgets::actionBttn(inputId = "showModalUnits", label = "Change units",
+                                 icon = icon("balance-scale"), style = 'unite', 
+                                 color = 'primary', size = 'sm')
       ),
       shinydashboard::box(
         status = "primary",

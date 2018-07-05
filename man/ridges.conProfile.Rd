@@ -8,7 +8,7 @@
   smooth = FALSE, ...)
 }
 \arguments{
-\item{x}{An object of class \code{distrProfile} as returned by
+\item{x}{An object of class \code{conProfile} as returned by
 \code{\link{concentration_profile}}.}
 
 \item{session}{A numeric vector of the sessions to be plotted,

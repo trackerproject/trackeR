@@ -3,16 +3,17 @@
 #' @param x An object of class \code{trackeRdata}.
 #' @param session A vector of selected sessions.
 #' @param what A vector of variable names to be plotted.
-
-plot_concentration_profiles <- function(x, session, what = c("speed"), 
+#' @param profiles_calculated Pre-calculated concentration profiles for all sessions.
+plot_concentration_profiles <- function(x, session, profiles_calculated, 
+                                        what = c("speed"), 
                                         smooth = TRUE, limits = NULL) {
 
   ## Generate distribution profile
   # dProfile <- distributionProfile(x, session = session, what = what, auto_grid = TRUE)
   tracker_object <- x
   ## Generate concentration profile
-  x <- concentration_profile(x, session = session, what = what, limits = limits)
-
+  x <- get_profile(object = profiles_calculated, session = session, what = what)
+  # x <- concentration_profile(x, session = session, what = what, limits = limits)
   ## duration unit; sport does not matter here as units have been uniformised already
   units <- get_units(x)
   duration_unit <- units$unit[units$sport == "running" & units$variable == "duration"]
