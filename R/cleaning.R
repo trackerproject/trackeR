@@ -211,7 +211,7 @@ impute_speeds <- function(session_data,
     if (sport == "cycling"){
         impC <- match(c("latitude", "longitude", "altitude", "distance", "speed", "power"), names(session_data))
         impN <- which(is.na(match(names(session_data), c("latitude", "longitude", "altitude", "distance", "speed", "power"))))
-        impPower <- 0
+        impPower <- NA
         nN <- length(impN)
     }
     else {
