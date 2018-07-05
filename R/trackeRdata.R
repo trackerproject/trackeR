@@ -243,11 +243,14 @@ c.trackeRdata <- function(...,
 
     ## combine sessions
     ret <- vector("list", sum(nsessionsInput))
+    files0 <- sapply(input, attr, which = "file")
+    files <- character(sum(nsessionsInput))
     starti <- c(1, cumsum(nsessionsInput)[-length(nsessionsInput)] + 1)
     endi <- cumsum(nsessionsInput)
 
     for (i in seq_len(ninput)) {
         ret[starti[i]:endi[i]] <- input[[i]]
+        files[starti[i]:endi[i]] <- files0[i]
     }
 
     ## ## merge limits
@@ -262,7 +265,7 @@ c.trackeRdata <- function(...,
     ## attr(ret, "upper") <- upp
     attr(ret, "units") <- units1
     attr(ret, "sport") <- unlist(sapply(input, attr, which = "sport"))
-    attr(ret, "file") <- unlist(sapply(input, attr, which = "file"))
+    attr(ret, "file") <- files
     ## operations$smooth
     attr(ret, "operations") <- operations
 
