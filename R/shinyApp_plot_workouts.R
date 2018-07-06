@@ -8,11 +8,12 @@
 #' @param lines Should interpolating lines be plotted?
 #' @param shiny Logical. Whether plots are in a shiny environment.
 #' @param sessions A vector. Selected sessions by session number.
+#' @param sports A vector of sports of the sessions to be plotted.
 #' @param ... Currently not used.
 #' @seealso \code{\link{summary.trackeRdata}}
 
 plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
-                          group = c("total"), lines = TRUE) {
+                          group = c("total"), lines = TRUE, sports) {
   if (what != "wrRatio") {
     feature <- lab_sum(feature = what, data = sumX)
     units_text <- lab_sum(feature = what, data = sumX, whole_text = FALSE)
@@ -32,7 +33,7 @@ plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
 
   ## subsets on variables and type
   dat <- fortify(sumX, melt = TRUE)
-  dat$sport <- get_sport(sumX)
+  dat$sport <- sports
   if (!is.null(what)) {
     dat <- subset(dat, variable %in% what)
   }
@@ -108,8 +109,10 @@ plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
   }
 
   ra <- c(min(dat$xaxis), max(dat$xaxis))
-  ra[2] <- ra[2] + 0.01 * diff(ra)
-  ra[1] <- ra[1] - 0.01 * diff(ra)
+  if(length(sessions) > 1) {
+    ra[2] <- ra[2] + 0.01 * diff(ra)
+    ra[1] <- ra[1] - 0.01 * diff(ra)
+  }
   y <- list(title = feature, range = c(0, max(dat$value) * 1.5), fixedrange = TRUE)
   x <- list(title = "Date", fixedrange = TRUE, range = ra)
 

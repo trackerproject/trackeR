@@ -242,8 +242,10 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
             } else {
             data$summary$session[get_sport(data$object) %in% input$sports] 
             }
-          trackeR:::plot_workouts(sumX = data$summary[sessions_to_plot], what = i, 
-                                  sessions = data$selectedSessions)
+          trackeR:::plot_workouts(sumX = data$summary[sessions_to_plot],
+                                  what = i, 
+                                  sessions = data$selectedSessions,
+                                  sports = trackeR::get_sport(data$object)[sessions_to_plot])
         })
       })
       # Set to TRUE such that all plots are visible
