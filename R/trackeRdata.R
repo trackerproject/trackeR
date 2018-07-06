@@ -250,7 +250,7 @@ c.trackeRdata <- function(...,
 
     for (i in seq_len(ninput)) {
         ret[starti[i]:endi[i]] <- input[[i]]
-        files[starti[i]:endi[i]] <- files0[i]
+        files[starti[i]:endi[i]] <- files0[[i]]
     }
 
     ## ## merge limits
