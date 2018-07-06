@@ -84,6 +84,8 @@
 \alias{min_per_mi2s_per_m}
 \alias{min_per_km2min_per_mi}
 \alias{min_per_mi2min_per_km}
+\alias{min_per_ft2min_per_km}
+\alias{min_per_ft2min_per_mi}
 \alias{s_per_m2s_per_m}
 \alias{min_per_km2min_per_km}
 \alias{min_per_mi2min_per_mi}
@@ -264,6 +266,10 @@ min_per_mi2s_per_m(variable)
 min_per_km2min_per_mi(variable)
 
 min_per_mi2min_per_km(variable)
+
+min_per_ft2min_per_km(variable)
+
+min_per_ft2min_per_mi(variable)
 
 s_per_m2s_per_m(variable)
 

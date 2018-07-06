@@ -30,9 +30,10 @@ plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
   nsessions <- length(unique(sumX$session))
   ndates <- length(unique(sumX$sessionStart))
   units <- get_units(sumX)
-
+  
   ## subsets on variables and type
   dat <- fortify(sumX, melt = TRUE)
+  dat$sport <- get_sport(sumX)[!is.na(get_sport(sumX))] # TODO temporary solution until summary not fixed
   if (!is.null(what)) {
     dat <- subset(dat, variable %in% what)
   }
@@ -77,10 +78,12 @@ plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
     text = ~ paste(
       "Session:", session, "\n",
       "Date:", format(sessionStart, format = "%Y-%m-%d"),
-      "\n", trackeR:::convert_to_name(what), ":", round(value, 2), units_text
+      "\n", convert_to_name(what), ":", round(value, 2), units_text, "\n",
+      "Sport:", sport
     )
   ) %>%
-    plotly::add_markers(key = dat$session, color = I("deepskyblue3")) %>%
+    plotly::add_markers(key = dat$session, color = I("deepskyblue3"), symbol = ~sport,
+                        symbols = c('circle', 'x', 'square'), size = I(8)) %>%
     plotly::add_lines(color = I("deepskyblue3"), connectgaps = TRUE, 
                       line = list(shape = "spline", smoothing = 0.5))
   if (shiny) {
@@ -93,13 +96,14 @@ plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
       }
       p <- plotly::add_markers(p, 
         data = m, color = I("darkorange3"),
-        size = I(8)
+        size = I(9), symbol = ~sport,
+        symbols = c('circle', 'x', 'square'), 
       )
       # plotly::add_paths(data = m, color = I("darkorange3"))
     }
   }
 
-  y <- list(title = feature)
+  y <- list(title = feature, range = c(0, max(dat$value) * 1.5))
   x <- list(title = "Date")
 
   plotly::layout(p,

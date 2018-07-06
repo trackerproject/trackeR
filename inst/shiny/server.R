@@ -82,9 +82,6 @@ server <- function(input, output, session) {
       data$no_location_data <- sapply(data$object, 
           function(x) all((is.na(x[, 'longitude'])) | (x[, 'longitude'] == 0))
         )
-      sports_options <- trackeR:::sports_options
-      identified_sports <- sports_options %in% unique(trackeR::get_sport(data$object))
-      data$identified_sports <- sports_options[identified_sports]
     }  
   })
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
@@ -92,7 +89,6 @@ server <- function(input, output, session) {
 proxy <- DT::dataTableProxy('summary')
 # Sessions selected from plots using box/lasso selection
 observeEvent(plotly::event_data("plotly_selected"), {
-  
   trackeR:::generate_selected_sessions_object(data, input,
     plot_selection = TRUE
   )
@@ -101,12 +97,11 @@ observeEvent(plotly::event_data("plotly_selected"), {
   } else {
     DT::selectRows(proxy = proxy, selected = NULL)
   }
-  trackeR:::update_sport_selection(data, session)
+  # trackeR:::update_sport_selection(data, session)
 })
 
 # Sessions selected by sport using radio buttons
 observeEvent(input$sports, {
-  
   shinyjs::js$resetSelection()
   trackeR:::generate_selected_sessions_object(data, input, sport_selection = TRUE)
   
@@ -119,12 +114,10 @@ observeEvent(input$sports, {
 
 # Sessions selected through summary table
 observeEvent(input$summary_rows_selected,  {
-  
     # trackeR:::update_sport_selection(data, session)
     shinyjs::js$resetSelection()
     trackeR:::generate_selected_sessions_object(data, input, 
                                                 table_selection = TRUE)
-    
 }, ignoreNULL = TRUE)
 
 # Reset button clicked
@@ -244,7 +237,12 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
       }
       sapply(c(choices), function(i) {
         output[[paste0(i, "_plot")]] <- plotly::renderPlotly({
-          trackeR:::plot_workouts(sumX = data$summary, what = i, 
+          sessions_to_plot <- if (is.null(input$sports)) {
+            data$summary$session
+            } else {
+            data$summary$session[get_sport(data$object) %in% input$sports] 
+            }
+          trackeR:::plot_workouts(sumX = data$summary[sessions_to_plot], what = i, 
                                   sessions = data$selectedSessions)
         })
       })
@@ -268,22 +266,55 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
     }
   }, once = TRUE)
 
+  
+### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
+### Test which metrics have data                                            ####
+  have_data_metrics_selected <- reactive({
+    !sapply(metrics, function(metric) {
+      all(sapply(data$object[data$selectedSessions], {
+        function(x) all((is.na(x[, metric])) | (x[, metric] == 0))
+      }))
+    })
+  })
 #   ____________________________________________________________________________
 #   Individual sessions page                                                ####
   observeEvent(input$plotSelectedWorkouts, {
     shinyjs::addClass(selector = "body", class = "sidebar-collapse")
-    # Test which metrics have data for selected sessions
-    have_data_metrics_selected <- reactive({
-      !sapply(metrics, function(metric) {
-        all(sapply(data$object[data$selectedSessions], {
-          function(x) all((is.na(x[, metric])) | (x[, metric] == 0))
-        }))
-      })
+    ##  ............................................................................
+    ##  Time in zones                                                           ####
+    trackeR:::create_zones_box(
+      inputId = "zonesMetricsPlot",
+      plotId = "zonesPlotUi",
+      choices = metrics[have_data_metrics_selected()]
+    )
+    ## Render UI for time in zones plot
+    output$zonesPlotUi <- renderUI({
+      shiny::req(input$zonesMetricsPlot)
+      shinycssloaders::withSpinner(plotly::plotlyOutput(
+        "zones_plot",
+        width = "100%",
+        height = trackeR:::calculate_plot_height(input$zonesMetricsPlot)
+      ), size = 2)
     })
-
+    ## Render actual plot
+    output$zones_plot <- plotly::renderPlotly({
+      trackeR:::plot_zones(
+        x = data$object, session = data$selectedSessions,
+        what = input$zonesMetricsPlot,
+        n_zones = as.numeric(input$n_zones)
+      )
+    })
+    # Update metrics available each time different sessions selected
+    observeEvent(data$selectedSessions, {
+      shiny::updateSelectizeInput(session = session, inputId = "zonesMetricsPlot", 
+                                  choices =  metrics[have_data_metrics_selected()], selected = 'speed'
+      )
+    }, ignoreInit = TRUE)
+    
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Generate individual sessions plots (except work capacity)               ####
-    metrics_to_expand <- c("speed", "heart_rate", "altitude")
+    # metrics_to_expand <- c("speed", "heart_rate", "altitude")
+    metrics_to_expand <- c('speed')
     # First generate all plots irrespective if data available
     for (i in c(metrics)) {
       collapse <- if (i %in% metrics_to_expand) FALSE else TRUE
@@ -316,7 +347,9 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
         trackeR:::plot_selectedWorkouts(
           x = data$object, session = data$selectedSessions, what = i,
           sumX = data$summary, changepoints = fit_changepoint,
-          n_changepoints = isolate(as.numeric(input[[paste0("n_changepoints", i)]]))
+          threshold = FALSE,
+          n_changepoints = isolate(as.numeric(input[[paste0("n_changepoints", i)]])),
+          desampling = 1
         )
       })
       
@@ -435,36 +468,12 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
     })
 
 ##  ............................................................................
-##  Time in zones                                                           ####
-    trackeR:::create_zones_box(
-      inputId = "zonesMetricsPlot",
-      plotId = "zonesPlotUi",
-      choices = metrics[have_data_metrics_selected()]
-    )
-    ## Render UI for time in zones plot
-    output$zonesPlotUi <- renderUI({
-      shiny::req(input$zonesMetricsPlot)
-      shinycssloaders::withSpinner(plotly::plotlyOutput(
-        "zones_plot",
-        width = "100%",
-        height = trackeR:::calculate_plot_height(input$zonesMetricsPlot)
-      ), size = 2)
-    })
-    ## Render actual plot
-    output$zones_plot <- plotly::renderPlotly({
-      trackeR:::plot_zones(
-        x = data$object, session = data$selectedSessions,
-        what = input$zonesMetricsPlot,
-        n_zones = as.numeric(input$n_zones)
-      )
-    })
-
-##  ............................................................................
 ##  Concentration profiles                                                  ####
     trackeR:::create_profiles_box(
       inputId = "profileMetricsPlot",
       plotId = "concentration_profiles",
-      choices = metrics[have_data_metrics_selected()]
+      choices = metrics[have_data_metrics_selected()],
+      collapsed = TRUE
     )
     ## Render UI for concentration profiles
     output$concentration_profiles <- renderUI({
@@ -475,18 +484,29 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
         height = trackeR:::calculate_plot_height(input$profileMetricsPlot)
       ), size = 2)
     })
+    concentration_profiles <- reactive({
+      trackeR::concentration_profile(data$object, 
+                            what = metrics[have_data_metrics_selected()],
+                            limits = data$limits)
+    })
     ## Render actual plot
     output$conc_profiles_plots <- plotly::renderPlotly({
       trackeR:::plot_concentration_profiles(
         x = data$object,
         session = data$selectedSessions,
         what = input$profileMetricsPlot, 
-        limits = data$limits
+        profiles_calculated = concentration_profiles()
       )
     })
   }, once = TRUE)
 
-
+  # Update metrics available each time different sessions selected
+  observeEvent(data$selectedSessions, {
+    shiny::updateSelectizeInput(session = session, inputId = "profileMetricsPlot", 
+                                choices = metrics[have_data_metrics_selected()], selected = 'speed'
+    )
+  }, ignoreInit = TRUE)
+  
 #   ____________________________________________________________________________
 #   Toggle between session summaries page and individual sessions page      ####
   observeEvent(input$return_to_main_page, {

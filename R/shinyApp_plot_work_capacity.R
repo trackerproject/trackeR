@@ -24,7 +24,7 @@ plot_work_capacity <- function(x, session, dates = TRUE, scaled = TRUE, cp = 4) 
   # Temporary
   cycling <- unique(sports) == 'cycling'
   # cycling <- attr(x, "cycling")
-  Wunit <- if (cycling) "[J]" else "[m/s]"
+  Wunit <- if (cycling) "[W]" else "[m/s]"
   
   mylabels <- c(paste0(ifelse(cycling, "Power ", "Speed "),  Wunit), 
                 paste("W'", quantity, "[scaled]"))

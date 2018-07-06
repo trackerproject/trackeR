@@ -61,7 +61,7 @@ zones <- function(object,
 
     if (is.null(breaks)) {
 
-        limits <- compute_limits(object)
+        limits <- compute_limits(object, a = 0.025)
         for (feature in what) {
             if (all(is.na(limits[[feature]]))) {
                 warning(paste('no data for', feature))
@@ -70,7 +70,7 @@ zones <- function(object,
             }
         }
 
-        break_points <- function (maximum, minimum = 0) {
+        break_points <- function(maximum, minimum = 0) {
             value_range <- as.character(ceiling(maximum - minimum))
             range_size <- nchar(value_range)
             round_table <- list('1' = 5, '2' = 5, '3' = 10, '4' = 100,

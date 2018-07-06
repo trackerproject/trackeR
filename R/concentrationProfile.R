@@ -418,10 +418,10 @@ concentration_profile.trackeRdata <- function(object,
                                               .combine = "cbind"))))
         if (parallel) {
             setup_parallel()
-            ccp <- foreach::`%dopar%`(foreach_object, cp_fun(j, i))
+            ccp <- foreach::`%dopar%`(foreach_object, cbind(cp_fun(j, i)))
         }
         else {
-            ccp <- foreach::`%do%`(foreach_object, cp_fun(j, i))
+            ccp <- foreach::`%do%`(foreach_object, cbind(cp_fun(j, i)))
         }
 
         ccp <- zoo(ccp, order.by = seq(from = limits[[i]][1], to = limits[[i]][2], length.out = 512))

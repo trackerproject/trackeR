@@ -155,13 +155,13 @@ choices <- function() {
 #' Generate metrics to test if they have data
 metrics <- function() {
   c(
-    "Heart Rate" = "heart_rate",
-    "Altitude" = "altitude",
     "Speed" = "speed",
+    "Pace" = "pace",
+    "Heart Rate" = "heart_rate",
     "Cadence running" = "cadence_running",
     "Cadence cycling" = "cadence_cycling",
     "Power" = "power",
-    "Pace" = "pace"
+    "Altitude" = "altitude"
   )
 }
 
@@ -505,6 +505,9 @@ generate_objects <- function(data, output, session, choices) {
   shinyjs::click("createDashboard")
   # TODO incorporate update
   # update_metrics_to_plot_workouts(session, choices, data$hasData)
+  sports_options <- trackeR:::sports_options
+  identified_sports <- sports_options %in% unique(trackeR::get_sport(data$object))
+  data$identified_sports <- sports_options[identified_sports]
 }
 
 #' Currently available sports in the trackeRdashboard.

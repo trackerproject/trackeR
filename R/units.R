@@ -609,6 +609,9 @@ min_per_mi2min_per_mi <- function(variable) {
 h_per_km2min_per_km <- function(variable) {
     variable * 60
 }
+h_per_km2min_per_mi <- function(variable) {
+  variable * 60 * mi2km(1)
+}
 h_per_mi2min_per_km <- function(variable) {
     variable * 60 / mi2km(1)
 }
