@@ -144,7 +144,7 @@ trackeRdata <- function(dat,
     attr(trackerdat, "operations") <- list(smooth = NULL, threshold = NULL)
     attr(trackerdat, "units") <- units
     attr(trackerdat, "sport") <- rep(sport, length(trackerdat))
-    attr(trackerdat, "file") <- file
+    attr(trackerdat, "file") <- rep(file, length(trackerdat))
 
 
     ## class and return

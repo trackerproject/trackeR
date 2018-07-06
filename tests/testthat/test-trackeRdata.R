@@ -40,3 +40,16 @@ test_that("trackeRdata extractor methods work [session_duration, session_times]"
     expect_equal(names(session_times(gpx4)), c("sessionStart", "sessionEnd"))
 })
 
+test_that("c.trackeRdata works as expected [c-ing]", {
+
+    s_12 <- c(tcx1, tcx2)
+    expect_true(identical(s_12[1], tcx1) )
+
+    s_all <- c(s_12, gpx4, gpx1)
+    expect_true(identical(s_all[1:3], s_12))
+
+    expect_true(identical(s_all[4:7],  gpx4))
+
+
+
+})
