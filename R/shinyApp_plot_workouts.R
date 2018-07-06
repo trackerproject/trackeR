@@ -109,7 +109,7 @@ plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
   }
 
   ra <- c(min(dat$xaxis), max(dat$xaxis))
-  if(length(sessions) > 1) {
+  if(nsessions > 1) {
     ra[2] <- ra[2] + 0.01 * diff(ra)
     ra[1] <- ra[1] - 0.01 * diff(ra)
   }

@@ -262,12 +262,19 @@ create_profiles_box <- function(inputId, plotId, choices, collapsed = FALSE) {
           fluidRow(
             column(
               2,
-              selectizeInput(
+              # selectizeInput(
+              #   inputId = inputId,
+              #   label = "Select profile metrics to plot:",
+              #   multiple = TRUE,
+              #   choices = choices,
+              #   selected = "speed"
+              # )
+              shinyWidgets::pickerInput(
                 inputId = inputId,
                 label = "Select profile metrics to plot:",
-                multiple = TRUE,
                 choices = choices,
-                selected = "speed"
+                options = list(`actions-box` = TRUE, `style` = "btn-info"),
+                multiple = TRUE, selected = c("speed")
               )
             )
           ),
@@ -298,14 +305,23 @@ create_zones_box <- function(inputId, plotId, choices) {
           collapsed = FALSE,
           title = tagList(shiny::icon("gear"), "Time in Zones"),
           fluidRow(
-            column(2, selectizeInput(
+            column(2, 
+            #        selectizeInput(
+            #   inputId = inputId,
+            #   label = "Select zone metrics to plot:",
+            #   multiple = TRUE,
+            #   choices = choices,
+            #   selected = "speed"
+            # ),
+            shinyWidgets::pickerInput(
               inputId = inputId,
-              label = "Select zone metrics to plot:",
-              multiple = TRUE,
+              label ="Select zone metrics to plot:",
               choices = choices,
-              selected = "speed"
-            )),
-            column(2, selectizeInput(
+              options = list(`actions-box` = TRUE, `style` = "btn-info"),
+              multiple = TRUE, selected = c("speed")
+            )
+            ),
+            column(2, shinyWidgets::pickerInput(
               inputId = "n_zones",
               label = "Select number of zones:",
               multiple = FALSE,
@@ -319,6 +335,7 @@ create_zones_box <- function(inputId, plotId, choices) {
                 "8" = 8,
                 "9" = 9
               ),
+              options = list(`actions-box` = TRUE, `style` = "btn-info"),
               selected = "6"
             ))
           ),

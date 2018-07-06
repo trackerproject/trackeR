@@ -192,6 +192,6 @@ plot_work_capacity <- function(x, session, dates = TRUE, scaled = TRUE, cp = 4) 
     plotly::config(displayModeBar = F) %>%
     plotly::layout(
       yaxis = y, xaxis = x, images = images, hovermode = "x",
-      legend = list(y = 0.8, orientation = "h")
+      legend = list(y = 1, orientation = "h")
     ))
 }

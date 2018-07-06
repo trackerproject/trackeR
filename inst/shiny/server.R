@@ -110,6 +110,21 @@ observeEvent(input$sports, {
   } else {
     DT::selectRows(proxy = proxy, selected = NULL)
   }
+  ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
+  ### Update metrics available based on sport selected                        ####
+  has_data_sport <- lapply(data$summary[which(trackeR::get_sport(data$summary) %in% input$sports)], function(session_summaries) {
+    !all(is.na(session_summaries) | session_summaries == 0)
+  })
+  selected_metrics <- c(input$metricsSelected[sapply(input$metricsSelected, function(x) {
+    has_data_sport[[x]]
+  })])
+  metrics_available_sport <- reactive({c(choices[sapply(choices, function(x) {
+    has_data_sport[[x]]
+  })])
+  })
+  shinyWidgets::updatePickerInput(session = session, inputId = 'metricsSelected', 
+                                  selected = selected_metrics, 
+                                  choices = metrics_available_sport())
 }, ignoreNULL = FALSE, ignoreInit = TRUE)
 
 # Sessions selected through summary table
@@ -170,11 +185,13 @@ observeEvent(input$resetSelection, {
       # removeUI(selector = ".main_plots", immediate = TRUE, multiple = TRUE)
       sports_options <- trackeR:::sports_options
       identified_sports <- sports_options %in% unique(trackeR::get_sport(data$object))
-      metrics_available <- c(choices[sapply(choices, function(x) {
+      metrics_available <- reactive({c(choices[sapply(choices, function(x) {
         data$hasData[[x]]
       })])
+      })
       trackeR:::create_option_box(sport_options = sports_options[identified_sports],
-                                  metrics_available = metrics_available)
+                                  metrics_available = metrics_available())
+
 
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Summary table                                                           ####
@@ -308,9 +325,13 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
     })
     # Update metrics available each time different sessions selected
     observeEvent(data$selectedSessions, {
-      shiny::updateSelectizeInput(session = session, inputId = "zonesMetricsPlot", 
-                                  choices =  metrics[have_data_metrics_selected()], selected = 'speed'
-      )
+      # shiny::updateSelectizeInput(session = session, inputId = "zonesMetricsPlot", 
+      #                             choices =  metrics[have_data_metrics_selected()], 
+      #                             selected = 'speed'
+      # )
+      shinyWidgets::updatePickerInput(session = session, inputId = "zonesMetricsPlot", 
+                                      choices =  metrics[have_data_metrics_selected()], 
+                                      selected = 'speed')
     }, ignoreInit = TRUE)
     
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
@@ -325,7 +346,7 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
     }
     
     sapply(metrics, function(i) {
-      plot_width <- reactive({if (length(data$selectedSessions) > 2) {
+      plot_width <- reactive({if (length(data$selectedSessions) > 3) {
         paste0(toString(500 * length(as.vector(data$selectedSessions))), "px")
       } else {
         "auto"
@@ -404,6 +425,17 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
         profiles_calculated = concentration_profiles()
       )
     })
+    
+    # Update metrics available each time different sessions selected
+    observeEvent(data$selectedSessions, {
+      # shiny::updateSelectizeInput(session = session, inputId = "profileMetricsPlot", 
+      #                             choices = metrics[have_data_metrics_selected()],
+      #                             selected = 'speed'
+      # )
+      shinyWidgets::updatePickerInput(session = session, inputId = "profileMetricsPlot", 
+                                      choices =  metrics[have_data_metrics_selected()], 
+                                      selected = 'speed')
+    }, ignoreInit = TRUE)
     ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
     ### Generate work capacity plot                                             ####
     # Check which work capacity plots to generate
@@ -416,7 +448,7 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
     sapply(c('cycling', 'running'), function(sport_id) {
       output[[paste0(sport_id, "_work_capacity_plot")]] <- renderUI({
         n_sessions <- sum(trackeR::get_sport(data$summary[data$selectedSessions]) %in% sport_id)
-        plot_width <- if (n_sessions > 2) {
+        plot_width <- if (n_sessions > 3) {
           paste0(toString(500 * n_sessions), "px")
         } else {
           "auto"
@@ -502,13 +534,6 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
     })
     
   }, once = TRUE)
-
-  # Update metrics available each time different sessions selected
-  observeEvent(data$selectedSessions, {
-    shiny::updateSelectizeInput(session = session, inputId = "profileMetricsPlot", 
-                                choices = metrics[have_data_metrics_selected()], selected = 'speed'
-    )
-  }, ignoreInit = TRUE)
   
 #   ____________________________________________________________________________
 #   Toggle between session summaries page and individual sessions page      ####
