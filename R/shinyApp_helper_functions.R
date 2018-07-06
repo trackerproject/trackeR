@@ -107,33 +107,40 @@ get_selected_units <- function(feature, data) {
 #' @param input An object of class \code{reactivevalues}.
 #' @param object A character of either 'summary' or 'object' to specify which objects' units to change.
 change_object_units <- function(data, input, object) {
-  
+
   # unused_variables <- c("latitude", "longitude", "heart.rate", "duration", "temperature")
   # allUnits <- get_units(data$object)$variable[!(get_units(data$object)$variable %in% unused_variables)]
-  all_units <- c('altitude', 'distance', 'speed', 'pace')
+  all_units <- c("altitude", "distance", "speed", "pace")
   units <- c()
   for (i in all_units) {
     units <- c(units, input[[paste0(i, "Units")]])
   }
-  if (object == 'object') {
-    
-  data_updated <- change_units(data[[object]], variable = rep(all_units, 3), 
-                               unit = rep(units, 3),
-                               sport = rep(c("cycling", "running", "swimming"), 
-                                           each = 4))
-  data_updated <- change_units(data_updated, variable = 'power', 
-                               unit = input$powerUnits,
-                               sport = "cycling")
+  if (object == "object") {
+    data_updated <- change_units(data[[object]],
+      variable = rep(all_units, 3),
+      unit = rep(units, 3),
+      sport = rep(c("cycling", "running", "swimming"),
+        each = 4
+      )
+    )
+    data_updated <- change_units(data_updated,
+      variable = "power",
+      unit = input$powerUnits,
+      sport = "cycling"
+    )
   }
   if (object == "summary") {
-    
-    data_updated <- change_units(data[[object]], variable = all_units, 
-                                 unit = units)
-    data_updated <- change_units(data_updated, variable = 'power', 
-                                 unit = input$powerUnits)
+    data_updated <- change_units(data[[object]],
+      variable = all_units,
+      unit = units
+    )
+    data_updated <- change_units(data_updated,
+      variable = "power",
+      unit = input$powerUnits
+    )
     data_updated <- change_units(data_updated, variable = "duration", unit = input[["durationUnits"]])
   }
-  
+
   return(data_updated)
 }
 
@@ -388,13 +395,22 @@ margin-top: 10px;
 color: red;
 }
 .warningMessage {
-                          font-size: 20px;
+   font-size: 20px;
 }
 hr {
 border-top: 1px solid;
 }
 a#download_data {
 color: #333;
+}
+
+
+rect.legendtoggle {
+display: none;
+}
+
+rect.legendtoggle {
+cursor: default;
 }
 "
 

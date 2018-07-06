@@ -13,16 +13,15 @@
 
 plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
                           group = c("total"), lines = TRUE) {
-  
-  if (what != 'wrRatio') {
+  if (what != "wrRatio") {
     feature <- lab_sum(feature = what, data = sumX)
     units_text <- lab_sum(feature = what, data = sumX, whole_text = FALSE)
-  } else { 
+  } else {
     feature <- "Work-to-rest ratio"
     units_text <- NULL
-    }
-##  ............................................................................
-##  Copied from core trackeR                                                ####
+  }
+  ##  ............................................................................
+  ##  Copied from core trackeR                                                ####
   ## the following line is just intended to prevent R CMD check to produce the NOTE 'no
   ## visible binding for global variable *' because those variables are used in subset()
   variable <- type <- NULL
@@ -30,10 +29,10 @@ plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
   nsessions <- length(unique(sumX$session))
   ndates <- length(unique(sumX$sessionStart))
   units <- get_units(sumX)
-  
+
   ## subsets on variables and type
   dat <- fortify(sumX, melt = TRUE)
-  dat$sport <- get_sport(sumX)[!is.na(get_sport(sumX))] # TODO temporary solution until summary not fixed
+  dat$sport <- get_sport(sumX)
   if (!is.null(what)) {
     dat <- subset(dat, variable %in% what)
   }
@@ -65,9 +64,9 @@ plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
     xlab <- "Session"
   }
 
-  
-##  ............................................................................
-##  Unique trackeR dashboard code                                           ####
+
+  ##  ............................................................................
+  ##  Unique trackeR dashboard code                                           ####
 
   # d <- if(shiny) plotly::event_data("plotly_selected") else NULL
 
@@ -80,34 +79,42 @@ plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
       "Date:", format(sessionStart, format = "%Y-%m-%d"),
       "\n", convert_to_name(what), ":", round(value, 2), units_text, "\n",
       "Sport:", sport
-    )
+    ), showlegend = FALSE
   ) %>%
-    plotly::add_markers(key = dat$session, color = I("deepskyblue3"), symbol = ~sport,
-                        symbols = c('circle', 'x', 'square'), size = I(8)) %>%
-    plotly::add_lines(color = I("deepskyblue3"), connectgaps = TRUE, 
-                      line = list(shape = "spline", smoothing = 0.5))
+    plotly::add_markers(
+      key = dat$session, color = I("deepskyblue3"), symbol = ~ sport,
+      symbols = c("circle", "x", "square"), size = I(8), legendgroup = ~ sport,
+      showlegend = TRUE
+    ) %>%
+    plotly::add_lines(
+      color = I("deepskyblue3"), connectgaps = TRUE, legendgroup = ~ sport,
+      line = list(shape = "spline", smoothing = 0.5, showlegend = FALSE)
+    )
   if (shiny) {
     if (length(unique(sessions)) != nsessions) {
-      
       m <- as.data.frame(dat[dat$session %in% unique(sessions), ])
       # FIX for some reason cant plot when only 2 sessions selected
       if (nrow(m) == 2) {
         m <- rbind(m, m)
       }
-      p <- plotly::add_markers(p, 
+      p <- plotly::add_markers(p,
         data = m, color = I("darkorange3"),
-        size = I(9), symbol = ~sport,
-        symbols = c('circle', 'x', 'square'), 
+        size = I(9), symbol = ~ sport,
+        symbols = c("circle", "x", "square"),
+        showlegend = FALSE
       )
       # plotly::add_paths(data = m, color = I("darkorange3"))
     }
   }
 
-  y <- list(title = feature, range = c(0, max(dat$value) * 1.5))
-  x <- list(title = "Date")
+  ra <- c(min(dat$xaxis), max(dat$xaxis))
+  ra[2] <- ra[2] + 0.01 * diff(ra)
+  ra[1] <- ra[1] - 0.01 * diff(ra)
+  y <- list(title = feature, range = c(0, max(dat$value) * 1.5), fixedrange = TRUE)
+  x <- list(title = "Date", fixedrange = TRUE, range = ra)
 
   plotly::layout(p,
-    dragmode = "select", showlegend = FALSE, yaxis = y,
+    dragmode = "select", showlegend = TRUE, yaxis = y, legend = list(y = 1.1, orientation = "h"),
     xaxis = x, margin = list(l = 80, b = 50, pad = 0)
   )
 }

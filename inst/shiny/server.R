@@ -370,102 +370,6 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
     #   })
     #   # outputOptions(output, paste0(metric, '_123'), suspendWhenHidden = FALSE)  
     # })
-### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
-### Generate work capacity plot                                             ####
-    # Check which work capacity plots to generate
-    work_capacity_ids <- reactive({
-      trackeR:::test_work_capacity(data)
-    })
-
-    trackeR:::create_work_capacity_plot(id = 'work_capacity')
-    
-    sapply(c('cycling', 'running'), function(sport_id) {
-      output[[paste0(sport_id, "_work_capacity_plot")]] <- renderUI({
-        n_sessions <- sum(trackeR::get_sport(data$summary[data$selectedSessions]) %in% sport_id)
-        plot_width <- if (n_sessions > 2) {
-          paste0(toString(500 * n_sessions), "px")
-        } else {
-          "auto"
-        }
-        shinycssloaders::withSpinner(plotly::plotlyOutput(paste0(sport_id, "Plot"),
-                                                          width = plot_width,
-                                                          height = "250px" ), size = 2
-        )
-      }) 
-    
-### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
-### Render work capacity                                                    ####
-    output[[paste0(sport_id, "Plot")]] <- plotly::renderPlotly({
-      # TODO automatically update units 
-      # label <- if (sport == "cycling") {
-      #   "Critical power [J]"
-      # } else {
-      #   "Critical speed [m/s]"
-      # }
-      # updateNumericInput(session, inputId = "critical_power", label = label)
-      
-      # If button to change units is pressed re-render plot with new units
-      change_power[[sport_id]]
-
-      work_capacity_sessions <- trackeR::get_sport(data$summary[data$selectedSessions]) %in% sport_id
-      trackeR:::plot_work_capacity(
-        x = data$object, session = data$selectedSessions[work_capacity_sessions],
-        cp = isolate(as.numeric(input[[paste0('critical_power_', sport_id)]]))
-      )
-    })
-  })
-
-  # Conditions for displaying the work capacity plot
-  output[[paste0('work_capacity_running')]] <- reactive({
-    if ('running' %in%  work_capacity_ids()) {
-      FALSE
-    } else {
-      TRUE
-    }
-  })
-  
-  output[[paste0('work_capacity_cycling')]] <- reactive({
-    if ('cycling' %in%  work_capacity_ids()) {
-      FALSE
-    } else {
-      TRUE
-    }
-  })
-  
-  output[['work_capacity']] <- reactive({
-    if ((length(work_capacity_ids()) != 0) & data$show_work_capacity) {
-      FALSE
-    } else {
-      TRUE
-    }
-  })
-  outputOptions(output, 'work_capacity_cycling', suspendWhenHidden = FALSE)    
-  outputOptions(output, 'work_capacity_running', suspendWhenHidden = FALSE)
-  outputOptions(output, 'work_capacity', suspendWhenHidden = FALSE)   
-### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
-### Update power for work capacity plot                                     ####
-    change_power <- reactiveValues(cycling = 0, running = 0)
-    observeEvent(input$cycling_update_power, { 
-      trackeR:::withBusyIndicatorServer("cycling_update_power", {
-        Sys.sleep(1)
-        if (!is.numeric(input$critical_power_cycling) | input$critical_power_cycling <= 0) {
-          stop("Invalid input. Input has to be a positive numeric value.")
-        } else {
-          change_power$cycling <- change_power$cycling + 1
-        }
-      })
-    })
-    
-    observeEvent(input$running_update_power, {
-      trackeR:::withBusyIndicatorServer("running_update_power", {
-        Sys.sleep(1)
-        if (!is.numeric(input$critical_power_running) | input$critical_power_running <= 0) {
-          stop("Invalid input. Input has to be a positive numeric value.")
-        } else {
-          change_power$running <- change_power$running + 1
-        }
-      })
-    })
 
 ##  ............................................................................
 ##  Concentration profiles                                                  ####
@@ -498,6 +402,103 @@ output$avgPace_box <- trackeR:::render_summary_box("avgPace",
         profiles_calculated = concentration_profiles()
       )
     })
+    ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
+    ### Generate work capacity plot                                             ####
+    # Check which work capacity plots to generate
+    work_capacity_ids <- reactive({
+      trackeR:::test_work_capacity(data)
+    })
+    
+    trackeR:::create_work_capacity_plot(id = 'work_capacity')
+    
+    sapply(c('cycling', 'running'), function(sport_id) {
+      output[[paste0(sport_id, "_work_capacity_plot")]] <- renderUI({
+        n_sessions <- sum(trackeR::get_sport(data$summary[data$selectedSessions]) %in% sport_id)
+        plot_width <- if (n_sessions > 2) {
+          paste0(toString(500 * n_sessions), "px")
+        } else {
+          "auto"
+        }
+        shinycssloaders::withSpinner(plotly::plotlyOutput(paste0(sport_id, "Plot"),
+                                                          width = plot_width,
+                                                          height = "250px" ), size = 2
+        )
+      }) 
+      
+      ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
+      ### Render work capacity                                                    ####
+      output[[paste0(sport_id, "Plot")]] <- plotly::renderPlotly({
+        # TODO automatically update units 
+        # label <- if (sport == "cycling") {
+        #   "Critical power [J]"
+        # } else {
+        #   "Critical speed [m/s]"
+        # }
+        # updateNumericInput(session, inputId = "critical_power", label = label)
+        
+        # If button to change units is pressed re-render plot with new units
+        change_power[[sport_id]]
+        
+        work_capacity_sessions <- trackeR::get_sport(data$summary[data$selectedSessions]) %in% sport_id
+        trackeR:::plot_work_capacity(
+          x = data$object, session = data$selectedSessions[work_capacity_sessions],
+          cp = isolate(as.numeric(input[[paste0('critical_power_', sport_id)]]))
+        )
+      })
+    })
+    
+    # Conditions for displaying the work capacity plot
+    output[[paste0('work_capacity_running')]] <- reactive({
+      if ('running' %in%  work_capacity_ids()) {
+        FALSE
+      } else {
+        TRUE
+      }
+    })
+    
+    output[[paste0('work_capacity_cycling')]] <- reactive({
+      if ('cycling' %in%  work_capacity_ids()) {
+        FALSE
+      } else {
+        TRUE
+      }
+    })
+    
+    output[['work_capacity']] <- reactive({
+      if ((length(work_capacity_ids()) != 0) & data$show_work_capacity) {
+        FALSE
+      } else {
+        TRUE
+      }
+    })
+    outputOptions(output, 'work_capacity_cycling', suspendWhenHidden = FALSE)    
+    outputOptions(output, 'work_capacity_running', suspendWhenHidden = FALSE)
+    outputOptions(output, 'work_capacity', suspendWhenHidden = FALSE)   
+    ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
+    ### Update power for work capacity plot                                     ####
+    change_power <- reactiveValues(cycling = 0, running = 0)
+    observeEvent(input$cycling_update_power, { 
+      trackeR:::withBusyIndicatorServer("cycling_update_power", {
+        Sys.sleep(1)
+        if (!is.numeric(input$critical_power_cycling) | input$critical_power_cycling <= 0) {
+          stop("Invalid input. Input has to be a positive numeric value.")
+        } else {
+          change_power$cycling <- change_power$cycling + 1
+        }
+      })
+    })
+    
+    observeEvent(input$running_update_power, {
+      trackeR:::withBusyIndicatorServer("running_update_power", {
+        Sys.sleep(1)
+        if (!is.numeric(input$critical_power_running) | input$critical_power_running <= 0) {
+          stop("Invalid input. Input has to be a positive numeric value.")
+        } else {
+          change_power$running <- change_power$running + 1
+        }
+      })
+    })
+    
   }, once = TRUE)
 
   # Update metrics available each time different sessions selected

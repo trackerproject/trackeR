@@ -46,14 +46,16 @@ plot_map <- function(x, sumX, preped_route = NULL, session = NULL, threshold = T
     df_markers$true_session_id <- i
 
     p <- plotly::add_markers(
-      p, data = df_markers, x = ~longitude, y = ~latitude, alpha = 0,
-      size = I(0.1), key = ~true_session_id, color = I("deepskyblue3")
+      p,
+      data = df_markers, x = ~ longitude, y = ~ latitude, alpha = 0,
+      size = I(0.1), key = ~ true_session_id, color = I("deepskyblue3")
     )
 
     p <- plotly::add_paths(
-      p, data = plot_df, x = ~longitude, y = ~latitude,
+      p,
+      data = plot_df, x = ~ longitude, y = ~ latitude,
       size = I(2), color = I("deepskyblue3"),
-      text = ~popupText(session = SessionID, speed = speed)
+      text = ~ popupText(session = SessionID, speed = speed)
     )
   }
   # ## add trace + markers + popups
@@ -62,7 +64,7 @@ plot_map <- function(x, sumX, preped_route = NULL, session = NULL, threshold = T
   #     plot_df <- df[which(df$SessionID == i), ]
   #     df_markers <- plot_df[seq(1, nrow(plot_df), round(nrow(plot_df) / 10, 0)), ]
   #     df_markers$true_session_id <- i
-  #     p <- plotly::add_markers( 
+  #     p <- plotly::add_markers(
   #       p, data = df_markers, x = ~longitude, y = ~latitude,
   #       size = I(2), key = ~true_session_id, color = I("darkorange3")
   #     )
@@ -117,7 +119,8 @@ plot_map <- function(x, sumX, preped_route = NULL, session = NULL, threshold = T
   diff_lon <- abs(max(df$longitude[which(df$SessionID %in% session)]) - min(df$longitude[which(df$SessionID %in% session)]))
 
   p <- plotly::layout(
-    p, mapbox = list(
+    p,
+    mapbox = list(
       zoom = 2.3,
       center = list(lat = center_lat, lon = center_lon),
       style = "dark"

@@ -37,9 +37,10 @@ plot_zones <- function(x, session, what = c("heart_rate"), n_zones) {
     x <- list(title = paste0("Zones (", lab_data(feature), ")"))
     feature_zones <- dat[dat$variable == feature, ]
     p <- plotly::plot_ly(
-      feature_zones, x = ~ zoneF, y = ~ percent,
-      color = ~Session, colors = pal(feature_zones$Session), legendgroup = ~ Session, hoverinfo = "text",
-            text = ~ paste0(round(percent, 1), '%')
+      feature_zones,
+      x = ~ zoneF, y = ~ percent,
+      color = ~ Session, colors = pal(feature_zones$Session), legendgroup = ~ Session, hoverinfo = "text",
+      text = ~ paste0(round(percent, 1), "%")
     ) %>%
       plotly::add_bars() %>%
       plotly::layout(xaxis = x, yaxis = y, hovermode = "closest")
@@ -48,7 +49,8 @@ plot_zones <- function(x, session, what = c("heart_rate"), n_zones) {
   }
 
   plots <- do.call(plotly::subplot, c(
-    individual_plots, nrows = length(what),
+    individual_plots,
+    nrows = length(what),
     margin = 0.05, shareY = FALSE, titleX = TRUE, titleY = TRUE
   ))
 

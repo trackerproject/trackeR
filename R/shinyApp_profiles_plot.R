@@ -4,8 +4,8 @@
 #' @param session A vector of selected sessions.
 #' @param what A vector of variable names to be plotted.
 #' @param profiles_calculated Pre-calculated concentration profiles for all sessions.
-plot_concentration_profiles <- function(x, session, profiles_calculated, 
-                                        what = c("speed"), 
+plot_concentration_profiles <- function(x, session, profiles_calculated,
+                                        what = c("speed"),
                                         smooth = TRUE, limits = NULL) {
 
   ## Generate distribution profile
@@ -21,12 +21,12 @@ plot_concentration_profiles <- function(x, session, profiles_calculated,
   df <- fortify(x, melt = TRUE)
   df$Series <- as.numeric(sapply(strsplit(as.character(df$Series), "session"), function(x) x[2]))
   df$Profile <- factor(df$Profile)
-  
+
   ## make basic plot and facets
   lab_data <- function(series) {
     thisunit <- units$unit[units$sport == "running" & units$variable == series]
     prettyUnit <- prettifyUnits(thisunit)
-    paste0(series, " [", prettyUnit,"]")
+    paste0(series, " [", prettyUnit, "]")
   }
   df$series <- paste("Session", sprintf(paste0("%0", nchar(max(df$Series)), "d"), df$Series))
   pal <- leaflet::colorFactor(c("deepskyblue", "dodgerblue4"), df$series)
@@ -36,13 +36,16 @@ plot_concentration_profiles <- function(x, session, profiles_calculated,
 
   for (feature in what) {
     y <- list(title = "dtime")
-    x <- list(title = lab_sum(feature, data = tracker_object, whole_text = TRUE, 
-                              transform_feature = FALSE))
+    x <- list(title = lab_sum(feature,
+      data = tracker_object, whole_text = TRUE,
+      transform_feature = FALSE
+    ))
     feature_profile <- df[df$Profile == feature, ]
     feature_profile$Value[is.na(feature_profile$Value)] <- 0
     p <- plotly::plot_ly(
-      feature_profile, x = ~ Index, y = ~ Value,
-      color = ~series, colors = pal(feature_profile$series), legendgroup = ~Series,
+      feature_profile,
+      x = ~ Index, y = ~ Value,
+      color = ~ series, colors = pal(feature_profile$series), legendgroup = ~ Series,
       hoverinfo = "text", text = ~ round(Index, 1)
     ) %>%
       plotly::add_lines() %>%
@@ -52,7 +55,8 @@ plot_concentration_profiles <- function(x, session, profiles_calculated,
   }
 
   plots <- do.call(plotly::subplot, c(
-    individual_plots, nrows = length(what),
+    individual_plots,
+    nrows = length(what),
     margin = 0.05, shareY = FALSE, titleX = TRUE, titleY = TRUE
   ))
 

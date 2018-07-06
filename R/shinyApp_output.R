@@ -5,7 +5,6 @@
 render_summary_box <- function(short_name, long_name, data) {
   box_text <- function(what, subtitle, icon, data) {
     value <- reactive({
-      
       value <- data$summary[data$selectedSessions][[what]]
       value <- round(mean(value[is.finite(value)], na.rm = TRUE), 1)
       if (is.na(value)) {
@@ -35,12 +34,11 @@ render_summary_box <- function(short_name, long_name, data) {
 #' @param sport_selection A logical. Whether session selection made from sport selector.
 #' @param table_selection A logical. Whether session selection made from the summary table.
 #' @param no_selection A logical. Whether no sessions are selected.
-generate_selected_sessions_object <- function(data, input, 
+generate_selected_sessions_object <- function(data, input,
                                               plot_selection = FALSE,
-                                              sport_selection = FALSE, 
+                                              sport_selection = FALSE,
                                               table_selection = FALSE,
                                               no_selection = FALSE) {
-  
   data$hover <- plotly::event_data("plotly_selected")
   if (sport_selection) {
     data$selectedSessions <- data$summary$session[get_sport(data$object) %in% input$sports]

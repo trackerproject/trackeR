@@ -513,9 +513,9 @@ get_sport.trackeRdataSummary <- function(object,
                                          session = NULL,
                                          ...) {
     if (is.null(session)) {
-        session <- seq_along(object)
+        session <- seq.int(nrow(object))
     }
-    object[session]$sport
+    object[session, ]$sport
 }
 
 #' Get the units of the variables in an \code{trackeRdataSummary} object
