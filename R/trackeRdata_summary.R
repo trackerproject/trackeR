@@ -97,7 +97,15 @@ summary.trackeRdata <- function(object,
     session_end <- as.POSIXct(sapply(object, function(x) max(index(x))), origin = "1970-01-01")
 
     ## distance
-    distance <- sapply(object, function(x) max(zoo::coredata(x$distance), na.rm = TRUE))
+    distance <- sapply(object, function(x) {
+        d <- zoo::coredata(x$distance)
+        if (all(is.na(d))) {
+            return(NA)
+        }
+        else {
+            max(d, na.rm = TRUE)
+        }
+    })
 
     ## session length (unit set by units)
     duration_unit <- un$unit[un$variable == "duration"]

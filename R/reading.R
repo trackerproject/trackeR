@@ -791,6 +791,8 @@ read_directory <- function(directory,
         if (verbose) {
             cat("Cleaning up...")
         }
+##:ess-bp-start::browser@nil:##
+browser(expr=is.null(.ESSBP.[["@13@"]]));##:ess-bp-end:##
 
         allData <- do.call("c", allData[!sapply(allData, inherits, what = "try-error")])
         if (verbose) {

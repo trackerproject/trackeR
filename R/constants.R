@@ -60,7 +60,7 @@ generate_variable_names <- function() {
                     "RCAD",
                     "CAD", ## dummy for now; json seems not to distinguish between run and cycling cadence
                     "WATTS",
-                    "temperature")
+                    "TEMP")
     list(human_names = human_names,
          gpx_names = gpx_names,
          tcx2_names = tcx_names,
