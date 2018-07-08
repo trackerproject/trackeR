@@ -113,7 +113,7 @@ plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
     ra[2] <- ra[2] + 0.01 * diff(ra)
     ra[1] <- ra[1] - 0.01 * diff(ra)
   }
-  y <- list(title = feature, range = c(0, max(dat$value) * 1.5), fixedrange = TRUE)
+  y <- list(title = feature, range = c(0, max(dat$value, na.rm = TRUE) * 2), fixedrange = TRUE)
   x <- list(title = "Date", fixedrange = TRUE, range = ra)
 
   plotly::layout(p,

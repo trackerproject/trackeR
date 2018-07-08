@@ -21,7 +21,7 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
                                   desampling = 1) {
   sports <- get_sport(x)[session]
 
-  var_name_units <- lab_sum(
+    var_name_units <- lab_sum(
     feature = what, data = sumX,
     transform_feature = FALSE
   )
@@ -114,7 +114,8 @@ plot_selectedWorkouts <- function(x, session, what, sumX, threshold = TRUE, smoo
     n_plot <- n_plot + 1
     colnames(df_subset)[which(colnames(df_subset) == what)] <- "Value"
     # df_subset <- df[df$id == i, ]
-    has_values <- !all(is.na(df_subset[, "Value"]))
+    non_na_values <- sum(!is.na(df_subset[, "Value"]))
+    has_values <- non_na_values > 100
     df_subset <- if (has_values) df_subset[!is.na(df_subset$Value), ] else df_subset
 
     annotations_list <- list(
