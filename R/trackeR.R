@@ -59,9 +59,11 @@ NULL
 
 ## Define global variables
 if (getRversion() >= "2.15.1") {
-    utils::globalVariables(c("Series", # plot_selectedWorkouts, ridges.trackeRdata
+    utils::globalVariables(c("Series", # ridges.trackeRdata
                              "j", # parallelization
-                             "variable","type")) # plot.trackeRdataSummary
+                             "variable","type",
+                             "sessionStart",
+                             "sessionEnd")) # plot.trackeRdataSummary
 
 }
 

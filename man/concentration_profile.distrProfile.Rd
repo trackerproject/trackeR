@@ -14,15 +14,14 @@
   unit_reference_sport = NULL, scale = FALSE, ...)
 }
 \arguments{
-\item{object}{An object of class \code{distrProfile} as returned by
-\code{\link{distributionProfile}}.}
+\item{object}{An object of class \code{\link{trackeRdata}} or \code{\link{distrProfile}}.}
 
 \item{session}{A numeric vector of the sessions to be used,
 defaults to all sessions.}
 
-\item{what}{The variables for which the concentration profiles
-should be computed. Defaults (\code{NULL}) to all variables in
-\code{object}.}
+\item{what}{The variables for which the distribution profiles
+should be generated. Defaults to all variables in \code{object}
+(\code{what = NULL}).}
 
 \item{...}{Currently not used.}
 
@@ -40,17 +39,6 @@ parallel? Default is \code{FALSE}.}
 
 \item{scale}{Logical. If \code{FALSE} (default) then the integral
 of the profiles over the real line matches the session length.}
-
-\item{object}{An object of class \code{\link{trackeRdata}}.}
-
-\item{session}{A numeric vector of the sessions to be used,
-defaults to all sessions.}
-
-\item{what}{The variables for which the distribution profiles
-should be generated. Defaults to all variables in \code{object}
-(\code{what = NULL}).}
-
-\item{...}{Currently not used.}
 }
 \value{
 An object of class \code{conProfile}.

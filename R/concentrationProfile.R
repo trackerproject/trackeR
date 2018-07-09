@@ -2,14 +2,7 @@
 #'
 #' @aliases conProfile
 #'
-#' @param object An object of class \code{distrProfile} as returned by
-#'     \code{\link{distributionProfile}}.
-#' @param session A numeric vector of the sessions to be used,
-#'     defaults to all sessions.
-#' @param what The variables for which the concentration profiles
-#'     should be computed. Defaults (\code{NULL}) to all variables in
-#'     \code{object}.
-#' @param ... Currently not used.
+#' @inheritParams concentration_profile
 #' @return
 #'
 #' An object of class \code{conProfile}.
@@ -310,13 +303,7 @@ get_sport.conProfile <- function(object,
 
 #' @rdname concentration_profile.distrProfile
 #'
-#' @inheritParams concentration_profile.distrProfile
-#' @param object An object of class \code{\link{trackeRdata}}.
-#' @param session A numeric vector of the sessions to be used,
-#'     defaults to all sessions.
-#' @param what The variables for which the distribution profiles
-#'     should be generated. Defaults to all variables in \code{object}
-#'     (\code{what = NULL}).
+#' @inheritParams concentration_profile
 #' @param limits A named list of vectors of two numbers to specifiy
 #'     the lowe and upper limits for the variables in \code{what}. If
 #'     \code{NULL} (default) the limits for the variables in
@@ -328,7 +315,6 @@ get_sport.conProfile <- function(object,
 #' @param unit_reference_sport The sport to inherit units from
 #'     (default is taken to be the most frequent sport in
 #'     \code{object}).
-#' @param ...  Currently not used.
 #'
 #' @export
 concentration_profile.trackeRdata <- function(object,

@@ -3,9 +3,10 @@ README.Rmd
 README_files/
 README.html
 
+GBR*
+
 data-raw/
 
-inst/extdata/tcx/2013-06-01-183220.TCX
 inst/extdata/tcx/2013-06-02-072348.TCX
 inst/extdata/tcx/2013-06-03-184846.TCX
 inst/extdata/tcx/2013-06-04-174137.TCX
@@ -39,8 +40,9 @@ inst/extdata/tcx/2013-06-30-070511.TCX
 inst/extdata/tcx/2013-06-30-084200.TCX
 inst/extdata/gpx/
 inst/extdata/json/
-GBR*
 
-vignettes/TourDetrackeR_files/
 vignettes/trackeR.Rnw
+vignettes/trackeR.R
+vignettes/TourDetrackeR_files/
+
 tests/
