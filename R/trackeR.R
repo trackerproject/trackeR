@@ -53,7 +53,7 @@
 #' @importFrom stats quantile gaussian plogis
 #' @importFrom grDevices gray
 #' @importFrom graphics plot
-#' @importFrom stats na.omit start density median
+#' @importFrom stats start density
 NULL
 # > NULL
 
