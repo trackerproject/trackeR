@@ -7,7 +7,7 @@
 plot_selectedWorkouts(x, session, what, sumX, threshold = TRUE,
   smooth = FALSE, trend = TRUE, dates = TRUE, changepoints = FALSE,
   n_changepoints = 6, print_changepoints = FALSE,
-  unit_reference_sport = NULL, moving_threshold = NULL)
+  unit_reference_sport = NULL, moving_threshold = NULL, desampling = 1)
 }
 \arguments{
 \item{x}{An object of class \code{\link{trackeRdata}}.}
@@ -31,6 +31,12 @@ plot_selectedWorkouts(x, session, what, sumX, threshold = TRUE,
 \item{n_changepoints}{A numeric. The threshold for the maximum number of changepoints to search for.}
 
 \item{print_changepoints}{Logical. Whether or not to print changepoint values (when changepoints = TRUE).}
+
+\item{unit_reference_sport}{A character. The sport to be used as reference for units.}
+
+\item{moving_threshold}{A numeric for the threshold.}
+
+\item{desampling}{A numeric proportion between (0-1] for the proportion of raw data to be plotted.}
 }
 \description{
 Plot the profile for each selected session for a given variable (heart rate, altitude, pace).

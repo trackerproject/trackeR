@@ -8,6 +8,8 @@ create_option_box(sport_options, metrics_available)
 }
 \arguments{
 \item{sport_options}{A vector of sports identified from the uploaded sessions.}
+
+\item{metrics_available}{A vector of metrics that are found in the dataset.}
 }
 \description{
 Create a return button from selected workouts plot

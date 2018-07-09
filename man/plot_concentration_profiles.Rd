@@ -4,13 +4,15 @@
 \alias{plot_concentration_profiles}
 \title{Plot concentration profiles for given variables.}
 \usage{
-plot_concentration_profiles(x, session, what = c("speed"), smooth = TRUE,
-  limits = NULL)
+plot_concentration_profiles(x, session, profiles_calculated,
+  what = c("speed"), smooth = TRUE, limits = NULL)
 }
 \arguments{
 \item{x}{An object of class \code{trackeRdata}.}
 
 \item{session}{A vector of selected sessions.}
+
+\item{profiles_calculated}{Pre-calculated concentration profiles for all sessions.}
 
 \item{what}{A vector of variable names to be plotted.}
 }

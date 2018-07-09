@@ -5,7 +5,7 @@
 \title{Plot an object of class trackeRdataSummary.}
 \usage{
 plot_workouts(sumX, what, sessions, shiny = TRUE, date = TRUE,
-  group = c("total"), lines = TRUE)
+  group = c("total"), lines = TRUE, sports)
 }
 \arguments{
 \item{sumX}{An object of class \code{trackeRdataSummary}.}
@@ -22,6 +22,8 @@ plot_workouts(sumX, what, sessions, shiny = TRUE, date = TRUE,
 \code{total} or \code{moving}. Default is both.}
 
 \item{lines}{Should interpolating lines be plotted?}
+
+\item{sports}{A vector of sports of the sessions to be plotted.}
 
 \item{...}{Currently not used.}
 }

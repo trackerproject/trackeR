@@ -16,7 +16,7 @@
 #'
 #' @details
 #'
-#' The deafult speed thresholds are 1 m/s for running (3.6 km/h; slow
+#' The default speed thresholds are 1 m/s for running (3.6 km/h; slow
 #' walking), 2 m/s for cycling (7.2 km/h) for cycling and 0.5 m/s
 #' (1.8km/h) for swimming. For reference, the preferred walking speed
 #' for humans is around 1.4 m/s (Bohannon, 1997).
@@ -24,6 +24,9 @@
 #' The units for the computed summaries match those of the sport
 #' specified by \code{unit_reference_sport}.
 #'
+#' If \code{object} has thresholds then the thresholds that match
+#' those of the sport specified by \code{unit_reference_sport} are
+#' applied to the respective summaries.
 #'
 #' @return
 #'
@@ -58,7 +61,8 @@ summary.trackeRdata <- function(object,
                                 ...) {
     units <- get_units(object)
     sports <- get_sport(object)
-
+    oper <- get_operations(object)
+    thres <- oper$threshold
 
     files <- attr(object, "file")
 
@@ -71,6 +75,21 @@ summary.trackeRdata <- function(object,
     for (va in unique(un$variable)) {
         units$unit[units$variable == va] <- un$unit[un$variable == va]
     }
+
+    ## Change threshold units
+    if (!is.null(thres)) {
+        thres <- change_units(thres, units$variable, units$unit, units$sport)
+        ## Uniformize thresholds (Check again if that's indeed what we need here)
+        for (va in unique(un$variable)) {
+            inds <- thres$variable == va & thres$sport == unit_reference_sport
+            if (any(inds)) {
+                thres$lower[thres$variable == va] <- thres$lower[inds]
+                thres$upper[thres$variable == va] <- thres$upper[inds]
+            }
+        }
+        oper$threshold <- thres
+    }
+
 
     ## convert moving_threshold
     if (is.null(moving_threshold)) {
@@ -142,6 +161,7 @@ summary.trackeRdata <- function(object,
     duration_p <- convert_duration(as.numeric(duration))
     avg_pace <- duration_p/distance_p
 
+
     ## average pace moving
     duration_moving_p <- convert_duration(as.numeric(duration_moving))
     avg_pace_moving <- duration_moving_p/distance_p
@@ -178,6 +198,7 @@ summary.trackeRdata <- function(object,
                       th = moving_threshold[sp])
     })
 
+
     ## ADD: maxima in addition to averages?  calories?  splits per km?
 
     ret <- data.frame(session = session,
@@ -206,9 +227,24 @@ summary.trackeRdata <- function(object,
                       sport = sports[session],
                       file = files[session], stringsAsFactors = FALSE)
 
+
     ## Replace inf and NaN with NA
     ret[sapply(ret, function(x) is.infinite(x) | is.na(x))] <- NA
 
+    ## Apply thresholds
+    lims <- unique(thres[thres$variable %in% un$variable, c("variable", "lower", "upper")])
+    for (j in seq.int(nrow(lims))) {
+        low <- lims[j, "lower"]
+        upp <- lims[j, "upper"]
+        cvar <- lims[j, "variable"]
+        vars <- grep(cvar, names(ret), ignore.case = TRUE)
+        ret[, vars] <- sapply(ret[, vars], function(x) {
+            x[x < low | x > upp] <- NA
+            x
+        })
+    }
+
+    attr(ret, "operations") <- oper
     attr(ret, "units") <- units
     attr(ret, "moving_threshold") <- moving_threshold
     attr(ret, "unit_reference_sport") <- attr(un, "unit_reference_sport")

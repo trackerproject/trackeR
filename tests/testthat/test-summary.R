@@ -22,6 +22,7 @@ test_that("summary method for trackeRdata objects [change_units]", {
     summ1 <- summary(change_units(runs, c("speed", "distance"), c("mi_per_h", "mi"), c("cycling", "cycling")),
                      unit_reference_sport = "cycling")
     summ2 <- change_units(summ0, c("speed", "distance"), c("mi_per_h", "mi"))
+
     expect_equal(summ1, summ2, tolerance = tol)
     for (j in seq_along(summ0)) {
         expect_equal(m2mi(as.data.frame(summ0)[, "distance"]), as.data.frame(summ1)[, "distance"])

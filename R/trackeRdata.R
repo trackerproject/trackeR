@@ -668,7 +668,10 @@ change_units.trackeRdata <- function(object,
 
             ## update attributes and return
             attr(object, "units") <- units
-            operations$threshold <- th
+            if (!is.null(th)) {
+                operations$threshold <- th
+            }
+
             attr(object, "operations") <- operations
             return(object)
 

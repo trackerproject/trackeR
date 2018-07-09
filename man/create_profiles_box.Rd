@@ -4,7 +4,7 @@
 \alias{create_profiles_box}
 \title{Create concentration profile plot UI.}
 \usage{
-create_profiles_box(inputId, plotId, choices)
+create_profiles_box(inputId, plotId, choices, collapsed = FALSE)
 }
 \arguments{
 \item{inputId}{A character. The ID of the user input for the metrics that should be plotted}
@@ -12,6 +12,8 @@ create_profiles_box(inputId, plotId, choices)
 \item{plotId}{A character. The ID of the plot.}
 
 \item{choices}{A vector of the metrics a user can select to be plotted, selected from \code{\link{metrics}}.}
+
+\item{collapsed}{A logical. Whether or not the UI box should be collapsed.}
 }
 \description{
 Create concentration profile plot UI.

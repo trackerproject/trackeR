@@ -33,13 +33,17 @@ An object of class \code{trackeRdataSummary}.
 Summary of training sessions
 }
 \details{
-The deafult speed thresholds are 1 m/s for running (3.6 km/h; slow
+The default speed thresholds are 1 m/s for running (3.6 km/h; slow
 walking), 2 m/s for cycling (7.2 km/h) for cycling and 0.5 m/s
 (1.8km/h) for swimming. For reference, the preferred walking speed
 for humans is around 1.4 m/s (Bohannon, 1997).
 
 The units for the computed summaries match those of the sport
 specified by \code{unit_reference_sport}.
+
+If \code{object} has thresholds then the thresholds that match
+those of the sport specified by \code{unit_reference_sport} are
+applied to the respective summaries.
 }
 \examples{
 data('runs', package = 'trackeR')
