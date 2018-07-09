@@ -14,6 +14,12 @@
 
 plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
                           group = c("total"), lines = TRUE, sports) {
+  if (what %in% c('distance', 'duration', 'wrRatio')) {
+    group <- c('total')
+  } else {
+    group <- c('moving')
+  }
+  
   if (what != "wrRatio") {
     feature <- lab_sum(feature = what, data = sumX)
     units_text <- lab_sum(feature = what, data = sumX, whole_text = FALSE)
@@ -84,7 +90,7 @@ plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
   ) %>%
     plotly::add_markers(
       key = dat$session, color = I("deepskyblue3"), symbol = ~ sport,
-      symbols = c("circle", "x", "square"), size = I(8), legendgroup = ~ sport,
+      symbols = c("circle", "x", "square"), size = I(6), legendgroup = ~ sport,
       showlegend = TRUE
     ) %>%
     plotly::add_lines(
@@ -113,8 +119,8 @@ plot_workouts <- function(sumX, what, sessions, shiny = TRUE, date = TRUE,
     ra[2] <- ra[2] + 0.01 * diff(ra)
     ra[1] <- ra[1] - 0.01 * diff(ra)
   }
-  y <- list(title = feature, range = c(0, max(dat$value, na.rm = TRUE) * 2), fixedrange = TRUE)
-  x <- list(title = "Date", fixedrange = TRUE, range = ra)
+  y <- list(title = feature, range = c(0, max(dat$value, na.rm = TRUE) * 2))
+  x <- list(title = "Date",  range = ra)
 
   plotly::layout(p,
     dragmode = "select", showlegend = TRUE, yaxis = y, legend = list(y = 1.1, orientation = "h"),
