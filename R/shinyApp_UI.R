@@ -193,7 +193,7 @@ create_work_capacity_plot <- function(id, collapsed = TRUE) {
                 numericInput(
                   min = 2, max = 10, step = 0.1,
                   inputId = "critical_power_cycling",
-                  label = "Critical power [J]", value = 3
+                  label = "Critical power [J]", value = 100
                 )
               )
             ),

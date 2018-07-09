@@ -284,13 +284,6 @@ classify_sessions_by_sport <- function(data) {
 #' Process \code{trackeRdata} object by: setting thresholds to remove wrong values, change units, set a moving threshold and test which variables contain data
 #' @param data An object of class \code{reactivevalues}.
 process_dataset <- function(data) {
-  data$object <- threshold(data$object)
-  data$object <- threshold(data$object,
-    variable = rep("distance", 3),
-    lower = rep(0, 3), upper = rep(500000, 3),
-    sport = c("cycling", "running", "swimming")
-  )
-
   data$object <- change_units(data$object,
     variable = rep(c(
       "distance", "pace",
@@ -301,6 +294,15 @@ process_dataset <- function(data) {
       each = 3
     )
   )
+  
+  data$object <- threshold(data$object)
+  data$object <- threshold(data$object,
+                           variable = rep("distance", 3),
+                           lower = rep(0, 3),
+                           upper = rep(500000, 3),
+                           sport = c("cycling", "running", "swimming")
+                           )  
+  
   # Create trackeRdataSummary object
   data$summary <- summary(data$object, movingThreshold = 0.4)
   data$summary <- change_units(data$summary,
