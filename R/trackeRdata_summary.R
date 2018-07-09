@@ -206,6 +206,9 @@ summary.trackeRdata <- function(object,
                       sport = sports[session],
                       file = files[session], stringsAsFactors = FALSE)
 
+    ## Replace inf and NaN with NA
+    ret[sapply(ret, function(x) is.infinite(x) | is.na(x))] <- NA
+
     attr(ret, "units") <- units
     attr(ret, "moving_threshold") <- moving_threshold
     attr(ret, "unit_reference_sport") <- attr(un, "unit_reference_sport")
