@@ -205,9 +205,23 @@ h2min <- function(variable) {
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
-s2s <- min2min <- h2h <- function(variable) {
+h2h <- function(variable) {
     variable
 }
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+min2min <- function(variable) {
+    variable
+}
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+s2s <- function(variable) {
+    variable
+}
+
+
 #' @inheritParams conversions
 #' @rdname conversions
 #' @export
@@ -229,9 +243,6 @@ h2h <- function(variable) {
 degree2degree <- function(variable) {
     variable
 }
-
-
-
 
 ## conversion functions: speed
 #' @inheritParams conversions
@@ -606,15 +617,27 @@ min_per_km2min_per_km <- function(variable) {
 min_per_mi2min_per_mi <- function(variable) {
     variable
 }
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
 h_per_km2min_per_km <- function(variable) {
     variable * 60
 }
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
 h_per_km2min_per_mi <- function(variable) {
   variable * 60 * mi2km(1)
 }
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
 h_per_mi2min_per_km <- function(variable) {
     variable * 60 / mi2km(1)
 }
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
 h_per_mi2min_per_mi <- function(variable) {
     variable * 60
 }

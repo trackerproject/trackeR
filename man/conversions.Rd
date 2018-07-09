@@ -24,6 +24,8 @@
 \alias{h2s}
 \alias{min2h}
 \alias{h2min}
+\alias{h2h}
+\alias{min2min}
 \alias{s2s}
 \alias{min2min}
 \alias{h2h}
@@ -89,6 +91,10 @@
 \alias{s_per_m2s_per_m}
 \alias{min_per_km2min_per_km}
 \alias{min_per_mi2min_per_mi}
+\alias{h_per_km2min_per_km}
+\alias{h_per_km2min_per_mi}
+\alias{h_per_mi2min_per_km}
+\alias{h_per_mi2min_per_mi}
 \alias{W2kW}
 \alias{kW2W}
 \alias{W2W}
@@ -146,6 +152,10 @@ h2s(variable)
 min2h(variable)
 
 h2min(variable)
+
+h2h(variable)
+
+min2min(variable)
 
 s2s(variable)
 
@@ -276,6 +286,14 @@ s_per_m2s_per_m(variable)
 min_per_km2min_per_km(variable)
 
 min_per_mi2min_per_mi(variable)
+
+h_per_km2min_per_km(variable)
+
+h_per_km2min_per_mi(variable)
+
+h_per_mi2min_per_km(variable)
+
+h_per_mi2min_per_mi(variable)
 
 W2kW(variable)
 
