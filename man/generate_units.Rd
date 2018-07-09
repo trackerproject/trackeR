@@ -17,7 +17,7 @@ to variable (see details).}
 
 \item{sport}{A vector of sports (amongst \code{'cycling'},
 \code{'running'}, \code{'swimming'}) with each element
-corresponding to variable and unit.}
+corresponding to \code{variable} and \code{unit}.}
 
 \item{...}{Currently not used.}
 }

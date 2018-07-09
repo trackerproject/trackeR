@@ -10,6 +10,16 @@ generate_thresholds(variable, lower, upper, sport, ...)
 generateDefaultThresholds(variable, lower, upper, sport, ...)
 }
 \arguments{
+\item{variable}{A vector of variables with user-specified thresholds.}
+
+\item{lower}{A vector of lower limits correspodning to the elements of \code{variable}.}
+
+\item{upper}{A vector of upper limits correspodning to the elements of \code{variable}.}
+
+\item{sport}{A vector of sports (amongst \code{'cycling'},
+\code{'running'}, \code{'swimming'}) with each element
+corresponding to \code{variable}, \code{lower} and \code{upper}.}
+
 \item{...}{Currently not used.}
 }
 \description{

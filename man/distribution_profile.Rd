@@ -29,6 +29,10 @@ for the variables in \code{what} are inferred from
 
 \item{parallel}{Logical. Should computation be carried out in
 parallel? Default is \code{FALSE}.}
+
+\item{unit_reference_sport}{The sport to inherit units from
+(default is taken to be the most frequent sport in
+\code{object}).}
 }
 \value{
 An object of class \code{distrProfile}.

@@ -4,10 +4,11 @@
 #'
 #' @param object An object of class \code{distrProfile} as returned by
 #'     \code{\link{distributionProfile}}.
+#' @param session A numeric vector of the sessions to be used,
+#'     defaults to all sessions.
 #' @param what The variables for which the concentration profiles
 #'     should be computed. Defaults (\code{NULL}) to all variables in
 #'     \code{object}.
-#' @inheritParams distributionProfile
 #' @param ... Currently not used.
 #' @return
 #'
@@ -316,14 +317,18 @@ get_sport.conProfile <- function(object,
 #' @param what The variables for which the distribution profiles
 #'     should be generated. Defaults to all variables in \code{object}
 #'     (\code{what = NULL}).
-#' @param grid A named list containing the grid values for the
-#'     variables in \code{what}. If \code{NULL} (default) the grids
-#'     for the variables in \code{what} are inferred from
-#'     \code{object}.
+#' @param limits A named list of vectors of two numbers to specifiy
+#'     the lowe and upper limits for the variables in \code{what}. If
+#'     \code{NULL} (default) the limits for the variables in
+#'     \code{what} are inferred from \code{object}.
 #' @param parallel Logical. Should computation be carried out in
 #'     parallel? Default is \code{FALSE}.
 #' @param scale Logical. If \code{FALSE} (default) then the integral
 #'     of the profiles over the real line matches the session length.
+#' @param unit_reference_sport The sport to inherit units from
+#'     (default is taken to be the most frequent sport in
+#'     \code{object}).
+#' @param ...  Currently not used.
 #'
 #' @export
 concentration_profile.trackeRdata <- function(object,

@@ -76,7 +76,7 @@ generate_variable_names <- function() {
 #'     to variable (see details).
 #' @param sport A vector of sports (amongst \code{'cycling'},
 #'     \code{'running'}, \code{'swimming'}) with each element
-#'     corresponding to variable and unit.
+#'     corresponding to \code{variable} and \code{unit}.
 #' @param ... Currently not used.
 #'
 #' @details
@@ -185,6 +185,12 @@ generate_units <- function(variable,
 
 #' Generate default thresholds
 #'
+#' @param variable A vector of variables with user-specified thresholds.
+#' @param lower A vector of lower limits correspodning to the elements of \code{variable}.
+#' @param upper A vector of upper limits correspodning to the elements of \code{variable}.
+#' @param sport A vector of sports (amongst \code{'cycling'},
+#'     \code{'running'}, \code{'swimming'}) with each element
+#'     corresponding to \code{variable}, \code{lower} and \code{upper}.
 #' @param ... Currently not used.
 #' @export
 generate_thresholds <- function(variable,

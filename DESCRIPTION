@@ -8,8 +8,8 @@ Authors@R: c(person(given = "Ioannis", family = "Kosmidis",
 	   	    role = "aut", email = "hannah.frick@gmail.com",
 	            comment = c(ORCID = "0000-0002-6049-5258")),
 	     person(given = "Robin", family = "Hornak",
-	            role = "ctb", email = "robinhornak@gmail.com"))
-Description: The aim of this package is to provide infrastructure for
+	            role = "aut", email = "robinhornak@gmail.com"))
+Description: Provides infrastructure for
     handling running and cycling data from GPS-enabled tracking
     devices. After extraction and appropriate manipulation of the
     training or competition attributes, the data are placed into
@@ -23,10 +23,8 @@ Depends:
     R (>= 3.1.0),
     zoo
 Imports:
-    plotly,
     ggplot2,
     ggridges,
-    DT,
     mgcv,
     parallel,
     XML,
@@ -37,20 +35,11 @@ Imports:
     scam,
     foreach,
     fda,
+    sp,
     leaflet,
     ggmap,
     gridExtra,
-    gtable,
-    shinyFiles,
-    shiny,
-    shinyjs,
-    shinycssloaders,
-    shinydashboard,
-    sp,
-    V8,
-    class,
-    changepoint, 
-    shinyWidgets
+    gtable
 Suggests:
     testthat,
     knitr,
@@ -60,3 +49,5 @@ License: GPL-3
 URL: https://github.com/trackerproject/trackeR
 BugReports: https://github.com/trackerproject/trackeR/issues
 RoxygenNote: 6.0.1
+Encoding: UTF-8
+LazyData: true

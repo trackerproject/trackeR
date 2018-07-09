@@ -24,12 +24,6 @@ been supported by the Alan Turing Institute under the EPSRC grant
 EP/N510129/1 (Turing award number TU/B/000082). The support of the
 aforementioned organisations is greatly acknowledged.
 
-The trackeR dashboard \code{\link{trackeR_app}} has been designed
-and developed by Robin Hornak and Ioannis Kosmidis, while Robin
-Hornak was completing his undergraduate research project in the
-Department of Statistical Science, University College London under
-the supervision of Ioannis Kosmidis.
-
 Hannah Frick maintained trackeR from its first release up and since
 version 1.0.0.
 }

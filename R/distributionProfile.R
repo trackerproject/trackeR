@@ -13,6 +13,9 @@
 #'     \code{object}.
 #' @param parallel Logical. Should computation be carried out in
 #'     parallel? Default is \code{FALSE}.
+#' @param unit_reference_sport The sport to inherit units from
+#'     (default is taken to be the most frequent sport in
+#'     \code{object}).
 #' @return
 #'
 #' An object of class \code{distrProfile}.
