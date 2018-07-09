@@ -19,8 +19,10 @@ find_unit_reference_sport <- function(object) {
 ## unit-specification df
 collect_units <- function(object,
                           unit_reference_sport = NULL) {
+
     ## Match units to those of unit_reference_sport
     unit_reference_sport <- match.arg(unit_reference_sport, c("cycling", "running", "swimming"))
+
     units <- object[object$sport == unit_reference_sport, ]
     ## Add missing variables
     units <- rbind(units, object[!(object$variable %in% units$variable), ])
