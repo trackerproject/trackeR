@@ -299,7 +299,6 @@ fortify.trackeRdata <- function(model,
 #' data('runs', package = 'trackeR')
 #' plotRoute(runs, session = 4, zoom = 13)
 #' plotRoute(runs, session = 4, zoom = 13, maptype = "hybrid")
-#' plotRoute(runs, session = 4, zoom = 13, source = "stamen")
 #' ## multiple sessions
 #' plotRoute(runs, session = c(1:5, 8:11), source = "google")
 #' ## different zoom level per panel
