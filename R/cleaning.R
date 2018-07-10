@@ -310,7 +310,7 @@ impute_speeds <- function(session_data,
     return(session_data)
 }
 
-#' Convert distance to speed
+#' Convert distance to speed.
 #'
 #' @param distance Distance in meters.
 #' @param time Time.
@@ -324,7 +324,7 @@ distance2speed <- function(distance,
     return(speed)
 }
 
-#' Convert speed to distance
+#' Convert speed to distance.
 #'
 #' @param speed Speed in meters per second.
 #' @param time Time.

@@ -69,9 +69,9 @@ generate_variable_names <- function() {
 }
 
 
-#' Generate and set base units
+#' Generate and set base units.
 #'
-#' @param variable A vector of variables with user-specified units
+#' @param variable A vector of variables with user-specified units.
 #' @param unit A vector with the user-specified units, corresponding
 #'     to variable (see details).
 #' @param sport A vector of sports (amongst \code{'cycling'},
@@ -183,7 +183,7 @@ generate_units <- function(variable,
 }
 
 
-#' Generate default thresholds
+#' Generate default thresholds.
 #'
 #' @param variable A vector of variables with user-specified thresholds.
 #' @param lower A vector of lower limits correspodning to the elements of \code{variable}.

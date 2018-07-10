@@ -2,7 +2,7 @@
 % Please edit documentation in R/cleaning.R
 \name{distance2speed}
 \alias{distance2speed}
-\title{Convert distance to speed}
+\title{Convert distance to speed.}
 \usage{
 distance2speed(distance, time, timeunit)
 }
@@ -17,5 +17,5 @@ distance2speed(distance, time, timeunit)
 Speed in meters per second.
 }
 \description{
-Convert distance to speed
+Convert distance to speed.
 }

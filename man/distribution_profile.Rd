@@ -4,7 +4,7 @@
 \alias{distribution_profile}
 \alias{distrProfile}
 \alias{distributionProfile}
-\title{Generate training distribution profiles}
+\title{Generate training distribution profiles.}
 \usage{
 distribution_profile(object, session = NULL, what = NULL, grid = NULL,
   parallel = FALSE, unit_reference_sport = NULL)
@@ -75,7 +75,7 @@ calculation of distribution profiles. These is the output of
 }
 }
 \description{
-Generate training distribution profiles
+Generate training distribution profiles.
 }
 \examples{
 data('run', package = 'trackeR')

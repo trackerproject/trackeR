@@ -2,18 +2,18 @@
 % Please edit documentation in R/helpers.R
 \name{compute_limits}
 \alias{compute_limits}
-\title{Compute variable limits from a \code{\link{trackeRdata}} object}
+\title{Compute variable limits from a \code{\link{trackeRdata}} object.}
 \usage{
 compute_limits(object, a = 1e-04)
 }
 \arguments{
-\item{object}{A \code{\link{trackeRdata}} object}
+\item{object}{A \code{\link{trackeRdata}} object.}
 
 \item{a}{The level at which quantiles will be computed are \code{a}
-and \code{1 - a}. Default is \code{a = 0.0001}}
+and \code{1 - a}. Default is \code{a = 0.0001}.}
 }
 \description{
-Compute variable limits from a \code{\link{trackeRdata}} object
+Compute variable limits from a \code{\link{trackeRdata}} object.
 }
 \details{
 \code{compute_limits} computes limits by finding the \code{a} and

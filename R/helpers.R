@@ -15,8 +15,8 @@ find_unit_reference_sport <- function(object) {
     names(which.max(table(get_sport(object))))
 }
 
-## Colelcts the units from a reference sport and returns a simple
-## unit-specification df
+## Collects the units from a reference sport and returns a simple
+## unit-specification df.
 collect_units <- function(object,
                           unit_reference_sport = NULL) {
 
@@ -130,11 +130,11 @@ clean_grid <- function (minimum, maximum) {
     break_points
 }
 
-#' Compute variable limits from a \code{\link{trackeRdata}} object
+#' Compute variable limits from a \code{\link{trackeRdata}} object.
 #'
-#' @param object A \code{\link{trackeRdata}} object
+#' @param object A \code{\link{trackeRdata}} object.
 #' @param a The level at which quantiles will be computed are \code{a}
-#'     and \code{1 - a}. Default is \code{a = 0.0001}
+#'     and \code{1 - a}. Default is \code{a = 0.0001}.
 #'
 #' @details
 #'
@@ -162,7 +162,7 @@ compute_limits <- function(object, a = 0.0001) {
 }
 
 
-#' Time spent above a certain threshold
+#' Time spent above a certain threshold.
 #'
 #' @param object A (univariate) zoo object.
 #' @param threshold The threshold.

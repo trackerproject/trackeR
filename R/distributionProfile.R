@@ -1,4 +1,4 @@
-#' Generate training distribution profiles
+#' Generate training distribution profiles.
 #'
 #' @aliases distrProfile
 #' @param object An object of class \code{\link{trackeRdata}}.
@@ -199,7 +199,7 @@ distribution_profile <- function(object,
     return(DP)
 }
 
-#' Scale the distribution profile relative to its maximum value
+#' Scale the distribution profile relative to its maximum value.
 #'
 #' @param object An object of class \code{distrProfile} as returned by
 #'     \code{\link{distributionProfile}}.
@@ -437,7 +437,7 @@ smoother_control.distrProfile <- function(k = 30,
     list(k = k, sp = sp, parallel = parallel)
 }
 
-#' Smooth a decreasing function
+#' Smooth a decreasing function.
 #'
 #' This smoother ensures a positive response that is a monotone decreasing function of x.
 #' @param x The regressor passed on to the \code{formula} argument of \code{\link[scam]{scam}}.

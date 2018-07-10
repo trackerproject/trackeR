@@ -2,7 +2,7 @@
 % Please edit documentation in R/cleaning.R
 \name{speed2distance}
 \alias{speed2distance}
-\title{Convert speed to distance}
+\title{Convert speed to distance.}
 \usage{
 speed2distance(speed, time, timeunit, cumulative = TRUE)
 }
@@ -19,5 +19,5 @@ speed2distance(speed, time, timeunit, cumulative = TRUE)
 Distance in meters.
 }
 \description{
-Convert speed to distance
+Convert speed to distance.
 }

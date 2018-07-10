@@ -499,7 +499,7 @@ readJSON <- function(file,
 }
 
 
-#' Read a GPS container file
+#' Read a GPS container file.
 #'
 #' @param file The path to the file.
 #' @param type The type of the GPS container file. Supported so far
@@ -552,7 +552,7 @@ readJSON <- function(file,
 #' @export
 #' @examples
 #' \dontrun{
-#' filepath <- system.file("extdata", "2013-06-08-090442.TCX", package = "trackeR")
+#' filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX", package = "trackeR")
 #' run <- read_container(filepath, type = "tcx", timezone = "GMT")
 #' }
 read_container <- function(file,

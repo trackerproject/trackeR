@@ -2,7 +2,7 @@
 % Please edit documentation in R/helpers.R
 \name{timeAboveThreshold}
 \alias{timeAboveThreshold}
-\title{Time spent above a certain threshold}
+\title{Time spent above a certain threshold.}
 \usage{
 timeAboveThreshold(object, threshold = -1, ge = TRUE)
 }
@@ -14,5 +14,5 @@ timeAboveThreshold(object, threshold = -1, ge = TRUE)
 \item{ge}{Logical. Should time include the thereshold (greater or equal to threshold) or not (greater only)?}
 }
 \description{
-Time spent above a certain threshold
+Time spent above a certain threshold.
 }

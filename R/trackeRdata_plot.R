@@ -584,7 +584,7 @@ prepare_route <- function(x,
     return(df)
 }
 
-#' Timeline plot for \code{\link{trackeRdata}} objects
+#' Timeline plot for \code{\link{trackeRdata}} objects.
 #'
 #' @inheritParams timeline
 #' @rdname timeline

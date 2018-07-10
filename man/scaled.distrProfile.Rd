@@ -2,7 +2,7 @@
 % Please edit documentation in R/distributionProfile.R
 \name{scaled.distrProfile}
 \alias{scaled.distrProfile}
-\title{Scale the distribution profile relative to its maximum value}
+\title{Scale the distribution profile relative to its maximum value.}
 \usage{
 \method{scaled}{distrProfile}(object, session = NULL, what = NULL, ...)
 }
@@ -20,5 +20,5 @@ scaled. Defaults to all variables in \code{object} (\code{what
 \item{...}{Currently not used.}
 }
 \description{
-Scale the distribution profile relative to its maximum value
+Scale the distribution profile relative to its maximum value.
 }

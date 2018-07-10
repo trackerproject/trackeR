@@ -3,7 +3,7 @@
 \name{generate_thresholds}
 \alias{generate_thresholds}
 \alias{generateDefaultThresholds}
-\title{Generate default thresholds}
+\title{Generate default thresholds.}
 \usage{
 generate_thresholds(variable, lower, upper, sport, ...)
 
@@ -23,5 +23,5 @@ corresponding to \code{variable}, \code{lower} and \code{upper}.}
 \item{...}{Currently not used.}
 }
 \description{
-Generate default thresholds
+Generate default thresholds.
 }

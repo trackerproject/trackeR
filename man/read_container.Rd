@@ -3,7 +3,7 @@
 \name{read_container}
 \alias{read_container}
 \alias{readContainer}
-\title{Read a GPS container file}
+\title{Read a GPS container file.}
 \usage{
 read_container(file, type = c("tcx", "gpx", "db3", "json"),
   table = "gps_data", timezone = "", session_threshold = 2,
@@ -82,7 +82,7 @@ sanity checks on the data are triggered?}
 An object of class \code{\link{trackeRdata}}.
 }
 \description{
-Read a GPS container file
+Read a GPS container file.
 }
 \details{
 Available options for \code{speedunit} currently are
@@ -101,7 +101,7 @@ known, append an appropriate keyword to the filename (e.g. 'ride',
 }
 \examples{
 \dontrun{
-filepath <- system.file("extdata", "2013-06-08-090442.TCX", package = "trackeR")
+filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX", package = "trackeR")
 run <- read_container(filepath, type = "tcx", timezone = "GMT")
 }
 }

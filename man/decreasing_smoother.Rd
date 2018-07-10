@@ -3,7 +3,7 @@
 \name{decreasing_smoother}
 \alias{decreasing_smoother}
 \alias{decreasingSmoother}
-\title{Smooth a decreasing function}
+\title{Smooth a decreasing function.}
 \usage{
 decreasing_smoother(x, y, k = 30, len = NULL, sp = NULL)
 

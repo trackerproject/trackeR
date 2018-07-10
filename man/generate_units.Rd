@@ -3,14 +3,14 @@
 \name{generate_units}
 \alias{generate_units}
 \alias{generateBaseUnits}
-\title{Generate and set base units}
+\title{Generate and set base units.}
 \usage{
 generate_units(variable, unit, sport, ...)
 
 generateBaseUnits(variable, unit, sport, ...)
 }
 \arguments{
-\item{variable}{A vector of variables with user-specified units}
+\item{variable}{A vector of variables with user-specified units.}
 
 \item{unit}{A vector with the user-specified units, corresponding
 to variable (see details).}
@@ -22,7 +22,7 @@ corresponding to \code{variable} and \code{unit}.}
 \item{...}{Currently not used.}
 }
 \description{
-Generate and set base units
+Generate and set base units.
 }
 \details{
 The avaialble units are
