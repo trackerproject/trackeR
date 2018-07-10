@@ -64,3 +64,25 @@ decreasingSmoother <- decreasing_smoother
 #' @rdname smoother_control.distrProfile
 #' @export
 smootherControl.distrProfile <- smoother_control.distrProfile
+
+#' @rdname fortify.trackeRdata
+#' @export
+fortify_trackeRdata <- fortify.trackeRdata
+
+#' @rdname fortify.trackeRdataSummary
+#' @export
+fortify_trackeRdataSummary <- fortify.trackeRdataSummary
+
+#' @rdname fortify.conProfile
+#' @export
+fortify_conProfile <- fortify.conProfile
+
+#' @rdname fortify.distrProfile
+#' @export
+fortify_distrProfile <- fortify.distrProfile
+
+#' @rdname fortify.trackeRWprime
+#' @export
+fortify_trackeRWprime <- fortify.trackeRWprime
+
+

@@ -382,7 +382,7 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...) {
 }
 
 
-#' Plot an object of class trackeRdataSummary.
+#' Plot an object of class \code{\link{trackeRdataSummary}}.
 #'
 #' @param x An object of class \code{trackeRdataSummary}.
 #' @param date Should the date or the session number be used on the abscissa?
