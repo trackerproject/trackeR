@@ -12,12 +12,13 @@ leafletRoute(x, session = NULL, threshold = TRUE, ...)
 \arguments{
 \item{x}{A object of class \code{\link{trackeRdata}}.}
 
-\item{session}{A numeric vector of the sessions to be plotted. Defaults to
-all sessions.}
+\item{session}{A numeric vector of the sessions to be
+plotted. Defaults to all sessions.}
 
 \item{threshold}{Logical. Should thresholds be applied?}
 
-\item{...}{Additional arguments passed on to \code{\link{threshold}}.}
+\item{...}{Additional arguments passed on to
+\code{\link{threshold}}.}
 }
 \description{
 Plot the route ran/cycled during training on an interactive map.

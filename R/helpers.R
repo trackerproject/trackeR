@@ -11,12 +11,27 @@ guess_sport <- function(sport) {
     }
 }
 
+#' Find the most frequent sport in an \code{object}
+#'
+#' @param object any object with a \code{\link{get_sport}} method
+#'     implemented (run \code{methods(get_sport)}).
+#'
+#' @export
 find_unit_reference_sport <- function(object) {
     names(which.max(table(get_sport(object))))
 }
 
-## Collects the units from a reference sport and returns a simple
-## unit-specification df.
+#' Collect units from the result of \code{\link{generate_units}}
+#'
+#' Collects the units from the results of \code{\link{generate_units}}
+#' according to a \code{unit_reference_sport}
+#'
+#' @param object a \code{data.frame}, as returned by
+#'     \code{\link{generate_units}}
+#' @param unit_reference_sport The sport to inherit units from
+#'     (default is taken to be the most frequent sport in
+#'     \code{object}).
+#' @export
 collect_units <- function(object,
                           unit_reference_sport = NULL) {
 

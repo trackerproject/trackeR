@@ -2,7 +2,7 @@
 % Please edit documentation in R/trackeRdata_summary.R
 \name{plot.trackeRdataSummary}
 \alias{plot.trackeRdataSummary}
-\title{Plot an object of class trackeRdataSummary.}
+\title{Plot an object of class \code{\link{trackeRdataSummary}}.}
 \usage{
 \method{plot}{trackeRdataSummary}(x, date = TRUE, what = NULL,
   group = NULL, trend = TRUE, ...)
@@ -22,7 +22,7 @@
 \item{...}{Currently not used.}
 }
 \description{
-Plot an object of class trackeRdataSummary.
+Plot an object of class \code{\link{trackeRdataSummary}}.
 }
 \examples{
 data('runs', package = 'trackeR')
