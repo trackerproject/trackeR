@@ -67,16 +67,14 @@ Reading Golden Cheetah's JSON files is experimental.
 \dontrun{
 ## read raw data
 filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX", package = "trackeR")
-run <- readTCX(file = filepath, timezone = "GMT")
+run0 <- readTCX(file = filepath, timezone = "GMT")
 
 ## turn into trackeRdata object
-run <- trackeRdata(run, units = data.frame(variable = c("latitude", "longitude",
-    "altitude", "distance", "heart_rate", "speed", "cadence_running", "cadence_cycling", "power"),
-    unit = c("degree", "degree", "m", "m", "bpm", "m_per_s", "steps_per_min", "rev_per_min", "W"),
-    stringsAsFactors = FALSE))
+units0 <- generate_units()
+run0 <- trackeRdata(run0, units = units0)
 
 ## alternatively
-run <- read_container(filepath, type = "tcx", timezone = "GMT")
+run0 <- read_container(filepath, type = "tcx", timezone = "GMT")
 }
 
 }

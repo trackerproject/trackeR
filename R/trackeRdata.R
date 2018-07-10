@@ -53,19 +53,14 @@
 #' \dontrun{
 #' ## read raw data
 #' filepath <- system.file('extdata/tcx/', '2013-06-08-090442.TCX', package = 'trackeR')
-#' run <- readTCX(file = filepath, timezone = 'GMT')
+#' run0 <- readTCX(file = filepath, timezone = 'GMT')
 #'
 #' ## turn into trackeRdata object
-#' units0 <- data.frame(variable = c('latitude', 'longitude', 'altitude', 'distance',
-#'                                   'heart_rate', 'speed', 'cadence_running', 'cadence_cycling',
-#'                                   'power'),
-#'                      unit = c('degree', 'degree', 'm', 'm', 'bpm', 'm_per_s', 'steps_per_min',
-#'                               'rev_per_min', 'W'),
-#'                      stringsAsFactors = FALSE)
-#' run <- trackeRdata(run, units = units0)
+#' units0 <- generate_units()
+#' run0 <- trackeRdata(run0, units = units0)
 #'
 #' ## alternatively
-#' run <- readContainer(filepath, type = 'tcx', timezone = 'GMT')
+#' run0 <- readContainer(filepath, type = 'tcx', timezone = 'GMT')
 #' }
 #' @export
 trackeRdata <- function(dat,

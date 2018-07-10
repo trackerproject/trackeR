@@ -26,7 +26,7 @@ to define the limits of the time axis.}
 \description{
 Generic function for visualising the sessions on a time versus date plot
 
-Timeline plot for \code{\link{trackeRdata}} objects
+Timeline plot for \code{\link{trackeRdata}} objects.
 
 Timeline plot for \code{\link{trackeRdataSummary}} objects
 }
