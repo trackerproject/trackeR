@@ -799,6 +799,7 @@ read_directory <- function(directory,
 
     ## clean and return
     allData <- allData[!sapply(allData, is.null)]
+    allData <- unique(allData)
     if (aggregate) {
         attr(allData, "file") <- rep(NA, length(allData))
     }
