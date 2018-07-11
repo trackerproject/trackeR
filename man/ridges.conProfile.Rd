@@ -35,5 +35,4 @@ cProfile <- concentrationProfile(dProfile)
 ridges(cProfile, what = "speed")
 ridges(cProfile, what = "heart_rate")
 }
-
 }

@@ -15,3 +15,6 @@ ridges(x, ...)
 \description{
 Generic function for ridgeline plots
 }
+\seealso{
+ridges.trackeRdata ridges.conProfile ridges.distrProfile
+}

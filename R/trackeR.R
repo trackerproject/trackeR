@@ -199,6 +199,8 @@ funPCA <- function(object, ...) UseMethod("funPCA")
 #' @param x An object of class \code{distrProfile} or
 #'     \code{conProfile}.
 #' @param ... Arguments to be passed to methods.
+#' @seealso ridges.trackeRdata ridges.conProfile ridges.distrProfile
+#' @export
 ridges <- function(x, ...) UseMethod("ridges")
 
 

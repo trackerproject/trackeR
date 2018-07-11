@@ -249,7 +249,7 @@ smoother.conProfile <- function(object,
 #' ridges(cProfile, what = "speed")
 #' ridges(cProfile, what = "heart_rate")
 #' }
-#'
+#' @export
 ridges.conProfile <- function(x,
                               session = NULL,
                               what = NULL,
