@@ -83,13 +83,6 @@ calculation of distribution profiles. These is the output of
 \description{
 Generate training concentration profiles.
 }
-\examples{
-data('run', package = 'trackeR')
-dProfile <- distributionProfile(run, what = 'speed', grid = seq(0, 12.5, by = 0.05))
-cProfile <- concentrationProfile(dProfile)
-plot(cProfile, smooth = FALSE)
-plot(cProfile)
-}
 \references{
 Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
 Endurance Runners to Training and Physiological Effects via

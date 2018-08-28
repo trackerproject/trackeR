@@ -57,12 +57,6 @@
 #' R. \emph{Journal of Statistical Software}, \bold{82}(7),
 #' 1--29. doi:10.18637/jss.v082.i07
 #'
-#' @examples
-#' data('run', package = 'trackeR')
-#' dProfile <- distributionProfile(run, what = 'speed', grid = seq(0, 12.5, by = 0.05))
-#' cProfile <- concentrationProfile(dProfile)
-#' plot(cProfile, smooth = FALSE)
-#' plot(cProfile)
 #' @export
 concentration_profile.distrProfile <- function(object,
                                                session = NULL,
@@ -315,7 +309,6 @@ get_sport.conProfile <- function(object,
 #' @param unit_reference_sport The sport to inherit units from
 #'     (default is taken to be the most frequent sport in
 #'     \code{object}).
-#'
 #' @export
 concentration_profile.trackeRdata <- function(object,
                                               session = NULL,

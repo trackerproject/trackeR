@@ -24,6 +24,22 @@ should be generated. Defaults to all variables in \code{object}
 \description{
 Generic method for concentration profiles
 }
+\examples{
+## Compute conecntration profiles from distribution profiles
+data('run', package = 'trackeR')
+dProfile <- distributionProfile(run, what = 'speed', grid = seq(0, 12.5, by = 0.05))
+cProfile <- concentrationProfile(dProfile)
+plot(cProfile, smooth = FALSE)
+plot(cProfile)
+
+## And now directly on the 'trackeRdata' object, which is a bit
+## faster if all that is needed are the concentration profiles
+cProfile <- concentrationProfile(runs, what = 'speed', grid = seq(0, 12.5, by = 0.05))
+plot(cProfile, smooth = FALSE)
+ridges(cProfile)
+plot(cProfile, smooth = TRUE)
+
+}
 \seealso{
-concentration_profile.distrProfile
+concentration_profile.distrProfile concentration_profile.trackeRdata
 }

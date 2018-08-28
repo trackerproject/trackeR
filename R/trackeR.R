@@ -228,7 +228,24 @@ get_profile <- function(object, session, what, ...) UseMethod("get_profile")
 #'     should be generated. Defaults to all variables in \code{object}
 #'     (\code{what = NULL}).
 #' @param ... Currently not used.
-#' @seealso concentration_profile.distrProfile
+#' @seealso concentration_profile.distrProfile concentration_profile.trackeRdata
+#'
+#' @examples
+#' ## Compute conecntration profiles from distribution profiles
+#' data('run', package = 'trackeR')
+#' dProfile <- distributionProfile(run, what = 'speed', grid = seq(0, 12.5, by = 0.05))
+#' cProfile <- concentrationProfile(dProfile)
+#' plot(cProfile, smooth = FALSE)
+#' plot(cProfile)
+#'
+#' ## And now directly from the 'trackeRdata' object, which is a
+#' ## considerably faster if all that is needed are the concentration
+#' ## profiles
+#' cProfile <- concentrationProfile(runs, what = 'speed', grid = seq(0, 12.5, by = 0.05))
+#' plot(cProfile, smooth = FALSE)
+#' ridges(cProfile)
+#' plot(cProfile, smooth = TRUE)
+#'
 #' @export
 concentration_profile <- function(object,
                                   session = NULL,
