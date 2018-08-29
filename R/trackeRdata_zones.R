@@ -10,8 +10,8 @@
 #'     parallel? If \code{TRUE} computation is performed in parallel
 #'     using the backend provided to \code{\link{foreach}}. Default is
 #'     \code{FALSE}.
-#' @param n_zones A numeric. If \code{auto_breaks = TRUE}, select
-#'     number of zones for data to be split into.
+#' @param n_zones numeric that sets the number of zones for data to be
+#'     split into. Default is \code{9}.
 #' @param unit_reference_sport The sport to inherit units from
 #'     (default is taken to be the most frequent sport in
 #'     \code{object}).
@@ -60,32 +60,38 @@ zones <- function(object,
 
 
     if (is.null(breaks)) {
+        ## limits <- compute_limits(object, a = 0.025)
+        ## for (feature in what) {
+        ##     if (all(is.na(limits[[feature]]))) {
+        ##         warning(paste('no data for', feature))
+        ##         what <- what[!(what %in% feature)]
+        ##         limits[[feature]] <- NULL
+        ##     }
+        ## }
 
-        limits <- compute_limits(object, a = 0.025)
-        for (feature in what) {
-            if (all(is.na(limits[[feature]]))) {
-                warning(paste('no data for', feature))
-                what <- what[!(what %in% feature)]
-                limits[[feature]] <- NULL
-            }
-        }
-
-        break_points <- function(maximum, minimum = 0) {
-            value_range <- as.character(ceiling(maximum - minimum))
-            range_size <- nchar(value_range)
-            round_table <- list('1' = 5, '2' = 5, '3' = 10, '4' = 100,
-                                '5' = 10000, '6' = 100000)
-            maximum <- ceiling(maximum/round_table[[range_size]]) * round_table[[range_size]]
-            step_size <- round((maximum - minimum) / (n_zones), 1)
-            break_points <- seq(minimum, minimum + n_zones * step_size, by = step_size)
-            break_points
-        }
+        ## break_points <- function(maximum, minimum = 0) {
+        ##     value_range <- as.character(ceiling(maximum - minimum))
+        ##     range_size <- nchar(value_range)
+        ##     round_table <- list('1' = 5, '2' = 5, '3' = 10, '4' = 100,
+        ##                         '5' = 10000, '6' = 100000)
+        ##     maximum <- ceiling(maximum/round_table[[range_size]]) * round_table[[range_size]]
+        ##     step_size <- round((maximum - minimum) / (n_zones), 1)
+        ##     break_points <- seq(minimum, minimum + n_zones * step_size, by = step_size)
+        ##     break_points
+        ## }
 
 
-        for (feature in what) {
-            maximum <- ceiling(limits[[feature]][2])
-            minimum <- floor(limits[[feature]][1])
-            breaks[[feature]] <- break_points(maximum, minimum)
+        ## for (feature in what) {
+        ##     maximum <- ceiling(limits[[feature]][2])
+        ##     minimum <- floor(limits[[feature]][1])
+        ##     breaks[[feature]] <- break_points(maximum, minimum)
+        ## }
+        breaks <- compute_breaks(object, a = 0.025, n_breaks = n_zones, what = what)
+        what0 <- what
+        what <- names(breaks)
+        inds <- match(what0, what, nomatch = 0) == 0
+        if (any(inds)) {
+            warning(paste("no data for", paste(what0[inds], collapse = ", ")))
         }
     }
 

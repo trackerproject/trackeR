@@ -177,6 +177,41 @@ compute_limits <- function(object, a = 0.0001) {
     out
 }
 
+#' @export
+compute_breaks  <- function(object,
+                            a = 0.0001,
+                            n_breaks = 9,
+                            limits = NULL,
+                            what = c("speed", "heart_rate")) {
+    breaks <- NULL
+    if (is.null(limits)) {
+        limits <- compute_limits(object, a = a)
+    }
+    for (feature in what) {
+        if (all(is.na(limits[[feature]]))) {
+            ## warning(paste('no data for', feature))
+            what <- what[!(what %in% feature)]
+            limits[[feature]] <- NULL
+        }
+    }
+    break_points <- function(maximum, minimum = 0) {
+        value_range <- as.character(ceiling(maximum - minimum))
+        range_size <- nchar(value_range)
+        round_table <- list('1' = 5, '2' = 5, '3' = 10, '4' = 100,
+                            '5' = 10000, '6' = 100000)
+        maximum <- ceiling(maximum/round_table[[range_size]]) * round_table[[range_size]]
+        step_size <- round((maximum - minimum) / (n_breaks), 1)
+        break_points <- seq(minimum, minimum + n_breaks * step_size, by = step_size)
+        break_points
+    }
+    for (feature in what) {
+        maximum <- ceiling(limits[[feature]][2])
+        minimum <- floor(limits[[feature]][1])
+        breaks[[feature]] <- break_points(maximum, minimum)
+    }
+    breaks
+}
+
 
 #' Time spent above a certain threshold.
 #'
