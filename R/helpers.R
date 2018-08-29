@@ -161,10 +161,11 @@ clean_grid <- function (minimum, maximum) {
 #' @export
 compute_limits <- function(object, a = 0.0001) {
     limits <- lapply(object, function(sess) {
-        sess <- as.data.frame(sess)
-        all_na <- apply(sess, 2, function(x) all(is.na(x)))
+        sess <- coredata(sess)
         apply(sess, 2, quantile, probs = c(a, 1 - a), na.rm = TRUE)
+
     })
+
     low <- apply(sapply(limits, function(x) x[1, ]), 1, function(x) if (all(is.na(x))) NA else min(x, na.rm = TRUE))
     upp <- apply(sapply(limits, function(x) x[2, ]), 1, function(x) if (all(is.na(x))) NA else max(x, na.rm = TRUE))
     inds <- low == upp
