@@ -24,8 +24,8 @@ parallel? If \code{TRUE} computation is performed in parallel
 using the backend provided to \code{\link{foreach}}. Default is
 \code{FALSE}.}
 
-\item{n_zones}{A numeric. If \code{auto_breaks = TRUE}, select
-number of zones for data to be split into.}
+\item{n_zones}{numeric that sets the number of zones for data to be
+split into. Default is \code{9}.}
 
 \item{unit_reference_sport}{The sport to inherit units from
 (default is taken to be the most frequent sport in
