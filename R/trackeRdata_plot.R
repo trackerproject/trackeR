@@ -639,18 +639,15 @@ timeline.trackeRdata  <- function(object,
     df <- within(session_times(object), {
         day_s <- as.Date(sessionStart)
         day_e <-  as.Date(sessionEnd)
-        time_s <- as.POSIXct(as.numeric(difftime(sessionStart, trunc(sessionStart, "days"),
-                                                 units = "secs")),
-                             origin = Sys.Date())
-        time_e <- as.POSIXct(as.numeric(difftime(sessionEnd, trunc(sessionEnd, "days"),
-                                                 units = "secs")),
-                             origin = Sys.Date())
+        time_s <- as.POSIXct(paste(Sys.Date(), format(sessionStart, "%H:%M:%S")))
+        time_e <- as.POSIXct(paste(Sys.Date(), format(sessionEnd, "%H:%M:%S")))
         sport <- get_sport(object)
     })
 
     if (!is.null(lims)) {
         lims <- as.POSIXct(paste(Sys.Date(), lims))
     }
+
     day_range <- data.frame(day = seq(min(df$day_s), max(df$day_s), by = "day"))
     p <- ggplot(df) +
         geom_segment(aes_(x = quote(time_s), xend = quote(time_e), y = quote(day_s), yend = quote(day_e), color = quote(sport)))
