@@ -11,7 +11,7 @@ timeAboveThreshold(object, threshold = -1, ge = TRUE)
 
 \item{threshold}{The threshold.}
 
-\item{ge}{Logical. Should time include the thereshold (greater or equal to threshold) or not (greater only)?}
+\item{ge}{Logical. Should time include the threshold (greater or equal to threshold) or not (greater only)?}
 }
 \description{
 Time spent above a certain threshold.

@@ -148,7 +148,7 @@ clean_grid <- function (minimum, maximum) {
 #' Compute variable limits from a \code{\link{trackeRdata}} object.
 #'
 #' @param object A \code{\link{trackeRdata}} object.
-#' @param a The level at which quantiles will be computed are \code{a}
+#' @param a The levels at which quantiles will be computed are \code{a}
 #'     and \code{1 - a}. Default is \code{a = 0.0001}.
 #'
 #' @details
@@ -177,6 +177,30 @@ compute_limits <- function(object, a = 0.0001) {
     out
 }
 
+
+#' Compute a grid of breakpoints per variable from a \code{\link{trackeRdata}} object.
+#'
+#' @param object A \code{\link{trackeRdata}} object.
+#' @param a The levels at which quantiles will be computed are
+#'     \code{a} and \code{1 - a}. Default is \code{a = 0.0001}.
+#' @param n_breaks A scalar determining the number of breakpoints to
+#'     be computed
+#' @param limits A list of a vectors, each specifying the lower and
+#'     upper limit for each variable to be used when computing the
+#'     grid. Default is \code{NULL}, in which case
+#'     \code{\link{compute_limits}} is used.
+#' @param what The variables for which a grid of breakpoints should be
+#'     computed. Defaults to \code{c("speed", "heart_rate")}.
+#' @return
+#'
+#' A named list with names as in \code{what}, with elements the grids
+#' of breakpoints per variable.
+#'
+#' @examples
+#'
+#' data("runs")
+#' compute_breaks(runs, what = c("speed", "heart_rate", "altitude"))
+#'
 #' @export
 compute_breaks  <- function(object,
                             a = 0.0001,
@@ -217,7 +241,7 @@ compute_breaks  <- function(object,
 #'
 #' @param object A (univariate) zoo object.
 #' @param threshold The threshold.
-#' @param ge Logical. Should time include the thereshold (greater or equal to threshold) or not (greater only)?
+#' @param ge Logical. Should time include the threshold (greater or equal to threshold) or not (greater only)?
 timeAboveThreshold <- function(object, threshold = -1, ge = TRUE) {
     n <- length(object)
     if (ge){

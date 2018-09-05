@@ -9,7 +9,7 @@ compute_limits(object, a = 1e-04)
 \arguments{
 \item{object}{A \code{\link{trackeRdata}} object.}
 
-\item{a}{The level at which quantiles will be computed are \code{a}
+\item{a}{The levels at which quantiles will be computed are \code{a}
 and \code{1 - a}. Default is \code{a = 0.0001}.}
 }
 \description{
