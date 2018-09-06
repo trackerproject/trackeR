@@ -42,7 +42,6 @@ inst/extdata/gpx/
 inst/extdata/json/
 
 vignettes/trackeR.Rnw
-vignettes/trackeR.R
 vignettes/TourDetrackeR_files/
 
 tests/
