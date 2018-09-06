@@ -4,7 +4,10 @@ output: github_document
 
 # trackeR
 
-[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/trackeR)](http://cran.r-project.org/package=trackeR)
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/trackeR)](https://cran.r-project.org/package=trackeR)
+[![Travis-CI Build Status](https://travis-ci.org/ikosmidis/trackeR.svg?branch=master)](https://travis-ci.org/ikosmidis/trackeR)
+[![Coverage Status](https://img.shields.io/codecov/c/github/ikosmidis/trackeR/master.svg)](https://codecov.io/github/ikosmidis/trackeR?branch=master)
+[![Licence](https://img.shields.io/badge/licence-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 
 ### Description
@@ -97,7 +100,7 @@ Generate distribution and concentration profiles
 
 ```{r, cprofile, fig.width = 9}
 runsT <- threshold(runs)
-dpRuns <- distributionProfile(runsT, what = c("speed", "heart.rate"))
+dpRuns <- distributionProfile(runsT, what = c("speed", "heart_rate"))
 dpRunsS <- smoother(dpRuns)
 cpRuns <- concentrationProfile(dpRunsS)
 plot(cpRuns, multiple = TRUE, smooth = FALSE)
@@ -109,7 +112,7 @@ ridges(cpRuns, what = "speed")
 ```
 
 ```{r, cprofile-ridges-hr, warning = FALSE, fig.width = 9}
-ridges(cpRuns, what = "heart.rate")
+ridges(cpRuns, what = "heart_rate")
 ```
 
 Explore concentration profiles for speed, e.g., via functional principal

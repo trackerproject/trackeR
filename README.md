@@ -1,7 +1,12 @@
 trackeR
 =======
 
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/trackeR)](http://cran.r-project.org/package=trackeR)
+[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/trackeR)](https://cran.r-project.org/package=trackeR)
+[![Travis-CI Build
+Status](https://travis-ci.org/ikosmidis/trackeR.svg?branch=master)](https://travis-ci.org/ikosmidis/trackeR)
+[![Coverage
+Status](https://img.shields.io/codecov/c/github/ikosmidis/trackeR/master.svg)](https://codecov.io/github/ikosmidis/trackeR?branch=master)
+[![Licence](https://img.shields.io/badge/licence-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 ### Description
 
@@ -21,7 +26,7 @@ flexible and extensible methods.
 Read:
 
 -   Read data from .tcx, Strava .gpx, .db3 or [Golden
-    Cheetah](http://goldencheetah.org)'s .json files.
+    Cheetah](http://goldencheetah.org)’s .json files.
 -   Read all supported files in a specified directory.
 
 Data processing:
@@ -43,7 +48,7 @@ Analysis:
     rest ratio.
 -   Time spent exercising in user-supplied zones, e.g., heart rate zones
     or speed zones.
--   Work capacity above critical power (W', W prime)
+-   Work capacity above critical power (W’, W prime)
 -   Distribution profiles: time spent exercising above thresholds of
     training attributes.
 -   Concentration profiles: negative derivatives of distribution
@@ -64,7 +69,7 @@ Visualisation:
 -   Ridgeline (or joy) plots for distribution/concentration prifiles.
 
 Dashboard: - `trackeR_app()` launches a dashboard that gives access to
-many of **trackeR**'s capabilities and provides a workflow for loading
+many of **trackeR**’s capabilities and provides a workflow for loading
 and updating a training database within R.
 
 ### Installation
@@ -93,27 +98,27 @@ Summarise sessions
     plot(runsSummary, group = c("total", "moving"),
         what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
 
-![](README_files/figure-markdown_github/summary-1.png)
+![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/summary-1.png)
 
 Generate distribution and concentration profiles
 
     runsT <- threshold(runs)
-    dpRuns <- distributionProfile(runsT, what = c("speed", "heart.rate"))
+    dpRuns <- distributionProfile(runsT, what = c("speed", "heart_rate"))
     dpRunsS <- smoother(dpRuns)
     cpRuns <- concentrationProfile(dpRunsS)
     plot(cpRuns, multiple = TRUE, smooth = FALSE)
 
-![](README_files/figure-markdown_github/cprofile-1.png)
+![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/cprofile-1.png)
 
 A ridgeline plot of the concentration profiles
 
     ridges(cpRuns, what = "speed")
 
-![](README_files/figure-markdown_github/cprofile-ridges-1.png)
+![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/cprofile-ridges-1.png)
 
-    ridges(cpRuns, what = "heart.rate")
+    ridges(cpRuns, what = "heart_rate")
 
-![](README_files/figure-markdown_github/cprofile-ridges-hr-1.png)
+![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/cprofile-ridges-hr-1.png)
 
 Explore concentration profiles for speed, e.g., via functional principal
 components analysis (PCA)
@@ -129,7 +134,7 @@ components analysis (PCA)
     ## plot harmonics
     plot(cpPCA, harm = 1:2)
 
-![](README_files/figure-markdown_github/funPCA-1.png)
+![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/funPCA-1.png)
 
     ## plot scores vs summary statistics
     scoresSP <- data.frame(cpPCA$scores)
@@ -140,9 +145,9 @@ components analysis (PCA)
     ## pc1 ~ session duration (moving)
     ggplot(d) + geom_point(aes(x = as.numeric(durationMoving), y = speed_pc1)) + theme_bw()
 
-![](README_files/figure-markdown_github/scores-1.png)
+![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/scores-1.png)
 
     ## pc2 ~ avg speed (moving)
     ggplot(d) + geom_point(aes(x = avgSpeedMoving, y = speed_pc2)) + theme_bw()
 
-![](README_files/figure-markdown_github/scores-2.png)
+![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/scores-2.png)
