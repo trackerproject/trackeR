@@ -1,6 +1,6 @@
 Package: trackeR
 Version: 1.0.9.900
-Title: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices
+Title: Infrastructure for Running, Cycling and Swimming Data from GPS-Enabled Tracking Devices
 Authors@R: c(person(given = "Ioannis", family = "Kosmidis",
 	            role = c("aut", "cre"), email = "ioannis.kosmidis@warwick.ac.uk",
 		    comment = c(ORCID = "0000-0003-1556-0302")),
