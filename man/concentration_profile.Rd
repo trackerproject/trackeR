@@ -35,7 +35,8 @@ plot(cProfile)
 ## And now directly from the 'trackeRdata' object, which is a
 ## considerably faster if all that is needed are the concentration
 ## profiles
-cProfile <- concentrationProfile(runs, what = 'speed', grid = seq(0, 12.5, by = 0.05))
+cProfile <- concentrationProfile(runs, what = 'speed',
+                                 limits = list(speed = c(0, 12.5)))
 plot(cProfile, smooth = FALSE)
 ridges(cProfile)
 plot(cProfile, smooth = TRUE)
