@@ -2967,6 +2967,9 @@ plot(dProfile, multiple = TRUE)
   \centering
 %
 <<dprofilePlot, echo = FALSE, fig = TRUE, width = 8, height = 4>>=
+dProfile <- distributionProfile(runs, session = 1:4,
+  what = c("speed", "heart_rate"),
+  grid = list(speed = seq(0, 12.5, by = 0.05), heart_rate = seq(0, 250)))
 plot(dProfile, smooth = FALSE, multiple = TRUE)
 @
 %
@@ -3253,6 +3256,7 @@ runsT <- threshold(runs)
 dpRuns <- distributionProfile(runsT, what = "speed")
 dpRunsS <- smoother(dpRuns)
 cpRuns <- concentrationProfile(dpRunsS)
+plot(cpRuns, multiple = TRUE, smooth = FALSE)
 @
 %
 
@@ -3261,6 +3265,12 @@ cpRuns <- concentrationProfile(dpRunsS)
   \centering
 %
 <<AppCPplot, echo = FALSE, fig = TRUE, width = 8, height = 4>>=
+library("trackeR")
+data("runs", package = "trackeR")
+runsT <- threshold(runs)
+dpRuns <- distributionProfile(runsT, what = "speed")
+dpRunsS <- smoother(dpRuns)
+cpRuns <- concentrationProfile(dpRunsS)
 plot(cpRuns, multiple = TRUE, smooth = FALSE) #+ theme(legend.position = "none")
 @
 %
