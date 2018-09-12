@@ -8,6 +8,10 @@ addons:
     packages:
      - libxml2-dev # for XML
 
+branches:
+  only:
+  - master
+
 after_success:
   - Rscript -e 'cor::coveralls()'
 
