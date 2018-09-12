@@ -13,5 +13,5 @@ branches:
   - master
 
 after_success:
-  - Rscript -e 'cor::coveralls()'
+  - Rscript -e 'covr::coveralls()'
 
