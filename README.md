@@ -3,9 +3,9 @@ trackeR
 
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/trackeR)](https://cran.r-project.org/package=trackeR)
 [![Travis-CI Build
-Status](https://travis-ci.org/trackeRproject/trackeR.svg?branch=master)](https://travis-ci.org/ikosmidis/trackeR)
+Status](https://travis-ci.org/trackeRproject/trackeR.svg?branch=master)](https://travis-ci.org/trackerproject/trackeR)
 [![Coverage
-Status](https://img.shields.io/codecov/c/github/trackeRproject/trackeR/master.svg)](https://codecov.io/github/ikosmidis/trackeR?branch=master)
+Status](https://img.shields.io/codecov/c/github/trackeRproject/trackeR/master.svg)](https://codecov.io/github/trackerproject/trackeR?branch=master)
 [![Licence](https://img.shields.io/badge/licence-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 ### Description
