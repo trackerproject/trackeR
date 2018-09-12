@@ -3,10 +3,11 @@
 language: R
 sudo: false
 cache: packages
- addons:
+addons:
    apt:
-     packages:
-       - libxml2-dev # for XML
+    packages:
+     - libxml2-dev # for XML
+
 after_success:
   - Rscript -e 'cor::codecov()'
 
