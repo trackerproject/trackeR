@@ -32,6 +32,7 @@
 \Keywords{sports, tracking, work capacity, running, cycling, distribution profiles}
 \Plainkeywords{sports, tracking, work capacity, running, cycling, distribution profiles}
 
+
 \Abstract{
 
   {\color{blue} This introduction to the \proglang{R} package
@@ -3220,12 +3221,27 @@ appropriately scaled kernel density estimator on the values of the
 variables in \code{what}. This is a more computationally efficient
 operation, that computing the distribution profiles, smoothing them,
 and then taking finite differences of the smoothed distribution
-profiles.
-<<cP, echo = TRUE>>=
-cProfile1 <- concentrationProfile(runs, session = 1:4, what = "speed",
+profiles. The following code chunk illustrates this and plots the
+concentration profiles using a ridgeline plot. The resulting plot is
+shown in Figure~\ref{fig:ridges}.
+<<cP, echo = TRUE, eval = FALSE>>=
+cProfile1 <- concentrationProfile(runs,  what = "speed",
                                   limits = list(speed = c(0, 12.5)))
-plot(cProfile1, multiple = TRUE)
+ridges(cProfile1)
 @
+
+\setkeys{Gin}{width=0.8\textwidth}
+\begin{figure}[t]
+  \centering
+<<cpPlot, echo = FALSE, eval = TRUE, fig = TRUE, width = 7, height = 4.5>>=
+cProfile1 <- concentrationProfile(runs,  what = "speed",
+                                  limits = list(speed = c(0, 12.5)))
+ridges(cProfile1)
+@
+  \caption{Ridgeline plot of concentration profiles.}
+  \label{fig:ridges}
+\end{figure}
+
 
 % \clearpage
 
