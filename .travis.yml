@@ -8,7 +8,6 @@ addons:
     packages:
      - libxml2-dev # for XML
 
-
 after_success:
   - Rscript -e 'cor::codecov()'
 
