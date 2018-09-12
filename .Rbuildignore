@@ -4,6 +4,7 @@ README_files/
 README.html
 ^\.travis\.yml$
 ^codecov\.yml$
+^coveralls\.yml$
 vignettes/jss.bst
 vignettes/jss.cls
 
