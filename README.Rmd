@@ -5,8 +5,8 @@ output: github_document
 # trackeR
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/trackeR)](https://cran.r-project.org/package=trackeR)
-[![Travis-CI Build Status](https://travis-ci.org/trackeRproject/trackeR.svg?branch=master)](https://travis-ci.org/trackerproject/trackeR)
-[![Coverage Status](https://img.shields.io/codecov/c/github/trackeRproject/trackeR/master.svg)](https://codecov.io/github/trackerproject/trackeR?branch=master)
+[![Travis-CI Build Status](https://travis-ci.org/trackerproject/trackeR.svg?branch=master)](https://travis-ci.org/trackerproject/trackeR)
+[![Coverage Status](https://img.shields.io/codecov/c/github/trackerproject/trackeR/master.svg)](https://codecov.io/github/trackerproject/trackeR?branch=master)
 [![Licence](https://img.shields.io/badge/licence-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 
@@ -119,7 +119,7 @@ Generate distribution and concentration profiles
 ```{r, cprofile, fig.width = 9}
 runsT <- threshold(runs)
 dp_runs <- distribution_profile(runsT, what = c("speed", "heart_rate"))
-dp_runs_smooth <- smoother(dpRuns)
+dp_runs_smooth <- smoother(dp_runs)
 cp_runs <- concentration_profile(dp_runs_smooth)
 plot(cp_runs, multiple = TRUE, smooth = FALSE)
 ```
