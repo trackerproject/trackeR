@@ -3,3 +3,5 @@ inst/doc
 .DS_Store
 *.R~
 GBR_msk_alt*
+.Rhistory
+.DS_Store

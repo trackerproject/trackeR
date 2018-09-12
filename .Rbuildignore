@@ -7,6 +7,8 @@ README.html
 ^coveralls\.yml$
 vignettes/jss.bst
 vignettes/jss.cls
+.Rhistory
+.DS_Store
 
 GBR*
 
