@@ -31,6 +31,12 @@ Read:
 - Read data from .tcx, Strava .gpx, .db3 or [Golden Cheetah](http://goldencheetah.org)'s .json files.
 - Read all supported files in a specified directory.
 
+Sports supported:
+
+- Running
+- Cycling
+- Swimming
+
 Data processing:
 
 - Automatically identify sessions from timestamps.
@@ -43,7 +49,7 @@ Data processing:
 Analysis:
 
 - Session summaries: distance, duration, time moving, average speed/pace/heart
-rate/cadence/power (overall and moving), work to rest ratio.
+rate/cadence/power (overall and moving), work to rest ratio, temperature.
 - Time spent exercising in user-supplied zones, e.g., heart rate zones or speed zones.
 - Work capacity above critical power (W', W prime)
 - Distribution profiles: time spent exercising above thresholds of training attributes.
@@ -61,9 +67,6 @@ Visualisation:
 - Plot principal components of distribution/concentration profiles.
 - Ridgeline (or joy) plots for distribution/concentration prifiles.
 
-Dashboard:
-- `trackeR_app()` launches a dashboard that gives access to many of **trackeR**'s capabilities and provides a workflow for loading and updating a training database within R.
-
 ### Installation
 
 Install the released version from CRAN:
@@ -76,7 +79,7 @@ Or the development version from github:
 
 ```{r, eval = FALSE}
 # install.packages("devtools")
-devtools::install_github("hfrick/trackeR")
+devtools::install_github("trackerproject/trackeR")
 ```
 
 ### Dashboard

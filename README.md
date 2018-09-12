@@ -29,6 +29,12 @@ Read:
     Cheetah](http://goldencheetah.org)’s .json files.
 -   Read all supported files in a specified directory.
 
+Sports supported:
+
+-   Running
+-   Cycling
+-   Swimming
+
 Data processing:
 
 -   Automatically identify sessions from timestamps.
@@ -45,7 +51,7 @@ Analysis:
 
 -   Session summaries: distance, duration, time moving, average
     speed/pace/heart rate/cadence/power (overall and moving), work to
-    rest ratio.
+    rest ratio, temperature.
 -   Time spent exercising in user-supplied zones, e.g., heart rate zones
     or speed zones.
 -   Work capacity above critical power (W’, W prime)
@@ -68,10 +74,6 @@ Visualisation:
 -   Plot principal components of distribution/concentration profiles.
 -   Ridgeline (or joy) plots for distribution/concentration prifiles.
 
-Dashboard: - `trackeR_app()` launches a dashboard that gives access to
-many of **trackeR**’s capabilities and provides a workflow for loading
-and updating a training database within R.
-
 ### Installation
 
 Install the released version from CRAN:
@@ -81,7 +83,7 @@ Install the released version from CRAN:
 Or the development version from github:
 
     # install.packages("devtools")
-    devtools::install_github("hfrick/trackeR")
+    devtools::install_github("trackerproject/trackeR")
 
 ### Dashboard
 
@@ -95,7 +97,7 @@ Plot workout data
     data(runs, package = "trackeR")
     plot(runs, session = 1:5, what = c("speed", "pace", "altitude"))
 
-![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/plots-1.png)
+![](README_files/figure-markdown_strict/plots-1.png)
 
 Change the units
 
@@ -106,7 +108,7 @@ Change the units
                           sport = c("running", "running"))
     plot(runs0, session = 1:5, what = c("speed", "pace", "altitude"))
 
-![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/plots_new-1.png)
+![](README_files/figure-markdown_strict/plots_new-1.png)
 
 Summarise sessions
 
@@ -115,7 +117,7 @@ Summarise sessions
     plot(runs_summary, group = c("total", "moving"),
         what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
 
-![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/summary-1.png)
+![](README_files/figure-markdown_strict/summary-1.png)
 
 Generate distribution and concentration profiles
 
@@ -125,17 +127,17 @@ Generate distribution and concentration profiles
     cp_runs <- concentration_profile(dp_runs_smooth)
     plot(cp_runs, multiple = TRUE, smooth = FALSE)
 
-![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/cprofile-1.png)
+![](README_files/figure-markdown_strict/cprofile-1.png)
 
 A ridgeline plot of the concentration profiles
 
     ridges(cp_runs, what = "speed")
 
-![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/cprofile-ridges-1.png)
+![](README_files/figure-markdown_strict/cprofile-ridges-1.png)
 
     ridges(cp_runs, what = "heart_rate")
 
-![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/cprofile-ridges-hr-1.png)
+![](README_files/figure-markdown_strict/cprofile-ridges-hr-1.png)
 
 Explore concentration profiles for speed, e.g., via functional principal
 components analysis (PCA)
@@ -151,7 +153,7 @@ components analysis (PCA)
     ## plot harmonics
     plot(cp_PCA, harm = 1:2)
 
-![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/funPCA-1.png)
+![](README_files/figure-markdown_strict/funPCA-1.png)
 
     ## plot scores vs summary statistics
     scores_SP <- data.frame(cp_PCA$scores)
@@ -162,9 +164,9 @@ components analysis (PCA)
     ## pc1 ~ session duration (moving)
     ggplot(d) + geom_point(aes(x = as.numeric(durationMoving), y = speed_pc1)) + theme_bw()
 
-![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/scores-1.png)
+![](README_files/figure-markdown_strict/scores-1.png)
 
     ## pc2 ~ avg speed (moving)
     ggplot(d) + geom_point(aes(x = avgSpeedMoving, y = speed_pc2)) + theme_bw()
 
-![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/scores-2.png)
+![](README_files/figure-markdown_strict/scores-2.png)
