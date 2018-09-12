@@ -1,57 +1,49 @@
 Package: trackeR
 Version: 1.0.9.900
-Date: 2017-01-11
-Title: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices
-Authors@R: c(person(given = "Hannah", family = "Frick",
-	   	    role = c("aut", "cre"), email = "hannah.frick@gmail.com",
-	            comment = c(ORCID = "0000-0002-6049-5258")),
-             person(given = "Ioannis", family = "Kosmidis",
-	            role = "aut", email = "ioannis.kosmidis@warwick.ac.uk",
+Title: Infrastructure for Running, Cycling and Swimming Data from GPS-Enabled Tracking Devices
+Authors@R: c(person(given = "Ioannis", family = "Kosmidis",
+	            role = c("aut", "cre"), email = "ioannis.kosmidis@warwick.ac.uk",
 		    comment = c(ORCID = "0000-0003-1556-0302")),
+             person(given = "Hannah", family = "Frick",
+	   	    role = "aut", email = "hannah.frick@gmail.com",
+	            comment = c(ORCID = "0000-0002-6049-5258")),
 	     person(given = "Robin", family = "Hornak",
-	            role = "ctb", email = "robin.hornak.14@ucl.ac.uk"))
-Description: The aim of this package is to provide infrastructure for
-    handling running and cycling data from GPS-enabled tracking
-    devices. After extraction and appropriate manipulation of the
-    training or competition attributes, the data are placed into
-    session-based and unit-aware data objects of class 'trackeRdata'
-    (S3 class). The information in the resulting data objects can then
-    be visualised, summarised, and analysed through corresponding
-    flexible and extensible methods. A shiny dashboard is provided
-    (type 'trackeR_app()') that implements a workflow for the extraction and
-    analysis of the data.
+	            role = "aut", email = "robinhornak@gmail.com"))
+Description: Provides infrastructure for handling running, cycling and
+    swimming data from GPS-enabled tracking devices within R. The
+    package provides methods to extract, clean and organise the
+    training or competition data into session-based and
+    unit-aware data objects of class 'trackeRdata' (S3 class). The
+    information in the resulting data objects can then be visualised,
+    summarised, and analysed through corresponding flexible and
+    extensible methods.
 Depends:
     R (>= 3.1.0),
     zoo
 Imports:
-    plotly,
     ggplot2,
     ggridges,
-    DT,
-    mgcv,
-    parallel,
-    XML,
+    xml2,
     RSQLite,
     jsonlite,
     raster,
     scam,
+    foreach,
     fda,
+    sp,
     leaflet,
     ggmap,
     gridExtra,
-    gtable,
-    shinyFiles,
-    shiny,
-    shinyjs,
-    shinycssloaders,
-    shinydashboard,
-    sp
+    gtable
 Suggests:
     testthat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    covr
 VignetteBuilder: knitr
-License: GPL-2 | GPL-3
-URL: https://github.com/hfrick/trackeR
-BugReports: https://github.com/hfrick/trackeR/issues
+License: GPL-3
+URL: https://github.com/trackerproject/trackeR
+BugReports: https://github.com/trackerproject/trackeR/issues
 RoxygenNote: 6.0.1
+Encoding: UTF-8
+LazyData: true

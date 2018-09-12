@@ -4,31 +4,35 @@
 \alias{plot.conProfile}
 \title{Plot concentration profiles.}
 \usage{
-\method{plot}{conProfile}(x, session = NULL, what = c("speed",
-  "heart.rate"), multiple = FALSE, smooth = TRUE, ...)
+\method{plot}{conProfile}(x, session = NULL, what = NULL,
+  multiple = FALSE, smooth = FALSE, ...)
 }
 \arguments{
-\item{x}{An object of class \code{conProfile} as returned by \code{\link{concentrationProfile}}.}
+\item{x}{An object of class \code{conProfile} as returned by
+\code{\link{concentration_profile}}.}
 
-\item{session}{A vector of the sessions to be plotted, defaults to all sessions.
-Either a character vector with the session names, e.g., c('Session3', 'Session4')
-or a numeric vector with the relative position of the session(s).}
+\item{session}{A numeric vector of the sessions to be plotted,
+defaults to all sessions.}
 
-\item{what}{Which variables should be plotted?}
+\item{what}{Which variables should be plotted? Defaults to all
+variables in \code{object} (\code{what = NULL}).}
 
-\item{multiple}{Logical. Should all sessions be plotted in one panel?}
+\item{multiple}{Logical. Should all sessions be plotted in one
+panel?}
 
-\item{smooth}{Logical. Should unsmoothed profiles be smoothed before plotting?}
+\item{smooth}{Logical. Should unsmoothed profiles be smoothed
+before plotting?}
 
-\item{...}{Currently not used.}
+\item{...}{Further arguments to be passed to
+\code{\link{smoother_control.distrProfile}}.}
 }
 \description{
 Plot concentration profiles.
 }
 \examples{
 data('runs', package = 'trackeR')
-dProfile <- distributionProfile(runs, session = 1:3,
-    what = 'speed', grid = seq(0, 12.5, by = 0.05))
+dProfile <- distributionProfile(runs, session = 1:3, what = 'speed',
+                                grid = seq(0, 12.5, by = 0.05))
 cProfile <- concentrationProfile(dProfile)
 plot(cProfile, smooth = FALSE)
 plot(cProfile)

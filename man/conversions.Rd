@@ -24,9 +24,12 @@
 \alias{h2s}
 \alias{min2h}
 \alias{h2min}
+\alias{h2h}
+\alias{min2min}
 \alias{s2s}
 \alias{min2min}
 \alias{h2h}
+\alias{degree2degree}
 \alias{m_per_s2km_per_h}
 \alias{km_per_h2m_per_s}
 \alias{m_per_s2ft_per_min}
@@ -76,15 +79,22 @@
 \alias{mi_per_h2mi_per_h}
 \alias{km_per_min2km_per_min}
 \alias{mi_per_min2mi_per_min}
+\alias{bpm2bpm}
 \alias{s_per_m2min_per_km}
 \alias{min_per_km2s_per_m}
 \alias{s_per_m2min_per_mi}
 \alias{min_per_mi2s_per_m}
 \alias{min_per_km2min_per_mi}
 \alias{min_per_mi2min_per_km}
+\alias{min_per_ft2min_per_km}
+\alias{min_per_ft2min_per_mi}
 \alias{s_per_m2s_per_m}
 \alias{min_per_km2min_per_km}
 \alias{min_per_mi2min_per_mi}
+\alias{h_per_km2min_per_km}
+\alias{h_per_km2min_per_mi}
+\alias{h_per_mi2min_per_km}
+\alias{h_per_mi2min_per_mi}
 \alias{W2kW}
 \alias{kW2W}
 \alias{W2W}
@@ -93,7 +103,11 @@
 \alias{rev_per_min2rev_per_min}
 \alias{steps_per_min2rev_per_min}
 \alias{rev_per_min2steps_per_min}
-\title{Auxiliary conversion functions.}
+\alias{C2F}
+\alias{C2C}
+\alias{F2F}
+\alias{F2C}
+\title{Auxiliary conversion functions}
 \usage{
 m2km(variable)
 
@@ -139,11 +153,17 @@ min2h(variable)
 
 h2min(variable)
 
+h2h(variable)
+
+min2min(variable)
+
 s2s(variable)
 
 min2min(variable)
 
 h2h(variable)
+
+degree2degree(variable)
 
 m_per_s2km_per_h(variable)
 
@@ -243,6 +263,8 @@ km_per_min2km_per_min(variable)
 
 mi_per_min2mi_per_min(variable)
 
+bpm2bpm(variable)
+
 s_per_m2min_per_km(variable)
 
 min_per_km2s_per_m(variable)
@@ -255,11 +277,23 @@ min_per_km2min_per_mi(variable)
 
 min_per_mi2min_per_km(variable)
 
+min_per_ft2min_per_km(variable)
+
+min_per_ft2min_per_mi(variable)
+
 s_per_m2s_per_m(variable)
 
 min_per_km2min_per_km(variable)
 
 min_per_mi2min_per_mi(variable)
+
+h_per_km2min_per_km(variable)
+
+h_per_km2min_per_mi(variable)
+
+h_per_mi2min_per_km(variable)
+
+h_per_mi2min_per_mi(variable)
 
 W2kW(variable)
 
@@ -276,10 +310,19 @@ rev_per_min2rev_per_min(variable)
 steps_per_min2rev_per_min(variable)
 
 rev_per_min2steps_per_min(variable)
+
+C2F(variable)
+
+C2C(variable)
+
+F2F(variable)
+
+F2C(variable)
 }
 \arguments{
 \item{variable}{Variable to be converted.}
 }
 \description{
-Conversion functions for distance, duration, speed, pace, power, and cadence.
+Conversion functions for distance, duration, speed, pace, power,
+cadence and temperature.
 }

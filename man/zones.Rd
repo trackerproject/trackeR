@@ -4,24 +4,32 @@
 \alias{zones}
 \title{Time spent in training zones.}
 \usage{
-zones(object, session = NULL, what = c("speed", "heart.rate"),
-  breaks = list(speed = 0:10, heart.rate = c(0, seq(75, 225, by = 50), 250)),
-  parallel = FALSE, cores = NULL, auto_breaks = TRUE, ...)
+zones(object, session = NULL, what = c("speed", "heart_rate"),
+  breaks = NULL, parallel = FALSE, n_zones = 9,
+  unit_reference_sport = NULL, ...)
 }
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}
 
-\item{session}{A numeric vector of the sessions to be plotted, defaults to all sessions.}
+\item{session}{A numeric vector of the sessions to be plotted,
+defaults to all sessions.}
 
 \item{what}{A vector of variable names.}
 
-\item{breaks}{A list of breakpoints between zones, corresponding to the variables in \code{what}.}
+\item{breaks}{A list of breakpoints between zones, corresponding to
+the variables in \code{what}.}
 
-\item{parallel}{Logical. Should computation be carried out in parallel?}
+\item{parallel}{Logical. Should computation be carried out in
+parallel? If \code{TRUE} computation is performed in parallel
+using the backend provided to \code{\link{foreach}}. Default is
+\code{FALSE}.}
 
-\item{cores}{Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options('corese')} (on Windows) or \code{options('mc.cores')} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.}
+\item{n_zones}{numeric that sets the number of zones for data to be
+split into. Default is \code{9}.}
 
-\item{auto_breaks}{Logical. Should breaks be selected automatically? Default is \code{FALSE} and \code{breaks} will be ignored if \code{TRUE}.}
+\item{unit_reference_sport}{The sport to inherit units from
+(default is taken to be the most frequent sport in
+\code{object}).}
 
 \item{...}{Currently not used.}
 }

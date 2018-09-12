@@ -1,12 +1,45 @@
-#' Summary of training sessions.
+#' Summary of training sessions
 #'
+#' @aliases trackeRdataSummary
 #' @param object An object of class \code{\link{trackeRdata}}.
-#' @param session A numeric vector of the sessions to be summarised, defaults to all sessions.
-#' @param movingThreshold The threshold above which speed an athlete is considered moving (given in the unit of the speed measurements in \code{object}. If \code{NULL}, the default, the threshold corresponds to a slow walking speed (1 m/s, converted to another speed unit, if necessary). For reference, the preferred walking speed for humans is around 1.4 m/s (Bohannon, 1997).
+#' @param session A numeric vector of the sessions to be summarised,
+#'     defaults to all sessions.
+#' @param moving_threshold A named vector of 3 speeds above which an
+#'     athlete is considered moving, given in the unit of the speed
+#'     measurements in \code{object}. If \code{NULL} (default), the
+#'     speeds are taken to be \code{c(cycling = 2, running = 1,
+#'     swimming = 0.5)}. See Details.
+#' @param unit_reference_sport The sport to inherit units from
+#'     (default is taken to be the most frequent sport in
+#'     \code{object}).
 #' @param ... Currently not used.
-#' @return An object of class \code{trackeRdataSummary}.
+#'
+#' @details
+#'
+#' The default speed thresholds are 1 m/s for running (3.6 km/h; slow
+#' walking), 2 m/s for cycling (7.2 km/h) for cycling and 0.5 m/s
+#' (1.8km/h) for swimming. For reference, the preferred walking speed
+#' for humans is around 1.4 m/s (Bohannon, 1997).
+#'
+#' The units for the computed summaries match those of the sport
+#' specified by \code{unit_reference_sport}.
+#'
+#' If \code{object} has thresholds then the thresholds that match
+#' those of the sport specified by \code{unit_reference_sport} are
+#' applied to the respective summaries.
+#'
+#' @return
+#'
+#' An object of class \code{trackeRdataSummary}.
+#'
+#'
 #' @seealso \code{\link{plot.trackeRdataSummary}}
-#' @references Bohannon RW (1997). 'Comfortable and Maximum Walking Speed of Adults Aged 20--79 Years: Reference Values and Determinants.' Age and Ageing, 26(1), 15--19. doi: 10.1093/ageing/26.1.15.
+#' @references
+#'
+#' Bohannon RW (1997). 'Comfortable and Maximum Walking Speed of
+#' Adults Aged 20--79 Years: Reference Values and Determinants.' Age
+#' and Ageing, 26(1), 15--19. doi: 10.1093/ageing/26.1.15.
+#'
 #' @examples
 #' data('runs', package = 'trackeR')
 #' runSummary <- summary(runs, session = 1:2)
@@ -14,143 +47,207 @@
 #' runSummary
 #' print(runSummary, digits = 3)
 #' ## change units
-#' changeUnits(runSummary, variable = 'speed', unit = 'km_per_h')
+#' change_units(runSummary, variable = 'speed', unit = 'km_per_h')
 #' ## plot summary
 #' runSummaryFull <- summary(runs)
 #' plot(runSummaryFull)
 #' plot(runSummaryFull, group = c('total', 'moving'),
 #'     what = c('avgSpeed', 'distance', 'duration', 'avgHeartRate'))
 #' @export
-summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, ...) {
+summary.trackeRdata <- function(object,
+                                session = NULL,
+                                moving_threshold = NULL,
+                                unit_reference_sport = NULL,
+                                ...) {
+    units <- get_units(object)
+    sports <- get_sport(object)
+    oper <- get_operations(object)
+    thres <- oper$threshold
 
-    ## threshold defining 'moving'
-    units <- getUnits(object)
-    if (is.null(movingThreshold)) {
-        ## set to a speed (somewhat) below the preferred walking speed of ~1.4 m/s (Bohannon,
-        ## 1997)
-        movingThreshold <- 1
-        speedUnit <- units$unit[units$variable == "speed"]
-        if (speedUnit != "m_per_s") {
-            conversion <- match.fun(paste("m_per_s", speedUnit, sep = "2"))
-            movingThreshold <- conversion(movingThreshold)
+    files <- attr(object, "file")
+
+    if (is.null(unit_reference_sport)) {
+        unit_reference_sport <- find_unit_reference_sport(object)
+    }
+
+    ## Match units to those of unit_reference_sport
+    un <- collect_units(units, unit_reference_sport)
+    for (va in unique(un$variable)) {
+        units$unit[units$variable == va] <- un$unit[un$variable == va]
+    }
+
+    ## Change threshold units
+    if (!is.null(thres)) {
+        thres <- change_units(thres, units$variable, units$unit, units$sport)
+        ## Uniformize thresholds (Check again if that's indeed what we need here)
+        for (va in unique(un$variable)) {
+            inds <- thres$variable == va & thres$sport == unit_reference_sport
+            if (any(inds)) {
+                thres$lower[thres$variable == va] <- thres$lower[inds]
+                thres$upper[thres$variable == va] <- thres$upper[inds]
+            }
+        }
+        oper$threshold <- thres
+    }
+
+
+    ## convert moving_threshold
+    if (is.null(moving_threshold)) {
+        moving_threshold <- c(cycling = 2, running = 1, swimming = 0.5)
+        speed_unit <- un$unit[un$variable == "speed"]
+        if (speed_unit != "m_per_s") {
+            conversion <- match.fun(paste("m_per_s", speed_unit, sep = "2"))
+            moving_threshold <- conversion(moving_threshold)
         }
     }
 
     ## select sessions
-    if (is.null(session))
-        session <- 1:length(object)
+    if (is.null(session)) {
+        session <- seq.int(length(object))
+    }
+
     object <- object[session]
 
+    ## Change units to those of unit_reference_sport
+    object <- changeUnits(object, units$variable, units$unit, units$sport)
+
     ## session times
-    sessionStart <- as.POSIXct(sapply(object, function(x) min(index(x))), origin = "1970-01-01")
-    sessionEnd <- as.POSIXct(sapply(object, function(x) max(index(x))), origin = "1970-01-01")
+    session_start <- as.POSIXct(sapply(object, function(x) min(index(x))), origin = "1970-01-01")
+    session_end <- as.POSIXct(sapply(object, function(x) max(index(x))), origin = "1970-01-01")
 
     ## distance
-    distance <- sapply(object, function(x) zoo::coredata(x$distance)[nrow(x)])
+    distance <- sapply(object, function(x) {
+        d <- zoo::coredata(x$distance)
+        if (all(is.na(d))) {
+            return(NA)
+        }
+        else {
+            max(d, na.rm = TRUE)
+        }
+    })
 
-    ## session length (unit set by difftime)
-    duration <- difftime(sessionEnd, sessionStart)
-    durUnit <- switch(units(duration), secs = "s", mins = "min", hours = "h", days = "d")  ## README: can be avoided if we use the same names...
-    if ("duration" %in% units$variable) {
-        units$unit[units$variable == "duration"] <- durUnit
-    } else {
-        units <- rbind(units, c("duration", durUnit))
-    }
+    ## session length (unit set by units)
+    duration_unit <- un$unit[un$variable == "duration"]
+    du <- switch(duration_unit, "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days")
+    duration <- difftime(session_end, session_start, units = du)
 
-    ## moving time (based on speed)
-    durationMoving <- sapply(object, function(x) timeAboveThreshold(x$speed, threshold = movingThreshold,
-        ge = FALSE))
-    attr(durationMoving, "units") <- "secs"
-    class(durationMoving) <- "difftime"
-    units(durationMoving) <- units(duration)
+    ## Get session durations moving and convert their units to duration_unit
+    duration_moving <- lapply(session, function(sess) {
+        sp <- sports[sess]
+        out <- timeAboveThreshold(object[[sess]]$speed, threshold = moving_threshold[sp], ge = FALSE)
+        units(out) <- du
+        out
+    })
+    duration_moving <- do.call("c", duration_moving)
 
     ## average speed
-    distUnit <- units$unit[units$variable == "distance"]
-    unitSpeed <- strsplit(units$unit[units$variable == "speed"], split = "_per_")[[1]]
-    conversionDist <- match.fun(paste(distUnit, unitSpeed[1], sep = "2"))
-    dist4speed <- conversionDist(distance)
-    conversionDur <- match.fun(paste(durUnit, unitSpeed[2], sep = "2"))
-    dur4speed <- conversionDur(as.numeric(duration))
-    avgSpeed <- dist4speed/dur4speed
+    distance_unit <- un$unit[un$variable == "distance"]
+    speed_unit <- strsplit(units$unit[un$variable == "speed"], split = "_per_")[[1]]
+    convert_distance <- match.fun(paste(distance_unit, speed_unit[1], sep = "2"))
+    distance_s <- convert_distance(distance)
+    convert_duration <- match.fun(paste(duration_unit, speed_unit[2], sep = "2"))
+    duration_s <- convert_duration(as.numeric(duration))
+    avg_speed <- distance_s/duration_s
 
     ## average speed moving
-    durMoving4speed <- conversionDur(as.numeric(durationMoving))
-    avgSpeedMoving <- dist4speed/durMoving4speed
+    duration_moving_s <- convert_duration(as.numeric(duration_moving))
+    avg_speed_moving <- distance_s/duration_moving_s
 
     ## average pace
-    distUnit4pace <- strsplit(units$unit[units$variable == "pace"], split = "_per_")[[1]][2]
-    conversionDistPace <- match.fun(paste(distUnit, distUnit4pace, sep = "2"))
-    dist4pace <- conversionDistPace(distance)
-    avgPace <- as.numeric(duration, units = "mins")/dist4pace
+    pace_unit <- strsplit(un$unit[un$variable == "pace"], split = "_per_")[[1]]
+    convert_distance <- match.fun(paste(distance_unit, pace_unit[2], sep = "2"))
+    distance_p <- convert_distance(distance)
+    convert_duration <- match.fun(paste(duration_unit, pace_unit[1], sep = "2"))
+    duration_p <- convert_duration(as.numeric(duration))
+    avg_pace <- duration_p/distance_p
+
 
     ## average pace moving
-    avgPaceMoving <- as.numeric(durationMoving, units = "mins")/dist4pace
+    duration_moving_p <- convert_duration(as.numeric(duration_moving))
+    avg_pace_moving <- duration_moving_p/distance_p
 
-    ## function for weighted total to produce averages
-    weightedMean <- function(x, which, th, resting = FALSE) {
-        z <- coredata(x[, which])[-length(x[, which])]
-        if (all(is.na(z)))
-            return(NA)
+    ## work to rest ratio (rest time is duration - duration_moving)
+    work2rest <- as.numeric(duration_moving)/as.numeric(duration - duration_moving)
 
+    weightedMeans <- function(x, th, which) {
+        n <- nrow(x)
+        z <- coredata(x)[-n, c(which, "speed")]
+        p <- ncol(z)
+        nams <- colnames(z)
         dt <- as.numeric(diff(index(x)))
-        i <- as.numeric(!is.na(z))
-        m <- as.numeric(x$speed[-nrow(x)] > th)
-        if (resting)
-            m <- 1 - m
-
-        w <- dt * i * m/sum(dt * i * m)
-        ret <- sum(z * w, na.rm = TRUE)
-        return(ret)
+        i <- 1 - is.na(z)
+        m <- as.numeric(z[, "speed"] > th)
+        w <- dt * i
+        w_moving <- w * m
+        w_resting <- w * (1 - m)
+        overall <- .colSums(z * w, n - 1, p, na.rm = TRUE) / .colSums(w, n - 1, p, na.rm = TRUE)
+        moving <- .colSums(z * w_moving, n - 1, p, na.rm = TRUE) / .colSums(w_moving, n - 1, p, na.rm = TRUE)
+        resting <- .colSums(z * w_resting, n - 1, p, na.rm = TRUE) / .colSums(w_resting, n - 1, p, na.rm = TRUE)
+        names(overall) <- nams
+        names(moving) <- paste0(nams, "_moving")
+        names(resting) <- paste0(nams, "_resting")
+        ret <- c(overall, moving, resting)
+        ret[is.na(ret)] <- NA
+        ret
     }
 
-    ## ## average speed avgSpeed <- sapply(object, weightedMean, which = 'speed', th = -1)
-
-    ## ## average speed moving avgSpeedMoving <- sapply(object, weightedMean, which =
-    ## 'speed', th = movingThreshold)
-
-    ## ## average pace avgPace <- sapply(object, weightedMean, which = 'pace', th = -1)
-
-    ## ## average pace moving avgPaceMoving <- sapply(object, weightedMean, which = 'pace',
-    ## th = movingThreshold)
-
-    ## average cadence
-    avgCadence <- sapply(object, weightedMean, which = "cadence", th = -1)
-
-    ## average cadence moving
-    avgCadenceMoving <- sapply(object, weightedMean, which = "cadence", th = movingThreshold)
-
-    ## average power
-    avgPower <- sapply(object, weightedMean, which = "power", th = -1)
-
-    ## average power moving
-    avgPowerMoving <- sapply(object, weightedMean, which = "power", th = movingThreshold)
-
-    ## average heart rate
-    avgHeartRate <- sapply(object, weightedMean, which = "heart.rate", th = -1)
-
-    ## average heart rate moving
-    avgHeartRateMoving <- sapply(object, weightedMean, which = "heart.rate", th = movingThreshold)
-
-    ## average heart rate resting
-    avgHeartRateResting <- sapply(object, weightedMean, which = "heart.rate", th = movingThreshold,
-        resting = TRUE)
-
-    ## work to rest ratio
-    wrRatio <- as.numeric(durationMoving)/as.numeric(duration - durationMoving)
+    summaries <- sapply(seq_along(object), function(j) {
+        sp <- sports[j]
+        weightedMeans(object[[j]],
+                      which = c("cadence_running", "cadence_cycling", "power", "heart_rate", "altitude", "temperature"),
+                      th = moving_threshold[sp])
+    })
 
 
-    ## maxima in addition to averages?  calories?  splits per km?
+    ## ADD: maxima in addition to averages?  calories?  splits per km?
+
+    ret <- data.frame(session = session,
+                      sessionStart = session_start,
+                      sessionEnd = session_end,
+                      distance = distance,
+                      duration = duration,
+                      durationMoving = duration_moving,
+                      avgSpeed = avg_speed,
+                      avgSpeedMoving = avg_speed_moving,
+                      avgPace = avg_pace,
+                      avgPaceMoving = avg_pace_moving,
+                      avgCadenceRunning = summaries["cadence_running", ],
+                      avgCadenceCycling = summaries["cadence_cycling", ],
+                      avgAltitude = summaries["altitude", ],
+                      avgAltitudeMoving = summaries["altitude_moving", ],
+                      avgCadenceRunningMoving = summaries["cadence_running_moving", ],
+                      avgCadenceCyclingMoving = summaries["cadence_cycling_moving", ],
+                      avgPower = summaries["power", ],
+                      avgPowerMoving = summaries["power_moving", ],
+                      avgHeartRate = summaries["heart_rate", ],
+                      avgTemperature = summaries["temperature", ],
+                      avgHeartRateMoving = summaries["heart_rate_moving", ],
+                      avgHeartRateResting = summaries["heart_rate_resting", ],
+                      wrRatio = work2rest,
+                      sport = sports[session],
+                      file = files[session], stringsAsFactors = FALSE)
 
 
-    ret <- data.frame(session = session, sessionStart = sessionStart, sessionEnd = sessionEnd,
-        distance = distance, duration = duration, durationMoving = durationMoving, avgSpeed = avgSpeed,
-        avgSpeedMoving = avgSpeedMoving, avgPace = avgPace, avgPaceMoving = avgPaceMoving,
-        avgCadence = avgCadence, avgCadenceMoving = avgCadenceMoving, avgPower = avgPower,
-        avgPowerMoving = avgPowerMoving, avgHeartRate = avgHeartRate, avgHeartRateMoving = avgHeartRateMoving,
-        avgHeartRateResting = avgHeartRateResting, wrRatio = wrRatio)
+    ## Replace inf and NaN with NA
+    ret[sapply(ret, function(x) is.infinite(x) | is.na(x))] <- NA
 
+    ## Apply thresholds
+    lims <- unique(thres[thres$variable %in% un$variable, c("variable", "lower", "upper")])
+    for (j in seq.int(nrow(lims))) {
+        low <- lims[j, "lower"]
+        upp <- lims[j, "upper"]
+        cvar <- lims[j, "variable"]
+        vars <- grep(cvar, names(ret), ignore.case = TRUE)
+        ret[, vars] <- sapply(ret[, vars], function(x) {
+            x[x < low | x > upp] <- NA
+            x
+        })
+    }
+
+    attr(ret, "operations") <- oper
     attr(ret, "units") <- units
-    attr(ret, "movingThreshold") <- movingThreshold
+    attr(ret, "moving_threshold") <- moving_threshold
+    attr(ret, "unit_reference_sport") <- attr(un, "unit_reference_sport")
     class(ret) <- c("trackeRdataSummary", class(ret))
     return(ret)
 }
@@ -164,28 +261,37 @@ summary.trackeRdata <- function(object, session = NULL, movingThreshold = NULL, 
 #' @param digits Number of digits to be printed.
 #' @export
 print.trackeRdataSummary <- function(x, ..., digits = 2) {
-    units <- getUnits(x)
+    units <- get_units(x)
+    units <- collect_units(units, unit_reference_sport = attr(x, "unit_reference_sport"))
+    sports <- get_sport(x)
 
     for (i in seq_len(length(x$session))) {
-        cat("\n *** Session", x$session[i], "***\n")
+        cat("\n *** Session", x$session[i], ":", sports[i], "***\n")
 
-        cat("\n Session times:", format(x$sessionStart[i], format = "%Y-%m-%d %H:%M:%S"),
-            "-", format(x$sessionEnd[i], format = "%Y-%m-%d %H:%M:%S"), "\n ")
+        cat("\n Session times:",
+            format(x$sessionStart[i], format = "%Y-%m-%d %H:%M:%S"),
+            "-",
+            format(x$sessionEnd[i], format = "%Y-%m-%d %H:%M:%S"), "\n ")
 
-        cat("Distance:", round(x$distance[i], digits), units$unit[units$variable == "distance"],
+        cat("Distance:",
+            round(x$distance[i], digits), units$unit[units$variable == "distance"],
             "\n ")
 
-        cat("Duration:", round(as.numeric(x$duration[i]), digits), units(x$duration[i]),
+        cat("Duration:",
+            round(as.numeric(x$duration[i]), digits), units(x$duration[i]),
             "\n ")
 
-        cat("Moving time:", round(x$durationMoving[i], digits), units(x$durationMoving[i]),
+        cat("Moving time:",
+            round(x$durationMoving[i], digits), units(x$durationMoving[i]),
             "\n ")
 
-        cat("Average speed:", round(x$avgSpeed[i], digits = digits), units$unit[units$variable ==
-            "speed"], "\n ")
+        cat("Average speed:",
+            round(x$avgSpeed[i], digits = digits), units$unit[units$variable == "speed"],
+            "\n ")
 
-        cat("Average speed moving:", round(x$avgSpeedMoving[i], digits = digits), units$unit[units$variable ==
-            "speed"], "\n ")
+        cat("Average speed moving:",
+            round(x$avgSpeedMoving[i], digits = digits), units$unit[units$variable == "speed"],
+            "\n ")
 
         unitDist4pace <- strsplit(units$unit[units$variable == "pace"], split = "_per_")[[1]][2]
         avgPace <- floor(x$avgPace[i] * 100)/100
@@ -196,11 +302,15 @@ print.trackeRdataSummary <- function(x, ..., digits = 2) {
         cat(paste0("Average pace moving (per 1 ", unitDist4pace, "):"), paste(floor(avgPaceMoving),
             round(x$avgPaceMoving[i]%%1 * 60, 0), sep = ":"), "min:sec\n ")
 
-        cat("Average cadence:", round(x$avgCadence[i], digits = digits), units$unit[units$variable ==
-            "cadence"], "\n ")
+        cat("Average cadence running:", round(x$avgCadenceRunning[i], digits = digits),
+            units$unit[units$variable == "cadence_running"], "\n ")
+        cat("Average cadence cycling:", round(x$avgCadenceCycling[i], digits = digits),
+            units$unit[units$variable == "cadence_cycling"], "\n ")
 
-        cat("Average cadence moving:", round(x$avgCadenceMoving[i], digits = digits), units$unit[units$variable ==
-            "cadence"], "\n ")
+        cat("Average cadence running moving:", round(x$avgCadenceRunningMoving[i], digits = digits),
+            units$unit[units$variable == "cadence_running"], "\n ")
+        cat("Average cadence cycling moving:", round(x$avgCadenceCyclingMoving[i], digits = digits),
+            units$unit[units$variable == "cadence_cycling"], "\n ")
 
         cat("Average power:", round(x$avgPower[i], digits = digits), units$unit[units$variable ==
             "power"], "\n ")
@@ -209,21 +319,28 @@ print.trackeRdataSummary <- function(x, ..., digits = 2) {
             "power"], "\n ")
 
         cat("Average heart rate:", round(x$avgHeartRate[i], digits = digits), units$unit[units$variable ==
-            "heart.rate"], "\n ")
+            "heart_rate"], "\n ")
 
         cat("Average heart rate moving:", round(x$avgHeartRateMoving[i], digits = digits),
-            units$unit[units$variable == "heart.rate"], "\n ")
+            units$unit[units$variable == "heart_rate"], "\n ")
 
         cat("Average heart rate resting:", round(x$avgHeartRateResting[i], digits = digits),
-            units$unit[units$variable == "heart.rate"], "\n ")
+            units$unit[units$variable == "heart_rate"], "\n ")
+
+        cat("Average temperature:", round(x$avgTemperature[i], digits = digits), units$unit[units$variable ==
+            "temperature"], "\n ")
 
         cat("Work to rest ratio:", round(x$wrRatio[i], digits), "\n")
-
-        cat("\n Moving threshold:", round(attr(x, "movingThreshold"), digits = digits),
-            units$unit[units$variable == "speed"], "\n")
-
-        cat("\n")
     }
+    mt <- attr(x, "moving_threshold")
+    cat("\n Moving thresholds:",
+        paste0(format(mt, digits = digits), " (", names(mt), ")"),
+        units$unit[units$variable == "speed"], "\n")
+
+    cat(" Unit reference sport:",
+        attr(x, "unit_reference_sport"), "\n")
+
+    cat("\n")
 }
 
 
@@ -242,9 +359,11 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...) {
 
         basic <- ret[, c("session", "sessionStart", "sessionEnd")]
 
-        varsTotal <- c("distance", "duration", "avgSpeed", "avgPace", "avgCadence", "avgPower",
-            "avgHeartRate", "wrRatio")
-        varsMoving <- c("duration", "avgSpeed", "avgPace", "avgCadence", "avgPower", "avgHeartRate")
+        varsTotal <- c("distance", "duration", "avgSpeed", "avgPace", "avgCadenceRunning",
+                       "avgCadenceCycling", "avgPower", "avgHeartRate", "wrRatio")
+        varsMoving <- c("duration", "avgSpeed", "avgPace", "avgCadenceRunning",
+                        "avgCadenceCycling",
+                        "avgPower", "avgHeartRate")
         varsResting <- c("avgHeartRate")
 
         dfTotal <- data.frame(basic[rep(seq_along(ret$session), times = length(varsTotal)),
@@ -263,14 +382,14 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...) {
 }
 
 
-#' Plot an object of class trackeRdataSummary.
+#' Plot an object of class \code{\link{trackeRdataSummary}}.
 #'
 #' @param x An object of class \code{trackeRdataSummary}.
 #' @param date Should the date or the session number be used on the abscissa?
 #' @param what Name of variables which should be plotted. Default is all.
 #' @param group Which group of variables should be plotted? This can either be
 #'     \code{total} or \code{moving}. Default is both.
-#' @param lines Should interpolating lines be plotted?
+#' @param trend Should a smooth trend be plotted?
 #' @param ... Currently not used.
 #' @seealso \code{\link{summary.trackeRdata}}
 #' @examples
@@ -280,15 +399,17 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...) {
 #' plot(runSummary, date = FALSE, group = 'total',
 #'     what = c('distance', 'duration', 'avgSpeed'))
 #' @export
-plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, lines = TRUE,
-    ...) {
-    ## the following line is just intended to prevent R CMD check to produce the NOTE 'no
-    ## visible binding for global variable *' because those variables are used in subset()
-    variable <- type <- NULL
+plot.trackeRdataSummary <- function(x,
+                                    date = TRUE,
+                                    what = NULL,
+                                    group = NULL,
+                                    trend = TRUE,
+                                    ...) {
 
     nsessions <- length(unique(x$session))
     ndates <- length(unique(x$sessionStart))
     units <- getUnits(x)
+    units <- collect_units(units, unit_reference_sport = attr(x, "unit_reference_sport"))
 
     ## subsets on variables and type
     dat <- fortify(x, melt = TRUE)
@@ -319,82 +440,79 @@ plot.trackeRdataSummary <- function(x, date = TRUE, what = NULL, group = NULL, l
     if (date) {
         dat$xaxis <- dat$sessionStart
         xlab <- "Date"
-    } else {
+    }
+    else {
         dat$xaxis <- dat$session
         xlab <- "Session"
     }
 
     ## (basic) plot
-    p <- ggplot2::ggplot(dat)
+    p <- ggplot(dat)
     if (date & ndates < nsessions)
         stop("All sessions must have unique starting times. Try date = FALSE instead.")
-    p <- p + ggplot2::geom_point(ggplot2::aes_(x = quote(xaxis), y = quote(value), color = quote(type)),
-        na.rm = TRUE) + ggplot2::labs(x = xlab, y = "") + ggplot2::guides(color = ggplot2::guide_legend(title = "Type")) +
-        ggplot2::scale_colour_manual(values = c(total = "#76BD58", moving = "#F68BA2",
-            resting = "#5EB3F0"))
+
     ## color palette comes from colorspace::rainbow_hcl(3, c = 70)[c(2,1,3)] [1] '#5EB3F0'
     ## '#F68BA2' '#76BD58' an alternative from
     ## http://colorbrewer2.org/#type=qualitative&scheme=Dark2&n=3
-    ## ggplot2::scale_colour_manual(values = c('total' = '#1b9e77', 'moving' = '#d95f02',
+    ## scale_colour_manual(values = c('total' = '#1b9e77', 'moving' = '#d95f02',
     ## 'resting' = '#7570b3'))
 
     ## possibly add lines for 2 or more sessions
     if (nsessions > 1) {
-        if (lines) {
-            p <- p + ggplot2::geom_line(ggplot2::aes_(x = quote(xaxis), y = quote(value),
-                color = quote(type)), na.rm = TRUE)
+        if (trend) {
+            p <- p + geom_line(stat = "smooth",
+                               method = "gam",
+                               formula = y ~ s(x, bs = "cs", k = 5),
+                               aes_(x = quote(xaxis), y = quote(value), color = quote(type)),
+                               alpha = 0.5, size = 1,
+                               se = FALSE,
+                               na.rm = TRUE)
         }
     }
+
+    p <- p +
+        geom_point(aes_(x = quote(xaxis), y = quote(value), color = quote(type)), alpha = 0.75, na.rm = TRUE) +
+        labs(x = xlab, y = "") +
+        ## guides(color = guide_legend(title = "Type")) +
+        scale_colour_manual(values = c(total = "#76BD58", moving = "#F68BA2", resting = "#5EB3F0"))
 
     ## facets
     lab_sum <- function(series) {
         series <- as.character(series)
         concept <- switch(series, avgPace = "pace", avgSpeed = "speed", distance = "distance",
-            duration = "duration", avgPower = "power", avgCadence = "cadence", avgHeartRate = "heart.rate")
+                          duration = "duration", avgPower = "power", avgCadenceRunning = "cadence_running",
+                          avgCadenceCycling = "cadence_cycling",
+                          avgHeartRate = "heart_rate")
         thisunit <- units$unit[units$variable == concept]
         prettyUnit <- prettifyUnits(thisunit)
-        ret <- switch(series, distance = paste0("distance \n [", prettyUnit, "]"), duration = paste0("duration \n [",
-            prettyUnit, "]"), avgSpeed = paste0("avg. speed \n [", prettyUnit, "]"), avgPace = paste0("avg. pace \n [",
-            prettyUnit, "]"), avgCadence = paste0("avg. cadence \n [", prettyUnit, "]"),
-            avgPower = paste0("avg. power \n [", prettyUnit, "]"), avgHeartRate = paste0("avg. heart rate \n [",
-                prettyUnit, "]"), wrRatio = "work-to-rest \n ratio")
+        ret <- switch(series,
+                      distance = paste0("distance \n [", prettyUnit, "]"),
+                      duration = paste0("duration \n [", prettyUnit, "]"),
+                      avgSpeed = paste0("avg. speed \n [", prettyUnit, "]"),
+                      avgPace = paste0("avg. pace \n [", prettyUnit, "]"),
+                      avgCadenceRunning = paste0("avg. cadence \n [", prettyUnit, "]"),
+                      avgCadenceCycling = paste0("avg. cadence \n [", prettyUnit, "]"),
+                      avgPower = paste0("avg. power \n [", prettyUnit, "]"),
+                      avgHeartRate = paste0("avg. heart rate \n [", prettyUnit, "]"),
+                      wrRatio = "work-to-rest \n ratio")
         ret
     }
     lab_sum <- Vectorize(lab_sum)
 
-    p <- p + ggplot2::facet_grid(facets = "variable ~ .", scales = "free_y", labeller = ggplot2::labeller(variable = lab_sum))  ## +
+    p <- p +
+        facet_grid(facets = "variable ~ .", scales = "free_y", labeller = labeller(variable = lab_sum))  ## +
 
     ## add bw theme and position of legend
-    p <- p + ggplot2::theme_bw() + ggplot2::theme(legend.position = "top")
-
+    p <- p + theme_bw() + theme(legend.position = "top")
     return(p)
 }
 
+#' Timeline plot for \code{\link{trackeRdataSummary}} objects
+#'
+#' @inheritParams timeline
+#' @rdname timeline
 #' @export
-timeline.trackeRdataSummary <- function(object, lims = NULL, ...) {
-    startdates <- as.Date(object$sessionStart)
-    enddates <- as.Date(object$sessionEnd)
-    ## Hack to extract times
-    endtimes <- object$sessionEnd
-    starttimes <- object$sessionStart
-    endtimes <- as.POSIXct(as.numeric(difftime(endtimes, trunc(endtimes, "days"), units = "secs")),
-        origin = Sys.Date())
-    starttimes <- as.POSIXct(as.numeric(difftime(starttimes, trunc(starttimes, "days"),
-        units = "secs")), origin = Sys.Date())
-    df <- data.frame(sday = startdates, eday = enddates, start = starttimes, end = endtimes)
-    if (!is.null(lims)) {
-        lims <- as.POSIXct(paste(Sys.Date(), lims))
-    }
-    p <- ggplot2::ggplot(df) + ## geom_point(aes(x = start, y = sday), alpha = 0.5) + geom_point(aes(x = end, y =
-    ## eday), alpha = 0.5) +
-    ggplot2::geom_segment(ggplot2::aes_(x = quote(start), xend = quote(end), y = quote(sday),
-        yend = quote(eday)), color = '#428bca', size=1)
-    ## take care of breaks, limits on the time axes and style of breakpoints
-    p <- p + ggplot2::scale_x_datetime(date_labels = "%H:%m", date_breaks = "4 hour", limits = lims)
-    p <- p + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1)) +
-        ggplot2::xlab("Time") + ggplot2::ylab("Date")
-    p + ggplot2::theme_bw()
-}
+timeline.trackeRdataSummary <- timeline.trackeRdata
 
 
 #' @export
@@ -408,7 +526,122 @@ timeline.trackeRdataSummary <- function(object, lims = NULL, ...) {
     return(ret)
 }
 
+#' @rdname nsessions
 #' @export
 nsessions.trackeRdataSummary <- function(object, ...) {
     nrow(object)
 }
+
+#' @rdname session_times
+#' @export
+session_times.trackeRdataSummary <- function(object,
+                                             session = NULL,
+                                             ...) {
+    if (is.null(session)) {
+        session <- seq_along(object)
+    }
+    as.data.frame(object[session])[, c("sessionStart", "sessionEnd")]
+}
+
+#' @rdname session_duration
+#' @export
+session_duration.trackeRdataSummary <- function(object,
+                                                session = NULL,
+                                                ...) {
+    if (is.null(session)) {
+        session <- seq_along(object)
+    }
+    object[session]$duration
+}
+
+#' @rdname get_sport
+#' @export
+get_sport.trackeRdataSummary <- function(object,
+                                         session = NULL,
+                                         ...) {
+    if (is.null(session)) {
+        session <- seq.int(nrow(object))
+    }
+    object[session, ]$sport
+}
+
+#' Get the units of the variables in an \code{trackeRdataSummary} object
+#'
+#' @param object An object of class \code{trackeRdataSummary}.
+#' @param ... Currently not used.
+#' @export
+get_units.trackeRdataSummary <- function(object, ...) {
+    attr(object, "units")
+}
+
+
+#' Change the units of the variables in an \code{trackeRdataSummary} object
+#'
+#' @param object An object of class \code{trackeRdataSummary}.
+#' @param variable A vector of variables to be changed. Note, these are expected to be
+#'     concepts like 'speed' rather than variable names like 'avgSpeed' or 'avgSpeedMoving'.
+#' @param unit A vector with the units, corresponding to variable.
+#' @param ... Currently not used.
+#' @export
+change_units.trackeRdataSummary <- function(object,
+                                            variable,
+                                            unit,
+                                            ...) {
+
+    no_variable <- missing(variable)
+    no_unit <- missing(unit)
+
+    if (no_unit & no_variable) {
+        return(object)
+    }
+    else {
+        ## NOTE: variable is expected to contain concepts like 'speed' rather than variable
+        ## names like 'avgSpeed' or 'avgSpeedMoving'.
+        concept <- variable
+        units <- get_units(object)
+        current <- collect_units(units, unit_reference_sport = attr(object, "unit_reference_sport"))
+        p <- length(variable)
+
+        if (length(unit) == p) {
+            ## no need for collect_units as this is already done in summary
+
+            mt <- attr(object, "moving_threshold")
+            object <- as.data.frame(object)
+
+            for (i in concept) {
+                variables <- names(object)[grep(pattern = i, names(object), ignore.case = TRUE)]
+                currentUnit <- current$unit[current$variable == i]  ## $concept
+                newUnit <- unit[which(concept == i)]
+                if (currentUnit != newUnit) {
+                    conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
+                    ## convert summary statistics
+                    for (v in variables) {
+                        object[, v] <- conversion(object[, v])
+                    }
+                    ## convert moving threshold
+                    if (i == "speed")
+                        mt <- conversion(mt)
+                    ## update units
+                    current$unit[current$variable == i] <- newUnit
+                }
+
+            }
+
+            ## update units in units
+            for (va in current$variable) {
+                units$unit[units$variable == va] <- current$unit[current$variable == va]
+            }
+
+            ## update units attribute and return
+            attr(object, "units") <- units
+            attr(object, "moving_threshold") <- mt
+            class(object) <- c("trackeRdataSummary", class(object))
+            return(object)
+        }
+        else {
+            stop("variable and unit should have the same length.")
+        }
+    }
+}
+
+

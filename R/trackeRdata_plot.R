@@ -1,20 +1,37 @@
-#' Plot training sessions in form of trackeRdata objects.
+#' Plot training sessions in form of trackeRdata objects
 #'
 #' @param x An object of class \code{\link{trackeRdata}}.
-#' @param session A numeric vector of the sessions to be plotted, defaults to all sessions.
+#' @param session A numeric vector of the sessions to be plotted,
+#'     defaults to all sessions.
 #' @param what Which variables should be plotted?
 #' @param threshold Logical. Should thresholds be applied?
 #' @param smooth Logical. Should the data be smoothed?
 #' @param trend Logical. Should a smooth trend be plotted?
-#' @param dates Logical. Should the date of the session be used in the panel header?
-#' @param ... Further arguments to be passed to \code{\link{threshold}} and
+#' @param dates Logical. Should the date of the session be used in the
+#'     panel header?
+#' @param moving_threshold A named vector of 3 speeds to be used for
+#'     thresholding pace, given in the unit of the speed measurements
+#'     in \code{object}. If \code{NULL} (default), the speeds are
+#'     taken to be \code{c(cycling = 2, running = 1, swimming =
+#'     0.5)}. See Details.
+#' @param unit_reference_sport The sport to inherit units from
+#'     (default is taken to be the most frequent sport in
+#'     \code{object}).
+#' @param ... Further arguments to be passed to
+#'     \code{\link{threshold}} and
 #'     \code{\link{smootherControl.trackeRdata}}.
-#' @details Note that a threshold is always applied to the pace. This (upper) threshold
-#'     corresponds to a speed of 1.4 meters per second, the preferred walking speed of
-#'     humans. The lower threshold is 0.
+#' @details
+#'
+#' Note that a threshold is always applied to the pace. This (upper)
+#' threshold corresponds to a speed of 1.4 meters per second, the
+#' preferred walking speed of humans. The lower threshold is 0.
+#'
+#' The units for the variables match those of the sport specified by
+#' \code{unit_reference_sport}.
+#'
 #' @examples
 #' \dontrun{
-#' data("runs", package = "trackeR")
+#' data('runs', package = 'trackeR')
 #' ## plot heart rate and pace for the first 3 sessions
 #' plot(runs, session = 1:3)
 #' ## plot raw speed data for session 4
@@ -27,56 +44,87 @@
 #'     smooth = TRUE, width = 15, parallel = FALSE)
 #' }
 #' @export
-plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
-                             threshold = TRUE, smooth = FALSE, trend = TRUE, dates = TRUE, ...){
-    ## the following line is just intended to prevent R CMD check to produce the NOTE
-    ## "no visible binding for global variable 'Series'" because that variable is used in subset()
-    Series <- NULL
+plot.trackeRdata <- function(x, session = NULL,
+                             what = c("pace", "heart_rate"),
+                             threshold = TRUE,
+                             smooth = FALSE,
+                             trend = TRUE,
+                             dates = TRUE,
+                             unit_reference_sport = NULL,
+                             moving_threshold = NULL,
+                             ...){
+    units <- get_units(x)
 
-    ## code inspired by autoplot.zoo
-    if (is.null(session)) session <- seq_along(x)
-    units <- getUnits(x)
+    if (is.null(session)) {
+        session <- seq_along(x)
+    }
+
+    if (is.null(unit_reference_sport)) {
+        unit_reference_sport <- find_unit_reference_sport(x)
+    }
+    ## Match units to those of unit_reference_sport
+    un <- collect_units(units, unit_reference_sport)
+    for (va in unique(un$variable)) {
+        units$unit[units$variable == va] <- un$unit[un$variable == va]
+    }
+
+    ## convert moving_threshold
+    if (is.null(moving_threshold)) {
+        moving_threshold <- c(cycling = 2, running = 1, swimming = 0.5)
+        speed_unit <- un$unit[un$variable == "speed"]
+        if (speed_unit != "m_per_s") {
+            conversion <- match.fun(paste("m_per_s", speed_unit, sep = "2"))
+            moving_threshold <- conversion(moving_threshold)
+        }
+    }
+
 
     x <- x[session]
 
+    ## Change units to those of unit_reference_sport
+    x <- changeUnits(x, units$variable, units$unit, units$sport)
+
     ## threshold
-    if (threshold){
+    if (threshold) {
         dots <- list(...)
-        if (all(c("variable", "lower", "upper") %in% names(dots))){
-            ## thresholds provided by user
-            th <- data.frame(variable = dots$variable, lower = dots$lower, upper = dots$upper)
-        } else {
+        if (all(c("variable", "lower", "upper", "sport") %in% names(dots))) {
+            th <- generate_thresholds(dots$variable, dots$lower, dots$upper, dots$sport)
+        }
+        else {
             ## default thresholds
-            cycling <- units$unit[units$variable == "cadence"] == "rev_per_min"
-            th <- generateDefaultThresholds(cycling)
-            ## th <- th[which(th$variable %in% what),]
-            ## w <- which(units$variable %in% what)
-            th <- changeUnits(th, variable = units$variable, unit = units$unit)
+            th <- generate_thresholds()
+            th <- change_units(th, variable = units$variable, unit = units$unit, sport = units$sport)
         }
         ## apply thresholds
-        x <- threshold(x, th)
+        x <- threshold(x, th$variable, th$lower, th$upper, th$sport)
     }
 
     ## for plotting pace, always apply a threshold
-    ## upper threshold is based on preferred walking speed of 1.4 m/s,
+    ## upper threshold is based on moving thresholds
     ## see https://en.wikipedia.org/wiki/Preferred_walking_speed
-    if ("pace" %in% what){
-        conversionPace <- match.fun(paste("s_per_m", units$unit[units$variable == "pace"], sep = "2"))
-        thPace <- conversionPace(1 / 1.4)
-        x <- threshold(x, variable = "pace", lower = 0, upper = thPace)
-    }
+    speed_unit <- strsplit(un$unit[un$variable == "speed"], split = "_per_")[[1]]
+    pace_unit <- paste(speed_unit[2], speed_unit[1], sep = "_per_")
+    convert_pace <- match.fun(paste(pace_unit, un$unit[un$variable == "pace"], sep = "2"))
+
+    x <- threshold(x,
+                   variable = c("pace", "pace", "pace"),
+                   lower = c(0, 0, 0),
+                   upper = convert_pace(1/moving_threshold),
+                   sport = names(moving_threshold))
 
     ## smooth
     if (smooth) {
         xo <- x
-        if (is.null(getOperations(x)$smooth)) {
+        if (is.null(get_operations(x)$smooth)) {
             x <- smoother(x, what = what, ...)
-        } else {
+        }
+        else {
             warning("This object has already been smoothed. No additional smoothing takes place.")
             smooth <- FALSE ## it's not the plot function calling smoother
             x <- x
         }
-    } else {
+    }
+    else {
         x <- x
     }
 
@@ -87,76 +135,62 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
     if (dates) {
         df$SessionID <- format(session[df$SessionID])
         df$SessionID <- gsub(" ", "0", df$SessionID)
-        df$SessionID <- paste(df$SessionID, format(df$Index, "%Y-%m-%d"), sep = ": ")
+        df$SessionID <- paste0(paste(df$SessionID, df$Sport, sep = ": "), "\n", format(df$Index, "%Y-%m-%d"))
     }
     else {
-        df$SessionID <- factor(df$SessionID, levels = seq_along(session), labels = session)
+        df$SessionID <- paste0(paste(df$SessionID, df$Sport, sep = ": "))
     }
     df <- subset(df, Series %in% what)
     df$Series <- factor(df$Series)
 
     ## check that there is data to plot
-    for(l in levels(df$Series)){
+    for (l in levels(df$Series)) {
         if (all(is.na(subset(df, Series == l, select = "Value"))))
             df <- df[!(df$Series == l), ]
     }
 
-    ## make facets
-    singleVariable <- nlevels(df$Series) == 1L
-    ## Include the labels even if there is a single session. This will
-    ## have the (undesirable?) effect that sessions which extend
-    ## beyond midnight will be split in two panels at midnight
-    singleSession <- FALSE #length(session) == 1L
+    facets <- "Series ~ SessionID"
 
-    facets <- if (singleVariable) {
-        if (singleSession) NULL else ". ~ SessionID"
-    } else {
-        if(singleSession) "Series ~ ." else "Series ~ SessionID"
-    }
-    ## lab <- function(variable, value){
-    ##     if (variable == "Series"){
-    ##         ret <- paste0(value, " [", units$unit[units$variable == value], "]")
-    ##     } else {
-    ##         ret <- as.character(value)
-    ##     }
-    ##     return(ret)
-    ## }
-    ## lab <- Vectorize(lab)
-    ## new (todo: make units an argument and move outside of plotting function
-    lab_data <- function(series){
-        thisunit <- units$unit[units$variable == series]
+    lab_data <- function(series) {
+        thisunit <- un$unit[un$variable == series]
         prettyUnit <- prettifyUnits(thisunit)
-        paste0(series, " [", prettyUnit,"]")
+        paste0(series, "\n[", prettyUnit,"]")
     }
     lab_data <- Vectorize(lab_data)
 
     ## basic plot
-    p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
-        ggplot2::geom_line(color = if (smooth) "gray" else "black", na.rm = TRUE) +
-        ggplot2::ylab(if(singleVariable) lab_data(levels(df$Series)) else "") + ggplot2::xlab("Time")
+    p <- ggplot(data = df, mapping = aes_(x = quote(Index), y = quote(Value))) +
+        geom_line(color = grDevices::gray(0.9), na.rm = TRUE) +
+        ylab("") +
+        xlab("Time")
+
     if (trend & !smooth){
-        p <- p + ggplot2::geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"),
-                                      ## mapping = ggplot2::aes_(alpha = 0.5),
-                                      ## aes should understand alpha but doesn't?
-                                      alpha = 0.5,
-                                      se = FALSE, na.rm = TRUE)
+        p <- p + geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"),
+                                      se = FALSE, na.rm = TRUE, lwd = 0.5, col = "black")
     }
+
     ## add facet if necessary
     if (!is.null(facets)){
-        p <- p + ggplot2::facet_grid(facets, scales = "free", labeller = ggplot2::labeller("Series" = lab_data))
+        p <- p + facet_grid(facets, scales = "free", labeller = labeller("Series" = lab_data))
     }
+
     ## add bw theme
-    p <- p + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 50, hjust = 1))
+    p <- p +
+        theme_bw() +
+        theme(axis.text.x = element_text(angle = 50, hjust = 1),
+                       panel.grid.major = element_blank(),
+                       panel.grid.minor = element_blank())
 
 
     ## if plot did smoothing add smoothed data on top of plot
     if (smooth){
         ## data prep
         dfs <- fortify(x, melt = TRUE)
+
         if (dates) {
             dfs$SessionID <- format(session[dfs$SessionID])
             dfs$SessionID <- gsub(" ", "0", dfs$SessionID)
-            dfs$SessionID <- paste(dfs$SessionID, format(dfs$Index, "%Y-%m-%d"), sep = ": ")
+            dfs$SessionID <- paste0(paste(dfs$SessionID, dfs$Sport, sep = ": "), "\n", format(dfs$Index, "%Y-%m-%d"))
         }
         else {
             dfs$SessionID <- factor(dfs$SessionID, levels = seq_along(session), labels = session)
@@ -167,20 +201,34 @@ plot.trackeRdata <- function(x, session = NULL, what = c("pace", "heart.rate"),
             if (all(is.na(subset(dfs, Series == l, select = "Value"))))
                 dfs <- dfs[!(dfs$Series == l), ]
         }
+
         ## add plot layers
-        p <- p + ggplot2::geom_line(ggplot2::aes_(x = quote(Index), y = quote(Value)),
-                                    data = dfs, col = "black", na.rm = TRUE)
+        p <- p + geom_line(aes_(x = quote(Index), y = quote(Value)),
+                                    data = dfs, col = grDevices::gray(0.75), na.rm = TRUE)
         if (trend){
-            p <- p + ggplot2::geom_smooth(data = dfs, method = "gam", formula = y ~ s(x, bs = "cs"),
-                                          ## mapping = ggplot2::aes_(alpha = 0.5),
-                                          ## aes should understand alpha but doesn't?
-                                          alpha = 0.5, se = FALSE, na.rm = TRUE)
+            p <- p + geom_smooth(data = dfs, method = "gam", formula = y ~ s(x, bs = "cs"),
+                                          se = FALSE, na.rm = TRUE, lwd = 0.5, col = "black")
         }
     }
 
     return(p)
 }
 
+#' Returns 'pretty' units for use for plotting or printing
+#'
+#' @param unit a unit as recorded in the \code{\link{data.frame}}
+#'     generated by \code{\link{generate_units}}.
+#'
+#' @details
+#'
+#' \code{prettifyUnits} is the vectorized version of \code{prettifyUnit}
+#'
+#' @examples
+#' prettifyUnit("m_per_s")
+#' prettifyUnit("rev_per_min")
+#' prettifyUnits(c("rev_per_min", "ft_per_min"))
+#'
+#' @export
 prettifyUnit <- function(unit){
     unit <- as.character(unit)
     prettyUnit <- switch(unit,
@@ -197,10 +245,13 @@ prettifyUnit <- function(unit){
                          as.character(unit))
     return(prettyUnit)
 }
+
+#' @rdname prettifyUnit
+#' @export
 prettifyUnits <- Vectorize(prettifyUnit)
 
 
-#' Fortify a trackeRdata object for plotting with ggplot2.
+#' Fortify a trackeRdata object for plotting with ggplot2
 #'
 #' @param model The \code{\link{trackeRdata}} object.
 #' @param data Ignored.
@@ -208,19 +259,24 @@ prettifyUnits <- Vectorize(prettifyUnit)
 #'     instead of the default wide format?
 #' @param ... Ignored.
 #' @export
-fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
+fortify.trackeRdata <- function(model,
+                                data,
+                                melt = FALSE,
+                                ...){
     ret <- list()
-    for (i in seq_along(model)){
+    sports <- get_sport(model)
+    for (i in seq_along(model)) {
 
         ret[[i]] <- zoo::fortify.zoo(model[[i]], melt = melt)
         ret[[i]]$SessionID <- i
+        ret[[i]]$Sport <- sports[i]
         ## FIXME: add date identifier?
     }
     ret <- do.call("rbind", ret)
     return(ret)
 }
 
-#' Plot routes for training sessions.
+#' Plot routes for training sessions
 #'
 #' Plot the route ran/cycled during training onto a background map.
 #' Internet connection is required to download the background map.
@@ -240,34 +296,47 @@ fortify.trackeRdata <- function(model, data, melt = FALSE, ...){
 #' @seealso \code{\link[ggmap]{get_map}}, \code{\link[ggmap]{ggmap}}
 #' @examples
 #' \dontrun{
-#' data("runs", package = "trackeR")
+#' data('runs', package = 'trackeR')
 #' plotRoute(runs, session = 4, zoom = 13)
 #' plotRoute(runs, session = 4, zoom = 13, maptype = "hybrid")
-#' plotRoute(runs, session = 4, zoom = 13, source = "stamen")
 #' ## multiple sessions
 #' plotRoute(runs, session = c(1:5, 8:11), source = "google")
 #' ## different zoom level per panel
 #' plotRoute(runs, session = 6:7, source = "google", zoom = c(13, 14))
 #' }
 #' @export
-plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRUE, mfrow = NULL, ...){
+plot_route <- function(x,
+                       session = 1,
+                       zoom = NULL,
+                       speed = TRUE,
+                       threshold = TRUE,
+                       mfrow = NULL,
+                       ...) {
 
     ## prep
-    if (is.null(session)) session <- seq_along(x)
-    if (!is.null(zoom)) zoom <- rep(zoom, length.out = length(session))
+    if (is.null(session)) {
+        session <- seq_along(x)
+    }
 
+    if (!is.null(zoom)) {
+        zoom <- rep(zoom, length.out = length(session))
+    }
+
+    sports <- get_sport(x)
 
     ## get prepared data.frame
-    df <- prepRoute(x, session = session, threshold = threshold, ...)
+    df <- prepare_route(x, session = session, threshold = threshold, ...)
     centers <- attr(df, "centers")
 
-    if (speed) speedRange <- range(df[["speed"]], na.rm = TRUE)
+    if (speed) {
+        speedRange <- range(df[["speed"]], na.rm = TRUE)
+    }
 
     ## loop over sessions
     plotList <- vector("list", length(session))
     names(plotList) <- as.character(session)
 
-    for (ses in session){
+    for (ses in session) {
 
         dfs <- df[df$SessionID == which(ses == session), , drop = FALSE]
         zooms <- if (is.null(zoom)) centers[centers$SessionID == ses, "zoom"] else zoom[which(ses == session)]
@@ -280,17 +349,17 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
 
         ## add trace
         if (speed){
-            p <- p + ggplot2::geom_segment(
-                         ggplot2::aes_(x = quote(longitude0), xend = quote(longitude1),
+            p <- p + geom_segment(
+                         aes_(x = quote(longitude0), xend = quote(longitude1),
                                        y = quote(latitude0), yend = quote(latitude1),
                                        color = quote(speed)),
                          data = dfs, lwd = 1, alpha = 0.8, na.rm = TRUE) +
-                ##ggplot2::guides(color = ggplot2::guide_colorbar(title = "Speed"))
-                ggplot2::scale_color_gradient(limits = speedRange,
-                                              guide = ggplot2::guide_colorbar(title = "Speed"))
-        } else {
-            p <- p + ggplot2::geom_segment(
-                         ggplot2::aes_(x = quote(longitude0), xend = quote(longitude1),
+                scale_color_gradient(limits = speedRange,
+                                              guide = guide_colorbar(title = "Speed"))
+        }
+        else {
+            p <- p + geom_segment(
+                         aes_(x = quote(longitude0), xend = quote(longitude1),
                                        y = quote(latitude0), yend = quote(latitude1)),
                          data = dfs, lwd = 1, alpha = 0.8, na.rm = TRUE)
         }
@@ -298,14 +367,13 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
 
         ## Extract legend from the first plot
         if (ses == session[1] & speed) {
-            legend <- gtable::gtable_filter(ggplot2::ggplot_gtable(ggplot2::ggplot_build(p)), "guide-box")
+            legend <- gtable::gtable_filter(ggplot_gtable(ggplot_build(p)), "guide-box")
         }
 
-        p <- p + ggplot2::labs(title = paste("Session:", ses))
-                               ## x = "Longitude", y = "Latitude")
-        plotList[[as.character(ses)]] <- p +  ggplot2::theme(legend.position = "none",
-                                                             axis.title.x = ggplot2::element_blank(),
-                                                             axis.title.y = ggplot2::element_blank())
+        p <- p + labs(title = paste(ses, ":", sports[ses]))
+        plotList[[as.character(ses)]] <- p +  theme(legend.position = "none",
+                                                             axis.title.x = element_blank(),
+                                                             axis.title.y = element_blank())
     }
 
     ## arrange separate plots
@@ -323,29 +391,33 @@ plotRoute <- function(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRU
 }
 
 
-#' Plot routes for training sessions.
+#' Plot routes for training sessions
 #'
 #' Plot the route ran/cycled during training on an interactive map.
 #' Internet connection is required to download the background map.
 #' Icons are by Maps Icons Collection \url{https://mapicons.mapsmarker.com}
 #'
 #' @param x A object of class \code{\link{trackeRdata}}.
-#' @param session A numeric vector of the sessions to be plotted. Defaults to
-#'     all sessions.
+#' @param session A numeric vector of the sessions to be
+#'     plotted. Defaults to all sessions.
 #' @param threshold Logical. Should thresholds be applied?
-#' @param ... Additional arguments passed on to \code{\link{threshold}}.
+#' @param ... Additional arguments passed on to
+#'     \code{\link{threshold}}.
 #' @examples
 #' \dontrun{
-#' data("runs", package = "trackeR")
+#' data('runs', package = 'trackeR')
 #' leafletRoute(runs, session = 23:24)
 #' }
 #' @export
-leafletRoute <- function(x, session = NULL, threshold = TRUE, ...){
+leaflet_route <- function(x,
+                         session = NULL,
+                         threshold = TRUE,
+                         ...) {
 
     if (is.null(session)) session <- seq_along(x)
 
     ## get prepared data.frame
-    df <- prepRoute(x, session = session, threshold = threshold, ...)
+    df <- prepare_route(x, session = session, threshold = threshold, ...)
 
     ## prepare markers
     startIcon <- leaflet::makeIcon(
@@ -358,20 +430,21 @@ leafletRoute <- function(x, session = NULL, threshold = TRUE, ...){
     )
 
     ## prepare popups
-    units <- getUnits(x)
     sumX <- summary(x)
-    popupText <- function(session, start = TRUE){
+    units <- getUnits(sumX)
+    un <- collect_units(units, unit_reference_sport = attr(sumX, "unit_reference_sport"))
+    distance_unit_from_pace <- strsplit(un$unit[un$variable == "pace"], split = "_per_")[[1]][2]
+
+    popupText <- function(session, start = TRUE) {
         w <- which(sumX$session == session)
-        unitDist4pace <- strsplit(units$unit[units$variable == "pace"],
-                                  split = "_per_")[[1]][2]
         avgPace <- floor(sumX$avgPace[w] * 100) / 100
 
         paste(
             paste("<b>", ifelse(start, "Start", "End"), "of session", session, "</b>"),
             paste(sumX$sessionStart[w], "-", sumX$sessionEnd[w]),
-            paste("Distance:", round(sumX$distance[w], 2), units$unit[units$variable == "distance"]),
+            paste("Distance:", round(sumX$distance[w], 2), un$unit[un$variable == "distance"]),
             paste("Duration:", round(as.numeric(sumX$duration[w]), 2), units(sumX$duration[w])),
-            paste(paste0("Avg. pace (per 1 ", unitDist4pace, "):"),
+            paste(paste0("Avg. pace (per 1 ", distance_unit_from_pace, "):"),
                   paste(floor(avgPace), round(avgPace %% 1 * 60, 0), sep = ":"), "min:sec"),
             sep = "<br/>"
         )
@@ -391,7 +464,6 @@ leafletRoute <- function(x, session = NULL, threshold = TRUE, ...){
 
         p <- leaflet::addMarkers(p, group = paste("Session:", i),
                                  lng = dfi$longitude[1], lat = dfi$latitude[1],
-                                 #popup = htmltools::htmlEscape(popupText(session = i)))
                                  popup = popupText(session = i, start = TRUE), icon = startIcon)
         p <- leaflet::addMarkers(p, group = paste("Session:", i),
                                  lng = dfi$longitude[nrow(dfi)], lat = dfi$latitude[nrow(dfi)],
@@ -441,7 +513,36 @@ leafletRoute <- function(x, session = NULL, threshold = TRUE, ...){
 }
 
 
-prepRoute <- function(x, session = 1, threshold = TRUE, ...){
+#' Prepare a \code{\link{data.frame}} for use in
+#' \code{\link{leaflet_route}} and \code{\link{plot_route}}
+#'
+#' @param x a \code{\link{trackeRdata}} object.
+#' @param session which session to prepare the
+#'     \code{\link{data.frame}} for?
+#' @param threshold if \code{TRUE} (default), then thresholds are
+#'     applied to \code{x} prior to preparing the
+#'     \code{\link{data.frame}}.
+#' @param ... Addiditonal arguments to be passed to
+#'     \code{\link{threshold}}.
+#'
+#'
+#' @details
+#'
+#' To be used internally in mapping function and rarely by the user.
+#'
+#' @return
+#'
+#' A \code{data.frame} with variables \code{longitude},
+#' \code{latitude}, \code{speed}, \code{SessionID}, \code{longitude0},
+#' \code{longitude1}, \code{latitude0}, \code{latitude1}. The
+#' observations are ordered according to the timestamp they have in
+#' \code{x}. A suffix of 0 indicates 'start' and a suffix of 1
+#' indicates 'end' at any given observation.
+#' @export
+prepare_route <- function(x,
+                          session = 1,
+                          threshold = TRUE,
+                          ...) {
     ## get units for thresholds
     units <- getUnits(x)
 
@@ -450,19 +551,18 @@ prepRoute <- function(x, session = 1, threshold = TRUE, ...){
     x <- x[session]
 
     ## threshold
-    if (threshold){
+    if (threshold) {
         dots <- list(...)
-        if (all(c("variable", "lower", "upper") %in% names(dots))){
-            ## thresholds provided by user
-            th <- data.frame(variable = dots$variable, lower = dots$lower, upper = dots$upper)
-        } else {
+        if (all(c("variable", "lower", "upper", "sport") %in% names(dots))) {
+            th <- generate_thresholds(dots$variable, dots$lower, dots$upper, dots$sport)
+        }
+        else {
             ## default thresholds
-            cycling <- units$unit[units$variable == "cadence"] == "rev_per_min"
-            th <- generateDefaultThresholds(cycling)
-            th <- changeUnits(th, variable = units$variable, unit = units$unit)
+            th <- generate_thresholds()
+            th <- change_units(th, variable = units$variable, unit = units$unit, sport = units$sport)
         }
         ## apply thresholds
-        x <- threshold(x, th)
+        x <- threshold(x, th$variable, th$lower, th$upper, th$sport)
     }
 
     ## get data
@@ -486,14 +586,10 @@ prepRoute <- function(x, session = 1, threshold = TRUE, ...){
     zoomLat <- ceiling(0.9*log2(180 * 2 / lengthLat))
     zoom <- max(zoomLon, zoomLat)
 
-
     dfSplit <- centers <- vector("list", length(session))
     names(dfSplit) <- names(centers) <- as.character(session)
 
-    ## centers <- data.frame(session, NA, NA, NA)
-    ## names(centers) <- c("SessionID", "centerLon", "centerLat", "zoom")
-
-    for (i in session){
+    for (i in session) {
         ## get subset for session
         dfSub <- df[df$SessionID == which(i == session), , drop = FALSE]
 
@@ -532,32 +628,60 @@ prepRoute <- function(x, session = 1, threshold = TRUE, ...){
     return(df)
 }
 
-
+#' Timeline plot for \code{\link{trackeRdata}} objects.
+#'
+#' @inheritParams timeline
+#' @rdname timeline
 #' @export
-timeline.trackeRdata <- function(object, lims = NULL, ...) {
-    sobject <- summary.trackeRdata(object, ...)
-    timeline.trackeRdataSummary(sobject, lims = lims)
+timeline.trackeRdata  <- function(object,
+                                  lims = NULL,
+                                  ...) {
+    df <- within(session_times(object), {
+        day_s <- as.Date(sessionStart)
+        day_e <-  as.Date(sessionEnd)
+        time_s <- as.POSIXct(paste(Sys.Date(), format(sessionStart, "%H:%M:%S")))
+        time_e <- as.POSIXct(paste(Sys.Date(), format(sessionEnd, "%H:%M:%S")))
+        sport <- get_sport(object)
+    })
+
+    if (!is.null(lims)) {
+        lims <- as.POSIXct(paste(Sys.Date(), lims))
+    }
+
+    day_range <- data.frame(day = seq(min(df$day_s), max(df$day_s), by = "day"))
+    p <- ggplot(df) +
+        geom_segment(aes_(x = quote(time_s), xend = quote(time_e), y = quote(day_s), yend = quote(day_e), color = quote(sport)))
+    ## take care of breaks, limits on the time axes and style of breakpoints
+    p <- p + scale_x_datetime(date_labels = "%H:%m", date_breaks = "4 hour", limits = lims)
+    p <- p + theme_bw() +
+        theme(axis.text.x = element_text(angle = 50, hjust = 1),
+              legend.position = "top") +
+        xlab("Time") + ylab("Date")
+    p
 }
 
 
 #' Ridgeline plots for \code{trackeRdata} objects
 #'
 #' @inheritParams distributionProfile
-#' @param x a \code{trackeRdata} object.
+#' @param x A \code{trackeRdata} object.
 #' @param smooth Logical. Should the concentration profiles be smoothed before plotting?
 #' @param ... Currently not used.
 #'
 #' @examples
 #'
 #' \dontrun{
-#' data("runs", package = "trackeR")
+#' data('runs', package = 'trackeR')
 #' ridges(runs)
 #' }
 #'
 #' @export
-ridges.trackeRdata <- function(x, session = NULL, what = "speed",
-                               smooth = TRUE, ...) {
-    x <- distributionProfile(x, session = session, what = what, auto_grid = TRUE)
+ridges.trackeRdata <- function(x,
+                               session = NULL,
+                               what = "speed",
+                               smooth = TRUE,
+                               ...) {
+    x <- distributionProfile(x, session = session, what = what)
     if (smooth) {
         x <- smoother(x, what = what, ...)
     }

@@ -1,75 +1,132 @@
 #' Generate training distribution profiles.
 #'
+#' @aliases distrProfile
 #' @param object An object of class \code{\link{trackeRdata}}.
-#' @param session A numeric vector of the sessions to be used, defaults to all sessions.
-#' @param what The variables for which the distribution profiles should be generated.
-#' @param grid A named list containing the grid for the variables in \code{what}.
-#' @param parallel Logical. Should computation be carried out in parallel?
-#' @param cores Number of cores for parallel computing. If NULL, the number of cores is
-#'     set to the value of \code{options("cores")} (on Windows) or \code{options("mc.cores")}
-#'     (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.
-#' @param auto_grid Logical. Should grids be selected automatically? Default is \code{FALSE} and \code{grid} will be ignored if \code{TRUE}.
-#' @return An object of class \code{distrProfile}.
-#' @references Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
-#'     Endurance Runners to Training and Physiological Effects via Multi-Resolution
-#'     Elastic Net. \emph{ArXiv e-print} arXiv:1506.01388.
-#' Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal of Statistical Software}, \bold{82}(7), 1--29. doi:10.18637/jss.v082.i07
+#' @param session A numeric vector of the sessions to be used,
+#'     defaults to all sessions.
+#' @param what The variables for which the distribution profiles
+#'     should be generated. Defaults to all variables in
+#'     \code{object} (\code{what = NULL}).
+#' @param grid A named list containing the grid values for the
+#'     variables in \code{what}. If \code{NULL} (default) the grids
+#'     for the variables in \code{what} are inferred from
+#'     \code{object}.
+#' @param parallel Logical. Should computation be carried out in
+#'     parallel? Default is \code{FALSE}.
+#' @param unit_reference_sport The sport to inherit units from
+#'     (default is taken to be the most frequent sport in
+#'     \code{object}).
+#' @return
+#'
+#' An object of class \code{distrProfile}.
+#'
+#' Object:
+#'
+#' A named list with one or more components, corresponding to the
+#' value of \code{what}. Each component is a matrix of dimension
+#' \code{g} times \code{n}, where \code{g} is the length of the grids
+#' set in \code{grid} (or 201 if \code{grid = NULL}) and \code{n} is
+#' the number of sessions requested in the \code{session} argument.
+#'
+#' Attributes:
+#'
+#' Each \code{distrProfile} object has the following attributes:
+#'
+#' \itemize{
+#'
+#' \item \code{sport}: the sports corresponding to the columns of each
+#' list component
+#'
+#' \item \code{session_times}: the session start and end times
+#' correspoding to the columns of each list component
+#'
+#' \item \code{unit_reference_sport}: the sport where the units have
+#' been inherited from
+#'
+#' \item \code{operations}: a list with the operations that have been
+#' applied to the object. See \code{\link{get_operations.distrProfile}}
+#'
+#' \item \code{limits}: The variable limits that have been used for the
+#' computation of the distribution profiles
+#'
+#' \item \code{units}: an object listing the units used for the
+#' calculation of distribution profiles. These is the output of
+#' \code{\link{get_units}} on the corresponding
+#' \code{\link{trackeRdata}} object, after inheriting units from
+#' \code{unit_reference_sport}.
+#'
+#' }
+#'
+#' @references
+#'
+#' Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
+#' Endurance Runners to Training and Physiological Effects via
+#' Multi-Resolution Elastic Net. \emph{ArXiv e-print}
+#' arXiv:1506.01388.
+#'
+#' Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running
+#' and Cycling Data from GPS-Enabled Tracking Devices in
+#' R. \emph{Journal of Statistical Software}, \bold{82}(7),
+#' 1--29. doi:10.18637/jss.v082.i07
+#'
 #' @examples
-#' data("run", package = "trackeR")
-#' dProfile <- distributionProfile(run, what = "speed", grid = seq(0, 12.5, by = 0.05))
+#' data('run', package = 'trackeR')
+#' dProfile <- distribution_profile(run, what = c("speed", "cadence_running"))
 #' plot(dProfile, smooth = FALSE)
 #' @export
-distributionProfile <- function(object, session = NULL, what = c("speed", "heart.rate"),
-                                grid = list(speed = seq(0, 12.5, by = 0.05), heart.rate = seq(0, 250)),
-                                parallel = FALSE, cores = NULL, auto_grid = TRUE) {
+distribution_profile <- function(object,
+                                 session = NULL,
+                                 what = NULL,
+                                 grid = NULL,
+                                 parallel = FALSE,
+                                 unit_reference_sport = NULL) {
+    times <- session_times(object)
+    if (is.null(session)) {
+        session <- 1:length(object)
+    }
+    if (is.null(what)) {
+        what <- colnames(object[[1]])
+    }
+    object <- object[session]
+    units <- get_units(object)
+    if (is.null(unit_reference_sport)) {
+        unit_reference_sport <- find_unit_reference_sport(object)
+    }
+    ## Match units to those of unit_reference_sport
+    un <- collect_units(units, unit_reference_sport)
+    for (va in unique(un$variable)) {
+        units$unit[units$variable == va] <- un$unit[un$variable == va]
+    }
+    ## Change units according to unit_reference_sport
+    object <- change_units(object, units$variable, units$unit, units$sport)
 
-
-    if (auto_grid) {
-
-        grid <- list()
-
-        df <- fortify(object, melt = FALSE)
-
-        find_step_size <- function (maximum, minimum = 0) {
-            value_range <- as.character(ceiling(maximum - minimum))
-            range_size <- nchar(value_range)
-            round_table <- list('1' = 5, '2' = 5, '3' = 10, '4' = 100,
-                                '5' = 10000, '6' = 100000)
-            maximum <- ceiling(maximum/round_table[[range_size]]) * round_table[[range_size]]
-            step_size <- (maximum - minimum) / 500
-            break_points <- seq(minimum, maximum, by = step_size)
-            break_points
-        }
-
+    if (is.null(grid)) {
+        ## Fortify can be extremely slow for large objects...
+        limits <- compute_limits(object, a = 0.01)
         for (feature in what) {
-            if (all(is.na(df[[feature]]))) {
-                warning(paste('No data for', feature))
+            if (all(is.na(limits[[feature]]))) {
+                warning(paste('no data for', feature))
                 what <- what[!(what %in% feature)]
             }
         }
         for (feature in what) {
-            maximum <- ceiling(quantile(df[feature], 0.999, na.rm = TRUE))
-            minimum <- if (feature == 'heart.rate') 35 else 0
-            grid[[feature]] <- find_step_size(maximum, minimum)
+            grid[[feature]] <- clean_grid(limits[[feature]][1], limits[[feature]][2])
         }
     }
-
-
-    units <- getUnits(object)
-    if (is.null(session))
-        session <- 1:length(object)
-    object <- object[session]
 
     ## check supplied args
     ## if it's a list, it has to either has to be named and contain all element in what or
     ## has to have the same length as what, then it's assumed that the order is the same.
     if (is.list(grid)) {
-        if (is.null(names(grid)) & length(what) == length(grid))
+        if (is.null(names(grid)) & length(what) == length(grid)) {
             names(grid) <- what
-        if (is.null(names(grid)))
-            stop("Can't match variables in argument 'what' and their grid. Please provide a named list.")
-        if (any(is.na(match(what, names(grid)))))
-            stop("Please provide a grid for all variables in argument 'what'.")
+        }
+        if (is.null(names(grid))) {
+            stop("can't match variables in argument 'what' and their grid. Please provide a named list.")
+        }
+        if (any(is.na(match(what, names(grid))))) {
+            stop("please provide a grid for all variables in argument 'what'.")
+        }
         grid <- grid[what]
     }
     else {
@@ -78,20 +135,16 @@ distributionProfile <- function(object, session = NULL, what = c("speed", "heart
             names(grid) <- what
         }
         else {
-            stop("Arguments 'what' and 'grid' don't match.")
+            stop("arguments 'what' and 'grid' don't match.")
         }
     }
-
-    ## README: original checks
-    #stopifnot(all.equal(length(what), length(grid)))
-    #if (is.null(names(grid))) names(grid) <- what
     stopifnot(!any(is.na(match(what, names(grid)))))
-
-    ## FIXME: transform grid if units of trackeRdata object are not m/s and bpm for speed and hr, respectively
-
-    dp <- function(object, grid) {
-        values <- coredata(object)
-        timestamps <- index(object)
+    duration_unit <- un$unit[un$variable == "duration"]
+    du <- switch(duration_unit, "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days")
+    dp <- function(sess, grid) {
+        values <- coredata(sess)
+        timestamps <- index(sess)
+        len <- difftime(max(timestamps), min(timestamps), units = du)
         ## Remove NA
         missing <- is.na(values)
         values <- values[!missing]
@@ -102,141 +155,88 @@ distributionProfile <- function(object, session = NULL, what = c("speed", "heart
         charOrder <- order(values)
         values <- values[charOrder]
         uniqueValues <- unique(values)
-        weights <- c(0, difftime(timestamps[-1], timestamps[-length(timestamps)], units = "secs"))[charOrder]
+        ## This specification of weights matches the result of time above threshold with ge = FALSE
+        weights <- c(difftime(timestamps[-1], timestamps[-length(timestamps)], units = du), 0)[charOrder]
         weights <- sapply(uniqueValues, function(xx) sum(weights[values == xx]))
         out <- stats::approx(x = uniqueValues, y = cumsum(weights)/sum(weights), xout = grid,
                       method = "constant", yleft = 0, yright = 1, f = 0, ties = "ordered")$y
-        ## Can be included for scaling
-        ## if (scaled)
-        ##     1 - out
-        ## else
-        sum(weights)*(1 - out)
+        len * (1 - out)
     }
-
-    ## get distribution profile
+    dp_fun <- function(j, w) {
+        sess <- object[[j]]
+        dp(sess[, w], grid[[w]])
+    }
     DP <- list()
-    ## all profiles (for all sessions) of the same variable are collected in a multivariate zoo object
-    ## - and not all profiles per session because the profiles might have a differently lengthed grid.
-    if (parallel) {
-        dc <- parallel::detectCores()
-        if (.Platform$OS.type != "windows"){
-            if (is.null(cores))
-                cores <- getOption("mc.cores", max(floor(dc/2), 1L))
-            ## parallel::mclapply(...,  mc.cores = cores)
-            for (i in what) {
-                times <- parallel::mclapply(object, function(sess) {
-                    dp(sess[, i], grid[[i]])
-                }, mc.cores = cores)
-                times <- zoo(matrix(unlist(times), nrow = length(grid[[i]])),
-                             order.by = grid[[i]])
-                names(times) <- paste0("Session", session)
-                DP[[i]] <- times
-            }
-        } else {
-            if (is.null(cores))
-                cores <- getOption("cores", max(floor(dc/2), 1L))
-            cl <- parallel::makePSOCKcluster(rep("localhost", cores))
-            ## parallel::parLapply(cl, ...)
-            for (i in what) {
-                times <- parallel::parLapply(cl, object, function(sess) {
-                    dp(sess[, i], grid[[i]])
-                })
-                times <- zoo(matrix(unlist(times), nrow = length(grid[[i]])),
-                             order.by = grid[[i]])
-                names(times) <- paste0("Session", session)
-                DP[[i]] <- times
-            }
-            parallel::stopCluster(cl)
+    for (i in what) {
+        foreach_object <- eval(as.call(c(list(quote(foreach::foreach),
+                                              j = seq.int(nsessions(object)),
+                                              .combine = "cbind"))))
+        if (parallel) {
+            dp_for_var <- foreach::`%dopar%`(foreach_object, cbind(dp_fun(j, i)))
         }
-    } else {
-        ## lapply(...)
-        for (i in what) {
-            times <- lapply(object, function(sess) {
-                dp(sess[, i], grid[[i]])
-            })
-            times <- zoo(matrix(unlist(times), nrow = length(grid[[i]])),
-                         order.by = grid[[i]])
-            names(times) <- paste0("Session", session)
-            DP[[i]] <- times
+        else {
+            dp_for_var <- foreach::`%do%`(foreach_object, cbind(dp_fun(j, i)))
         }
-    }
 
-    operations <- list(smooth = NULL)
+        if (nrow(dp_for_var) == 1) {
+            warning("no data for ", i)
+            next
+        }
+        DP[[i]] <- zoo(dp_for_var, order.by = grid[[i]])
+        names(DP[[i]]) <- paste0("session", session)
+    }
+    if (length(DP) == 0) {
+        stop("no usable data found")
+    }
+    operations <- list(smooth = NULL, scale = FALSE)
+    attr(DP, "sport") <- get_sport(object)
+    attr(DP, "session_times") <- times[session, ]
+    attr(DP, "unit_reference_sport") <- unit_reference_sport
     attr(DP, "operations") <- operations
     attr(DP, "units") <- units
+    attr(DP, "limits") <- if (is.null(grid)) limits[what] else lapply(grid, range)[what]
     class(DP) <- "distrProfile"
     return(DP)
 }
 
-#' Scale the distribution profile relative to its maximum value
+#' Scale the distribution profile relative to its maximum value.
 #'
-#' @param object An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.
-#' @param session A numeric vector of the sessions to be plotted, defaults to all sessions.
-#' @param what Which variables should be scaled?
+#' @param object An object of class \code{distrProfile} as returned by
+#'     \code{\link{distributionProfile}}.
+#' @param session A numeric vector of the sessions to be selected and
+#'     scaled. Defaults to all sessions.
+#' @param what A character version of the variables to be selected and
+#'     scaled. Defaults to all variables in \code{object} (\code{what
+#'     = NULL}).
 #' @param ... Currently not used.
+#'
 #' @export
-scaled.distrProfile <- function(object, session  = NULL, what = c("speed", "heart.rate"), ...){
-    operations <- getOperations(object)
-
-    ## select sessions
-    availSessions <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
-    if (is.null(session)) session <- 1:availSessions
-    for(i in seq_along(object)) object[[i]] <- object[[i]][,session, drop = FALSE]
-    #availSessions <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
-
+scaled.distrProfile <- function(object,
+                                session = NULL,
+                                what = NULL,
+                                ...) {
+    object <- get_profile(object, session = session, what = what)
+    what <- names(object)
+    ## scale
     ret <- list()
-    what <- unlist(what)[unlist(what) %in% names(object)]
-
-    for (i in what){
-        nc <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
+    nc <- nsessions(object)
+    for (i in what) {
         cdat <- coredata(object[[i]])
         scaledProfile <- sweep(cdat, 2, apply(cdat, 2, max), "/")
         colnames(scaledProfile) <- attr(object[[i]], "dimnames")[[2]]
         ret[[i]] <- zoo(scaledProfile, order.by = index(object[[i]]))
     }
-
-    unscaled <- names(object)[!(names(object) %in% what)]
-    for (i in unscaled){
-        ret[[i]] <- object[[i]]
-    }
-
     ## class and return
-    operations <- getOperations(object)
-    attr(ret, "operations") <- c(operations, list(scale = NULL))
-    attr(ret, "units") <- getUnits(object)
+    operations <- get_operations(object)
+    operations$scale <- TRUE
+    attr(ret, "sport") <- get_sport(object)
+    attr(ret, "session_times") <- attr(object, "session_times")
+    attr(ret, "unit_reference_sport") <- attr(object, "unit_reference_sport")
+    attr(ret, "operations") <- operations
+    attr(ret, "units") <- get_units(object)
+    attr(ret, "limits") <- attr(object, "limits")[what]
     class(ret) <- "distrProfile"
     return(ret)
-}
-
-
-#' Time spent above a certain threshold
-#'
-#' @param object A (univariate) zoo object.
-#' @param threshold The threshold.
-#' @param ge Logical. Should time include the thereshold (greater or equal to threshold) or not (greater only)?
-timeAboveThreshold <- function(object, threshold = -1, ge = TRUE) {
-
-    n <- length(object)
-    if (ge){
-        aboveThreshold <- object >= threshold
-    } else {
-        aboveThreshold <- object > threshold
-    }
-    missing <- is.na(object)
-
-    dt <- diff(index(object))
-    sum(dt[aboveThreshold[-n] & !missing[-n]])
-
-    ## indices <- seq_along(object)
-    ## times <- index(object)
-    ## if (ge)
-    ##     indicesAboveThreshold <- indices[object >= threshold & !is.na(object >= threshold)]
-    ## else
-    ##     indicesAboveThreshold <- indices[object > threshold & !is.na(object > threshold)]
-    ## timesAboveThreshold <- times[indicesAboveThreshold]
-    ## n <- length(indicesAboveThreshold)
-    ## sum(diff(timesAboveThreshold)[diff(indicesAboveThreshold) == 1])
-
 }
 
 
@@ -248,413 +248,235 @@ timeAboveThreshold <- function(object, threshold = -1, ge = TRUE) {
 #'     instead of the default wide format?
 #' @param ... Ignored.
 #' @export
-fortify.distrProfile <- function(model, data, melt = FALSE, ...){
+fortify.distrProfile <- function(model,
+                                 data,
+                                 melt = FALSE,
+                                 ...) {
     ret <- list()
-    for (i in seq_along(model)){
-
-        ret[[i]] <- zoo::fortify.zoo(model[[i]], melt = melt)
+    sport <- get_sport(model)
+    times <- attr(model, "session_times")
+    for (i in seq_along(model)) {
+        ret[[i]] <- zoo::fortify.zoo(model[[i]], melt = melt, stringsAsFactors = FALSE)
         ret[[i]]$Profile <- names(model)[i]
+        ret[[i]]$Sport <- rep(sport, each = nrow(model[[i]]))
+        ret[[i]]$Date <- rep(times[, 1], each = nrow(model[[i]]))
     }
     ret <- do.call("rbind", ret)
     return(ret)
 }
 
 
+#' Fortify a \code{\link{conProfile}} object for plotting with ggplot2.
+#'
+#' @param model The \code{\link{conProfile}} object.
+#' @inheritParams fortify.distrProfile
+#' @export
+fortify.conProfile <- fortify.distrProfile
+
+
 #' Plot distribution profiles.
 #'
-#' @param x An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.
-#' @param session A numeric vector of the sessions to be plotted, defaults to all sessions.
-#' @param what Which variables should be plotted?
-#' @param multiple Logical. Should all sessions be plotted in one panel?
-#' @param smooth Logical. Should unsmoothed profiles be smoothed before plotting?
-#' @param ... Further arguments to be passed to \code{\link{smootherControl.distrProfile}}.
+#' @param x An object of class \code{distrProfile} as returned by
+#'     \code{\link{distribution_profile}}.
+#' @param session A numeric vector of the sessions to be plotted,
+#'     defaults to all sessions.
+#' @param what Which variables should be plotted? Defaults to all
+#'     variables in \code{object} (\code{what = NULL}).
+#' @param multiple Logical. Should all sessions be plotted in one
+#'     panel?
+#' @param smooth Logical. Should unsmoothed profiles be smoothed
+#'     before plotting?
+#' @param ... Further arguments to be passed to
+#'     \code{\link{smoother_control.distrProfile}}.
 #' @examples
-#' data("runs", package = "trackeR")
-#' dProfile <- distributionProfile(runs, session = 1:2,
+#' data('runs', package = 'trackeR')
+#' dProfile <- distribution_profile(runs, session = 1:2,
 #'     what = "speed", grid = seq(0, 12.5, by = 0.05))
 #' plot(dProfile, smooth = FALSE)
 #' plot(dProfile, smooth = FALSE, multiple = TRUE)
 #' plot(dProfile, multiple = TRUE)
 #' @export
-plot.distrProfile <- function(x, session = NULL, what = c("speed", "heart.rate"),
-                            multiple = FALSE, smooth = TRUE, ...){
-    ## code inspired by autoplot.zoo
-    units <- getUnits(x)
-    operations <- getOperations(x)
-
-    ## select variables
-    what <- what[what %in% names(x)]
-    x <- x[what] ## FIXME: implement [] method for profiles/variables instead of sessions
-    class(x) <- "distrProfile"; attr(x, "operations") <- operations; attr(x, "unit") <- units
-
-    ## select sessions
-    availSessions <- if (is.null(ncol(x[[1]]))) 1 else ncol(x[[1]])
-    if (is.null(session)) session <- 1:availSessions
-    for(i in what) x[[i]] <- x[[i]][,session]
-
+plot.distrProfile <- function(x, session = NULL,
+                              what = NULL,
+                              multiple = FALSE,
+                              smooth = FALSE, ...) {
+    x <- get_profile(x, session = session, what = what)
     ## smooth
-    if (smooth){
-        if (!is.null(operations$smooth)){
-            warning("This object has already been smoothed. No additional smoothing takes place.")
-        } else {
-            x <- smoother(x, what = what, ...)
-        }
+    if (smooth) {
+        x <- smoother(x, ...)
     }
-
-    ## get data
-    rownames(x) <- NULL
+    ## duration unit; sport does not matter here as units have been uniformised already
+    units <- get_units(x)
+    duration_unit <- units$unit[units$sport == "running" & units$variable == "duration"]
+    ## fortify
     df <- fortify(x, melt = TRUE)
-    ## if (length(session) > 1L) df <- subset(df, Series %in% paste0("Session", session))
-    ## df <- subset(df, Profile %in% what)
-    ## HACK: If there is only one session (=series) to be plotted, give it a proper name for multiple = TRUE.
-    if (length(session) < 2) {
-        df$Series <- session
-        ## df$Series <- factor(df$Series)
-    } else {
-        df$Series <- as.numeric(sapply(strsplit(as.character(df$Series), "Session"), function(x) x[2]))
-    }
+    df$Series <- as.numeric(sapply(strsplit(as.character(df$Series), "session"), function(x) x[2]))
     df$Profile <- factor(df$Profile)
-
-    ## ## check that there is data to plot
-    ## for(l in levels(df$Series)){
-    ##     if (all(is.na(subset(df, Series == l, select = "Value"))))
-    ##         df <- df[!(df$Series == l), ]
-    ## }
-
     ## make basic plot and facets
-    singleVariable <- nlevels(df$Profile) == 1L
-    singleSession <- nlevels(df$Series) == 1L
-    lab_data <- function(series){
-        thisunit <- units$unit[units$variable == series]
+    lab_data <- function(series) {
+        thisunit <- units$unit[units$sport == "running" & units$variable == series]
         prettyUnit <- prettifyUnits(thisunit)
         paste0(series, " [", prettyUnit,"]")
     }
     lab_data <- Vectorize(lab_data)
-
-    if (multiple){
-        p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value),
-                                                                group = quote(Series), color = quote(Series))) +
-            ggplot2::geom_line(na.rm = TRUE) + ggplot2::ylab("Time spent above threshold") +
-                ggplot2::xlab(if(singleVariable) lab_data(levels(df$Profile)) else "")
-        facets <- if(singleVariable) NULL else ". ~ Profile"
-    } else {
-        p <- ggplot2::ggplot(data = df, mapping = ggplot2::aes_(x = quote(Index), y = quote(Value))) +
-            ggplot2::geom_line(na.rm = TRUE) + ggplot2::ylab("Time spent above threshold") +
-                ggplot2::xlab(if(singleVariable) lab_data(levels(df$Profile)) else "")
-
-        facets <- if (singleVariable) {
-            if (singleSession) NULL else "Series ~ ."
-        } else {
-            if(singleSession) ". ~ Profile" else "Series ~ Profile"
-        }
+    if (multiple) {
+        p <- ggplot(data = df, aes_(x = quote(Index), y = quote(Value),
+                                    group = quote(Series), color = quote(Series)))
+        facets <- ". ~ Profile"
     }
-
-    ## add facets if necessary
-    if (!is.null(facets)){
-        p <- p + ggplot2::facet_grid(facets, scales = "free_x", labeller = ggplot2::labeller("Profile" = lab_data))
+    else {
+        p <- ggplot(data = df, mapping = aes_(x = quote(Index), y = quote(Value)))
+        facets <- "Series ~ Profile"
     }
-
-    ## add bw theme
-    p <- p + ggplot2::theme_bw() + ggplot2::scale_colour_continuous(name = "Session")
-
-    return(p)
+    p + geom_line(na.rm = TRUE) +
+        facet_grid(facets, scales = "free_x", labeller = labeller("Profile" = lab_data)) +
+        ylab(paste0("Time spent above threshold", " [", duration_unit, "]")) +
+        xlab("") +
+        theme_bw() +
+        scale_colour_continuous(name = "session")
 }
 
-
-
-## FIXME: example
 #' Smoother for distribution profiles.
 #'
-#' The distribution profiles are smoothed using a shape constrained additive model with Poisson
-#' responses to ensure that the smoothed distribution profile is positive and monotone decreasing.
+#' The distribution profiles are smoothed using a shape constrained
+#' additive model with Poisson responses to ensure that the smoothed
+#' distribution profile is positive and monotone decreasing.
 #'
-#' @param object An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.
-#' @param session A numeric vector of the sessions to be selected and smoothed. Defaults to all sessions.
-#' @param control A list of parameters for controlling the smoothing process.
-#'     This is passed to \code{\link{smootherControl.distrProfile}}.
-#' @param ... Arguments to be used to form the default \code{control} argument if it is not supplied directly.
-#' @seealso \code{\link{smootherControl.distrProfile}}
-#' @references Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
-#'     Endurance Runners to Training and Physiological Effects via Multi-Resolution
-#'     Elastic Net. \emph{ArXiv e-print} arXiv:1506.01388.
+#' @param object An object of class \code{distrProfile} as returned by
+#'     \code{\link{distribution_profile}}.
+#' @param session A numeric vector of the sessions to be selected and
+#'     smoothed. Defaults to all sessions.
+#' @param what A character version of the variables to be selected and
+#'     smoothed. Defaults to all variables in \code{object}
+#'     (\code{what = NULL}).
+#' @param control A list of parameters for controlling the smoothing
+#'     process.  This is passed to
+#'     \code{\link{smoother_control.distrProfile}}.
+#' @param ... Arguments to be used to form the default \code{control}
+#'     argument if it is not supplied directly.
+#' @seealso \code{\link{smoother_control.distrProfile}}
 #'
-#'     Pya, N. and Wood S. (2015). Shape Constrained Additive Models. Statistics and
-#'     Computing, 25(3), 543--559.
-#'     Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running and Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal of Statistical Software}, \bold{82}(7), 1--29. doi:10.18637/jss.v082.i07
+#' @references
+#'
+#' Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
+#' Endurance Runners to Training and Physiological Effects via
+#' Multi-Resolution Elastic Net. \emph{ArXiv e-print}
+#' arXiv:1506.01388.
+#'
+#' Pya, N. and Wood S. (2015). Shape Constrained Additive
+#' Models. Statistics and Computing, 25(3), 543--559.  Frick, H.,
+#'
+#' Kosmidis, I. (2017). trackeR: Infrastructure for Running and
+#' Cycling Data from GPS-Enabled Tracking Devices in R. \emph{Journal
+#' of Statistical Software}, \bold{82}(7),
+#' 1--29. doi:10.18637/jss.v082.i07
+#'
 #' @export
-smoother.distrProfile <- function(object, session = NULL, control = list(...), ...){
-
-    units <- getUnits(object)
-
+smoother.distrProfile <- function(object,
+                                  session = NULL,
+                                  what = NULL,
+                                  control = list(...),
+                                  ...) {
     ## evaluate control argument
-    control <- do.call("smootherControl.distrProfile", control)
-
-    ## ## select variables
-    ## object <- object[unlist(control$what)]
-    ## class(object) <- "distrProfile" ## FIXME: implement [] method
-    ## ## select sessions
-    ## availSessions <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
-    ## if (is.null(session)) session <- 1:availSessions
-    ## for(i in unlist(control$what)) object[[i]] <- object[[i]][,session]
-    ## #availSessions <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
-
-    ## select sessions
-    availSessions <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
-    if (is.null(session)) session <- 1:availSessions
-    for(i in seq_along(object)) object[[i]] <- object[[i]][,session]
-    #availSessions <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
-
-
+    control <- do.call("smoother_control.distrProfile", control)
+    object <- get_profile(object, session = session, what = what)
+    operations <- get_operations(object)
+    if (!is.null(operations$smooth)) {
+        warning("this object has already been smoothed. No additional smoothing takes place.")
+        return(object)
+    }
+    what <- names(object)
     ## smooth
+    smooth_fun <- function(j, w) {
+        sess <- object[[w]][, j]
+        decreasing_smoother(x = index(sess),
+                           y = coredata(sess),
+                           k = control$k, len = NULL, sp = control$sp)$y
+    }
     ret <- list()
-    what <- unlist(control$what)[unlist(control$what) %in% names(object)]
-    if (control$parallel) {
-        if (.Platform$OS.type != "windows"){
-            ## parallel::mclapply(...,  mc.cores = control$cores)
-            for (i in what){
-                nc <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
-                smoothedProfile <- parallel::mclapply(seq_len(nc), function(j){
-                    dsm <- decreasingSmoother(x = index(object[[i]]),
-                                              y = coredata(object[[i]][,j]),
-                                              k = control$k, len = NULL, sp = control$sp, fam = "poisson")
-                    dsm$y
-                }, mc.cores = control$cores)
-                smoothedProfile <- do.call("cbind", smoothedProfile) ## is this a matrix if there is only one profile?
-                colnames(smoothedProfile) <- attr(object[[i]], "dimnames")[[2]]
-                ret[[i]] <- zoo(smoothedProfile, order.by = index(object[[i]]))
-                ## README: originally used order.by = dsm$x which is the same as arg x of decreasingSmoother if len = NULL.
-            }
-        } else {
-            cl <- parallel::makePSOCKcluster(rep("localhost", control$cores))
-            ## parallel::parLapply(cl, ...)
-            for (i in what){
-                nc <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
-                smoothedProfile <- parallel::parLapply(cl, seq_len(nc), function(j){
-                    dsm <- decreasingSmoother(x = index(object[[i]]),
-                                              y = coredata(object[[i]][,j]),
-                                              k = control$k, len = NULL, sp = control$sp, fam = "poisson")
-                    dsm$y
-                })
-                smoothedProfile <- do.call("cbind", smoothedProfile) ## is this a matrix if there is only one profile?
-                colnames(smoothedProfile) <- attr(object[[i]], "dimnames")[[2]]
-                ret[[i]] <- zoo(smoothedProfile, order.by = index(object[[i]]))
-                ## README: originally used order.by = dsm$x which is the same as arg x of decreasingSmoother if len = NULL.
-            }
-            parallel::stopCluster(cl)
+    nc <- nsessions(object)
+    for (i in what) {
+        foreach_object <- eval(as.call(c(list(quote(foreach::foreach),
+                                              j = seq.int(nc),
+                                              .combine = "cbind"))))
+        ## move cbind in order to get the right dim always
+        if (control$parallel) {
+            sp <- foreach::`%dopar%`(foreach_object, cbind(smooth_fun(j, i)))
         }
-    } else {
-        ## lapply(...)
-        for (i in what){
-            nc <- if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
-            smoothedProfile <- lapply(seq_len(nc), function(j){
-                dsm <- decreasingSmoother(x = index(object[[i]]),
-                                          y = coredata(object[[i]][,j]),
-                                          k = control$k, len = NULL, sp = control$sp, fam = "poisson")
-                dsm$y
-            })
-            smoothedProfile <- do.call("cbind", smoothedProfile) ## is this a matrix if there is only one profile?
-            colnames(smoothedProfile) <- attr(object[[i]], "dimnames")[[2]]
-            ret[[i]] <- zoo(smoothedProfile, order.by = index(object[[i]]))
-            ## README: originally used order.by = dsm$x which is the same as arg x of decreasingSmoother if len = NULL.
+        else {
+            sp <- foreach::`%do%`(foreach_object, cbind(smooth_fun(j, i)))
         }
+        colnames(sp) <- attr(object[[i]], "dimnames")[[2]]
+        ret[[i]] <- zoo(sp, order.by = index(object[[i]]))
     }
-
-    ## FIXME: add unsmoothed distribution profiles?
-    unsmoothed <- names(object)[!(names(object) %in% what)]
-    for (i in unsmoothed){
-        ret[[i]] <- object[[i]]
-    }
-
     ## class and return
-    control$nsessions <- length(session)
-    control$what <- list(what)
-    operations <- list()
+    operations <- get_operations(object)
     operations$smooth <- control
+    attr(ret, "sport") <- get_sport(object)
+    attr(ret, "session_times") <- attr(object, "session_times")
+    attr(ret, "unit_reference_sport") <- attr(object, "unit_reference_sport")
     attr(ret, "operations") <- operations
-    attr(ret, "units") <- units
+    attr(ret, "units") <- get_units(object)
+    attr(ret, "limits") <- attr(object, "limits")[what]
     class(ret) <- "distrProfile"
     return(ret)
 }
 
 
-#' Auxiliary function for \code{\link{smoother.distrProfile}}. Typically used to construct
-#' a control argument for \code{\link{smoother.distrProfile}}.
+#' Auxiliary function for
+#' \code{\link{smoother.distrProfile}}. Typically used to construct a
+#' control argument for \code{\link{smoother.distrProfile}}.
 #'
-#' @param what Vector of the names of the variables which should be smoothed.
-#' @inheritParams decreasingSmoother
-#' @param parallel Logical. Should computation be carried out in parallel?
-#' @param cores Number of cores for parallel computing. If NULL, the number of cores is set to the value of \code{options("corese")} (on Windows) or \code{options("mc.cores")} (elsewhere), or, if the relevant option is unspecified, to half the number of cores detected.
+#' @inheritParams decreasing_smoother
+#' @param parallel Logical. Should computation be carried out in
+#'     parallel?
 #' @export
-smootherControl.distrProfile <- function(what = c("speed", "heart.rate"), k = 30, sp = NULL,
-                                         ## len = NULL, fam = "poisson",
-                                         parallel = FALSE, cores = NULL){
-    if (is.vector(what)) {
-        what <- list(what)
-    }
-    if (is.null(cores)){
-        dc <- parallel::detectCores()
-        if (.Platform$OS.type != "windows"){
-            cores <- getOption("mc.cores", max(floor(dc/2), 1L))
-        } else {
-            cores <- getOption("cores", max(floor(dc/2), 1L))
-        }
-    }
-
-    list(what = what, k = k, sp = sp, parallel = parallel, cores = cores)
+smoother_control.distrProfile <- function(k = 30,
+                                          sp = NULL,
+                                          parallel = FALSE) {
+    list(k = k, sp = sp, parallel = parallel)
 }
-
-
 
 #' Smooth a decreasing function.
 #'
-#' This smoother ensures a positive response (Poisson) that is a monotone decreasing function of x.
+#' This smoother ensures a positive response that is a monotone decreasing function of x.
 #' @param x The regressor passed on to the \code{formula} argument of \code{\link[scam]{scam}}.
 #' @param y The response passed on to the \code{formula} argument of \code{\link[scam]{scam}}.
 #' @param k Number of knots.
 #' @param len If \code{NULL}, the default, \code{x} is used for prediction. Otherwise,
 #'     prediction is done over the range of \code{x} with \code{len} equidistant points.
 #' @param sp A vector of smoothing parameters passed on to \code{\link[scam]{scam}}.
-#' @param fam A family object passed on to the \code{family} argument of \code{\link[scam]{scam}}.
-decreasingSmoother <- function(x, y, k = 30, len = NULL, sp = NULL,
-                               fam = "poisson") {
-    xmin <- min(x)
-    xman <- max(x)
-    if (is.null(len)) {
-        predictionRange <- x
+#'
+#' @export
+decreasing_smoother <- function(x, y, k = 30, len = NULL, sp = NULL) {
+    if (all(is.na(y))) {
+        return(list(x = x, y = rep(NA, length(x))))
     }
-    else {
-        predictionRange <- seq(xmin, xman, length.out = len)
-    }
-    if (all(is.na(y)))
-        return(list(x = predictionRange, y = rep(NA, length(predictionRange))))
-    dat <- data.frame(y = y, x = x)
+    a = 0.0001
+    ## bring y in [0, 1]
+    my <- max(y)
+    y <- y/ifelse(my == 0, 1, my)
+    ## transform to real
+    y <- log((y + a)/(1 - y + a))
+    dat <- data.frame(x, y)
     scamFormula <- stats::as.formula(paste0("y ~ s(x, k = ", k, ", bs = 'mpd')"))
-    gamfit <- scam::scam(scamFormula, family = fam, sp = sp, data = dat)
-    res <- list(x = predictionRange,
-                y = stats::predict(gamfit, type = "response",
-                    newdata = data.frame(x = predictionRange)))
-    #class(res) <- "decreasingSmoother"
+    gamfit <- scam::scam(scamFormula, family = gaussian(link = "identity"), data = dat)
+    y <- stats::predict(gamfit, type = "response", newdata = data.frame(x = x))
+    ## Transform back
+    y <- (plogis(y) * (1 + 2*a) - a) * my
+    res <- list(x = x, y = y)
     res
 }
 
-
-#' Append training profiles.
-#'
-#' Generic function for appending training distribution or
-#' concentration profiles to existing files.
-#'
-#' @param object The object to be appended.
-#' @param file The file to which \code{object} is to be appended.
-#' @param ... Currently not used.
-#' @rdname append.xprofile
-#' @export
-append.distrProfile <- function(object, file, ...){
-    old <- load(file)
-    new <- c(old, object)
-    save(new, file)
-}
-
-
-## FIXME: what about appending more "types of profiles" (aka variables)? different function?
-#' @export
-c.distrProfile <- function(..., recursive = FALSE){
-
-    input <- list(...)
-    ninput <- length(input)
-    if (ninput < 2) return(input[[1]])
-
-    ## all input objects need to contain profiles for the variables in the first input object
-    ## missing profiles are not filled up with NA (yet? FIXME?)
-    ## additional profiles are discarded.
-    allNames <- lapply(input, names)
-    if (!all(sapply(allNames, function(x) all(allNames[[1]] %in% x))))
-        stop(paste0("All objects need to contain distribution profiles for the variables contained in the first object: ",
-                   paste(allNames[[1]], collapse = ", "), "."))
-
-    nsessionsInput <- sapply(input, length)
-    operations <- getOperations(input[[1]])
-
-    ## check/change smoother attribute
-
-    ## if all smoother settings are NULL, skip whole aggregation process
-    if (!all(sapply(input, function(x) is.null(getOperations(x)$smooth)))) {
-
-        ## if the settings for the first session are NULL, create a new reference setup
-        if (is.null(getOperations(input[[1]])$smooth)){
-            operations$smooth <- list(what = NA, k = NA, sp = NA,
-                                      parallel = FALSE, cores = NULL,
-                                      nsessions = NULL)
-        }
-
-        whats <- lapply(input, function(x) unique(getOperations(x)$smooth$what))
-        ks <- lapply(input, function(x) unique(getOperations(x)$smooth$k))
-        sps <- lapply(input, function(x) unique(getOperations(x)$smooth$sp))
-        changeWhat <- any(!sapply(whats, function(x) isTRUE(all.equal(whats[[1]], x))))
-        changeK <- any(!sapply(ks, function(x) isTRUE(all.equal(ks[[1]], x))))
-        changeSp <- any(!sapply(sps, function(x) isTRUE(all.equal(sps[[1]], x))))
-        changeO <- changeWhat | changeK | changeSp
-        if (changeO) {
-            whats <- lapply(input, function(x) getOperations(x)$smooth$what)
-            whats[sapply(whats, is.null)] <- list(operations$smooth$what[1])
-            whats <- do.call("c", whats)
-
-            ks <- lapply(input, function(x) getOperations(x)$smooth$k)
-            ks[sapply(ks, is.null)] <- operations$smooth$k[1]
-            ks <- do.call("c", ks)
-
-            sps <- lapply(input, function(x) getOperations(x)$smooth$sp)
-            sps[sapply(sps, is.null)] <- list(operations$smooth$sp[1])
-            sps <- do.call("c", sps)
-
-            nsessions <- lapply(input, function(x) getOperations(x)$smooth$nsessions)
-            nsessions[sapply(nsessions, is.null)] <- nsessionsInput[sapply(nsessions, is.null)]
-            nsessions <- do.call("c", nsessions)
-
-            operations$smooth$what <- whats
-            operations$smooth$k <- ks
-            operations$smooth$sp <- sps
-            operations$smooth$nsessions <- nsessions
-        } else {
-            nsessions <- lapply(input, function(x) getOperations(x)$smooth$nsessions)
-            nsessions[sapply(nsessions, is.null)] <- nsessionsInput[sapply(nsessions, is.null)]
-            operations$smooth$nsessions <- sum(do.call("c", nsessions))
-        }
-    }
-
-    units1 <- getUnits(input[[1]])
-    units <- lapply(input, attr, "units")
-    changeU <- !all(sapply(units, function(x) isTRUE(all.equal(units1, x))))
-    if(changeU) {
-        warning("The profiles for at least one variable have different units. The units of the first profile for each variable are applied to all profiles of that variable.")
-        ## change units
-        for (i in 2:ninput){
-            input[[i]] <- changeUnits(input[[i]], variable = units1$variable, unit = units1$unit)
-
-        }
-    }
-
-    ret <- list()
-    what <- names(input[[1]])
-    for (i in what){
-        input_i <- lapply(input, function(x) x[[i]])
-        ## FIXME: needs some tolerance for cases where the underlying grid is the same apart from minor numerical differences.
-        ret[[i]] <- do.call("merge", input_i)
-        attr(ret[[i]], "dimnames") <- list(NULL, paste0("Session", 1:ncol(ret[[i]])))
-    }
-
-    class(ret) <- c("distrProfile", class(ret))
-    attr(ret, "operations") <- operations
-    attr(ret, "units") <- units1
-    return(ret)
-}
-
-
-## FIXME: implement [] method
-
+#' @rdname nsessions
 #' @export
 nsessions.distrProfile <- function(object, ...) {
     if (is.null(ncol(object[[1]]))) 1 else ncol(object[[1]])
 }
+
+#' @rdname nsessions
+#' @export
+nsessions.conProfile <- nsessions.distrProfile
 
 
 #' Ridgeline plots for \code{distrProfile} objects
@@ -664,64 +486,193 @@ nsessions.distrProfile <- function(object, ...) {
 #' @examples
 #' \dontrun{
 #'
-#' data("runs", package = "trackeR")
-#' dProfile <- distributionProfile(runs, what = c("speed", "heart.rate"), auto_grid = TRUE)
+#' data('runs', package = 'trackeR')
+#' dProfile <- distribution_profile(runs, what = c("speed", "heart_rate"))
 #' ridges(dProfile)
 #'
 #' }
-ridges.distrProfile <- function(x, session = NULL, what = c("speed"),
-                                smooth = TRUE, ...){
-    ## code inspired by autoplot.zoo
-    units <- getUnits(x)
-    operations <- getOperations(x)
-
-    ## select variables
-    what <- what[what %in% names(x)]
-    if (length(what) > 1) {
-        warnings(paste("Only", what[1], "is plotted"))
-        what <- what[1]
-    }
-    x <- x[what] ## FIXME: implement [] method for profiles/variables instead of sessions
-    class(x) <- "distrProfile"; attr(x, "operations") <- operations; attr(x, "unit") <- units
-
-    ## select sessions
-    availSessions <- if (is.null(ncol(x[[1]]))) 1 else ncol(x[[1]])
-    if (is.null(session)) session <- 1:availSessions
-    for(i in what) x[[i]] <- x[[i]][,session]
-
+#' @export
+ridges.distrProfile <- function(x,
+                                session = NULL,
+                                what = NULL,
+                                smooth = FALSE,
+                                ...){
+    x <- get_profile(x, session = session, what = what)
     ## smooth
-    if (smooth){
-        if (!is.null(operations$smooth)){
-            warning("This object has already been smoothed. No additional smoothing takes place.")
-        } else {
-            x <- smoother(x, what = what, ...)
-        }
+    if (smooth) {
+        x <- smoother(x, ...)
     }
-
-    ## get data
-    rownames(x) <- NULL
+    ## duration unit; sport does not matter here as units have been uniformised already
+    units <- get_units(x)
+    duration_unit <- units$unit[units$sport == "running" & units$variable == "duration"]
+    ## fortify
     df <- fortify(x, melt = TRUE)
-
-    if (length(session) < 2) {
-        df$Series <- session
-        ## df$Series <- factor(df$Series)
-    } else {
-        df$Series <- as.numeric(sapply(strsplit(as.character(df$Series), "Session"), function(x) x[2]))
-    }
+    df$Series <- as.numeric(sapply(strsplit(as.character(df$Series), "session"), function(x) x[2]))
     df$Profile <- factor(df$Profile)
-
-    singleSession <- nlevels(df$Series) == 1L
-    lab_data <- function(series){
-        thisunit <- units$unit[units$variable == series]
+    ## make basic plot and facets
+    lab_data <- function(series) {
+        thisunit <- units$unit[units$sport == "running" & units$variable == series]
         prettyUnit <- prettifyUnits(thisunit)
         paste0(series, " [", prettyUnit,"]")
     }
     lab_data <- Vectorize(lab_data)
+    sc <- 0.02
+    ggplot(df) +
+        ggridges::geom_ridgeline(aes_(x = quote(Index), y = quote(Series), height = quote(Value), group = quote(Series), scale = sc, fill = quote(Sport)), alpha = 0.5, color = gray(0.25, alpha = 0.1)) +
+        ggridges::theme_ridges() +
+        scale_fill_manual(values = c(cycling = "#76BD58", running = "#F68BA2", swimming = "#5EB3F0")) +
+        theme(panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank()) +
+        facet_grid(. ~ Profile, scales = "free_x", labeller = labeller("Profile" = lab_data)) +
+        xlab("") + ylab("Session")
+}
 
-    sc <- 2/max(df$Value)
-    ggplot2::ggplot(df) +
-        ggridges::geom_ridgeline(ggplot2::aes_(x = quote(Index), y = quote(Series), height = quote(Value), group = quote(Series), scale = sc), alpha = 0.5) +
-            ggridges::theme_ridges() +
-            ggplot2::labs(x = lab_data(what), y = "Session")
 
+#' @rdname get_sport
+#' @export
+get_sport.distrProfile <- function(object,
+                                   session = NULL,
+                                   ...) {
+    if (is.null(session)) {
+        nc <- ncol(object[[1]])
+        nc <- if (is.null(nc)) 1 else nc
+        session <- seq.int(nc)
+    }
+    attr(object, "sport")[session]
+}
+
+
+#' @rdname get_profile
+#' @export
+get_profile.distrProfile <- function(object,
+                                      session = NULL,
+                                      what = NULL,
+                                      ...) {
+    sports <- get_sport(object)
+    operations <- get_operations(object)
+    units <- get_units(object)
+    times <- attr(object, "session_times")
+    urs <- attr(object, "unit_reference_sport")
+    limits <- attr(object, "limits")
+    if (is.null(what)) {
+        what <- names(object)
+    }
+    ## select variables
+    inds <- what %in% names(object)
+    if (all(!inds)) {
+        stop("no data for ", paste0(what[!inds], collapse = ", "))
+    }
+    if (any(!inds)) {
+        warning("no data for ", paste0(what[!inds], collapse = ", "))
+    }
+    what <- what[inds]
+    nsess <- nsessions(object)
+    ## Reset the object according to what and session
+    object <- object[what]
+    ## select sessions
+    if (is.null(session)) {
+        session <- seq.int(nsess)
+    }
+
+    for (i in what) {
+        object[[i]] <- object[[i]][, session, drop = FALSE]
+    }
+
+    ## Re class
+    attr(object, "sport") <- sports[session]
+    attr(object, "session_times") <- times[session, ]
+    attr(object, "unit_reference_sport") <- urs
+    attr(object, "operations") <- operations
+    attr(object, "units") <- units
+    attr(object, "limits") <- limits[what]
+    class(object) <- "distrProfile"
+    object
+}
+
+
+
+#' @rdname get_profile
+#' @export
+get_profile.conProfile <- function(object,
+                                   session = NULL,
+                                   what = NULL,
+                                   ...) {
+
+    object <- get_profile.distrProfile(object, session, what, ...)
+    class(object) <- "conProfile"
+    object
+}
+
+
+#' Change the units of the variables in an \code{distrProfile} object
+#'
+#' @param object An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.
+#' @param variable A vector of variables to be changed.
+#' @param unit A vector with the units, corresponding to variable.
+#' @param ... Currently not used.
+#' @export
+change_units.distrProfile <- function(object,
+                                      variable,
+                                      unit,
+                                      ...) {
+
+    no_variable <- missing(variable)
+    no_unit <- missing(unit)
+
+    if (no_unit & no_variable) {
+        return(object)
+    }
+    else {
+        units <- get_units(object)
+        current <- collect_units(units, unit_reference_sport = attr(object, "unit_reference_sport"))
+        p <- length(variable)
+
+        if (length(unit) == p) {
+            ## change units
+            for (i in variable) {
+                currentUnit <- current$unit[current$variable == i]
+                newUnit <- unit[which(variable == i)]
+                if (currentUnit != newUnit) {
+                    conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
+                    ## change grid
+                    newIndex <- conversion(index(object[[i]]))
+                    object[[i]] <- zoo(coredata(object[[i]]), order.by = newIndex)
+                    ## change units attribute
+                    current$unit[current$variable == i] <- newUnit
+                }
+            }
+
+            ## update units in units
+            for (va in current$variable) {
+                units$unit[units$variable == va] <- current$unit[current$variable == va]
+            }
+
+            attr(object, "units") <- units
+            return(object)
+
+        }
+        else {
+            stop("variable and unit should have the same length.")
+        }
+    }
+}
+
+
+
+#' Change the units of the variables in an \code{\link{conProfile}} object
+#'
+#' @param object An object of class \code{\link{conProfile}} as returned by \code{\link{concentrationProfile}}.
+#' @param variable A vector of variables to be changed.
+#' @param unit A vector with the units, corresponding to variable.
+#' @param ... Currently not used.
+#' @export
+change_units.conProfile <- change_units.distrProfile
+
+#' Get the operation settings of an \code{distrProfile} object
+#'
+#' @param object An object of class \code{distrProfile} as returned by \code{\link{distributionProfile}}.
+#' @param ... Currently not used.
+#' @export
+get_operations.distrProfile <- function(object, ...) {
+    attr(object, "operations")
 }

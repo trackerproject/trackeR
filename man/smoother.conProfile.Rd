@@ -4,24 +4,33 @@
 \alias{smoother.conProfile}
 \title{Smoother for concentration profiles.}
 \usage{
-\method{smoother}{conProfile}(object, session = NULL, control = list(...),
-  ...)
+\method{smoother}{conProfile}(object, session = NULL, what = NULL,
+  control = list(...), ...)
 }
 \arguments{
-\item{object}{An object of class \code{conProfile} as returned by \code{\link{concentrationProfile}}.}
+\item{object}{An object of class \code{conProfile} as returned by
+\code{\link{concentration_profile}}.}
 
-\item{session}{A numeric vector of the sessions to be selected and smoothed. Defaults to all sessions.}
+\item{session}{A numeric vector of the sessions to be selected and
+smoothed. Defaults to all sessions.}
 
-\item{control}{A list of parameters for controlling the smoothing process.
-This is passed to \code{\link{smootherControl.distrProfile}}.}
+\item{what}{A character version of the variables to be selected and
+smoothed. Defaults to all variables in \code{object}
+(\code{what = NULL}).}
 
-\item{...}{Arguments to be used to form the default \code{control} argument if it is not supplied directly.}
+\item{control}{A list of parameters for controlling the smoothing
+process.  This is passed to
+\code{\link{smoother_control.distrProfile}}.}
+
+\item{...}{Arguments to be used to form the default \code{control}
+argument if it is not supplied directly.}
 }
 \description{
-To ensure positivity of the smoothed concentration profiles, the concentration profiles
-are transformed to distribution profiles before smoothing. The smoothed distribution
-profiles are then transformed to concentration profiles.
+To ensure positivity of the smoothed concentration profiles, the
+concentration profiles are transformed to distribution profiles
+before smoothing. The smoothed distribution profiles are then
+transformed to concentration profiles.
 }
 \seealso{
-\code{\link{smootherControl.distrProfile}}
+\code{\link{smoother_control.distrProfile}}
 }
