@@ -3222,8 +3222,9 @@ variables in \code{what}. This is a more computationally efficient
 operation, that computing the distribution profiles, smoothing them,
 and then taking finite differences of the smoothed distribution
 profiles. The following code chunk illustrates this and plots the
-concentration profiles using a ridgeline plot. The resulting plot is
-shown in Figure~\ref{fig:ridges}.
+concentration profiles using a ridgeline plot
+\citep{trackeR:pkg:ggridges}. The resulting plot is shown in
+Figure~\ref{fig:ridges}.
 <<cP, echo = TRUE, eval = FALSE>>=
 cProfile1 <- concentrationProfile(runs,  what = "speed",
                                   limits = list(speed = c(0, 12.5)))
