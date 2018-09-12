@@ -90,64 +90,81 @@ Or the development version from github:
 
 ### Example
 
+Plot workout data
+
+    data(runs, package = "trackeR")
+    plot(runs, session = 1:5, what = c("speed", "pace", "altitude"))
+
+![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/plots-1.png)
+
+Change the units
+
+    data(runs, package = "trackeR")
+    runs0 <- change_units(runs,
+                          variable = c("speed", "altitude"),
+                          unit = c("km_per_h", "ft"),
+                          sport = c("running", "running"))
+    plot(runs0, session = 1:5, what = c("speed", "pace", "altitude"))
+
+![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/plots_new-1.png)
+
 Summarise sessions
 
     library("trackeR")
-    data(runs, package = "trackeR")
-    runsSummary <- summary(runs)
-    plot(runsSummary, group = c("total", "moving"),
+    runs_summary <- summary(runs)
+    plot(runs_summary, group = c("total", "moving"),
         what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
 
-![](README_files/figure-markdown_strict/summary-1.png)
+![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/summary-1.png)
 
 Generate distribution and concentration profiles
 
     runsT <- threshold(runs)
-    dpRuns <- distributionProfile(runsT, what = c("speed", "heart_rate"))
-    dpRunsS <- smoother(dpRuns)
-    cpRuns <- concentrationProfile(dpRunsS)
-    plot(cpRuns, multiple = TRUE, smooth = FALSE)
+    dp_runs <- distribution_profile(runsT, what = c("speed", "heart_rate"))
+    dp_runs_smooth <- smoother(dpRuns)
+    cp_runs <- concentration_profile(dp_runs_smooth)
+    plot(cp_runs, multiple = TRUE, smooth = FALSE)
 
-![](README_files/figure-markdown_strict/cprofile-1.png)
+![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/cprofile-1.png)
 
 A ridgeline plot of the concentration profiles
 
-    ridges(cpRuns, what = "speed")
+    ridges(cp_runs, what = "speed")
 
-![](README_files/figure-markdown_strict/cprofile-ridges-1.png)
+![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/cprofile-ridges-1.png)
 
-    ridges(cpRuns, what = "heart_rate")
+    ridges(cp_runs, what = "heart_rate")
 
-![](README_files/figure-markdown_strict/cprofile-ridges-hr-1.png)
+![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/cprofile-ridges-hr-1.png)
 
 Explore concentration profiles for speed, e.g., via functional principal
 components analysis (PCA)
 
     ## fit functional PCA
-    cpPCA <- funPCA(cpRuns, what = "speed", nharm = 4)
+    cp_PCA <- funPCA(cp_runs, what = "speed", nharm = 4)
 
     ## pick first 2 harmonics/principal components
-    round(cpPCA$varprop, 2)
+    round(cp_PCA$varprop, 2)
 
     ## [1] 0.66 0.25 0.06 0.02
 
     ## plot harmonics
-    plot(cpPCA, harm = 1:2)
+    plot(cp_PCA, harm = 1:2)
 
-![](README_files/figure-markdown_strict/funPCA-1.png)
+![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/funPCA-1.png)
 
     ## plot scores vs summary statistics
-    scoresSP <- data.frame(cpPCA$scores)
-    names(scoresSP) <- paste0("speed_pc", 1:4)
-    d <- cbind(runsSummary, scoresSP)
+    scores_SP <- data.frame(cp_PCA$scores)
+    names(scores_SP) <- paste0("speed_pc", 1:4)
+    d <- cbind(runs_summary, scores_SP)
 
     library("ggplot2")
     ## pc1 ~ session duration (moving)
     ggplot(d) + geom_point(aes(x = as.numeric(durationMoving), y = speed_pc1)) + theme_bw()
 
-![](README_files/figure-markdown_strict/scores-1.png)
+![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/scores-1.png)
 
     ## pc2 ~ avg speed (moving)
     ggplot(d) + geom_point(aes(x = avgSpeedMoving, y = speed_pc2)) + theme_bw()
 
-![](README_files/figure-markdown_strict/scores-2.png)
+![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/scores-2.png)
