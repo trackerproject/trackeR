@@ -12,6 +12,7 @@
 #' @seealso \code{\link{smoother_control.trackeRdata}}
 #'
 #' @examples
+#' \dontrun{
 #' data('run', package = 'trackeR')
 #' ## unsmoothed speeds
 #' plot(run, smooth = FALSE)
@@ -20,6 +21,7 @@
 #' ## smoothed with some non-default options
 #' runS <- smoother(run, fun = 'median', width = 20, what = 'speed')
 #' plot(runS, smooth = FALSE)
+#' }
 #' @export
 smoother.trackeRdata <- function(object,
                                  session = NULL,
