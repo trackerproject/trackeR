@@ -393,11 +393,13 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...) {
 #' @param ... Currently not used.
 #' @seealso \code{\link{summary.trackeRdata}}
 #' @examples
+#' \dontrun{
 #' data('runs', package = 'trackeR')
 #' runSummary <- summary(runs)
 #' plot(runSummary)
 #' plot(runSummary, date = FALSE, group = 'total',
 #'     what = c('distance', 'duration', 'avgSpeed'))
+#' }
 #' @export
 plot.trackeRdataSummary <- function(x,
                                     date = TRUE,

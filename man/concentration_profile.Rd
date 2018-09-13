@@ -25,6 +25,7 @@ should be generated. Defaults to all variables in \code{object}
 Generic method for concentration profiles
 }
 \examples{
+\dontrun{
 ## Compute conecntration profiles from distribution profiles
 data('run', package = 'trackeR')
 dProfile <- distributionProfile(run, what = 'speed', grid = seq(0, 12.5, by = 0.05))
@@ -40,7 +41,7 @@ cProfile <- concentrationProfile(runs, what = 'speed',
 plot(cProfile, smooth = FALSE)
 ridges(cProfile)
 plot(cProfile, smooth = TRUE)
-
+}
 }
 \seealso{
 concentration_profile.distrProfile concentration_profile.trackeRdata

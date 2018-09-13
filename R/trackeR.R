@@ -231,6 +231,7 @@ get_profile <- function(object, session, what, ...) UseMethod("get_profile")
 #' @seealso concentration_profile.distrProfile concentration_profile.trackeRdata
 #'
 #' @examples
+#' \dontrun{
 #' ## Compute conecntration profiles from distribution profiles
 #' data('run', package = 'trackeR')
 #' dProfile <- distributionProfile(run, what = 'speed', grid = seq(0, 12.5, by = 0.05))
@@ -246,7 +247,7 @@ get_profile <- function(object, session, what, ...) UseMethod("get_profile")
 #' plot(cProfile, smooth = FALSE)
 #' ridges(cProfile)
 #' plot(cProfile, smooth = TRUE)
-#'
+#'}
 #' @export
 concentration_profile <- function(object,
                                   session = NULL,

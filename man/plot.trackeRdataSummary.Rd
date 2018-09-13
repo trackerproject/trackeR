@@ -25,11 +25,13 @@
 Plot an object of class \code{\link{trackeRdataSummary}}.
 }
 \examples{
+\dontrun{
 data('runs', package = 'trackeR')
 runSummary <- summary(runs)
 plot(runSummary)
 plot(runSummary, date = FALSE, group = 'total',
     what = c('distance', 'duration', 'avgSpeed'))
+}
 }
 \seealso{
 \code{\link{summary.trackeRdata}}
