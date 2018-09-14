@@ -70,9 +70,11 @@
 #' 1--29. doi:10.18637/jss.v082.i07
 #'
 #' @examples
+#' \dontrun{
 #' data('run', package = 'trackeR')
 #' dProfile <- distribution_profile(run, what = c("speed", "cadence_running"))
 #' plot(dProfile, smooth = FALSE)
+#' }
 #' @export
 distribution_profile <- function(object,
                                  session = NULL,
@@ -289,12 +291,14 @@ fortify.conProfile <- fortify.distrProfile
 #' @param ... Further arguments to be passed to
 #'     \code{\link{smoother_control.distrProfile}}.
 #' @examples
+#' \dontrun{
 #' data('runs', package = 'trackeR')
 #' dProfile <- distribution_profile(runs, session = 1:2,
 #'     what = "speed", grid = seq(0, 12.5, by = 0.05))
 #' plot(dProfile, smooth = FALSE)
 #' plot(dProfile, smooth = FALSE, multiple = TRUE)
 #' plot(dProfile, multiple = TRUE)
+#' }
 #' @export
 plot.distrProfile <- function(x, session = NULL,
                               what = NULL,

@@ -40,10 +40,12 @@
 #'
 #'
 #' @examples
+#' \dontrun{
 #' data('runs', package = 'trackeR')
 #' plot(runs, session = 4, what = 'speed', threshold = FALSE)
 #' runsT <- threshold(runs, variable = 'speed', lower = 0, upper = 12.5, sport = "running")
 #' plot(runsT, session = 4, what = 'speed', threshold = FALSE)
+#' }
 #' @export
 threshold.trackeRdata <- function(object,
                                   variable,

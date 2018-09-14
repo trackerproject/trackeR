@@ -30,10 +30,12 @@ before plotting?}
 Plot distribution profiles.
 }
 \examples{
+\dontrun{
 data('runs', package = 'trackeR')
 dProfile <- distribution_profile(runs, session = 1:2,
     what = "speed", grid = seq(0, 12.5, by = 0.05))
 plot(dProfile, smooth = FALSE)
 plot(dProfile, smooth = FALSE, multiple = TRUE)
 plot(dProfile, multiple = TRUE)
+}
 }

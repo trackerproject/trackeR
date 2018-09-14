@@ -189,9 +189,11 @@ Wexp <- function(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower 
 #'
 #' @export
 #' @examples
+#' \dontrun{
 #' data('runs', package = 'trackeR')
 #' wexp <- Wprime(runs, session = c(11,13), cp = 4, version = '2012')
 #' plot(wexp)
+#' }
 Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), w0, cp,
     version = c("2015", "2012"), meanRecoveryPower = FALSE, parallel = FALSE,
     ...) {
@@ -286,9 +288,11 @@ Wprime <- function(object, session = NULL, quantity = c("expended", "balance"), 
 #' @param ... Currently not used.
 #' @export
 #' @examples
+#' \dontrun{
 #' data('runs', package = 'trackeR')
 #' wexp <- Wprime(runs, session = 1:3, cp = 4, version = '2012')
 #' plot(wexp, session = 1:2)
+#' }
 plot.trackeRWprime <- function(x, session = NULL, dates = TRUE, scaled = TRUE, ...) {
     quantity <- attr(x, "quantity")
     sports <- attr(x, "sport")

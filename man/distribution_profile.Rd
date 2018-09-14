@@ -78,9 +78,11 @@ calculation of distribution profiles. These is the output of
 Generate training distribution profiles.
 }
 \examples{
+\dontrun{
 data('run', package = 'trackeR')
 dProfile <- distribution_profile(run, what = c("speed", "cadence_running"))
 plot(dProfile, smooth = FALSE)
+}
 }
 \references{
 Kosmidis, I., and Passfield, L. (2015). Linking the Performance of

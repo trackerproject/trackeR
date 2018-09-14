@@ -41,6 +41,7 @@
 #' and Ageing, 26(1), 15--19. doi: 10.1093/ageing/26.1.15.
 #'
 #' @examples
+#' \dontrun{
 #' data('runs', package = 'trackeR')
 #' runSummary <- summary(runs, session = 1:2)
 #' ## print summary
@@ -53,6 +54,7 @@
 #' plot(runSummaryFull)
 #' plot(runSummaryFull, group = c('total', 'moving'),
 #'     what = c('avgSpeed', 'distance', 'duration', 'avgHeartRate'))
+#' }
 #' @export
 summary.trackeRdata <- function(object,
                                 session = NULL,

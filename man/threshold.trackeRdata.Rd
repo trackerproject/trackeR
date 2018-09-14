@@ -57,8 +57,10 @@ The thresholds for speed differ across sports: for running they are
 and for swimming [0, 5] meters per second.
 }
 \examples{
+\dontrun{
 data('runs', package = 'trackeR')
 plot(runs, session = 4, what = 'speed', threshold = FALSE)
 runsT <- threshold(runs, variable = 'speed', lower = 0, upper = 12.5, sport = "running")
 plot(runsT, session = 4, what = 'speed', threshold = FALSE)
+}
 }

@@ -23,7 +23,9 @@ which is then plotted in the background?}
 Plot W'.
 }
 \examples{
+\dontrun{
 data('runs', package = 'trackeR')
 wexp <- Wprime(runs, session = 1:3, cp = 4, version = '2012')
 plot(wexp, session = 1:2)
+}
 }

@@ -46,6 +46,7 @@ those of the sport specified by \code{unit_reference_sport} are
 applied to the respective summaries.
 }
 \examples{
+\dontrun{
 data('runs', package = 'trackeR')
 runSummary <- summary(runs, session = 1:2)
 ## print summary
@@ -58,6 +59,7 @@ runSummaryFull <- summary(runs)
 plot(runSummaryFull)
 plot(runSummaryFull, group = c('total', 'moving'),
     what = c('avgSpeed', 'distance', 'duration', 'avgHeartRate'))
+}
 }
 \references{
 Bohannon RW (1997). 'Comfortable and Maximum Walking Speed of
