@@ -25,6 +25,7 @@ An object of class \code{\link{trackeRdata}}.
 Smoother for \code{\link{trackeRdata}} objects.
 }
 \examples{
+\dontrun{
 data('run', package = 'trackeR')
 ## unsmoothed speeds
 plot(run, smooth = FALSE)
@@ -33,6 +34,7 @@ plot(run, smooth = TRUE)
 ## smoothed with some non-default options
 runS <- smoother(run, fun = 'median', width = 20, what = 'speed')
 plot(runS, smooth = FALSE)
+}
 }
 \seealso{
 \code{\link{smoother_control.trackeRdata}}
