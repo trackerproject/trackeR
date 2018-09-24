@@ -70,9 +70,9 @@
 #' 1--29. doi:10.18637/jss.v082.i07
 #'
 #' @examples
-#' \dontrun{
 #' data('run', package = 'trackeR')
 #' dProfile <- distribution_profile(run, what = c("speed", "cadence_running"))
+#' \dontrun{
 #' plot(dProfile, smooth = FALSE)
 #' }
 #' @export

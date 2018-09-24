@@ -46,12 +46,12 @@ those of the sport specified by \code{unit_reference_sport} are
 applied to the respective summaries.
 }
 \examples{
-\dontrun{
 data('runs', package = 'trackeR')
 runSummary <- summary(runs, session = 1:2)
 ## print summary
 runSummary
 print(runSummary, digits = 3)
+\dontrun{
 ## change units
 change_units(runSummary, variable = 'speed', unit = 'km_per_h')
 ## plot summary

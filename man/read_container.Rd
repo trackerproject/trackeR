@@ -100,10 +100,8 @@ known, append an appropriate keyword to the filename (e.g. 'ride',
 'swim', 'run'). This should fix the error.
 }
 \examples{
-\dontrun{
 filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX", package = "trackeR")
 run <- read_container(filepath, type = "tcx", timezone = "GMT")
-}
 }
 \seealso{
 \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}, \code{\link{readJSON}}

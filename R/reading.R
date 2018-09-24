@@ -32,7 +32,6 @@
 #' @export
 #' @name readX
 #' @examples
-#' \dontrun{
 #' ## read raw data
 #' filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX", package = "trackeR")
 #' run0 <- readTCX(file = filepath, timezone = "GMT")
@@ -42,6 +41,7 @@
 #' run0 <- trackeRdata(run0, units = units0)
 #'
 #' ## alternatively
+#' \dontrun{
 #' run0 <- read_container(filepath, type = "tcx", timezone = "GMT")
 #' }
 #'
@@ -547,12 +547,10 @@ readJSON <- function(file,
 #' @return An object of class \code{\link{trackeRdata}}.
 #' @seealso \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}, \code{\link{readJSON}}
 #'
-#' @export
 #' @examples
-#' \dontrun{
 #' filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX", package = "trackeR")
 #' run <- read_container(filepath, type = "tcx", timezone = "GMT")
-#' }
+#' @export
 read_container <- function(file,
                            type = c("tcx", "gpx", "db3", "json"),
                            table = "gps_data",

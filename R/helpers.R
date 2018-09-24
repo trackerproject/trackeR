@@ -197,10 +197,8 @@ compute_limits <- function(object, a = 0.0001) {
 #' of breakpoints per variable.
 #'
 #' @examples
-#' \dontrun{
 #' data("runs")
 #' compute_breaks(runs, what = c("speed", "heart_rate", "altitude"))
-#' }
 #' @export
 compute_breaks  <- function(object,
                             a = 0.0001,

@@ -50,7 +50,6 @@
 #' 1--29. doi:10.18637/jss.v082.i07
 #'
 #' @examples
-#' \dontrun{
 #' ## read raw data
 #' filepath <- system.file('extdata/tcx/', '2013-06-08-090442.TCX', package = 'trackeR')
 #' run0 <- readTCX(file = filepath, timezone = 'GMT')
@@ -58,10 +57,6 @@
 #' ## turn into trackeRdata object
 #' units0 <- generate_units()
 #' run0 <- trackeRdata(run0, units = units0)
-#'
-#' ## alternatively
-#' run0 <- readContainer(filepath, type = 'tcx', timezone = 'GMT')
-#' }
 #' @export
 trackeRdata <- function(dat,
                         units = NULL,

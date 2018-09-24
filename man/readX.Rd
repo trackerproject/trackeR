@@ -64,7 +64,6 @@ the \code{file} attribute of the returned object has value
 Reading Golden Cheetah's JSON files is experimental.
 }
 \examples{
-\dontrun{
 ## read raw data
 filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX", package = "trackeR")
 run0 <- readTCX(file = filepath, timezone = "GMT")
@@ -74,6 +73,7 @@ units0 <- generate_units()
 run0 <- trackeRdata(run0, units = units0)
 
 ## alternatively
+\dontrun{
 run0 <- read_container(filepath, type = "tcx", timezone = "GMT")
 }
 

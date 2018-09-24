@@ -41,12 +41,12 @@
 #' and Ageing, 26(1), 15--19. doi: 10.1093/ageing/26.1.15.
 #'
 #' @examples
-#' \dontrun{
 #' data('runs', package = 'trackeR')
 #' runSummary <- summary(runs, session = 1:2)
 #' ## print summary
 #' runSummary
 #' print(runSummary, digits = 3)
+#' \dontrun{
 #' ## change units
 #' change_units(runSummary, variable = 'speed', unit = 'km_per_h')
 #' ## plot summary

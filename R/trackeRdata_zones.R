@@ -19,7 +19,6 @@
 #' @return An object of class \code{trackeRdataZones}.
 #' @seealso \code{\link{plot.trackeRdataZones}}
 #' @examples
-#' \dontrun{
 #' data('run', package = 'trackeR')
 #' runZones <- zones(run, what = 'speed', breaks = list(speed = c(0, 2:6, 12.5)))
 #' ## if breaks is a named list, argument 'what' can be left unspecified
@@ -27,7 +26,6 @@
 #' ## if only a single variable is to be evaluated, 'breaks' can also be a vector
 #' runZones <- zones(run, what = 'speed', breaks = c(0, 2:6, 12.5))
 #' plot(runZones)
-#' }
 #' @export
 zones <- function(object,
                   session = NULL,

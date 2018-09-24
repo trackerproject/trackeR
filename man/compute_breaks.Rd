@@ -32,8 +32,6 @@ of breakpoints per variable.
 Compute a grid of breakpoints per variable from a \code{\link{trackeRdata}} object.
 }
 \examples{
-\dontrun{
 data("runs")
 compute_breaks(runs, what = c("speed", "heart_rate", "altitude"))
-}
 }

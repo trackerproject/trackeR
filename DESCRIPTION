@@ -9,7 +9,7 @@ Authors@R: c(person(given = "Ioannis", family = "Kosmidis",
 	            comment = c(ORCID = "0000-0002-6049-5258")),
 	     person(given = "Robin", family = "Hornak",
 	            role = "aut", email = "robinhornak@gmail.com"))
-Description: Provides infrastructure for handling running, cycling and swimming data from GPS-enabled tracking devices within R. The package provides methods to extract, clean and organise workout and competition data into session-based and unit-aware data objects of class 'trackeRdata' (S3 class). The information can then be visualised, summarised, and analysed through flexible and extensible methods.
+Description: Provides infrastructure for handling running, cycling and swimming data from GPS-enabled tracking devices within R. The package provides methods to extract, clean and organise workout and competition data into session-based and unit-aware data objects of class 'trackeRdata' (S3 class). The information can then be visualised, summarised, and analysed through flexible and extensible methods. Frick and Kosmidis (2017) <doi: 10.18637/jss.v082.i07>, which is updated and maintained as one of the vignettes, provides detailed descriptions of the package and its methods, and real-data demonstrations of the package functionality.
 Depends:
     R (>= 3.1.0),
     zoo

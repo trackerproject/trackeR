@@ -69,7 +69,6 @@ if \code{attr(dat, 'sport')} is \code{NA} then the current
 implementation of \code{trackeRdata} returns an error.
 }
 \examples{
-\dontrun{
 ## read raw data
 filepath <- system.file('extdata/tcx/', '2013-06-08-090442.TCX', package = 'trackeR')
 run0 <- readTCX(file = filepath, timezone = 'GMT')
@@ -77,10 +76,6 @@ run0 <- readTCX(file = filepath, timezone = 'GMT')
 ## turn into trackeRdata object
 units0 <- generate_units()
 run0 <- trackeRdata(run0, units = units0)
-
-## alternatively
-run0 <- readContainer(filepath, type = 'tcx', timezone = 'GMT')
-}
 }
 \references{
 Frick, H., Kosmidis, I. (2017). trackeR: Infrastructure for Running
