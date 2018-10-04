@@ -13,6 +13,8 @@ vignettes/jss.cls
 GBR*
 
 data-raw/
+^notes\.org$
+^classifier\.R$
 
 inst/extdata/tcx/2013-06-02-072348.TCX
 inst/extdata/tcx/2013-06-03-184846.TCX

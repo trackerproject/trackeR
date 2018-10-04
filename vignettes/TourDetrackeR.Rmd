@@ -95,14 +95,16 @@ plot(runs, session = 8, what = c("altitude", "pace"))
 The route taken during a training session can also be plotted on maps from various sources
 e.g., from Google or OpenStreetMap. This can be done either on a static map
 
-```{r, plotRoute, eval = FALSE, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 7}
-plot_route(runs, session = 1, source = "stamen")
+```{r, plotRoute, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 7}
+tryCatch(plot_route(runs, session = 1, source = "stamen"),
+         error = function(x) "Failed to donwload map data")
 ```
 
 or on an interactive map.
 
 ```{r, leafletRoute, fig.width = 7, fig.height = 7}
-leaflet_route(runs, session = c(1, 6, 12))
+tryCatch(leaflet_route(runs, session = c(1, 6, 12)),
+         error = function(x) "Failed to donwload map data")
 ```
 
 

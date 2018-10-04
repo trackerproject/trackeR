@@ -85,11 +85,6 @@ Or the development version from github:
     # install.packages("devtools")
     devtools::install_github("trackerproject/trackeR")
 
-### Dashboard
-
-    library("trackeR")
-    trackeR_app()
-
 ### Example
 
 Plot workout data

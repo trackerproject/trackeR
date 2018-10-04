@@ -1,3 +1,8 @@
+## trackeR 1.2.0
+
+### Other changes
+Updated vignettes to avoid errors during CRAN checks
+
 ## trackeR 1.1.0
 
 ### New functionality
@@ -10,8 +15,6 @@
 * `nsessions`, `sport`, `session_duration` and `session_times` methods for `trackeRdata` and `trackeRdataSummary` objects
 * `auto_breaks` argument when plotting zones, distribution and concentration profiles
 * `sort` and `unique` methods for `trackeRdata` objects
-* `trackeR_app()` launches a shiny dashboard that provides an interface to a workflow for the analysis of activity data
-
 
 ### Enhancements
 * Numerous under-the-hood performance and design improvements
@@ -28,9 +31,6 @@
 * Various bug fixes in `trackeRdata`
 * Fixed bug in `scaled` method that would cause an error for single sessions
 * The `aggregate` method is now doing what is supposed to
-
-### User interface
-* `trackeR_app()` launches a shiny dashboard that provides an interface to a workflow for the analysis of activity data
 
 ### Other changes
 * Maintainer changed from Hannah Frick to Ioannis Kosmidis

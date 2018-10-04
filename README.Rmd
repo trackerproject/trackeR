@@ -82,11 +82,6 @@ Or the development version from github:
 devtools::install_github("trackerproject/trackeR")
 ```
 
-### Dashboard
-```{r, message = FALSE, eval = FALSE}
-library("trackeR")
-trackeR_app()
-```
 
 ### Example
 
