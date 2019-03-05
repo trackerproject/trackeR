@@ -285,24 +285,27 @@ fortify.trackeRdata <- function(model,
 #' @param session A numeric vector of the sessions to be plotted. Defaults
 #'     to the first session, all sessions can be plotted by \code{session = NULL}.
 #' @param zoom The zoom level for the background map as passed on to
-#'     \code{\link[ggmap]{get_map}} (2 corresponds roughly to continent
+#'     \code{\link[ggmap]{get_stamenmap}} (2 corresponds roughly to continent
 #'     level and 20 to building level).
 #' @param speed Logical. Should the trace be colored according to speed?
 #' @param threshold Logical. Should thresholds be applied?
 #' @param mfrow A vector of 2 elements, number of rows and number of columns,
 #'     specifying the layout for multiple sessions.
+#' #' @param source Passed to \code{\link[ggmap]{get_map}}. Default is \code{"stamen"}.
+#' @param maptype Passed to \code{\link[ggmap]{get_stamenmap}}. Default is \code{"toner"}.
+#' @param messaging Passed to \code{\link[ggmap]{get_stamenmap}}. Default is \code{FALSE}.
 #' @param ... Additional arguments passed on to \code{\link{threshold}} and
-#'     \code{\link[ggmap]{get_map}}, e.g., \code{source} and \code{maptype}.
-#' @seealso \code{\link[ggmap]{get_map}}, \code{\link[ggmap]{ggmap}}
+#'     \code{\link[ggmap]{get_stamenmap}}.
+#' @seealso \code{\link[ggmap]{get_stamenmap}}, \code{\link[ggmap]{ggmap}}
 #' @examples
 #' \dontrun{
 #' data('runs', package = 'trackeR')
-#' plotRoute(runs, session = 4, zoom = 13)
-#' plotRoute(runs, session = 4, zoom = 13, maptype = "hybrid")
+#' plot_route(runs, session = 4, zoom = 13)
+#' plot_route(runs, session = 4, zoom = 13, maptype = "terrain")
 #' ## multiple sessions
-#' plotRoute(runs, session = c(1:5, 8:11), source = "google")
+#' plot_route(runs, session = c(1:4, 8:11))
 #' ## different zoom level per panel
-#' plotRoute(runs, session = 6:7, source = "google", zoom = c(13, 14))
+#' plot_route(runs, session = 6:7, zoom = c(13, 14))
 #' }
 #' @export
 plot_route <- function(x,
@@ -311,6 +314,9 @@ plot_route <- function(x,
                        speed = TRUE,
                        threshold = TRUE,
                        mfrow = NULL,
+                       ## source = "stamen",
+                       maptype = "toner",
+                       messaging = FALSE,
                        ...) {
 
     ## prep
@@ -327,6 +333,8 @@ plot_route <- function(x,
     ## get prepared data.frame
     df <- prepare_route(x, session = session, threshold = threshold, ...)
     centers <- attr(df, "centers")
+    ranges_lat <- attr(df, "rangesLat")
+    ranges_lon <- attr(df, "rangesLon")
 
     if (speed) {
         speedRange <- range(df[["speed"]], na.rm = TRUE)
@@ -340,11 +348,22 @@ plot_route <- function(x,
 
         dfs <- df[df$SessionID == which(ses == session), , drop = FALSE]
         zooms <- if (is.null(zoom)) centers[centers$SessionID == ses, "zoom"] else zoom[which(ses == session)]
-
         ## get map
-        map <- ggmap::get_map(location = c(lon = centers[centers$SessionID == ses, "centerLon"],
-                                           lat = centers[centers$SessionID == ses, "centerLat"]),
-                              zoom = zooms, ...)
+        range_lat <- ranges_lat[centers$SessionID == ses, ]
+        range_lon <- ranges_lon[centers$SessionID == ses, ]
+
+        map <- ggmap::get_stamenmap(c(left = range_lon$low - 0.001,
+                                bottom = range_lat$low - 0.001,
+                                right = range_lon$upp + 0.001,
+                                top = range_lat$upp + 0.001),
+                              zoom = zooms,
+                              maptype = maptype,
+                              messaging = messaging,
+                              ...)
+        ##, maptype = maptype, source = source, ...)
+            ## ggmap::get_map(location = c(lon = centers[centers$SessionID == ses, "centerLon"],
+            ##                                lat = centers[centers$SessionID == ses, "centerLat"]),
+            ##                   zoom = zooms, ...)
         p <- ggmap::ggmap(map)
 
         ## add trace
@@ -582,13 +601,14 @@ prepare_route <- function(x,
     lengthLat <- diff(rangeLat)
     centerLon <- rangeLon[1] + lengthLon / 2
     centerLat <- rangeLat[1] + lengthLat / 2
-    zoomLon <- ceiling(0.9*log2(360 * 2 / lengthLon))
-    zoomLat <- ceiling(0.9*log2(180 * 2 / lengthLat))
+    zoomLon <- ceiling(0.7*log2(360 * 2 / lengthLon))
+    zoomLat <- ceiling(0.7*log2(180 * 2 / lengthLat))
     zoom <- max(zoomLon, zoomLat)
 
     dfSplit <- centers <- vector("list", length(session))
     names(dfSplit) <- names(centers) <- as.character(session)
 
+    rangesLon <- rangesLat <- NULL
     for (i in session) {
         ## get subset for session
         dfSub <- df[df$SessionID == which(i == session), , drop = FALSE]
@@ -607,6 +627,8 @@ prepare_route <- function(x,
         zoomI <- max(zoomLonI, zoomLatI)
 
         centers[[as.character(i)]] <- c(centerLonI, centerLatI, zoomI)
+        rangesLon[[as.character(i)]] <- rangeLonI
+        rangesLat[[as.character(i)]] <- rangeLatI
 
         ## prep lon/lat for segments
         dfSub$longitude0 <- c(dfSub$longitude[-nrow(dfSub)], 0)
@@ -618,13 +640,18 @@ prepare_route <- function(x,
     }
     df <- do.call(rbind, dfSplit)
     centers <- data.frame(session, do.call(rbind, centers))
+    rangesLat <- data.frame(session, do.call(rbind, rangesLat))
+    rangesLon <- data.frame(session, do.call(rbind, rangesLon))
     names(centers) <- c("SessionID", "centerLon", "centerLat", "zoom")
+    names(rangesLat) <- names(rangesLon) <- c("SessionID", "low", "upp")
 
     ## add attributes and return
     attr(df, "centerLon") <- centerLon
     attr(df, "centerLat") <- centerLat
     attr(df, "autozoom") <- zoom
     attr(df, "centers") <- centers
+    attr(df, "rangesLon") <- rangesLon
+    attr(df, "rangesLat") <- rangesLat
     return(df)
 }
 
