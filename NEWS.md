@@ -1,3 +1,15 @@
+## trackeR 1.2.1
+
+### New functionality
+* `threshold.trackeRdata` reports on the progress of the operation if `trace = TRUE` in its arguments
+
+### Enhancements
+* Added new logo
+
+### Bug fixes
+* Fixed a bug that caused `threshold` to not threshold if applied without specifying any of variable, lower, upper and sport.
+
+
 ## trackeR 1.2.0
 
 ### Other changes
