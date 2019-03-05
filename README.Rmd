@@ -2,7 +2,7 @@
 output: github_document
 ---
 
-# trackeR
+# trackeR <img src="README_files/hex_trackeR.svg" width="320" align="right">
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/trackeR)](https://cran.r-project.org/package=trackeR)
 [![Travis-CI Build Status](https://travis-ci.org/trackerproject/trackeR.svg?branch=master)](https://travis-ci.org/trackerproject/trackeR)

@@ -1,5 +1,5 @@
-trackeR
-=======
+trackeR <img src="README_files/hex_trackeR.svg" width="320" align="right">
+==========================================================================
 
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/trackeR)](https://cran.r-project.org/package=trackeR)
 [![Travis-CI Build
