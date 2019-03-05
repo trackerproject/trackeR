@@ -5,7 +5,8 @@
 \alias{threshold}
 \title{Thresholding for variables in \code{trackeRdata} objects}
 \usage{
-\method{threshold}{trackeRdata}(object, variable, lower, upper, sport, ...)
+\method{threshold}{trackeRdata}(object, variable, lower, upper, sport,
+  trace = FALSE, ...)
 
 threshold(object, ...)
 }
@@ -24,6 +25,8 @@ thresholds. See Details.}
 \item{sport}{A vector of sports (amongst \code{'cycling'},
 \code{'running'}, \code{'swimming'}) with each element
 corresponding to \code{variable}, \code{lower} and \code{upper}}
+
+\item{trace}{Should a progress report be printed? Default is \code{FALSE}}
 
 \item{...}{Currently not used.}
 }

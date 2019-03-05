@@ -5,11 +5,11 @@
 \alias{imputeSpeeds}
 \title{Impute speeds}
 \usage{
-impute_speeds(session_data, from_distances = TRUE, lgap = 30, lskip = 5,
-  m = 11, sport = "cycling", units = NULL)
+impute_speeds(session_data, from_distances = TRUE, lgap = 30,
+  lskip = 5, m = 11, sport = "cycling", units = NULL)
 
-imputeSpeeds(session_data, from_distances = TRUE, lgap = 30, lskip = 5,
-  m = 11, sport = "cycling", units = NULL)
+imputeSpeeds(session_data, from_distances = TRUE, lgap = 30,
+  lskip = 5, m = 11, sport = "cycling", units = NULL)
 }
 \arguments{
 \item{session_data}{A multivariate \code{\link[zoo]{zoo}} object with

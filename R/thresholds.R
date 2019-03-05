@@ -10,6 +10,7 @@
 #' @param sport A vector of sports (amongst \code{'cycling'},
 #'     \code{'running'}, \code{'swimming'}) with each element
 #'     corresponding to \code{variable}, \code{lower} and \code{upper}
+#' @param trace Should a progress report be printed? Default is \code{FALSE}
 #' @param ... Currently not used.
 #' @details
 #'
@@ -52,6 +53,7 @@ threshold.trackeRdata <- function(object,
                                   lower,
                                   upper,
                                   sport,
+                                  trace = FALSE,
                                   ...) {
 
     sports <- get_sport(object)
@@ -88,44 +90,36 @@ threshold.trackeRdata <- function(object,
             thresholds[ind, ] <- thresholds_new[ind, ]
             thresholds[ind, "changed"] <- TRUE
         }
-        ## Change thresholds
-        for (sp in unique(sports)) {
-            th <- subset(thresholds, sport == sp)
-            for (k in which(th$changed)) {
-                va <- th$variable[k]
-                ## trackeRdata objects do not carry duration so skip
-                if (va == "duration") {
-                    next
-                }
-                for (sess in which(sports == sp)) {
-                    inds_lower <- object[[sess]][, va] < th$lower[k]
-                    inds_upper <- object[[sess]][, va] > th$upper[k]
-                    object[[sess]][inds_lower, va] <- NA
-                    object[[sess]][inds_upper, va] <- NA
-                }
+    }
+    else {
+        ## Assume that all are changed
+        thresholds$changed <- TRUE
+    }
+
+    ## Change thresholds
+    for (sp in unique(sports)) {
+        th <- subset(thresholds, sport == sp)
+        for (k in which(th$changed)) {
+            va <- th$variable[k]
+            ## trackeRdata objects do not carry duration so skip
+            if (va == "duration") {
+                next
+            }
+            if (isTRUE(trace)) {
+                cat("Thresholding", va, "for", paste0(sp, "..."))
+            }
+            for (sess in which(sports == sp)) {
+                inds_lower <- object[[sess]][, va] < th$lower[k]
+                inds_upper <- object[[sess]][, va] > th$upper[k]
+                object[[sess]][inds_lower, va] <- NA
+                object[[sess]][inds_upper, va] <- NA
+            }
+            if (isTRUE(trace)) {
+                cat(" Done!\n")
             }
         }
-
-        ## ## Change thresholds
-        ## for (sp in unique(sports)) {
-        ##     th <- subset(thresholds, sport == sp)
-        ##     for (sess in which(sports == sp)) {
-        ##         o <- object[[sess]]
-        ##         for (k in which(th$changed)) {
-        ##             va <- th$variable[k]
-        ##             ## trackeRdata objects do not carry duration so skip
-        ##             if (va == "duration") {
-        ##                 next
-        ##             }
-        ##             inds_lower <- o[, va] < th$lower[k]
-        ##             inds_upper <- o[, va] > th$upper[k]
-        ##             o[inds_lower, va] <- NA
-        ##             o[inds_upper, va] <- NA
-        ##         }
-        ##         object[[sess]] <- o
-        ##     }
-        ## }
     }
+
 
     thresholds$changed <- NULL
 

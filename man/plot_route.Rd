@@ -5,11 +5,13 @@
 \alias{plotRoute}
 \title{Plot routes for training sessions}
 \usage{
-plot_route(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRUE,
-  mfrow = NULL, ...)
+plot_route(x, session = 1, zoom = NULL, speed = TRUE,
+  threshold = TRUE, mfrow = NULL, maptype = "toner",
+  messaging = FALSE, ...)
 
-plotRoute(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRUE,
-  mfrow = NULL, ...)
+plotRoute(x, session = 1, zoom = NULL, speed = TRUE,
+  threshold = TRUE, mfrow = NULL, maptype = "toner",
+  messaging = FALSE, ...)
 }
 \arguments{
 \item{x}{A object of class \code{\link{trackeRdata}}.}
@@ -18,7 +20,7 @@ plotRoute(x, session = 1, zoom = NULL, speed = TRUE, threshold = TRUE,
 to the first session, all sessions can be plotted by \code{session = NULL}.}
 
 \item{zoom}{The zoom level for the background map as passed on to
-\code{\link[ggmap]{get_map}} (2 corresponds roughly to continent
+\code{\link[ggmap]{get_stamenmap}} (2 corresponds roughly to continent
 level and 20 to building level).}
 
 \item{speed}{Logical. Should the trace be colored according to speed?}
@@ -26,10 +28,15 @@ level and 20 to building level).}
 \item{threshold}{Logical. Should thresholds be applied?}
 
 \item{mfrow}{A vector of 2 elements, number of rows and number of columns,
-specifying the layout for multiple sessions.}
+    specifying the layout for multiple sessions.
+#' @param source Passed to \code{\link[ggmap]{get_map}}. Default is \code{"stamen"}.}
+
+\item{maptype}{Passed to \code{\link[ggmap]{get_stamenmap}}. Default is \code{"toner"}.}
+
+\item{messaging}{Passed to \code{\link[ggmap]{get_stamenmap}}. Default is \code{FALSE}.}
 
 \item{...}{Additional arguments passed on to \code{\link{threshold}} and
-\code{\link[ggmap]{get_map}}, e.g., \code{source} and \code{maptype}.}
+\code{\link[ggmap]{get_stamenmap}}.}
 }
 \description{
 Plot the route ran/cycled during training onto a background map.
@@ -38,14 +45,14 @@ Internet connection is required to download the background map.
 \examples{
 \dontrun{
 data('runs', package = 'trackeR')
-plotRoute(runs, session = 4, zoom = 13)
-plotRoute(runs, session = 4, zoom = 13, maptype = "hybrid")
+plot_route(runs, session = 4, zoom = 13)
+plot_route(runs, session = 4, zoom = 13, maptype = "terrain")
 ## multiple sessions
-plotRoute(runs, session = c(1:5, 8:11), source = "google")
+plot_route(runs, session = c(1:4, 8:11))
 ## different zoom level per panel
-plotRoute(runs, session = 6:7, source = "google", zoom = c(13, 14))
+plot_route(runs, session = 6:7, zoom = c(13, 14))
 }
 }
 \seealso{
-\code{\link[ggmap]{get_map}}, \code{\link[ggmap]{ggmap}}
+\code{\link[ggmap]{get_stamenmap}}, \code{\link[ggmap]{ggmap}}
 }

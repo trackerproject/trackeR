@@ -6,9 +6,11 @@
 \alias{get_profile}
 \title{Generic function to subset distribution and concentration profiles}
 \usage{
-\method{get_profile}{distrProfile}(object, session = NULL, what = NULL, ...)
+\method{get_profile}{distrProfile}(object, session = NULL, what = NULL,
+  ...)
 
-\method{get_profile}{conProfile}(object, session = NULL, what = NULL, ...)
+\method{get_profile}{conProfile}(object, session = NULL, what = NULL,
+  ...)
 
 get_profile(object, session, what, ...)
 }

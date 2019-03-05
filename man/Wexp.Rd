@@ -4,7 +4,8 @@
 \alias{Wexp}
 \title{W' expended.}
 \usage{
-Wexp(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower = FALSE)
+Wexp(object, w0, cp, version = c("2015", "2012"),
+  meanRecoveryPower = FALSE)
 }
 \arguments{
 \item{object}{Univariate \code{\link[zoo]{zoo}} object containing

@@ -1,5 +1,5 @@
-trackeR
-=======
+trackeR <img src="README_files/hex_trackeR.svg" width="320" align="right">
+==========================================================================
 
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/trackeR)](https://cran.r-project.org/package=trackeR)
 [![Travis-CI Build
@@ -14,7 +14,8 @@ The purpose of this package is to provide infrastructure for handling
 running and cycling data from GPS-enabled tracking devices.
 
 The formats that are currently supported for the training activity files
-are .tcx (Training Center XML) and .db3. After extraction and
+are .tcx (Training Center XML), Strava .gpx, .db3 and [Golden
+Cheetah](http://goldencheetah.org)’s .json files. After extraction and
 appropriate manipulation of the training or competition attributes, the
 data are placed into session-based and unit-aware data objects of class
 trackeRdata (S3 class). The information in the resultant data objects
