@@ -11,6 +11,7 @@ addons:
 branches:
   only:
   - master
+  - develop
 
 after_success:
   - Rscript -e 'covr::coveralls()'
