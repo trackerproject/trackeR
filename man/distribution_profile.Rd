@@ -6,8 +6,8 @@
 \alias{distributionProfile}
 \title{Generate training distribution profiles.}
 \usage{
-distribution_profile(object, session = NULL, what = NULL, grid = NULL,
-  parallel = FALSE, unit_reference_sport = NULL)
+distribution_profile(object, session = NULL, what = NULL,
+  grid = NULL, parallel = FALSE, unit_reference_sport = NULL)
 
 distributionProfile(object, session = NULL, what = NULL, grid = NULL,
   parallel = FALSE, unit_reference_sport = NULL)

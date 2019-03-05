@@ -69,8 +69,8 @@
 \alias{respectively}
 \title{W': work capacity above critical power/speed.}
 \usage{
-Wprime(object, session = NULL, quantity = c("expended", "balance"), w0, cp,
-  version = c("2015", "2012"), meanRecoveryPower = FALSE,
+Wprime(object, session = NULL, quantity = c("expended", "balance"), w0,
+  cp, version = c("2015", "2012"), meanRecoveryPower = FALSE,
   parallel = FALSE, ...)
 }
 \arguments{

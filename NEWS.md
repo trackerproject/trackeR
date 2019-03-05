@@ -1,14 +1,17 @@
-## trackeR 1.2.1
+## trackeR 1.3.0
 
 ### New functionality
 * `threshold.trackeRdata` reports on the progress of the operation if `trace = TRUE` in its arguments
 
 ### Enhancements
 * Added new logo
+* Updated documentation
 
 ### Bug fixes
 * Fixed a bug that caused `threshold` to not threshold if applied without specifying any of variable, lower, upper and sport.
 
+## Other changes
+* `plot_route` now returns plots using stamen maps (see `?ggmap::get_map` for the reasons we are moving away from other maps).
 
 ## trackeR 1.2.0
 

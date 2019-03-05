@@ -4,7 +4,6 @@
 \alias{funPCA}
 \alias{funPCA.distrProfile}
 \alias{funPCA.conProfile}
-\alias{funPCA}
 \title{Functional principal components analysis of distribution or concentration profiles.}
 \usage{
 \method{funPCA}{distrProfile}(object, what, nharm = 4, ...)

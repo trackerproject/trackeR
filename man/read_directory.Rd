@@ -8,18 +8,18 @@
 read_directory(directory, aggregate = FALSE, table = "gps_data",
   timezone = "", session_threshold = 2, correct_distances = FALSE,
   country = NULL, mask = TRUE, from_distances = NULL,
-  speedunit = list(tcx = "m_per_s", gpx = "km_per_h", db3 = "km_per_h", json =
-  "km_per_h"), distanceunit = list(tcx = "m", gpx = "km", db3 = "km", json =
-  "km"), sport = NULL, lgap = 30, lskip = 5, m = 11, silent = FALSE,
-  parallel = FALSE, verbose = TRUE)
+  speedunit = list(tcx = "m_per_s", gpx = "km_per_h", db3 = "km_per_h",
+  json = "km_per_h"), distanceunit = list(tcx = "m", gpx = "km", db3 =
+  "km", json = "km"), sport = NULL, lgap = 30, lskip = 5, m = 11,
+  silent = FALSE, parallel = FALSE, verbose = TRUE)
 
 readDirectory(directory, aggregate = FALSE, table = "gps_data",
   timezone = "", session_threshold = 2, correct_distances = FALSE,
   country = NULL, mask = TRUE, from_distances = NULL,
-  speedunit = list(tcx = "m_per_s", gpx = "km_per_h", db3 = "km_per_h", json =
-  "km_per_h"), distanceunit = list(tcx = "m", gpx = "km", db3 = "km", json =
-  "km"), sport = NULL, lgap = 30, lskip = 5, m = 11, silent = FALSE,
-  parallel = FALSE, verbose = TRUE)
+  speedunit = list(tcx = "m_per_s", gpx = "km_per_h", db3 = "km_per_h",
+  json = "km_per_h"), distanceunit = list(tcx = "m", gpx = "km", db3 =
+  "km", json = "km"), sport = NULL, lgap = 30, lskip = 5, m = 11,
+  silent = FALSE, parallel = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{directory}{The path to the directory.}

@@ -12,7 +12,8 @@ session_duration(object, session, duration_unit, ...)
 \method{session_duration}{trackeRdata}(object, session = NULL,
   duration_unit = "h", ...)
 
-\method{session_duration}{trackeRdataSummary}(object, session = NULL, ...)
+\method{session_duration}{trackeRdataSummary}(object, session = NULL,
+  ...)
 }
 \arguments{
 \item{object}{The object for which to calculate session durations.}

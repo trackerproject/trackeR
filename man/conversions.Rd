@@ -27,8 +27,6 @@
 \alias{h2h}
 \alias{min2min}
 \alias{s2s}
-\alias{min2min}
-\alias{h2h}
 \alias{degree2degree}
 \alias{m_per_s2km_per_h}
 \alias{km_per_h2m_per_s}
