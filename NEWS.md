@@ -1,7 +1,7 @@
-## trackeR 1.3.900
+## trackeR 1.4.0
 
 ### Bug fixes
-* Fixed minor bug that could results in an error may appear when printing summaries for non-thresholded objects.
+* Fixed bug that could result in an error may appear when printing summaries for non-thresholded objects.
 
 ## trackeR 1.3.0
 
