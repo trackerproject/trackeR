@@ -367,9 +367,10 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...) {
         basic <- ret[, c("session", "sessionStart", "sessionEnd")]
 
         varsTotal <- c("distance", "duration", "avgSpeed", "avgPace", "avgCadenceRunning",
-                       "avgCadenceCycling", "avgPower", "avgHeartRate", "wrRatio")
+                       "avgCadenceCycling", "avgPower", "avgHeartRate", "avgAltitude", "avgTemperature",
+                       "wrRatio")
         varsMoving <- c("duration", "avgSpeed", "avgPace", "avgCadenceRunning",
-                        "avgCadenceCycling",
+                        "avgCadenceCycling", "avgAltitude",
                         "avgPower", "avgHeartRate")
         varsResting <- c("avgHeartRate")
 
