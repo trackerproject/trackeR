@@ -133,6 +133,7 @@ summary.trackeRdata <- function(object,
     du <- switch(duration_unit, "s" = "secs", "min" = "mins", "h" = "hours", "d" = "days")
     duration <- difftime(session_end, session_start, units = du)
 
+
     ## Get session durations moving and convert their units to duration_unit
     duration_moving <- lapply(session, function(sess) {
         sp <- sports[sess]
@@ -232,8 +233,10 @@ summary.trackeRdata <- function(object,
 
     ## Replace inf and NaN with NA
     ret[sapply(ret, function(x) is.infinite(x) | is.na(x))] <- NA
+    duration_units <- units(ret$duration)
+    duration_moving_units <- units(ret$durationMoving)
 
-    ## Apply thresholds
+    ## Apply thresholds (will only enter loop if there are thresholds on the object)
     lims <- unique(thres[thres$variable %in% un$variable, c("variable", "lower", "upper")])
     for (j in seq.int(nrow(lims))) {
         low <- lims[j, "lower"]
@@ -245,6 +248,8 @@ summary.trackeRdata <- function(object,
             x
         })
     }
+    ret$duration <- as.difftime(ret$duration, units = duration_units)
+    ret$durationMoving <- as.difftime(ret$durationMoving, units = duration_moving_units)
 
     attr(ret, "operations") <- oper
     attr(ret, "units") <- units
@@ -362,9 +367,10 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...) {
         basic <- ret[, c("session", "sessionStart", "sessionEnd")]
 
         varsTotal <- c("distance", "duration", "avgSpeed", "avgPace", "avgCadenceRunning",
-                       "avgCadenceCycling", "avgPower", "avgHeartRate", "wrRatio")
+                       "avgCadenceCycling", "avgPower", "avgHeartRate", "avgAltitude", "avgTemperature",
+                       "wrRatio")
         varsMoving <- c("duration", "avgSpeed", "avgPace", "avgCadenceRunning",
-                        "avgCadenceCycling",
+                        "avgCadenceCycling", "avgAltitude",
                         "avgPower", "avgHeartRate")
         varsResting <- c("avgHeartRate")
 
