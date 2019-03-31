@@ -29,7 +29,7 @@
 #' @export
 zones <- function(object,
                   session = NULL,
-                  what = c("speed", "heart_rate"),
+                  what = c("speed"),
                   breaks = NULL, #list(speed = 0:10,  heart_rate = c(0, seq(75, 225, by = 50), 250)),
                   parallel = FALSE,
                   n_zones = 9,
@@ -113,21 +113,32 @@ zones <- function(object,
     ## facets
     ## utility function
     zones_for_single_variable <- function(sess, what, breaks) {
+        nb <- length(breaks)
+        feature <- sess[, what]
         dur <- timeAboveThreshold(sess[, "speed"], 0, ge = TRUE)  ## use what or speed?
-        ta <- sapply(breaks, function(thr) timeAboveThreshold(sess[, what], thr, ge = TRUE))
+        ta <- sapply(breaks, function(thr) timeAboveThreshold(feature, thr, ge = TRUE))
         td <- -diff(ta)
         perc <- td/as.numeric(dur) * 100
+
+        inds_gr <- sapply(breaks, "<=", feature)
+        inds_le <- !inds_gr
+        out <- apply(inds_gr[, -nb] & inds_le[, -1], 2, function(ind) {
+            colMeans(sess[ind, ], na.rm = TRUE)
+        })
+        out <- t(out)
+        colnames(out) <- paste0("avg_", colnames(out))
 
         ## set time spent in zones to minutes
         attr(td, "units") <- units(dur)
         class(td) <- "difftime"
         units(td) <- du
 
-        ret <- data.frame(variable = what, zone = 1:(length(breaks) - 1),
-                          lower = breaks[-length(breaks)],
+        ret <- data.frame(variable = what, zone = 1:(nb - 1),
+                          lower = breaks[-nb],
                           upper = breaks[-1],
                           time = td,
-                          percent = perc)
+                          percent = perc,
+                          out)
         return(ret)
     }
 
