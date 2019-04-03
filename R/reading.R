@@ -209,6 +209,9 @@ readGPX <- function(file,
 
     ## Guess sport from data
     sport <- guess_sport(xml_text(xml_find_first(doc, paste0("//", activity_ns, ":", "name"))))
+    if (is.na(sport)) {
+        sport <- guess_sport(xml_text(xml_find_first(doc, paste0("//", activity_ns, ":", "type"))))
+    }
     ## If not successful, try filename
     if (is.na(sport)) {
         sport <- guess_sport(basename(file))

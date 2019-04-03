@@ -1,3 +1,7 @@
+## trackeR 1.4.2
+### Enhancements
+* `readGPX` tries even harder to identify the sport
+
 ## trackeR 1.4.1
 ### Bug fixes
 * Fixed bug that would discard temperature and latitude when `trackeRdataSummary` objects were fortified with `melt = TRUE`.
