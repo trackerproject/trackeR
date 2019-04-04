@@ -13,8 +13,8 @@
 #'     extracted from the \code{dat}. See Details.
 #' @param correct_distances Logical. Should the distances be corrected
 #'     for elevation? Default is \code{FALSE}.
-#' @param smooth_elevation_gain Logical. Should the elevation be
-#'     smoothed before computing cumultivative elevation gain? Default
+#' @param smooth_elevation_gain Logical. Should the elevation gain be
+#'     smoothed before computing elevation gain? Default
 #'     is \code{TRUE}.
 #' @param country ISO3 country code for downloading altitude data. If
 #'     \code{NULL}, country is derived from longitude and latitude

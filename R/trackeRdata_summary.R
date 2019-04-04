@@ -196,9 +196,10 @@ summary.trackeRdata <- function(object,
 
     summaries <- sapply(seq_along(object), function(j) {
         sp <- sports[j]
-        weightedMeans(object[[j]],
-                      which = c("cadence_running", "cadence_cycling", "power", "heart_rate", "altitude", "temperature"),
-                      th = moving_threshold[sp])
+        out <- weightedMeans(object[[j]],
+                             which = c("cadence_running", "cadence_cycling", "power", "heart_rate", "altitude", "temperature"),
+                             th = moving_threshold[sp])
+        c(out, total_elevation_gain = object[[j]][nrow(object[[j]]), "cumulative_elevation_gain"])
     })
 
 
@@ -227,6 +228,7 @@ summary.trackeRdata <- function(object,
                       avgHeartRateMoving = summaries["heart_rate_moving", ],
                       avgHeartRateResting = summaries["heart_rate_resting", ],
                       wrRatio = work2rest,
+                      total_elevation_gain = summaries["total_elevation_gain", ],
                       sport = sports[session],
                       file = files[session], stringsAsFactors = FALSE)
 
@@ -336,6 +338,10 @@ print.trackeRdataSummary <- function(x, ..., digits = 2) {
 
         cat("Average temperature:", round(x$avgTemperature[i], digits = digits), units$unit[units$variable ==
             "temperature"], "\n ")
+
+        cat("Total elevation gain:",
+            round(x$total_elevation_gain[i], digits = digits), units$unit[units$variable == "altitude"],
+            "\n ")
 
         cat("Work to rest ratio:", round(x$wrRatio[i], digits), "\n")
     }
@@ -492,23 +498,26 @@ plot.trackeRdataSummary <- function(x,
         concept <- switch(series, avgPace = "pace", avgSpeed = "speed", distance = "distance",
                           duration = "duration", avgPower = "power", avgCadenceRunning = "cadence_running",
                           avgCadenceCycling = "cadence_cycling",
-                          avgHeartRate = "heart_rate")
+                          avgHeartRate = "heart_rate",
+                          avgAltitude = "altitude",
+                          avgTemperature = "temperature")
         thisunit <- units$unit[units$variable == concept]
         prettyUnit <- prettifyUnits(thisunit)
         ret <- switch(series,
                       distance = paste0("distance \n [", prettyUnit, "]"),
                       duration = paste0("duration \n [", prettyUnit, "]"),
-                      avgSpeed = paste0("avg. speed \n [", prettyUnit, "]"),
-                      avgPace = paste0("avg. pace \n [", prettyUnit, "]"),
-                      avgCadenceRunning = paste0("avg. cadence \n [", prettyUnit, "]"),
-                      avgCadenceCycling = paste0("avg. cadence \n [", prettyUnit, "]"),
-                      avgPower = paste0("avg. power \n [", prettyUnit, "]"),
-                      avgHeartRate = paste0("avg. heart rate \n [", prettyUnit, "]"),
+                      avgSpeed = paste0("avg speed \n [", prettyUnit, "]"),
+                      avgPace = paste0("avg pace \n [", prettyUnit, "]"),
+                      avgCadenceRunning = paste0("avg cadence \n [", prettyUnit, "]"),
+                      avgCadenceCycling = paste0("avg cadence \n [", prettyUnit, "]"),
+                      avgPower = paste0("avg power \n [", prettyUnit, "]"),
+                      avgHeartRate = paste0("avg heart rate \n [", prettyUnit, "]"),
+                      avgAltitude = paste0("avg altitude \n [", prettyUnit, "]"),
+                      avgTemperature = paste0("avg temperature \n [", prettyUnit, "]"),
                       wrRatio = "work-to-rest \n ratio")
         ret
     }
     lab_sum <- Vectorize(lab_sum)
-
     p <- p +
         facet_grid(facets = "variable ~ .", scales = "free_y", labeller = labeller(variable = lab_sum))  ## +
 
@@ -626,7 +635,11 @@ change_units.trackeRdataSummary <- function(object,
                     conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
                     ## convert summary statistics
                     for (v in variables) {
+                        cat(v, "\n")
                         object[, v] <- conversion(object[, v])
+                        if (v == "avgAltitude") {
+                            object[, "total_elevation_gain"] <- conversion(object[, "total_elevation_gain"])
+                        }
                     }
                     ## convert moving threshold
                     if (i == "speed")
