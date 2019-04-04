@@ -7,15 +7,17 @@
 \usage{
 read_container(file, type = c("tcx", "gpx", "db3", "json"),
   table = "gps_data", timezone = "", session_threshold = 2,
-  correct_distances = FALSE, country = NULL, mask = TRUE,
-  from_distances = NULL, speedunit = NULL, distanceunit = NULL,
-  sport = NULL, lgap = 30, lskip = 5, m = 11, silent = FALSE)
+  correct_distances = FALSE, smooth_elevation_gain = TRUE,
+  country = NULL, mask = TRUE, from_distances = NULL,
+  speedunit = NULL, distanceunit = NULL, sport = NULL, lgap = 30,
+  lskip = 5, m = 11, silent = FALSE)
 
 readContainer(file, type = c("tcx", "gpx", "db3", "json"),
   table = "gps_data", timezone = "", session_threshold = 2,
-  correct_distances = FALSE, country = NULL, mask = TRUE,
-  from_distances = NULL, speedunit = NULL, distanceunit = NULL,
-  sport = NULL, lgap = 30, lskip = 5, m = 11, silent = FALSE)
+  correct_distances = FALSE, smooth_elevation_gain = TRUE,
+  country = NULL, mask = TRUE, from_distances = NULL,
+  speedunit = NULL, distanceunit = NULL, sport = NULL, lgap = 30,
+  lskip = 5, m = 11, silent = FALSE)
 }
 \arguments{
 \item{file}{The path to the file.}
@@ -34,7 +36,11 @@ difference between consecutive timestamps above which they are
 considered to belong to different training sessions.}
 
 \item{correct_distances}{Logical. Should the distances be corrected
-for elevation?}
+for elevation? Default is \code{FALSE}.}
+
+\item{smooth_elevation_gain}{Logical. Should the elevation be
+smoothed before computing cumultivative elevation gain? Default
+is \code{TRUE}.}
 
 \item{country}{ISO3 country code for downloading altitude data. If
 \code{NULL}, country is derived from longitude and latitude}

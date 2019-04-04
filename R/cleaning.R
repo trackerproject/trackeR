@@ -88,7 +88,7 @@ distance_correction <- function(object,
                                 mask = TRUE,
                                 ...) {
     ## get altitude data
-    altitudeDwl <- try(get_altitude(object, country = country, mask = mask))
+    altitudeDwl <- try(get_altitude(object, country = country, mask = mask), silent = TRUE)
     if (!inherits(altitudeDwl, "try-error")) {
         object$altitude <- altitudeDwl
     }

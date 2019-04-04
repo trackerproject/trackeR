@@ -14,7 +14,7 @@ GC2trackeRdata(gc, cycling = TRUE, correct_distances = FALSE,
 \item{cycling}{Logical. Does the data stem from cycling?}
 
 \item{correct_distances}{Logical. Should the distances be corrected
-for elevation?}
+for elevation? Default is \code{FALSE}.}
 
 \item{country}{ISO3 country code for downloading altitude data. If
 \code{NULL}, country is derived from longitude and latitude}

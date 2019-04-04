@@ -252,4 +252,23 @@ timeAboveThreshold <- function(object, threshold = -1, ge = TRUE) {
     sum(dt[aboveThreshold[-n] & !missing[-n]])
 }
 
-
+#' (Cumulative) Elevation gain.
+#'
+#' @param object A (univariate) zoo object.
+#' @param smooth_elevation_gain Logical. Should the elevation be
+#'     smoothed? Default is \code{TRUE}.
+#' @param cumulative Logical. Return the cumulative elevation gain
+#'     (\code{FALSE}; default) or just the elevation gain?
+get_elevation_gain <- function(object, smooth = FALSE, cumulative = FALSE) {
+    eg <- c(0, diff(object$altitude))
+    if (smooth) {
+        eg <- predict(smooth.spline(index(object), eg))$y
+    }
+    if (cumulative) {
+        eg[eg < 0] <- 0
+        cumsum(eg)
+    }
+    else {
+        eg
+    }
+}

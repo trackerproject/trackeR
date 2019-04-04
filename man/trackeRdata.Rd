@@ -5,8 +5,9 @@
 \title{Create a trackeRdata object}
 \usage{
 trackeRdata(dat, units = NULL, sport = NULL, session_threshold = 2,
-  correct_distances = FALSE, from_distances = TRUE, country = NULL,
-  mask = TRUE, lgap = 30, lskip = 5, m = 11, silent = FALSE)
+  correct_distances = FALSE, smooth_elevation_gain = TRUE,
+  from_distances = TRUE, country = NULL, mask = TRUE, lgap = 30,
+  lskip = 5, m = 11, silent = FALSE)
 }
 \arguments{
 \item{dat}{A \code{\link{data.frame}} object.}
@@ -23,7 +24,11 @@ difference between consecutive timestamps above which they are
 considered to belong to different training sessions.}
 
 \item{correct_distances}{Logical. Should the distances be corrected
-for elevation?}
+for elevation? Default is \code{FALSE}.}
+
+\item{smooth_elevation_gain}{Logical. Should the elevation be
+smoothed before computing cumultivative elevation gain? Default
+is \code{TRUE}.}
 
 \item{from_distances}{Logical. Should the speeds be calculated from the distance recordings
 instead of taken from the speed recordings directly?}

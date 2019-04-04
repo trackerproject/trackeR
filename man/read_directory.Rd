@@ -39,7 +39,7 @@ difference between consecutive timestamps above which they are
 considered to belong to different training sessions.}
 
 \item{correct_distances}{Logical. Should the distances be corrected
-for elevation?}
+for elevation? Default is \code{FALSE}.}
 
 \item{country}{ISO3 country code for downloading altitude data. If
 \code{NULL}, country is derived from longitude and latitude}

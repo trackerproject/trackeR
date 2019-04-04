@@ -52,7 +52,7 @@ plot.trackeRdata <- function(x, session = NULL,
                              dates = TRUE,
                              unit_reference_sport = NULL,
                              moving_threshold = NULL,
-                             ...){
+                             ...) {
     units <- get_units(x)
 
     if (is.null(session)) {
@@ -152,9 +152,14 @@ plot.trackeRdata <- function(x, session = NULL,
     facets <- "Series ~ SessionID"
 
     lab_data <- function(series) {
+        el <- series == "cumulative_elevation_gain"
+        if (el) series <- "altitude"
         thisunit <- un$unit[un$variable == series]
         prettyUnit <- prettifyUnits(thisunit)
-        paste0(series, "\n[", prettyUnit,"]")
+        if (el)
+            paste0("cumulative_elevation_gain", "\n[", prettyUnit,"]")
+        else
+            paste0(series, "\n[", prettyUnit,"]")
     }
     lab_data <- Vectorize(lab_data)
 
@@ -164,13 +169,13 @@ plot.trackeRdata <- function(x, session = NULL,
         ylab("") +
         xlab("Time")
 
-    if (trend & !smooth){
+    if (trend & !smooth) {
         p <- p + geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"),
-                                      se = FALSE, na.rm = TRUE, lwd = 0.5, col = "black")
+                             se = FALSE, na.rm = TRUE, lwd = 0.5, col = "black")
     }
 
     ## add facet if necessary
-    if (!is.null(facets)){
+    if (!is.null(facets)) {
         p <- p + facet_grid(facets, scales = "free", labeller = labeller("Series" = lab_data))
     }
 
@@ -183,7 +188,7 @@ plot.trackeRdata <- function(x, session = NULL,
 
 
     ## if plot did smoothing add smoothed data on top of plot
-    if (smooth){
+    if (smooth) {
         ## data prep
         dfs <- fortify(x, melt = TRUE)
 
@@ -205,7 +210,7 @@ plot.trackeRdata <- function(x, session = NULL,
         ## add plot layers
         p <- p + geom_line(aes_(x = quote(Index), y = quote(Value)),
                                     data = dfs, col = grDevices::gray(0.75), na.rm = TRUE)
-        if (trend){
+        if (trend) {
             p <- p + geom_smooth(data = dfs, method = "gam", formula = y ~ s(x, bs = "cs"),
                                           se = FALSE, na.rm = TRUE, lwd = 0.5, col = "black")
         }
