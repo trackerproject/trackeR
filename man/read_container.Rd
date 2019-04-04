@@ -38,8 +38,8 @@ considered to belong to different training sessions.}
 \item{correct_distances}{Logical. Should the distances be corrected
 for elevation? Default is \code{FALSE}.}
 
-\item{smooth_elevation_gain}{Logical. Should the elevation be
-smoothed before computing cumultivative elevation gain? Default
+\item{smooth_elevation_gain}{Logical. Should the elevation gain be
+smoothed before computing elevation gain? Default
 is \code{TRUE}.}
 
 \item{country}{ISO3 country code for downloading altitude data. If

@@ -53,7 +53,7 @@
 #' runSummaryFull <- summary(runs)
 #' plot(runSummaryFull)
 #' plot(runSummaryFull, group = c('total', 'moving'),
-#'     what = c('avgSpeed', 'distance', 'duration', 'avgHeartRate'))
+#'     what = c('avgSpeed', 'distance', 'duration', 'avgHeartRate', "total_elevation_gain"))
 #' }
 #' @export
 summary.trackeRdata <- function(object,
@@ -374,6 +374,7 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...) {
 
         varsTotal <- c("distance", "duration", "avgSpeed", "avgPace", "avgCadenceRunning",
                        "avgCadenceCycling", "avgPower", "avgHeartRate", "avgAltitude", "avgTemperature",
+                       "total_elevation_gain",
                        "wrRatio")
         varsMoving <- c("duration", "avgSpeed", "avgPace", "avgCadenceRunning",
                         "avgCadenceCycling", "avgAltitude",
@@ -500,8 +501,14 @@ plot.trackeRdataSummary <- function(x,
                           avgCadenceCycling = "cadence_cycling",
                           avgHeartRate = "heart_rate",
                           avgAltitude = "altitude",
-                          avgTemperature = "temperature")
-        thisunit <- units$unit[units$variable == concept]
+                          avgTemperature = "temperature",
+                          total_elevation_gain = "total elevation gain")
+        if (series == "total_elevation_gain") {
+            thisunit <- units$unit[units$variable == "altitude"]
+        }
+        else {
+            thisunit <- units$unit[units$variable == concept]
+        }
         prettyUnit <- prettifyUnits(thisunit)
         ret <- switch(series,
                       distance = paste0("distance \n [", prettyUnit, "]"),
@@ -514,6 +521,7 @@ plot.trackeRdataSummary <- function(x,
                       avgHeartRate = paste0("avg heart rate \n [", prettyUnit, "]"),
                       avgAltitude = paste0("avg altitude \n [", prettyUnit, "]"),
                       avgTemperature = paste0("avg temperature \n [", prettyUnit, "]"),
+                      total_elevation_gain = paste0("total elevation gain \n [", prettyUnit, "]"),
                       wrRatio = "work-to-rest \n ratio")
         ret
     }
