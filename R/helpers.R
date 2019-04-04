@@ -259,10 +259,23 @@ timeAboveThreshold <- function(object, threshold = -1, ge = TRUE) {
 #'     smoothed? Default is \code{TRUE}.
 #' @param cumulative Logical. Return the cumulative elevation gain
 #'     (\code{FALSE}; default) or just the elevation gain?
+#'
+#' @details
+#'
+#' The elevation gain is defined here as the difference in altitude
+#' between two consecutive observations. If \code{cumulative = FALSE}
+#' then the elevation gain is returned, otherwise any elevation loses
+#' (i.e. negative elevation gain) are ignored and the cumulative
+#' elevation gain is returned. If \code{smooth = TRUE} then the
+#' elevation gain will be smoothed using a spline smoother before
+#' either returning it or computing cumulative elevation gains.
+#'
 get_elevation_gain <- function(object, smooth = FALSE, cumulative = FALSE) {
     eg <- c(0, diff(object$altitude))
     if (smooth) {
-        eg <- predict(smooth.spline(index(object), eg))$y
+        times <- index(object)
+        valid <- !is.na(eg) & is.finite(eg)
+        eg <- predict(smooth.spline(as.numeric(times)[valid], eg[valid]), x = as.numeric(times))$y
     }
     if (cumulative) {
         eg[eg < 0] <- 0
