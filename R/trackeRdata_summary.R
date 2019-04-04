@@ -401,7 +401,7 @@ fortify.trackeRdataSummary <- function(model, data, melt = FALSE, ...) {
 #'
 #' @param x An object of class \code{trackeRdataSummary}.
 #' @param date Should the date or the session number be used on the abscissa?
-#' @param what Name of variables which should be plotted. Default is all.
+#' @param what Name of variables which should be plotted. Default is all. A vector with at least one of \code{"distance"}, \code{"duration"}, \code{"avgSpeed"}, \code{"avgPace"}, \code{"avgCadenceRunning"}, \code{"avgCadenceCycling"}, \code{"avgAltitude"}, \code{"avgPower"}, \code{"avgHeartRate"}, \code{"avgTemperature"}, \code{"wrRatio"}, \code{"total_elevation_gain"}, and \code{NULL}, in which case all variables are plotted.
 #' @param group Which group of variables should be plotted? This can either be
 #'     \code{total} or \code{moving}. Default is both.
 #' @param trend Should a smooth trend be plotted?

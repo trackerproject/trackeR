@@ -15,7 +15,7 @@
 \item{session}{A numeric vector of the sessions to be plotted,
 defaults to all sessions.}
 
-\item{what}{Which variables should be plotted?}
+\item{what}{Which variables should be plotted? A vector with at least one of \code{"latitude"}, \code{"longitude"}, \code{"altitude"}, \code{"distance"}, \code{"heart_rate"}, \code{"speed"}, \code{"cadence_running"}, \code{"cadence_cycling"}, \code{"power"}, \code{"temperature"}, \code{"pace"}, \code{"cumulative_elevation_gain"}. Default is \code{c("pace", "heart_rate")}.}
 
 \item{threshold}{Logical. Should thresholds be applied?}
 
@@ -64,5 +64,12 @@ plot(runs, session = 4, what = "speed", threshold = TRUE, smooth = FALSE,
 ## and smooth (thresholding with default values)
 plot(runs, session = 4, what = "speed", threshold = TRUE,
     smooth = TRUE, width = 15, parallel = FALSE)
+#'
+## Speed and elevation gain
+plot(runs, session = 2:10, what = c("speed", "cumulative_elevation_gain"), trend = FALSE)
 }
+
+}
+\seealso{
+trackeRdata
 }

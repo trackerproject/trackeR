@@ -3,7 +3,7 @@
 #' @param x An object of class \code{\link{trackeRdata}}.
 #' @param session A numeric vector of the sessions to be plotted,
 #'     defaults to all sessions.
-#' @param what Which variables should be plotted?
+#' @param what Which variables should be plotted? A vector with at least one of \code{"latitude"}, \code{"longitude"}, \code{"altitude"}, \code{"distance"}, \code{"heart_rate"}, \code{"speed"}, \code{"cadence_running"}, \code{"cadence_cycling"}, \code{"power"}, \code{"temperature"}, \code{"pace"}, \code{"cumulative_elevation_gain"}. Default is \code{c("pace", "heart_rate")}.
 #' @param threshold Logical. Should thresholds be applied?
 #' @param smooth Logical. Should the data be smoothed?
 #' @param trend Logical. Should a smooth trend be plotted?
@@ -29,6 +29,8 @@
 #' The units for the variables match those of the sport specified by
 #' \code{unit_reference_sport}.
 #'
+#' @seealso trackeRdata
+#'
 #' @examples
 #' \dontrun{
 #' data('runs', package = 'trackeR')
@@ -42,7 +44,11 @@
 #' ## and smooth (thresholding with default values)
 #' plot(runs, session = 4, what = "speed", threshold = TRUE,
 #'     smooth = TRUE, width = 15, parallel = FALSE)
+#' #'
+#' ## Speed and elevation gain
+#' plot(runs, session = 2:10, what = c("speed", "cumulative_elevation_gain"), trend = FALSE)
 #' }
+#'
 #' @export
 plot.trackeRdata <- function(x, session = NULL,
                              what = c("pace", "heart_rate"),

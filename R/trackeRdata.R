@@ -42,8 +42,14 @@
 #' if \code{attr(dat, 'sport')} is \code{NA} then the current
 #' implementation of \code{trackeRdata} returns an error.
 #'
+#' More details about the resulting \code{trackeRdata} object are
+#' available in the package vignette, which is an up-to-date version
+#' of Frick & Kosmidis (2017).
+#'
 #' @seealso \code{\link{readContainer}} for reading .tcx and .db3
-#'     files directly into \code{trackeRdata} objects.
+#'     files directly into \code{trackeRdata} objects, and
+#'     \code{\link{get_elevation_gain}} for details on the computation
+#'     of the elevation gain.
 #'
 #' @references
 #'
