@@ -4,16 +4,20 @@
 \alias{get_elevation_gain}
 \title{(Cumulative) Elevation gain.}
 \usage{
-get_elevation_gain(object, smooth = FALSE, cumulative = FALSE)
+get_elevation_gain(object, smooth = FALSE, cumulative = FALSE,
+  vertical_noise = 0)
 }
 \arguments{
 \item{object}{A (univariate) zoo object.}
 
-\item{smooth}{Logical. Should the elevation be
-smoothed? Default is \code{TRUE}.}
+\item{smooth}{Logical. Should the elevation be smoothed? Default is
+\code{TRUE}.}
 
 \item{cumulative}{Logical. Return the cumulative elevation gain
 (\code{FALSE}; default) or just the elevation gain?}
+
+\item{vertical_noise}{A scalar. Absolute elevation gains less that
+\code{vertical_noise} are set to zero. Default is \code{0}.}
 }
 \description{
 (Cumulative) Elevation gain.
