@@ -12,7 +12,10 @@
 #'     \code{NULL} (default), in which case the sport is directly
 #'     extracted from the \code{dat}. See Details.
 #' @param correct_distances Logical. Should the distances be corrected
-#'     for elevation?
+#'     for elevation? Default is \code{FALSE}.
+#' @param smooth_elevation_gain Logical. Should the elevation gain be
+#'     smoothed before computing elevation gain? Default
+#'     is \code{TRUE}.
 #' @param country ISO3 country code for downloading altitude data. If
 #'     \code{NULL}, country is derived from longitude and latitude
 #' @param mask Logical. Passed on to
@@ -39,8 +42,14 @@
 #' if \code{attr(dat, 'sport')} is \code{NA} then the current
 #' implementation of \code{trackeRdata} returns an error.
 #'
+#' More details about the resulting \code{trackeRdata} object are
+#' available in the package vignette, which is an up-to-date version
+#' of Frick & Kosmidis (2017).
+#'
 #' @seealso \code{\link{readContainer}} for reading .tcx and .db3
-#'     files directly into \code{trackeRdata} objects.
+#'     files directly into \code{trackeRdata} objects, and
+#'     \code{\link{get_elevation_gain}} for details on the computation
+#'     of the elevation gain.
 #'
 #' @references
 #'
@@ -63,6 +72,7 @@ trackeRdata <- function(dat,
                         sport = NULL,
                         session_threshold = 2,
                         correct_distances = FALSE,
+                        smooth_elevation_gain = TRUE,
                         from_distances = TRUE,
                         country = NULL,
                         mask = TRUE,
@@ -117,6 +127,14 @@ trackeRdata <- function(dat,
     trackerdat <- lapply(trackerdat, function(x) {
         x$pace <- 1/conversion(x$speed)
         x$pace[is.infinite(x$pace)] <- NA
+        return(x)
+    })
+
+    trackerdat <- lapply(trackerdat, function(x) {
+        x$cumulative_elevation_gain <- get_elevation_gain(object = x,
+                                                          smooth = smooth_elevation_gain,
+                                                          cumulative = TRUE)
+
         return(x)
     })
 
@@ -648,6 +666,10 @@ change_units.trackeRdata <- function(object,
                     }
                     for (sess in which(sports == sp)) {
                         object[[sess]][, va] <- convert(object[[sess]][, va])
+                        if (va == "altitude") {
+                            object[[sess]][, "cumulative_elevation_gain"] <-
+                                convert(object[[sess]][, "cumulative_elevation_gain"])
+                        }
                     }
                 }
             }

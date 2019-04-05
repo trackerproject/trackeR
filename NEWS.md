@@ -1,3 +1,15 @@
+## trackeR 1.5.0
+### Bug fixes
+* Fixed a bug in `plot.trackeRdataSummary` where temperature and
+  altitude would have `NULL` label on the resulting plot
+
+### New functionality
+* Added support for cumulative elevation gain (`trackeRdata` and `trackeRdataSummary` objects and associated methods).
+
+### Enhancements
+* `readGPX` tries even harder to identify the sport
+* Documentation improvements
+
 ## trackeR 1.4.1
 ### Bug fixes
 * Fixed bug that would discard temperature and latitude when `trackeRdataSummary` objects were fortified with `melt = TRUE`.

@@ -209,6 +209,9 @@ readGPX <- function(file,
 
     ## Guess sport from data
     sport <- guess_sport(xml_text(xml_find_first(doc, paste0("//", activity_ns, ":", "name"))))
+    if (is.na(sport)) {
+        sport <- guess_sport(xml_text(xml_find_first(doc, paste0("//", activity_ns, ":", "type"))))
+    }
     ## If not successful, try filename
     if (is.na(sport)) {
         sport <- guess_sport(basename(file))
@@ -557,6 +560,7 @@ read_container <- function(file,
                            timezone = "",
                            session_threshold = 2,
                            correct_distances = FALSE,
+                           smooth_elevation_gain = TRUE,
                            country = NULL,
                            mask = TRUE,
                            from_distances = NULL,
@@ -601,7 +605,9 @@ read_container <- function(file,
 
     ## make trackeRdata object (with all necessary data handling)
     trackerdat <- trackeRdata(dat, units = NULL, sport = sport,
-                              correct_distances = correct_distances, country = country, mask = mask,
+                              correct_distances = correct_distances,
+                              smooth_elevation_gain = smooth_elevation_gain,
+                              country = country, mask = mask,
                               session_threshold = session_threshold,
                               from_distances = from_distances,
                               lgap = lgap, lskip = lskip, m = m,

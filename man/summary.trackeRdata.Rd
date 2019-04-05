@@ -58,7 +58,7 @@ change_units(runSummary, variable = 'speed', unit = 'km_per_h')
 runSummaryFull <- summary(runs)
 plot(runSummaryFull)
 plot(runSummaryFull, group = c('total', 'moving'),
-    what = c('avgSpeed', 'distance', 'duration', 'avgHeartRate'))
+    what = c('avgSpeed', 'distance', 'duration', 'avgHeartRate', "total_elevation_gain"))
 }
 }
 \references{

@@ -12,7 +12,7 @@
 
 \item{date}{Should the date or the session number be used on the abscissa?}
 
-\item{what}{Name of variables which should be plotted. Default is all.}
+\item{what}{Name of variables which should be plotted. Default is all. A vector with at least one of \code{"distance"}, \code{"duration"}, \code{"avgSpeed"}, \code{"avgPace"}, \code{"avgCadenceRunning"}, \code{"avgCadenceCycling"}, \code{"avgAltitude"}, \code{"avgPower"}, \code{"avgHeartRate"}, \code{"avgTemperature"}, \code{"wrRatio"}, \code{"total_elevation_gain"}, and \code{NULL}, in which case all variables are plotted.}
 
 \item{group}{Which group of variables should be plotted? This can either be
 \code{total} or \code{moving}. Default is both.}

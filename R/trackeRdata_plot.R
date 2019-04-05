@@ -3,7 +3,7 @@
 #' @param x An object of class \code{\link{trackeRdata}}.
 #' @param session A numeric vector of the sessions to be plotted,
 #'     defaults to all sessions.
-#' @param what Which variables should be plotted?
+#' @param what Which variables should be plotted? A vector with at least one of \code{"latitude"}, \code{"longitude"}, \code{"altitude"}, \code{"distance"}, \code{"heart_rate"}, \code{"speed"}, \code{"cadence_running"}, \code{"cadence_cycling"}, \code{"power"}, \code{"temperature"}, \code{"pace"}, \code{"cumulative_elevation_gain"}. Default is \code{c("pace", "heart_rate")}.
 #' @param threshold Logical. Should thresholds be applied?
 #' @param smooth Logical. Should the data be smoothed?
 #' @param trend Logical. Should a smooth trend be plotted?
@@ -29,6 +29,8 @@
 #' The units for the variables match those of the sport specified by
 #' \code{unit_reference_sport}.
 #'
+#' @seealso trackeRdata
+#'
 #' @examples
 #' \dontrun{
 #' data('runs', package = 'trackeR')
@@ -42,7 +44,11 @@
 #' ## and smooth (thresholding with default values)
 #' plot(runs, session = 4, what = "speed", threshold = TRUE,
 #'     smooth = TRUE, width = 15, parallel = FALSE)
+#' #'
+#' ## Speed and elevation gain
+#' plot(runs, session = 2:10, what = c("speed", "cumulative_elevation_gain"), trend = FALSE)
 #' }
+#'
 #' @export
 plot.trackeRdata <- function(x, session = NULL,
                              what = c("pace", "heart_rate"),
@@ -52,7 +58,7 @@ plot.trackeRdata <- function(x, session = NULL,
                              dates = TRUE,
                              unit_reference_sport = NULL,
                              moving_threshold = NULL,
-                             ...){
+                             ...) {
     units <- get_units(x)
 
     if (is.null(session)) {
@@ -152,9 +158,14 @@ plot.trackeRdata <- function(x, session = NULL,
     facets <- "Series ~ SessionID"
 
     lab_data <- function(series) {
+        el <- series == "cumulative_elevation_gain"
+        if (el) series <- "altitude"
         thisunit <- un$unit[un$variable == series]
         prettyUnit <- prettifyUnits(thisunit)
-        paste0(series, "\n[", prettyUnit,"]")
+        if (el)
+            paste0("cumulative_elevation_gain", "\n[", prettyUnit,"]")
+        else
+            paste0(series, "\n[", prettyUnit,"]")
     }
     lab_data <- Vectorize(lab_data)
 
@@ -164,13 +175,13 @@ plot.trackeRdata <- function(x, session = NULL,
         ylab("") +
         xlab("Time")
 
-    if (trend & !smooth){
+    if (trend & !smooth) {
         p <- p + geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"),
-                                      se = FALSE, na.rm = TRUE, lwd = 0.5, col = "black")
+                             se = FALSE, na.rm = TRUE, lwd = 0.5, col = "black")
     }
 
     ## add facet if necessary
-    if (!is.null(facets)){
+    if (!is.null(facets)) {
         p <- p + facet_grid(facets, scales = "free", labeller = labeller("Series" = lab_data))
     }
 
@@ -183,7 +194,7 @@ plot.trackeRdata <- function(x, session = NULL,
 
 
     ## if plot did smoothing add smoothed data on top of plot
-    if (smooth){
+    if (smooth) {
         ## data prep
         dfs <- fortify(x, melt = TRUE)
 
@@ -205,7 +216,7 @@ plot.trackeRdata <- function(x, session = NULL,
         ## add plot layers
         p <- p + geom_line(aes_(x = quote(Index), y = quote(Value)),
                                     data = dfs, col = grDevices::gray(0.75), na.rm = TRUE)
-        if (trend){
+        if (trend) {
             p <- p + geom_smooth(data = dfs, method = "gam", formula = y ~ s(x, bs = "cs"),
                                           se = FALSE, na.rm = TRUE, lwd = 0.5, col = "black")
         }
