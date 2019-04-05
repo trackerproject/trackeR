@@ -255,7 +255,7 @@ timeAboveThreshold <- function(object, threshold = -1, ge = TRUE) {
 #' (Cumulative) Elevation gain.
 #'
 #' @param object A (univariate) zoo object.
-#' @param smooth_elevation_gain Logical. Should the elevation be
+#' @param smooth Logical. Should the elevation be
 #'     smoothed? Default is \code{TRUE}.
 #' @param cumulative Logical. Return the cumulative elevation gain
 #'     (\code{FALSE}; default) or just the elevation gain?

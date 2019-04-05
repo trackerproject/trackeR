@@ -53,7 +53,7 @@
 #' @importFrom stats quantile gaussian plogis
 #' @importFrom grDevices gray
 #' @importFrom graphics plot
-#' @importFrom stats start density na.omit
+#' @importFrom stats start density na.omit predict smooth.spline
 NULL
 # > NULL
 
