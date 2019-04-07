@@ -136,7 +136,11 @@ get_units.trackeRthresholds <- function(object, ...) {
 }
 
 
-## not to be exported
+#' Change the units of the variables in an \code{trackeRthresholds} object
+#'
+#' @param object An object of class \code{\link{trackeRthresholds}}.
+#' @inheritParams change_units
+#' @export
 change_units.trackeRthresholds <- function(object,
                                            variable,
                                            unit,
