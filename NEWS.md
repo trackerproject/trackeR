@@ -2,9 +2,10 @@
 ### Bug fixes
 * Fixed a bug that would result errors from `get_elevation_gain` if altitude has too many NA's.
 * `smooth_elevation_gain` is not passed correctly in `read_directory`.
+* `change_units.trackeRthresholds` is now exported
 
-### New funcitonality
-* `get_elevation_gain` now has the `vertical_noise` option to to threshold absolute elevation gain.
+### New functionality
+* `get_elevation_gain` now has the `vertical_noise` option to threshold absolute elevation gain.
 
 ## trackeR 1.5.0
 ### Bug fixes
