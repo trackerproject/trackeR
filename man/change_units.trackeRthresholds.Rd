@@ -8,7 +8,7 @@
   ...)
 }
 \arguments{
-\item{object}{An object of class \code{\link{trackeRthresholds}}.}
+\item{object}{An object of class \code{trackeRthresholds}.}
 
 \item{variable}{A vector of variables whose units are to be changed.}
 
