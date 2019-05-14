@@ -1,4 +1,4 @@
-context("implementation [reading tcx, gpx and jsonlite files]")
+context("implementation [reading tcx, gpx and json files]")
 
 tcxfile <- system.file("extdata/tcx/", "2013-06-30-070511.TCX", package = "trackeR")
 gpxfile_run <- system.file("extdata/gpx/", "20170708-154835-Run.gpx", package = "trackeR")

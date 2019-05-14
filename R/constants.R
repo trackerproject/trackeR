@@ -35,7 +35,7 @@ generate_variable_names <- function() {
                    "speed",
                    "rcad", ## dummy for now; gpx seems not to distinguish between run and cycling cadence
                    "cad",
-                   "watts",
+                   "power",
                    "atemp")
 
     db3_names <-     c("dttm",

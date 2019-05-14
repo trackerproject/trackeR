@@ -111,7 +111,6 @@ readTCX <- function(file,
             }
         }
     }
-
     is_time <- tp_vars$name == "Time"
 
     tps <- xml_find_all(doc, tp_xpath, ns[activity_ns])
@@ -203,9 +202,9 @@ readGPX <- function(file,
 
     extensions_ns <- c("http://www.garmin.com/xmlschemas/TrackPointExtension/v1",
                        "http://www.garmin.com/xmlschemas/TrackPointExtension/v2",
+                       "http://www.topografix.com/GPX/1/1",
                        "http://www.garmin.com/xmlschemas/GpxExtensions/v3")
     extensions_ns <- na.omit(sapply(extensions_ns, function(e) names(which(ns == e)[1])))
-
 
     ## Guess sport from data
     sport <- guess_sport(xml_text(xml_find_first(doc, paste0("//", activity_ns, ":", "name"))))
@@ -241,13 +240,16 @@ readGPX <- function(file,
         }
     }
 
+    ## Manually add power to tp_vars as it does not come with the standard namespaces in gpx
+    tp_vars <- rbind(tp_vars, data.frame(name = "power", ns = "d1"))
+
     is_time <- tp_vars$name == "time"
 
     tps <- xml_find_all(doc, tp_xpath, ns[activity_ns])
     ## Double loop to extract obs
-    observations <- apply(tp_vars, 1, function(var) {
-        c_xpath <- paste0(".", "//", var["ns"], ":", var["name"])
-        c_ns <- ns[var["ns"]]
+    observations <- apply(tp_vars, 1, function(vari) {
+        c_xpath <- paste0(".", "//", vari["ns"], ":", vari["name"])
+        c_ns <- ns[vari["ns"]]
         sapply(tps, function(x) {
             xml_text(xml_find_first(x, c_xpath, c_ns))
         })
