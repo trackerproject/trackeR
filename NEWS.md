@@ -1,14 +1,23 @@
+## trackeR 1.5.1
+### Bug fixes
+* Fixed a bug that would result errors from `get_elevation_gain` if altitude has too many NA's.
+* `smooth_elevation_gain` is not passed correctly in `read_directory`.
+* `change_units.trackeRthresholds` is now exported
+
+### New functionality
+* `get_elevation_gain` now has the `vertical_noise` option to threshold absolute elevation gain.
+
 ## trackeR 1.5.0
 ### Bug fixes
 * Fixed a bug in `plot.trackeRdataSummary` where temperature and
-  altitude would have `NULL` label on the resulting plot
+  altitude would have `NULL` label on the resulting plot.
 
 ### New functionality
 * Added support for cumulative elevation gain (`trackeRdata` and `trackeRdataSummary` objects and associated methods).
 
 ### Enhancements
-* `readGPX` tries even harder to identify the sport
-* Documentation improvements
+* `readGPX` tries even harder to identify the sport.
+* Documentation improvements.
 
 ## trackeR 1.4.1
 ### Bug fixes

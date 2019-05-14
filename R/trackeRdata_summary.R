@@ -643,7 +643,6 @@ change_units.trackeRdataSummary <- function(object,
                     conversion <- match.fun(paste(currentUnit, newUnit, sep = "2"))
                     ## convert summary statistics
                     for (v in variables) {
-                        cat(v, "\n")
                         object[, v] <- conversion(object[, v])
                         if (v == "avgAltitude") {
                             object[, "total_elevation_gain"] <- conversion(object[, "total_elevation_gain"])

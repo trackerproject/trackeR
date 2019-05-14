@@ -133,7 +133,8 @@ trackeRdata <- function(dat,
     trackerdat <- lapply(trackerdat, function(x) {
         x$cumulative_elevation_gain <- get_elevation_gain(object = x,
                                                           smooth = smooth_elevation_gain,
-                                                          cumulative = TRUE)
+                                                          cumulative = TRUE,
+                                                          vertical_noise = 0)
 
         return(x)
     })

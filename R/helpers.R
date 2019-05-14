@@ -255,10 +255,12 @@ timeAboveThreshold <- function(object, threshold = -1, ge = TRUE) {
 #' (Cumulative) Elevation gain.
 #'
 #' @param object A (univariate) zoo object.
-#' @param smooth Logical. Should the elevation be
-#'     smoothed? Default is \code{TRUE}.
+#' @param smooth Logical. Should the elevation be smoothed? Default is
+#'     \code{TRUE}.
 #' @param cumulative Logical. Return the cumulative elevation gain
 #'     (\code{FALSE}; default) or just the elevation gain?
+#' @param vertical_noise A scalar. Absolute elevation gains less that
+#'     \code{vertical_noise} are set to zero. Default is \code{0}.
 #'
 #' @details
 #'
@@ -270,13 +272,18 @@ timeAboveThreshold <- function(object, threshold = -1, ge = TRUE) {
 #' elevation gain will be smoothed using a spline smoother before
 #' either returning it or computing cumulative elevation gains.
 #'
-get_elevation_gain <- function(object, smooth = FALSE, cumulative = FALSE) {
+get_elevation_gain <- function(object, smooth = FALSE, cumulative = FALSE, vertical_noise = 0) {
     eg <- c(0, diff(object$altitude))
     if (smooth) {
         times <- index(object)
         valid <- !is.na(eg) & is.finite(eg)
+        if (mean(valid) < 0.5) {
+            warnings("elevation gain has not been computed because altitude is recorded for less than half the timestamps.")
+            return(rep(NA, length(times)))
+        }
         eg <- predict(smooth.spline(as.numeric(times)[valid], eg[valid]), x = as.numeric(times))$y
     }
+    eg[abs(eg) < vertical_noise] <- 0
     if (cumulative) {
         eg[eg < 0] <- 0
         cumsum(eg)
