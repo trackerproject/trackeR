@@ -20,7 +20,9 @@ readContainer(file, type = c("tcx", "gpx", "db3", "json"),
   lskip = 5, m = 11, silent = FALSE)
 }
 \arguments{
-\item{file}{The path to the file.}
+\item{file}{The path to a tcx, gpx, json or db3 file. Compressed
+versions (gz, bz2, xz, zip) of tcx, gpx, and json files are
+directly supported.}
 
 \item{type}{The type of the GPS container file. Supported so far
 are \code{tcx}, \code{db3}, and \code{json}.}
@@ -106,7 +108,7 @@ known, append an appropriate keyword to the filename (e.g. 'ride',
 'swim', 'run'). This should fix the error.
 }
 \examples{
-filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX", package = "trackeR")
+filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX.gz", package = "trackeR")
 run <- read_container(filepath, type = "tcx", timezone = "GMT")
 }
 \seealso{

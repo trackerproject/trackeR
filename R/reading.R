@@ -1,7 +1,9 @@
 #' Read a training file in tcx, gpx, db3 or Golden Cheetah's JSON
 #' format
 #'
-#' @param file The path to the file.
+#' @param file The path to a tcx, gpx, json or db3 file. Compressed
+#'     versions (gz, bz2, xz, zip) of tcx, gpx, and json files are
+#'     directly supported.
 #' @param timezone The timezone of the observations as passed on to
 #'     \code{\link[base]{as.POSIXct}}.  Ignored for JSON files.
 #' @param speedunit Character string indicating the measurement unit
@@ -33,7 +35,7 @@
 #' @name readX
 #' @examples
 #' ## read raw data
-#' filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX", package = "trackeR")
+#' filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX.gz", package = "trackeR")
 #' run0 <- readTCX(file = filepath, timezone = "GMT")
 #'
 #' ## turn into trackeRdata object
@@ -504,7 +506,9 @@ readJSON <- function(file,
 
 #' Read a GPS container file.
 #'
-#' @param file The path to the file.
+#' @param file The path to a tcx, gpx, json or db3 file. Compressed
+#'     versions (gz, bz2, xz, zip) of tcx, gpx, and json files are
+#'     directly supported.
 #' @param type The type of the GPS container file. Supported so far
 #'     are \code{tcx}, \code{db3}, and \code{json}.
 #' @param table The name of the table in the database if \code{type}
@@ -553,7 +557,7 @@ readJSON <- function(file,
 #' @seealso \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}, \code{\link{readJSON}}
 #'
 #' @examples
-#' filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX", package = "trackeR")
+#' filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX.gz", package = "trackeR")
 #' run <- read_container(filepath, type = "tcx", timezone = "GMT")
 #' @export
 read_container <- function(file,
@@ -669,6 +673,12 @@ read_container <- function(file,
 #'
 #' @return An object of class \code{\link{trackeRdata}}.
 #' @seealso \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}, \code{\link{readJSON}}
+#'
+#' @examples
+#' \dontrun{
+#' filepath <- system.file("extdata/gpx", package = "trackeR")
+#' gpx_files <- read_directory(filepath)
+#' }
 #'
 #' @export
 read_directory <- function(directory,

@@ -113,6 +113,13 @@ sport in all sessions is determined by the first file read with
 a sport specification; else if \code{sport} is one of the other
 valid options it determines the sport for all sessions.
 }
+\examples{
+\dontrun{
+filepath <- system.file("extdata/gpx", package = "trackeR")
+gpx_files <- read_directory(filepath)
+}
+
+}
 \seealso{
 \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}, \code{\link{readJSON}}
 }

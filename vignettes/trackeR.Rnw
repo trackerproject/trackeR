@@ -1819,7 +1819,7 @@ name and type of variables that are present in the resulting data
 frame.
 %
 <<eval = TRUE>>=
-filepath <- system.file("extdata/tcx", "2013-06-01-183220.TCX",
+filepath <- system.file("extdata/tcx", "2013-06-01-183220.TCX.gz",
                         package = "trackeR")
 runDF <- readTCX(file = filepath, timezone = "GMT")
 str(runDF)

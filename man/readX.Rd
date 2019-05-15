@@ -22,7 +22,9 @@ readJSON(file, timezone = "", speedunit = "km_per_h",
   distanceunit = "km", ...)
 }
 \arguments{
-\item{file}{The path to the file.}
+\item{file}{The path to a tcx, gpx, json or db3 file. Compressed
+versions (gz, bz2, xz, zip) of tcx, gpx, and json files are
+directly supported.}
 
 \item{timezone}{The timezone of the observations as passed on to
 \code{\link[base]{as.POSIXct}}.  Ignored for JSON files.}
@@ -65,7 +67,7 @@ Reading Golden Cheetah's JSON files is experimental.
 }
 \examples{
 ## read raw data
-filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX", package = "trackeR")
+filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX.gz", package = "trackeR")
 run0 <- readTCX(file = filepath, timezone = "GMT")
 
 ## turn into trackeRdata object
