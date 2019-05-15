@@ -1,3 +1,7 @@
+## trackeR 1.5.2
+### Bug fixes
+* power is now extracted correctly from gpx files (thanks to Andrew from thethreshold.co.za for spotting the issue)
+
 ## trackeR 1.5.1
 ### Bug fixes
 * Fixed a bug that would result errors from `get_elevation_gain` if altitude has too many NA's.
