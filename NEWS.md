@@ -1,8 +1,20 @@
+## trackeR 1.5.2
+### Bug fixes
+* Power is now extracted correctly from `.gpx` files (thanks to Andrew
+  from thethreshold.co.za for spotting the issue).
+
+## Enhancements
+* `readX` functions support reading from compressed versions (`.gz`,
+  `.bz2`, `.xz`, `.zip`) of `.tcx`, `.gpx`, `.json` files.
+* Example data files are now compressed and more is provided.
+* Vignette and documentation updates.
+* Provided example in `read_directory`.
+
 ## trackeR 1.5.1
 ### Bug fixes
-* Fixed a bug that would result errors from `get_elevation_gain` if altitude has too many NA's.
+* Fixed a bug that would result in errors from `get_elevation_gain` if altitude has too many NA's.
 * `smooth_elevation_gain` is not passed correctly in `read_directory`.
-* `change_units.trackeRthresholds` is now exported
+* `change_units.trackeRthresholds` is now exported.
 
 ### New functionality
 * `get_elevation_gain` now has the `vertical_noise` option to threshold absolute elevation gain.

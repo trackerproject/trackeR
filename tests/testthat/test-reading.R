@@ -1,10 +1,10 @@
-context("implementation [reading tcx, gpx and jsonlite files]")
+context("implementation [reading tcx, gpx and json files]")
 
-tcxfile <- system.file("extdata/tcx/", "2013-06-30-070511.TCX", package = "trackeR")
-gpxfile_run <- system.file("extdata/gpx/", "20170708-154835-Run.gpx", package = "trackeR")
-gpxfile_ride <- system.file("extdata/gpx/", "20170709-151453-Ride.gpx", package = "trackeR")
-gpxfile_swim <- system.file("extdata/gpx/", "20170714-143644-Swim.gpx", package = "trackeR")
-jsonfile <- system.file("extdata/json/", "2017_04_24_10_18_45.json", package = "trackeR")
+tcxfile <- system.file("extdata/tcx/", "2013-06-30-070511.TCX.gz", package = "trackeR")
+gpxfile_run <- system.file("extdata/gpx/", "20170708-154835-Run.gpx.gz", package = "trackeR")
+gpxfile_ride <- system.file("extdata/gpx/", "20170709-151453-Ride.gpx.gz", package = "trackeR")
+gpxfile_swim <- system.file("extdata/gpx/", "20170714-143644-Swim.gpx.gz", package = "trackeR")
+jsonfile <- system.file("extdata/json/", "2017_04_24_10_18_45.json.gz", package = "trackeR")
 
 ## tcx
 tcx <- readTCX(tcxfile)

@@ -1,4 +1,4 @@
-context("implementation [threshold-ing of trackeRdata obejcts]")
+context("implementation [thresholding of trackeRdata objects]")
 
 
 data("runs", package = "trackeR")

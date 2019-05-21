@@ -1,7 +1,7 @@
 context("implementation [sanity checks, distance correction, imputation of speeds]")
 
-tcxfile <- system.file("extdata/tcx/", "2013-06-30-070511.TCX", package = "trackeR")
-gpxfile_ride <- system.file("extdata/gpx/", "20170709-151453-Ride.gpx", package = "trackeR")
+tcxfile <- system.file("extdata/tcx/", "2013-06-30-070511.TCX.gz", package = "trackeR")
+gpxfile_ride <- system.file("extdata/gpx/", "20170709-151453-Ride.gpx.gz", package = "trackeR")
 
 tcx <- readTCX(tcxfile)
 test_that("sanity_checks returns warning [silent = FALSE] and removes duplicates", {

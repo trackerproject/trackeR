@@ -21,8 +21,8 @@ test_that("generate units returns correct units [user specified]", {
     expect_equal(subset(un, sport == "running" & variable == "altitude")$unit, "km")
 })
 
-gpxfile_run <- system.file("extdata/gpx/", "20170708-154835-Run.gpx", package = "trackeR")
-gpxfile_ride <- system.file("extdata/gpx/", "20170709-151453-Ride.gpx", package = "trackeR")
+gpxfile_run <- system.file("extdata/gpx/", "20170708-154835-Run.gpx.gz", package = "trackeR")
+gpxfile_ride <- system.file("extdata/gpx/", "20170709-151453-Ride.gpx.gz", package = "trackeR")
 test_that("change units works as expected []", {
     gpxa <- read_container(gpxfile_run, type = "gpx")
     gpxb <- read_container(gpxfile_ride, type = "gpx")

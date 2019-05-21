@@ -35,12 +35,12 @@ knitr::opts_chunk$set(
 
 **trackeR** can currently import files in the Training Centre XML (TCX) format and
 .db3 files (SQLite databases, used, for example, by devices from GPSports) through the
-corresponding functions *readTCX*() and *readDB3*(). It also offers experimental support
+corresponding functions *readTCX*() and *readDB3*(). It also offers support
 for JSON files from [Golden Cheetah](http://www.goldencheetah.org/) via *readJSON*().
 
 ```{r, runDF, message = FALSE}
 library("trackeR")
-filepath <- system.file("extdata/tcx/", "2013-06-01-183220.TCX", package = "trackeR")
+filepath <- system.file("extdata/tcx/", "2013-06-01-183220.TCX.gz", package = "trackeR")
 runDF <- readTCX(file = filepath, timezone = "GMT")
 ```
 

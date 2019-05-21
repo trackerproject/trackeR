@@ -1,6 +1,6 @@
 context("implementation [extraction utilities]")
 
-gpxfile_run <- system.file("extdata/gpx/", "20170708-154835-Run.gpx", package = "trackeR")
+gpxfile_run <- system.file("extdata/gpx/", "20170708-154835-Run.gpx.gz", package = "trackeR")
 gpx <- readGPX(gpxfile_run)
 
 test_that("resting_periods returns the expected number of splits", {

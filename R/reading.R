@@ -1,7 +1,9 @@
 #' Read a training file in tcx, gpx, db3 or Golden Cheetah's JSON
 #' format
 #'
-#' @param file The path to the file.
+#' @param file The path to a tcx, gpx, json or db3 file. Compressed
+#'     versions (gz, bz2, xz, zip) of tcx, gpx, and json files are
+#'     directly supported.
 #' @param timezone The timezone of the observations as passed on to
 #'     \code{\link[base]{as.POSIXct}}.  Ignored for JSON files.
 #' @param speedunit Character string indicating the measurement unit
@@ -33,7 +35,7 @@
 #' @name readX
 #' @examples
 #' ## read raw data
-#' filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX", package = "trackeR")
+#' filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX.gz", package = "trackeR")
 #' run0 <- readTCX(file = filepath, timezone = "GMT")
 #'
 #' ## turn into trackeRdata object
@@ -111,7 +113,6 @@ readTCX <- function(file,
             }
         }
     }
-
     is_time <- tp_vars$name == "Time"
 
     tps <- xml_find_all(doc, tp_xpath, ns[activity_ns])
@@ -203,9 +204,9 @@ readGPX <- function(file,
 
     extensions_ns <- c("http://www.garmin.com/xmlschemas/TrackPointExtension/v1",
                        "http://www.garmin.com/xmlschemas/TrackPointExtension/v2",
+                       "http://www.topografix.com/GPX/1/1",
                        "http://www.garmin.com/xmlschemas/GpxExtensions/v3")
     extensions_ns <- na.omit(sapply(extensions_ns, function(e) names(which(ns == e)[1])))
-
 
     ## Guess sport from data
     sport <- guess_sport(xml_text(xml_find_first(doc, paste0("//", activity_ns, ":", "name"))))
@@ -241,13 +242,16 @@ readGPX <- function(file,
         }
     }
 
+    ## Manually add power to tp_vars as it does not come with the standard namespaces in gpx
+    tp_vars <- rbind(tp_vars, data.frame(name = "power", ns = "d1"))
+
     is_time <- tp_vars$name == "time"
 
     tps <- xml_find_all(doc, tp_xpath, ns[activity_ns])
     ## Double loop to extract obs
-    observations <- apply(tp_vars, 1, function(var) {
-        c_xpath <- paste0(".", "//", var["ns"], ":", var["name"])
-        c_ns <- ns[var["ns"]]
+    observations <- apply(tp_vars, 1, function(vari) {
+        c_xpath <- paste0(".", "//", vari["ns"], ":", vari["name"])
+        c_ns <- ns[vari["ns"]]
         sapply(tps, function(x) {
             xml_text(xml_find_first(x, c_xpath, c_ns))
         })
@@ -502,7 +506,9 @@ readJSON <- function(file,
 
 #' Read a GPS container file.
 #'
-#' @param file The path to the file.
+#' @param file The path to a tcx, gpx, json or db3 file. Compressed
+#'     versions (gz, bz2, xz, zip) of tcx, gpx, and json files are
+#'     directly supported.
 #' @param type The type of the GPS container file. Supported so far
 #'     are \code{tcx}, \code{db3}, and \code{json}.
 #' @param table The name of the table in the database if \code{type}
@@ -551,7 +557,7 @@ readJSON <- function(file,
 #' @seealso \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}, \code{\link{readJSON}}
 #'
 #' @examples
-#' filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX", package = "trackeR")
+#' filepath <- system.file("extdata/tcx", "2013-06-08-090442.TCX.gz", package = "trackeR")
 #' run <- read_container(filepath, type = "tcx", timezone = "GMT")
 #' @export
 read_container <- function(file,
@@ -667,6 +673,12 @@ read_container <- function(file,
 #'
 #' @return An object of class \code{\link{trackeRdata}}.
 #' @seealso \code{\link{trackeRdata}}, \code{\link{readTCX}}, \code{\link{readDB3}}, \code{\link{readJSON}}
+#'
+#' @examples
+#' \dontrun{
+#' filepath <- system.file("extdata/gpx", package = "trackeR")
+#' gpx_files <- read_directory(filepath)
+#' }
 #'
 #' @export
 read_directory <- function(directory,
