@@ -1,3 +1,8 @@
+## trackeR 1.5.2.900
+### Bug fixes
+* Fixed a but that could result in `readTCX` populating cadence_cycling with running cadence data.
+
+
 ## trackeR 1.5.2
 ### Bug fixes
 * Power is now extracted correctly from `.gpx` files (thanks to Andrew
