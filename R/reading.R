@@ -144,6 +144,21 @@ readTCX <- function(file,
     observations$time <- gsub("[\t\n]", "", observations$time)
     observations$time <- convertTCXTimes2POSIXct(observations$time, timezone = timezone)
 
+    is_cadence <- grepl("cadence", names(observations))
+    if (any(is_cadence)) {
+        if (is.na(sport)) {
+            observations[is_cadence] <- NULL
+        }
+        else {
+            if (sport == "running") {
+                names(observations)[is_cadence] <- "cadence_running"
+            }
+            if (sport == "swimming" | is.na(sport)) {
+                observations[is_cadence] <- NULL
+            }
+        }
+    }
+
     ## Add missing varibles
     missingVars <- namesToBeUsed[match(namesToBeUsed, names(observations), nomatch = 0) == 0]
     if (nrow(observations) > 0) {
