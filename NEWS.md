@@ -4,6 +4,9 @@
 * Guard against data.frame's with no "file" attribute in `trackeRdata()`
 * Fixed a bug that could cause no units to be shown in the labels on the plots from `plot.distrProfile()` and `plot.conProfile()`
 
+## Enhancements
+* added support for "m_per_min" speed units (functions `m_per_min2X()` and `X2m_per_min()` where `X` are other speed units) [IK 20200515: INCOMPLETE; FILL IN ALL UNITS!]
+
 ## trackeR 1.5.2
 ### Bug fixes
 * Power is now extracted correctly from `.gpx` files (thanks to Andrew
