@@ -539,6 +539,27 @@ km_per_min2km_per_min <- function(variable) {
 mi_per_min2mi_per_min <- function(variable) {
     variable
 }
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+m_per_s2m_per_min <- function(variable) {
+    variable * 60
+}
+## conversion functions: speed
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+m_per_min2m_per_s <- function(variable) {
+    variable / 60
+}
+## conversion functions: speed
+#' @inheritParams conversions
+#' @rdname conversions
+#' @export
+m_per_min2m_per_min <- function(variable) {
+    variable
+}
+
 
 
 ## conversion functions: heart_rate
