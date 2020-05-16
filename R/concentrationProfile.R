@@ -124,6 +124,7 @@ plot.conProfile <- function(x,
     }
     ## duration unit; sport does not matter here as units have been uniformised already
     units <- get_units(x)
+    un <- collect_units(units)
     duration_unit <- units$unit[units$sport == "running" & units$variable == "duration"]
     ## fortify
     df <- fortify(x, melt = TRUE)
@@ -132,9 +133,14 @@ plot.conProfile <- function(x,
 
     ## make basic plot and facets
     lab_data <- function(series) {
-        thisunit <- units$unit[units$sport == "running" & units$variable == series]
+        el <- series == "cumulative_elevation_gain"
+        if (el) series <- "altitude"
+        thisunit <- un$unit[un$variable == series]
         prettyUnit <- prettifyUnits(thisunit)
-        paste0(series, " [", prettyUnit,"]")
+        if (el)
+            paste0("cumulative_elevation_gain", "\n[", prettyUnit,"]")
+        else
+            paste0(series, "\n[", prettyUnit,"]")
     }
     lab_data <- Vectorize(lab_data)
     if (multiple) {
