@@ -82,6 +82,9 @@ trackeRdata <- function(dat,
                         silent = FALSE) {
     ## file
     file <- attr(dat, "file")
+    if (is.null(file)) {
+        file <- NA
+    }
 
     ## sport
     if (is.null(sport)) {
