@@ -296,18 +296,25 @@ fortify.trackeRdata <- function(model,
 #' @param session A numeric vector of the sessions to be plotted. Defaults
 #'     to the first session, all sessions can be plotted by \code{session = NULL}.
 #' @param zoom The zoom level for the background map as passed on to
-#'     \code{\link[ggmap]{get_stamenmap}} (2 corresponds roughly to continent
+#'     \code{\link[ggmap]{get_stadiamap}} (2 corresponds roughly to continent
 #'     level and 20 to building level).
 #' @param speed Logical. Should the trace be colored according to speed?
 #' @param threshold Logical. Should thresholds be applied?
 #' @param mfrow A vector of 2 elements, number of rows and number of columns,
 #'     specifying the layout for multiple sessions.
-#' #' @param source Passed to \code{\link[ggmap]{get_map}}. Default is \code{"stamen"}.
-#' @param maptype Passed to \code{\link[ggmap]{get_stamenmap}}. Default is \code{"toner"}.
-#' @param messaging Passed to \code{\link[ggmap]{get_stamenmap}}. Default is \code{FALSE}.
+#' @param maptype Passed to \code{\link[ggmap]{get_stadiamap}}. Default is \code{"stamen_toner"}.
+#' @param messaging Passed to \code{\link[ggmap]{get_stadiamap}}. Default is \code{FALSE}.
 #' @param ... Additional arguments passed on to \code{\link{threshold}} and
-#'     \code{\link[ggmap]{get_stamenmap}}.
-#' @seealso \code{\link[ggmap]{get_stamenmap}}, \code{\link[ggmap]{ggmap}}
+#'     \code{\link[ggmap]{get_stadiamap}}.
+#'
+#' @details
+#'
+#' \code{plot_route()} requires a a Stadia Maps API key. see \code{\link[ggmap]{register_stadiamaps}}.
+#'
+#' @seealso \code{\link[ggmap]{get_stadiamap}}, \code{\link[ggmap]{ggmap}}
+#'
+#'
+#'
 #' @examples
 #' \dontrun{
 #' data('runs', package = 'trackeR')
@@ -326,7 +333,7 @@ plot_route <- function(x,
                        threshold = TRUE,
                        mfrow = NULL,
                        ## source = "stamen",
-                       maptype = "toner",
+                       maptype = "stamen_toner",
                        messaging = FALSE,
                        ...) {
 
@@ -363,7 +370,7 @@ plot_route <- function(x,
         range_lat <- ranges_lat[centers$SessionID == ses, ]
         range_lon <- ranges_lon[centers$SessionID == ses, ]
 
-        map <- ggmap::get_stamenmap(c(left = range_lon$low - 0.001,
+        map <- ggmap::get_stadiamap(c(left = range_lon$low - 0.001,
                                 bottom = range_lat$low - 0.001,
                                 right = range_lon$upp + 0.001,
                                 top = range_lat$upp + 0.001),
@@ -483,8 +490,8 @@ leaflet_route <- function(x,
     ## get map
     p <- leaflet::leaflet()
     p <- leaflet::addTiles(p, group = "OSM (default)")
-    p <- leaflet::addProviderTiles(p, "Stamen.Toner", group = "Toner")
-    p <- leaflet::addProviderTiles(p, "Stamen.TonerLite", group = "Toner Lite")
+    ## p <- leaflet::addProviderTiles(p, "Stamen.Toner", group = "Toner")
+    ## p <- leaflet::addProviderTiles(p, "Stamen.TonerLite", group = "Toner Lite")
 
     ## add trace + markers + popups
     for (i in session){
