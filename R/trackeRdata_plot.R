@@ -302,7 +302,7 @@ fortify.trackeRdata <- function(model,
 #' @param threshold Logical. Should thresholds be applied?
 #' @param mfrow A vector of 2 elements, number of rows and number of columns,
 #'     specifying the layout for multiple sessions.
-#' @param maptype Passed to \code{\link[ggmap]{get_stadiamap}}. Default is \code{"stamen_toner"}.
+#' @param maptype Passed to \code{\link[ggmap]{get_stadiamap}}. Default is \code{"stamen_terrain"}.
 #' @param messaging Passed to \code{\link[ggmap]{get_stadiamap}}. Default is \code{FALSE}.
 #' @param ... Additional arguments passed on to \code{\link{threshold}} and
 #'     \code{\link[ggmap]{get_stadiamap}}.
@@ -319,7 +319,7 @@ fortify.trackeRdata <- function(model,
 #' \dontrun{
 #' data('runs', package = 'trackeR')
 #' plot_route(runs, session = 4, zoom = 13)
-#' plot_route(runs, session = 4, zoom = 13, maptype = "terrain")
+#' plot_route(runs, session = 4, zoom = 13, maptype = "outdoors")
 #' ## multiple sessions
 #' plot_route(runs, session = c(1:4, 8:11))
 #' ## different zoom level per panel
@@ -332,8 +332,7 @@ plot_route <- function(x,
                        speed = TRUE,
                        threshold = TRUE,
                        mfrow = NULL,
-                       ## source = "stamen",
-                       maptype = "stamen_toner",
+                       maptype = "stamen_terrain",
                        messaging = FALSE,
                        ...) {
 
