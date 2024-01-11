@@ -490,8 +490,6 @@ leaflet_route <- function(x,
     ## get map
     p <- leaflet::leaflet()
     p <- leaflet::addTiles(p, group = "OSM (default)")
-    ## p <- leaflet::addProviderTiles(p, "Stamen.Toner", group = "Toner")
-    ## p <- leaflet::addProviderTiles(p, "Stamen.TonerLite", group = "Toner Lite")
 
     ## add trace + markers + popups
     for (i in session){
