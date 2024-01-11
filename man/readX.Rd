@@ -9,17 +9,20 @@
 \title{Read a training file in tcx, gpx, db3 or Golden Cheetah's JSON
 format}
 \usage{
-readTCX(file, timezone = "", speedunit = "m_per_s",
-  distanceunit = "m", ...)
+readTCX(file, timezone = "", speedunit = "m_per_s", distanceunit = "m", ...)
 
-readGPX(file, timezone = "", speedunit = "km_per_h",
-  distanceunit = "km", ...)
+readGPX(file, timezone = "", speedunit = "km_per_h", distanceunit = "km", ...)
 
-readDB3(file, timezone = "", table = "gps_data",
-  speedunit = "km_per_h", distanceunit = "km", ...)
+readDB3(
+  file,
+  timezone = "",
+  table = "gps_data",
+  speedunit = "km_per_h",
+  distanceunit = "km",
+  ...
+)
 
-readJSON(file, timezone = "", speedunit = "km_per_h",
-  distanceunit = "km", ...)
+readJSON(file, timezone = "", speedunit = "km_per_h", distanceunit = "km", ...)
 }
 \arguments{
 \item{file}{The path to a tcx, gpx, json or db3 file. Compressed

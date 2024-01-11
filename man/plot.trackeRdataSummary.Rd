@@ -4,8 +4,7 @@
 \alias{plot.trackeRdataSummary}
 \title{Plot an object of class \code{\link{trackeRdataSummary}}.}
 \usage{
-\method{plot}{trackeRdataSummary}(x, date = TRUE, what = NULL,
-  group = NULL, trend = TRUE, ...)
+\method{plot}{trackeRdataSummary}(x, date = TRUE, what = NULL, group = NULL, trend = TRUE, ...)
 }
 \arguments{
 \item{x}{An object of class \code{trackeRdataSummary}.}

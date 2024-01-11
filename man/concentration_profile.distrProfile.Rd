@@ -6,12 +6,18 @@
 \alias{concentration_profile.trackeRdata}
 \title{Generate training concentration profiles.}
 \usage{
-\method{concentration_profile}{distrProfile}(object, session = NULL,
-  what = NULL, ...)
+\method{concentration_profile}{distrProfile}(object, session = NULL, what = NULL, ...)
 
-\method{concentration_profile}{trackeRdata}(object, session = NULL,
-  what = NULL, limits = NULL, parallel = FALSE,
-  unit_reference_sport = NULL, scale = FALSE, ...)
+\method{concentration_profile}{trackeRdata}(
+  object,
+  session = NULL,
+  what = NULL,
+  limits = NULL,
+  parallel = FALSE,
+  unit_reference_sport = NULL,
+  scale = FALSE,
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}} or \code{\link{distrProfile}}.}
@@ -25,8 +31,8 @@ should be generated. Defaults to all variables in \code{object}
 
 \item{...}{Currently not used.}
 
-\item{limits}{A named list of vectors of two numbers to specifiy
-the lowe and upper limits for the variables in \code{what}. If
+\item{limits}{A named list of vectors of two numbers to specify the
+lower and upper limits for the variables in \code{what}. If
 \code{NULL} (default) the limits for the variables in
 \code{what} are inferred from \code{object}.}
 
@@ -61,7 +67,7 @@ Each \code{conProfile} object has the following attributes:
 list component
 
 \item \code{session_times}: the session start and end times
-correspoding to the columns of each list component
+corresponding to the columns of each list component
 
 \item \code{unit_reference_sport}: the sport where the units have
 been inherited from

@@ -6,7 +6,7 @@
 #' @param object Univariate \code{\link[zoo]{zoo}} object containing
 #'     the time stamped power output or speed values. (Power should be
 #'     in Watts, speed in meters per second.)
-#' @param w0 Inital capacity of W', as calculated based on the
+#' @param w0 Initial capacity of W', as calculated based on the
 #'     critical power model by Monod and Scherrer (1965).
 #' @param cp Critical power/speed, i.e., the power/speed which can be
 #'     maintained for longer period of time.
@@ -49,7 +49,7 @@
 #' Power.' Medicine & Science in Sports & Exercise, 44(8), 1526--1532.
 #'
 #' Skiba PF, Fulford J, Clarke DC, Vanhatalo A, Jones AM
-#' (2015). 'Intramuscular Determinants of the Abilility to Recover
+#' (2015). 'Intramuscular Determinants of the Ability to Recover
 #' Work Capacity above Critical Power.' European Journal of Applied
 #' Physiology, 115(4), 703--713.
 #'
@@ -183,7 +183,7 @@ Wexp <- function(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower 
 #' Power.' Medicine & Science in Sports & Exercise, 44(8), 1526--1532.
 #'
 #' Skiba PF, Fulford J, Clarke DC, Vanhatalo A, Jones AM
-#' (2015). 'Intramuscular Determinants of the Abilility to Recover
+#' (2015). 'Intramuscular Determinants of the Ability to Recover
 #' Work Capacity above Critical Power.' European Journal of Applied
 #' Physiology, 115(4), 703--713.
 #'

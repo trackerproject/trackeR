@@ -25,7 +25,7 @@ corresponding to \code{variable} and \code{unit}.}
 Generate and set base units.
 }
 \details{
-The avaialble units are
+The available units are
 \itemize{
 
 \item variables \code{latitude} and \code{longitude} with unit
@@ -41,7 +41,7 @@ The avaialble units are
 \code{mi_per_h}
 
 \item variable \code{cadence_running} with unit
-\code{steps_per_min} (default; runing only)
+\code{steps_per_min} (default; running only)
 
 \item variable \code{cadence_cycling} with unit \code{rev_per_min}
 (default; cycling only)

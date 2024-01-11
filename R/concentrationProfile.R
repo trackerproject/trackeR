@@ -25,7 +25,7 @@
 #' list component
 #'
 #' \item \code{session_times}: the session start and end times
-#' correspoding to the columns of each list component
+#' corresponding to the columns of each list component
 #'
 #' \item \code{unit_reference_sport}: the sport where the units have
 #' been inherited from
@@ -306,8 +306,8 @@ get_sport.conProfile <- function(object,
 #' @rdname concentration_profile.distrProfile
 #'
 #' @inheritParams concentration_profile
-#' @param limits A named list of vectors of two numbers to specifiy
-#'     the lowe and upper limits for the variables in \code{what}. If
+#' @param limits A named list of vectors of two numbers to specify the
+#'     lower and upper limits for the variables in \code{what}. If
 #'     \code{NULL} (default) the limits for the variables in
 #'     \code{what} are inferred from \code{object}.
 #' @param parallel Logical. Should computation be carried out in

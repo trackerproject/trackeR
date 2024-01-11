@@ -75,7 +75,7 @@ profile2fd <- function(object, what, ...) {
 funPCA.distrProfile <- function(object, what, nharm = 4, ...) {
 
     ## transform to functional data format
-    fdname3 <- if (class(object) == "distrProfile")
+    fdname3 <- if (inherits(object, "distrProfile"))
         "Time above threshold" else "d time"
     fd <- profile2fd(object, what = what, fdnames = c(what, "Session", fdname3))
 

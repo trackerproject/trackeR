@@ -1,18 +1,21 @@
-## trackeR 1.5.2.900
-### Bug fixes
-* Fixed a bug that could result in `readTCX()` populating cadence_cycling with running cadence data.
-* Guard against data.frame's with no "file" attribute in `trackeRdata()`
-* Fixed a bug that could cause no units to be shown in the labels on the plots from `plot.distrProfile()` and `plot.conProfile()`
+## trackeR 1.6.0
 
-## Enhancements
-* added support for "m_per_min" speed units (functions `m_per_min2X()` and `X2m_per_min()` where `X` are other speed units) [IK 20200515: INCOMPLETE; FILL IN ALL UNITS!]
+### Bug fixes
+* Fixed a bug that could result in `readTCX()` populating `cadence_cycling` with running cadence data.
+* Guard against `data.frame`'s with no "file" attribute in `trackeRdata()`.
+* Fixed a bug that could cause no units to be shown in the labels on the plots from `plot.distrProfile()` and `plot.conProfile()`.
+
+### Enhancements
+* added support for "m_per_min" speed units (functions `m_per_min2X()` and `X2m_per_min()` where `X` are other speed units). 
+* Fixed `plot_route()` and `leaflet_route()` to work with **ggmap**'s transition to Stadia maps.
+* Various documentation updates.
 
 ## trackeR 1.5.2
 ### Bug fixes
 * Power is now extracted correctly from `.gpx` files (thanks to Andrew
-  from thethreshold.co.za for spotting the issue).
+  from \url{thethreshold.co.za} for spotting the issue).
 
-## Enhancements
+### Enhancements
 * `readX` functions support reading from compressed versions (`.gz`,
   `.bz2`, `.xz`, `.zip`) of `.tcx`, `.gpx`, `.json` files.
 * Example data files are now compressed and more is provided.
@@ -21,7 +24,7 @@
 
 ## trackeR 1.5.1
 ### Bug fixes
-* Fixed a bug that would result in errors from `get_elevation_gain()` if altitude has too many NA's.
+* Fixed a bug that would result in errors from `get_elevation_gain()` if altitude has too many NAs.
 * `smooth_elevation_gain` is not passed correctly in `read_directory()`.
 * `change_units.trackeRthresholds()` is now exported.
 
@@ -61,7 +64,7 @@
 ### Bug fixes
 * Fixed a bug that caused `threshold` to not threshold if applied without specifying any of variable, lower, upper and sport.
 
-## Other changes
+### Other changes
 * `plot_route()` now returns plots using stamen maps (see `?ggmap::get_map()` for the reasons we are moving away from other maps).
 
 ## trackeR 1.2.0
@@ -88,7 +91,7 @@ Updated vignettes to avoid errors during CRAN checks
 * Refactored code for `summary()` method for `trackeRdata` objects, making it faster (circa 10x faster)
 * Code improvements in `readDirectory()`
 * `c()` improvements for `trackeRdata` objects
-* `readDirectory()` can be perfromed in parallel usign foreach
+* `readDirectory()` can be performed in parallel using foreach
 * sane multi-platform parallelization across methods using `foreach`. The parallel backend and its details needs to be set by the user
 * Wprime has been adapted for a multisport environment
 * Enhancements to the definition of the `trackeRdata` object and the associated methods; the object now carries file and sport information
@@ -108,13 +111,13 @@ Updated vignettes to avoid errors during CRAN checks
 
 ## trackeR 0.0.5
 
-* The color palette for plots of trackeRdataZones objects is now also based on black/blue.
+* The colour palette for plots of trackeRdataZones objects is now also based on black/blue.
 * The vignette Tour de trackeR and the examples for `plotRoute()` now use maps from Stamen rather than OpenStreetMap.
 
 ## trackeR 0.0.4
 
 * The sanity checks performed when creating a trackeRdata object now throw warnings. This can be switched off with the argument `silent = TRUE`.
-* The color palette for plots of trackeRdataSummary and trackeRdataZones objects changed slightly.
+* The colour palette for plots of trackeRdataSummary and trackeRdataZones objects changed slightly.
 
 ## trackeR 0.0.3
 * `plotRoute()` can now include more than one session in one plot. The

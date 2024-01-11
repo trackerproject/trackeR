@@ -1,5 +1,5 @@
 Package: trackeR
-Version: 1.5.2.900
+Version: 1.6.0
 Title: Infrastructure for Running, Cycling and Swimming Data from GPS-Enabled Tracking Devices
 Authors@R: c(person(given = "Ioannis", family = "Kosmidis",
 	            role = c("aut", "cre"), email = "ioannis.kosmidis@warwick.ac.uk",
@@ -29,6 +29,7 @@ Imports:
     gridExtra,
     gtable
 Suggests:
+    spelling,
     testthat,
     knitr,
     rmarkdown,
@@ -37,6 +38,7 @@ VignetteBuilder: knitr
 License: GPL-3
 URL: https://github.com/trackerproject/trackeR
 BugReports: https://github.com/trackerproject/trackeR/issues
-RoxygenNote: 6.1.1
+RoxygenNote: 7.2.3
 Encoding: UTF-8
 LazyData: true
+Language: en-GB

@@ -4,8 +4,7 @@
 \alias{smoother.distrProfile}
 \title{Smoother for distribution profiles.}
 \usage{
-\method{smoother}{distrProfile}(object, session = NULL, what = NULL,
-  control = list(...), ...)
+\method{smoother}{distrProfile}(object, session = NULL, what = NULL, control = list(...), ...)
 }
 \arguments{
 \item{object}{An object of class \code{distrProfile} as returned by

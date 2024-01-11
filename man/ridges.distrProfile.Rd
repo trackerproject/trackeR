@@ -4,8 +4,7 @@
 \alias{ridges.distrProfile}
 \title{Ridgeline plots for \code{distrProfile} objects}
 \usage{
-\method{ridges}{distrProfile}(x, session = NULL, what = NULL,
-  smooth = FALSE, ...)
+\method{ridges}{distrProfile}(x, session = NULL, what = NULL, smooth = FALSE, ...)
 }
 \arguments{
 \item{x}{An object of class \code{distrProfile} as returned by

@@ -298,7 +298,7 @@ fortify.trackeRdata <- function(model,
 #' @param zoom The zoom level for the background map as passed on to
 #'     \code{\link[ggmap]{get_stadiamap}} (2 corresponds roughly to continent
 #'     level and 20 to building level).
-#' @param speed Logical. Should the trace be colored according to speed?
+#' @param speed Logical. Should the trace be coloured according to speed?
 #' @param threshold Logical. Should thresholds be applied?
 #' @param mfrow A vector of 2 elements, number of rows and number of columns,
 #'     specifying the layout for multiple sessions.
@@ -556,7 +556,7 @@ leaflet_route <- function(x,
 #' @param threshold if \code{TRUE} (default), then thresholds are
 #'     applied to \code{x} prior to preparing the
 #'     \code{\link{data.frame}}.
-#' @param ... Addiditonal arguments to be passed to
+#' @param ... Additional arguments to be passed to
 #'     \code{\link{threshold}}.
 #'
 #'
@@ -672,7 +672,6 @@ prepare_route <- function(x,
 
 #' Timeline plot for \code{\link{trackeRdata}} objects.
 #'
-#' @inheritParams timeline
 #' @rdname timeline
 #' @export
 timeline.trackeRdata  <- function(object,

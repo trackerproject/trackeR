@@ -5,19 +5,45 @@
 \alias{readContainer}
 \title{Read a GPS container file.}
 \usage{
-read_container(file, type = c("tcx", "gpx", "db3", "json"),
-  table = "gps_data", timezone = "", session_threshold = 2,
-  correct_distances = FALSE, smooth_elevation_gain = TRUE,
-  country = NULL, mask = TRUE, from_distances = NULL,
-  speedunit = NULL, distanceunit = NULL, sport = NULL, lgap = 30,
-  lskip = 5, m = 11, silent = FALSE)
+read_container(
+  file,
+  type = c("tcx", "gpx", "db3", "json"),
+  table = "gps_data",
+  timezone = "",
+  session_threshold = 2,
+  correct_distances = FALSE,
+  smooth_elevation_gain = TRUE,
+  country = NULL,
+  mask = TRUE,
+  from_distances = NULL,
+  speedunit = NULL,
+  distanceunit = NULL,
+  sport = NULL,
+  lgap = 30,
+  lskip = 5,
+  m = 11,
+  silent = FALSE
+)
 
-readContainer(file, type = c("tcx", "gpx", "db3", "json"),
-  table = "gps_data", timezone = "", session_threshold = 2,
-  correct_distances = FALSE, smooth_elevation_gain = TRUE,
-  country = NULL, mask = TRUE, from_distances = NULL,
-  speedunit = NULL, distanceunit = NULL, sport = NULL, lgap = 30,
-  lskip = 5, m = 11, silent = FALSE)
+readContainer(
+  file,
+  type = c("tcx", "gpx", "db3", "json"),
+  table = "gps_data",
+  timezone = "",
+  session_threshold = 2,
+  correct_distances = FALSE,
+  smooth_elevation_gain = TRUE,
+  country = NULL,
+  mask = TRUE,
+  from_distances = NULL,
+  speedunit = NULL,
+  distanceunit = NULL,
+  sport = NULL,
+  lgap = 30,
+  lskip = 5,
+  m = 11,
+  silent = FALSE
+)
 }
 \arguments{
 \item{file}{The path to a tcx, gpx, json or db3 file. Compressed
@@ -50,7 +76,7 @@ is \code{TRUE}.}
 \item{mask}{Logical. Passed on to
 \code{\link[raster]{getData}}. Should only the altitudes for
 the specified \code{country} be extracted (\code{TRUE}) or also
-those for the neighboring countries (\code{FALSE})?}
+those for the neighbouring countries (\code{FALSE})?}
 
 \item{from_distances}{Logical. Should the speeds be calculated from
 the distance recordings instead of taken from the speed

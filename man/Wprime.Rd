@@ -69,9 +69,17 @@
 \alias{respectively}
 \title{W': work capacity above critical power/speed.}
 \usage{
-Wprime(object, session = NULL, quantity = c("expended", "balance"), w0,
-  cp, version = c("2015", "2012"), meanRecoveryPower = FALSE,
-  parallel = FALSE, ...)
+Wprime(
+  object,
+  session = NULL,
+  quantity = c("expended", "balance"),
+  w0,
+  cp,
+  version = c("2015", "2012"),
+  meanRecoveryPower = FALSE,
+  parallel = FALSE,
+  ...
+)
 }
 \arguments{
 \item{object}{A \code{\link{trackeRdata}} object.}
@@ -82,7 +90,7 @@ defaults to all sessions.}
 \item{quantity}{Should W' \code{'expended'} or W' \code{'balance'}
 be returned?}
 
-\item{w0}{Inital capacity of W', as calculated based on the
+\item{w0}{Initial capacity of W', as calculated based on the
 critical power model by Monod and Scherrer (1965).}
 
 \item{cp}{Critical power/speed, i.e., the power/speed which can be
@@ -146,7 +154,7 @@ Expenditure and Reconstitution of Work Capacity above Critical
 Power.' Medicine & Science in Sports & Exercise, 44(8), 1526--1532.
 
 Skiba PF, Fulford J, Clarke DC, Vanhatalo A, Jones AM
-(2015). 'Intramuscular Determinants of the Abilility to Recover
+(2015). 'Intramuscular Determinants of the Ability to Recover
 Work Capacity above Critical Power.' European Journal of Applied
 Physiology, 115(4), 703--713.
 }

@@ -4,10 +4,21 @@
 \alias{trackeRdata}
 \title{Create a trackeRdata object}
 \usage{
-trackeRdata(dat, units = NULL, sport = NULL, session_threshold = 2,
-  correct_distances = FALSE, smooth_elevation_gain = TRUE,
-  from_distances = TRUE, country = NULL, mask = TRUE, lgap = 30,
-  lskip = 5, m = 11, silent = FALSE)
+trackeRdata(
+  dat,
+  units = NULL,
+  sport = NULL,
+  session_threshold = 2,
+  correct_distances = FALSE,
+  smooth_elevation_gain = TRUE,
+  from_distances = TRUE,
+  country = NULL,
+  mask = TRUE,
+  lgap = 30,
+  lskip = 5,
+  m = 11,
+  silent = FALSE
+)
 }
 \arguments{
 \item{dat}{A \code{\link{data.frame}} object.}
@@ -39,7 +50,7 @@ instead of taken from the speed recordings directly?}
 \item{mask}{Logical. Passed on to
 \code{\link[raster]{getData}}. Should only the altitudes for
 the specified \code{country} be extracted (\code{TRUE}) or also
-those for the neighboring countries (\code{FALSE})?}
+those for the neighbouring countries (\code{FALSE})?}
 
 \item{lgap}{Time in seconds corresponding to the minimal sampling rate.}
 

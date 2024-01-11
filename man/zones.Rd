@@ -4,8 +4,16 @@
 \alias{zones}
 \title{Time spent in training zones.}
 \usage{
-zones(object, session = NULL, what = c("speed"), breaks = NULL,
-  parallel = FALSE, n_zones = 9, unit_reference_sport = NULL, ...)
+zones(
+  object,
+  session = NULL,
+  what = c("speed"),
+  breaks = NULL,
+  parallel = FALSE,
+  n_zones = 9,
+  unit_reference_sport = NULL,
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}

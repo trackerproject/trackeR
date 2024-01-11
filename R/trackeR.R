@@ -108,7 +108,7 @@ get_units <- function(object, ...) UseMethod("get_units")
 #' @param object The object of which the units of measurement are changed.
 #' @param variable A vector of variables whose units are to be changed.
 #' @param unit A vector with the units, corresponding to \code{variable}.
-#' @param sport A vector of sports (amongst \code{'cycling'},
+#' @param sport A vector of sports (among \code{'cycling'},
 #'     \code{'running'}, \code{'swimming'}) with each element
 #'     corresponding to \code{variable} and \code{unit}.
 #' @param ... Arguments to be passed to methods.

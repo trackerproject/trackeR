@@ -17,7 +17,7 @@ prepare_route(x, session = 1, threshold = TRUE, ...)
 applied to \code{x} prior to preparing the
 \code{\link{data.frame}}.}
 
-\item{...}{Addiditonal arguments to be passed to
+\item{...}{Additional arguments to be passed to
 \code{\link{threshold}}.}
 }
 \value{

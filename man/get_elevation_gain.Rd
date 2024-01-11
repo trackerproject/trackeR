@@ -4,8 +4,12 @@
 \alias{get_elevation_gain}
 \title{(Cumulative) Elevation gain.}
 \usage{
-get_elevation_gain(object, smooth = FALSE, cumulative = FALSE,
-  vertical_noise = 0)
+get_elevation_gain(
+  object,
+  smooth = FALSE,
+  cumulative = FALSE,
+  vertical_noise = 0
+)
 }
 \arguments{
 \item{object}{A (univariate) zoo object.}

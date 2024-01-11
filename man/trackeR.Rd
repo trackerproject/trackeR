@@ -3,7 +3,6 @@
 \docType{package}
 \name{trackeR}
 \alias{trackeR}
-\alias{trackeR-package}
 \title{trackeR: Infrastructure for running and cycling data from
 GPS-enabled tracking devices}
 \description{

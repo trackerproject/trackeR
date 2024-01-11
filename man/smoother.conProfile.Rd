@@ -4,8 +4,7 @@
 \alias{smoother.conProfile}
 \title{Smoother for concentration profiles.}
 \usage{
-\method{smoother}{conProfile}(object, session = NULL, what = NULL,
-  control = list(...), ...)
+\method{smoother}{conProfile}(object, session = NULL, what = NULL, control = list(...), ...)
 }
 \arguments{
 \item{object}{An object of class \code{conProfile} as returned by

@@ -191,7 +191,6 @@ readTCX <- function(file,
 
 }
 
-#' @inheritParams readX
 #' @export
 #' @rdname readX
 readGPX <- function(file,
@@ -347,7 +346,7 @@ readGPX <- function(file,
 
 #' @param table Character string indicating the name of the table with
 #'     the GPS data in the db3 container file.
-#' @inheritParams readX
+
 #' @export
 #' @rdname readX
 readDB3 <- function(file,
@@ -428,7 +427,7 @@ readDB3 <- function(file,
 }
 
 
-#' @inheritParams readX
+
 #' @details Reading Golden Cheetah's JSON files is experimental.
 #' @export
 #' @rdname readX

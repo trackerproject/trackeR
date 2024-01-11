@@ -2619,7 +2619,7 @@ print(runSummary, digits = 3)
 %
 
 The \fct{plot} method shows the evolution of the various summary statistics over
-calender time or over the course of the sessions. For example, the following
+calendar time or over the course of the sessions. For example, the following
 code chunk produces Figure~\ref{fig:summaryPlot}.
 %
 <<summarySessions, eval = FALSE>>=

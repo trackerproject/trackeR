@@ -4,8 +4,7 @@
 \alias{plot.trackeRWprime}
 \title{Plot W'.}
 \usage{
-\method{plot}{trackeRWprime}(x, session = NULL, dates = TRUE,
-  scaled = TRUE, ...)
+\method{plot}{trackeRWprime}(x, session = NULL, dates = TRUE, scaled = TRUE, ...)
 }
 \arguments{
 \item{x}{An object of class \code{trackeRWprime} as returned by \code{\link{Wprime}}.}

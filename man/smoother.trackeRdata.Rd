@@ -4,8 +4,7 @@
 \alias{smoother.trackeRdata}
 \title{Smoother for \code{\link{trackeRdata}} objects.}
 \usage{
-\method{smoother}{trackeRdata}(object, session = NULL,
-  control = list(...), ...)
+\method{smoother}{trackeRdata}(object, session = NULL, control = list(...), ...)
 }
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}

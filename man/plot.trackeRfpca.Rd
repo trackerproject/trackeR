@@ -4,8 +4,7 @@
 \alias{plot.trackeRfpca}
 \title{Plot function for functional principal components analysis of distribution and concentration profiles.}
 \usage{
-\method{plot}{trackeRfpca}(x, harm = NULL, expand = NULL,
-  pointplot = TRUE, ...)
+\method{plot}{trackeRfpca}(x, harm = NULL, expand = NULL, pointplot = TRUE, ...)
 }
 \arguments{
 \item{x}{An object of class \code{trackeRfpca} as returned by \code{\link{funPCA}}.}

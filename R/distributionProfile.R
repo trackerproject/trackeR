@@ -38,7 +38,7 @@
 #' list component
 #'
 #' \item \code{session_times}: the session start and end times
-#' correspoding to the columns of each list component
+#' corresponding to the columns of each list component
 #'
 #' \item \code{unit_reference_sport}: the sport where the units have
 #' been inherited from

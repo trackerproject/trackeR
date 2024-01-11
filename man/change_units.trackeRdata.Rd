@@ -13,7 +13,7 @@
 
 \item{unit}{A vector with the units, corresponding to \code{variable}.}
 
-\item{sport}{A vector of sports (amongst \code{'cycling'},
+\item{sport}{A vector of sports (among \code{'cycling'},
 \code{'running'}, \code{'swimming'}) with each element
 corresponding to \code{variable} and \code{unit}.}
 

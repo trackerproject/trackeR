@@ -4,7 +4,9 @@
 \name{runs}
 \alias{runs}
 \title{Training sessions.}
-\format{A \code{\link{trackeRdata}} object containing 33 running training sessions.}
+\format{
+A \code{\link{trackeRdata}} object containing 33 running training sessions.
+}
 \usage{
 runs
 }

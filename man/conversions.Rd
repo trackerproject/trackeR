@@ -77,6 +77,9 @@
 \alias{mi_per_h2mi_per_h}
 \alias{km_per_min2km_per_min}
 \alias{mi_per_min2mi_per_min}
+\alias{m_per_s2m_per_min}
+\alias{m_per_min2m_per_s}
+\alias{m_per_min2m_per_min}
 \alias{bpm2bpm}
 \alias{s_per_m2min_per_km}
 \alias{min_per_km2s_per_m}
@@ -260,6 +263,12 @@ mi_per_h2mi_per_h(variable)
 km_per_min2km_per_min(variable)
 
 mi_per_min2mi_per_min(variable)
+
+m_per_s2m_per_min(variable)
+
+m_per_min2m_per_s(variable)
+
+m_per_min2m_per_min(variable)
 
 bpm2bpm(variable)
 

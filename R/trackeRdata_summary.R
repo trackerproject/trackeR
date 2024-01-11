@@ -536,7 +536,6 @@ plot.trackeRdataSummary <- function(x,
 
 #' Timeline plot for \code{\link{trackeRdataSummary}} objects
 #'
-#' @inheritParams timeline
 #' @rdname timeline
 #' @export
 timeline.trackeRdataSummary <- timeline.trackeRdata

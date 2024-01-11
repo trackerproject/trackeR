@@ -2,7 +2,7 @@
 % Please edit documentation in R/trackeRdata.R
 \name{unique.trackeRdata}
 \alias{unique.trackeRdata}
-\title{Exrtact unique sessions in a \code{trackerRdata} object}
+\title{Extract unique sessions in a \code{trackerRdata} object}
 \usage{
 \method{unique}{trackeRdata}(x, incomparables = FALSE, ...)
 }
@@ -14,7 +14,7 @@
 \item{...}{Currently not used.}
 }
 \description{
-Exrtact unique sessions in a \code{trackerRdata} object
+Extract unique sessions in a \code{trackerRdata} object
 }
 \details{
 Uniqueness is determined by comparing the first timestamp of the

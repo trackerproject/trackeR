@@ -5,23 +5,51 @@
 \alias{readDirectory}
 \title{Read all supported container files from a supplied directory}
 \usage{
-read_directory(directory, aggregate = FALSE, table = "gps_data",
-  timezone = "", session_threshold = 2, smooth_elevation_gain = TRUE,
-  correct_distances = FALSE, country = NULL, mask = TRUE,
-  from_distances = NULL, speedunit = list(tcx = "m_per_s", gpx =
-  "km_per_h", db3 = "km_per_h", json = "km_per_h"),
+read_directory(
+  directory,
+  aggregate = FALSE,
+  table = "gps_data",
+  timezone = "",
+  session_threshold = 2,
+  smooth_elevation_gain = TRUE,
+  correct_distances = FALSE,
+  country = NULL,
+  mask = TRUE,
+  from_distances = NULL,
+  speedunit = list(tcx = "m_per_s", gpx = "km_per_h", db3 = "km_per_h", json =
+    "km_per_h"),
   distanceunit = list(tcx = "m", gpx = "km", db3 = "km", json = "km"),
-  sport = NULL, lgap = 30, lskip = 5, m = 11, silent = FALSE,
-  parallel = FALSE, verbose = TRUE)
+  sport = NULL,
+  lgap = 30,
+  lskip = 5,
+  m = 11,
+  silent = FALSE,
+  parallel = FALSE,
+  verbose = TRUE
+)
 
-readDirectory(directory, aggregate = FALSE, table = "gps_data",
-  timezone = "", session_threshold = 2, smooth_elevation_gain = TRUE,
-  correct_distances = FALSE, country = NULL, mask = TRUE,
-  from_distances = NULL, speedunit = list(tcx = "m_per_s", gpx =
-  "km_per_h", db3 = "km_per_h", json = "km_per_h"),
+readDirectory(
+  directory,
+  aggregate = FALSE,
+  table = "gps_data",
+  timezone = "",
+  session_threshold = 2,
+  smooth_elevation_gain = TRUE,
+  correct_distances = FALSE,
+  country = NULL,
+  mask = TRUE,
+  from_distances = NULL,
+  speedunit = list(tcx = "m_per_s", gpx = "km_per_h", db3 = "km_per_h", json =
+    "km_per_h"),
   distanceunit = list(tcx = "m", gpx = "km", db3 = "km", json = "km"),
-  sport = NULL, lgap = 30, lskip = 5, m = 11, silent = FALSE,
-  parallel = FALSE, verbose = TRUE)
+  sport = NULL,
+  lgap = 30,
+  lskip = 5,
+  m = 11,
+  silent = FALSE,
+  parallel = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{directory}{The path to the directory.}
@@ -53,7 +81,7 @@ for elevation? Default is \code{FALSE}.}
 \item{mask}{Logical. Passed on to
 \code{\link[raster]{getData}}. Should only the altitudes for
 the specified \code{country} be extracted (\code{TRUE}) or also
-those for the neighboring countries (\code{FALSE})?}
+those for the neighbouring countries (\code{FALSE})?}
 
 \item{from_distances}{Logical. Should the speeds be calculated from
 the distance recordings instead of taken from the speed

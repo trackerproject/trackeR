@@ -4,9 +4,18 @@
 \alias{GC2trackeRdata}
 \title{Coercion function for use in Golden Cheetah}
 \usage{
-GC2trackeRdata(gc, cycling = TRUE, correct_distances = FALSE,
-  country = NULL, mask = TRUE, from_distances = FALSE, lgap = 30,
-  lskip = 5, m = 11, silent = FALSE)
+GC2trackeRdata(
+  gc,
+  cycling = TRUE,
+  correct_distances = FALSE,
+  country = NULL,
+  mask = TRUE,
+  from_distances = FALSE,
+  lgap = 30,
+  lskip = 5,
+  m = 11,
+  silent = FALSE
+)
 }
 \arguments{
 \item{gc}{Output of \code{GC.activity}.}
@@ -22,7 +31,7 @@ for elevation? Default is \code{FALSE}.}
 \item{mask}{Logical. Passed on to
 \code{\link[raster]{getData}}. Should only the altitudes for
 the specified \code{country} be extracted (\code{TRUE}) or also
-those for the neighboring countries (\code{FALSE})?}
+those for the neighbouring countries (\code{FALSE})?}
 
 \item{from_distances}{Logical. Should the speeds be calculated from the distance recordings
 instead of taken from the speed recordings directly?}

@@ -18,7 +18,7 @@ running and cycling data from GPS-enabled tracking devices.
 
 The formats that are currently supported for the training activity
 files are .tcx (Training Center XML), Strava .gpx, .db3 and [Golden
-Cheetah](http://goldencheetah.org)'s .json files. After extraction and
+Cheetah](http://goldencheetah.org) .json files. After extraction and
 appropriate manipulation of the training or competition attributes,
 the data are placed into session-based and unit-aware data objects of
 class trackeRdata (S3 class). The information in the resultant data
@@ -29,7 +29,7 @@ corresponding flexible and extensible methods.
 
 Read:
 
-- Read data from .tcx, Strava .gpx, .db3 or [Golden Cheetah](http://goldencheetah.org)'s .json files.
+- Read data from .tcx, Strava .gpx, .db3 or [Golden Cheetah](http://goldencheetah.org) .json files.
 - Read all supported files in a specified directory.
 
 Sports supported:
@@ -66,7 +66,7 @@ Visualisation:
 - Plot time spent exercising in zones.
 - Plot distribution/concentration profiles.
 - Plot principal components of distribution/concentration profiles.
-- Ridgeline (or joy) plots for distribution/concentration prifiles.
+- Ridgeline (or joy) plots for distribution/concentration profiles.
 
 ### Installation
 

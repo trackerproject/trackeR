@@ -5,8 +5,13 @@
 \alias{trackeRdataSummary}
 \title{Summary of training sessions}
 \usage{
-\method{summary}{trackeRdata}(object, session = NULL,
-  moving_threshold = NULL, unit_reference_sport = NULL, ...)
+\method{summary}{trackeRdata}(
+  object,
+  session = NULL,
+  moving_threshold = NULL,
+  unit_reference_sport = NULL,
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \code{\link{trackeRdata}}.}

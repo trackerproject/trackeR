@@ -21,7 +21,7 @@
 #' @param mask Logical. Passed on to
 #'     \code{\link[raster]{getData}}. Should only the altitudes for
 #'     the specified \code{country} be extracted (\code{TRUE}) or also
-#'     those for the neighboring countries (\code{FALSE})?
+#'     those for the neighbouring countries (\code{FALSE})?
 #' @inheritParams sanity_checks
 #' @inheritParams get_resting_periods
 #' @inheritParams impute_speeds
@@ -308,7 +308,7 @@ sort.trackeRdata <- function(x,
     ret
 }
 
-#' Exrtact unique sessions in a \code{trackerRdata} object
+#' Extract unique sessions in a \code{trackerRdata} object
 #'
 #' @param x A \code{trackeRdata} object.
 #' @param incomparables Currently not used.

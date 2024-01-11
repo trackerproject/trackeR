@@ -81,7 +81,7 @@ generate_variable_names <- function() {
 #'
 #' @details
 #'
-#' The avaialble units are
+#' The available units are
 #' \itemize{
 #'
 #' \item variables \code{latitude} and \code{longitude} with unit
@@ -97,7 +97,7 @@ generate_variable_names <- function() {
 #' \code{mi_per_h}
 #'
 #' \item variable \code{cadence_running} with unit
-#' \code{steps_per_min} (default; runing only)
+#' \code{steps_per_min} (default; running only)
 #'
 #' \item variable \code{cadence_cycling} with unit \code{rev_per_min}
 #' (default; cycling only)
@@ -186,8 +186,8 @@ generate_units <- function(variable,
 #' Generate default thresholds.
 #'
 #' @param variable A vector of variables with user-specified thresholds.
-#' @param lower A vector of lower limits correspodning to the elements of \code{variable}.
-#' @param upper A vector of upper limits correspodning to the elements of \code{variable}.
+#' @param lower A vector of lower limits corresponding to the elements of \code{variable}.
+#' @param upper A vector of upper limits corresponding to the elements of \code{variable}.
 #' @param sport A vector of sports (amongst \code{'cycling'},
 #'     \code{'running'}, \code{'swimming'}) with each element
 #'     corresponding to \code{variable}, \code{lower} and \code{upper}.

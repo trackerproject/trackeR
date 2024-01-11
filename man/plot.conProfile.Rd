@@ -4,8 +4,7 @@
 \alias{plot.conProfile}
 \title{Plot concentration profiles.}
 \usage{
-\method{plot}{conProfile}(x, session = NULL, what = NULL,
-  multiple = FALSE, smooth = FALSE, ...)
+\method{plot}{conProfile}(x, session = NULL, what = NULL, multiple = FALSE, smooth = FALSE, ...)
 }
 \arguments{
 \item{x}{An object of class \code{conProfile} as returned by

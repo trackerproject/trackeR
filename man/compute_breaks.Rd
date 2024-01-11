@@ -4,8 +4,13 @@
 \alias{compute_breaks}
 \title{Compute a grid of breakpoints per variable from a \code{\link{trackeRdata}} object.}
 \usage{
-compute_breaks(object, a = 1e-04, n_breaks = 9, limits = NULL,
-  what = c("speed", "heart_rate"))
+compute_breaks(
+  object,
+  a = 1e-04,
+  n_breaks = 9,
+  limits = NULL,
+  what = c("speed", "heart_rate")
+)
 }
 \arguments{
 \item{object}{A \code{\link{trackeRdata}} object.}

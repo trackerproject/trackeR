@@ -4,10 +4,18 @@
 \alias{plot.trackeRdata}
 \title{Plot training sessions in form of trackeRdata objects}
 \usage{
-\method{plot}{trackeRdata}(x, session = NULL, what = c("pace",
-  "heart_rate"), threshold = TRUE, smooth = FALSE, trend = TRUE,
-  dates = TRUE, unit_reference_sport = NULL, moving_threshold = NULL,
-  ...)
+\method{plot}{trackeRdata}(
+  x,
+  session = NULL,
+  what = c("pace", "heart_rate"),
+  threshold = TRUE,
+  smooth = FALSE,
+  trend = TRUE,
+  dates = TRUE,
+  unit_reference_sport = NULL,
+  moving_threshold = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{An object of class \code{\link{trackeRdata}}.}

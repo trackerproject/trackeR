@@ -4,8 +4,7 @@
 \alias{ridges.trackeRdata}
 \title{Ridgeline plots for \code{trackeRdata} objects}
 \usage{
-\method{ridges}{trackeRdata}(x, session = NULL, what = "speed",
-  smooth = TRUE, ...)
+\method{ridges}{trackeRdata}(x, session = NULL, what = "speed", smooth = TRUE, ...)
 }
 \arguments{
 \item{x}{A \code{trackeRdata} object.}

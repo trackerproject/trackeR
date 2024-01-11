@@ -33,7 +33,7 @@
 #' \item duration [0, Inf] seconds
 #' \item temperature [-20, 60] C
 #' }
-#' after they have been tranformed to the units of the \code{object}
+#' after they have been transformed to the units of the \code{object}
 #'
 #' The thresholds for speed differ across sports: for running they are
 #' [0, 12.5] meters per second, for cycling [0, 100] meters per second

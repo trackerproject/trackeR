@@ -4,8 +4,7 @@
 \alias{plot.distrProfile}
 \title{Plot distribution profiles.}
 \usage{
-\method{plot}{distrProfile}(x, session = NULL, what = NULL,
-  multiple = FALSE, smooth = FALSE, ...)
+\method{plot}{distrProfile}(x, session = NULL, what = NULL, multiple = FALSE, smooth = FALSE, ...)
 }
 \arguments{
 \item{x}{An object of class \code{distrProfile} as returned by
