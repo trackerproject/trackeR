@@ -309,7 +309,7 @@ fortify.trackeRdata <- function(model,
 #'
 #' @details
 #'
-#' \code{plot_route()} requires a a Stadia Maps API key. see \code{\link[ggmap]{register_stadiamaps}}.
+#' \code{plot_route()} requires a a Stadia Maps API key. See \code{\link[ggmap]{register_stadiamaps}} for details.
 #'
 #' @seealso \code{\link[ggmap]{get_stadiamap}}, \code{\link[ggmap]{ggmap}}
 #'
