@@ -53,3 +53,4 @@ inst/scratch/
 vignettes/TourDetrackeR_files/
 
 tests/
+^CRAN-SUBMISSION$

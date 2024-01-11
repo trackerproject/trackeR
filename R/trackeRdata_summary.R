@@ -527,7 +527,7 @@ plot.trackeRdataSummary <- function(x,
     }
     lab_sum <- Vectorize(lab_sum)
     p <- p +
-        facet_grid(facets = "variable ~ .", scales = "free_y", labeller = labeller(variable = lab_sum))  ## +
+        facet_grid("variable ~ .", scales = "free_y", labeller = labeller(variable = lab_sum))  ## +
 
     ## add bw theme and position of legend
     p <- p + theme_bw() + theme(legend.position = "top")

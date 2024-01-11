@@ -1,6 +1,6 @@
 ---
 title: "Tour de trackeR"
-author: "[Hannah Frick](http://www.ucl.ac.uk/~ucakhfr) and [Ioannis Kosmidis](http://www.ucl.ac.uk/~ucakiko/)"
+author: "[Hannah Frick](https://www.frick.ws) and [Ioannis Kosmidis](https://ikosmidis.com)"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 bibliography: trackeR.bib

@@ -130,12 +130,6 @@ threshold.trackeRdata <- function(object,
     return(object)
 }
 
-## not to be exported
-get_units.trackeRthresholds <- function(object, ...) {
-    object[, c("variable", "unit")]
-}
-
-
 #' Change the units of the variables in an \code{trackeRthresholds} object
 #'
 #' @param object An object of class \code{trackeRthresholds}.

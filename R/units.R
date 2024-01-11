@@ -16,6 +16,16 @@ get_units.conProfile <- function(object, ...) {
     attr(object, "units")
 }
 
+#' Get the units of the variables in an \code{trackeRthresholds} object
+#'
+#' @param object An object of class \code{trackeRthresholds}.
+#' @param ... Currently not used.
+#' @export
+get_units.trackeRthresholds <- function(object, ...) {
+    object[, c("variable", "unit")]
+}
+
+
 #' Get the units of the variables in an \code{trackeRWprime} object
 #'
 #' @param object An object of class \code{trackeRWprime}.
@@ -25,6 +35,11 @@ get_units.trackeRWprime <- function(object, ...) {
     attr(object, "unit")
 }
 
+#' Get the units of the variables in an \code{trackeRfpca} object
+#'
+#' @param object An object of class \code{trackeRfpca}.
+#' @param ... Currently not used.
+#' @export
 get_units.trackeRfpca <- function(object, ...) {
     attr(object, "units")
 }
