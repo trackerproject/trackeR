@@ -56,8 +56,8 @@
 #' @importFrom grDevices gray
 #' @importFrom graphics plot
 #' @importFrom stats start density na.omit predict smooth.spline
-NULL
-# > NULL
+#' @importFrom patchwork wrap_plots
+"_PACKAGE"
 
 ## Define global variables
 if (getRversion() >= "2.15.1") {

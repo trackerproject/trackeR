@@ -26,8 +26,7 @@ Imports:
     sp,
     leaflet,
     ggmap,
-    gridExtra,
-    gtable
+    patchwork
 Suggests:
     spelling,
     testthat,
@@ -38,7 +37,7 @@ VignetteBuilder: knitr
 License: GPL-3
 URL: https://github.com/trackerproject/trackeR
 BugReports: https://github.com/trackerproject/trackeR/issues
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Encoding: UTF-8
 LazyData: true
 Language: en-GB

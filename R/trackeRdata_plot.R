@@ -377,6 +377,7 @@ plot_route <- function(x,
                               maptype = maptype,
                               messaging = messaging,
                               ...)
+
         ##, maptype = maptype, source = source, ...)
             ## ggmap::get_map(location = c(lon = centers[centers$SessionID == ses, "centerLon"],
             ##                                lat = centers[centers$SessionID == ses, "centerLat"]),
@@ -400,30 +401,13 @@ plot_route <- function(x,
                          data = dfs, lwd = 1, alpha = 0.8, na.rm = TRUE)
         }
 
-
-        ## Extract legend from the first plot
-        if (ses == session[1] & speed) {
-            legend <- gtable::gtable_filter(ggplot_gtable(ggplot_build(p)), "guide-box")
-        }
-
         p <- p + labs(title = paste(ses, ":", sports[ses]))
-        plotList[[as.character(ses)]] <- p +  theme(legend.position = "none",
-                                                             axis.title.x = element_blank(),
-                                                             axis.title.y = element_blank())
+        plotList[[as.character(ses)]] <- p
     }
 
     ## arrange separate plots
-    if (is.null(mfrow))  mfrow <- grDevices::n2mfrow(length(session))
-    arrange <- function(...) gridExtra::arrangeGrob(..., nrow = mfrow[1], ncol = mfrow[2],
-                                                     left = grid::textGrob("Latitude", rot = 90),
-                                                     bottom = grid::textGrob("Longitude", rot = 00))
-
-    if (speed)
-        gridExtra::grid.arrange(do.call(arrange, plotList),
-                                legend = if (speed) legend else NULL,
-                                widths = grid::unit.c(grid::unit(1, "npc") - legend$width, legend$width), nrow = 1)
-    else
-        gridExtra::grid.arrange(do.call(arrange, plotList))
+    if (is.null(mfrow))  mfrow <- c(2, ceiling(length(session) / 2))
+    wrap_plots(plotList, nrow = mfrow[1], ncol = mfrow[2], guides = "collect")
 }
 
 
