@@ -1,5 +1,11 @@
 ## trackeR 1.6.1
 
+### Bug fixes
+
+* Fixed a bug that would result in `plot_route()` returning empty output.
+
+* Removed **gridExtra** and **gtable** from imports in favour of **patchwork**.
+
 ### Enhancements
 
 * Documentation fixes.
