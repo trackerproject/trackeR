@@ -5,8 +5,8 @@ output: github_document
 # trackeR <img src="README_files/hex_trackeR.svg" width="320" align="right">
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/trackeR)](https://cran.r-project.org/package=trackeR)
-[![Travis-CI Build Status](https://travis-ci.org/trackerproject/trackeR.svg?branch=master)](https://travis-ci.org/trackerproject/trackeR)
 [![Coverage Status](https://coveralls.io/repos/github/trackerproject/trackeR/badge.svg?branch=master)](https://coveralls.io/github/trackerproject/trackeR?branch=master)
+[![R-CMD-check](https://github.com/trackerproject/trackeR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/trackerproject/trackeR/actions/workflows/R-CMD-check.yaml)
 [![Licence](https://img.shields.io/badge/licence-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 

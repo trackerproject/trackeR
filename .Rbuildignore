@@ -54,3 +54,4 @@ vignettes/TourDetrackeR_files/
 
 tests/
 ^CRAN-SUBMISSION$
+^\.github$
