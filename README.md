@@ -90,7 +90,7 @@ Plot workout data
     data(runs, package = "trackeR")
     plot(runs, session = 1:5, what = c("speed", "pace", "altitude"))
 
-![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/plots-1.png)
+![](README_files/figure-markdown_strict/plots-1.png)
 
 Change the units
 
@@ -101,7 +101,7 @@ Change the units
                           sport = c("running", "running"))
     plot(runs0, session = 1:5, what = c("speed", "pace", "altitude"))
 
-![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/plots_new-1.png)
+![](README_files/figure-markdown_strict/plots_new-1.png)
 
 Summarise sessions
 
@@ -110,7 +110,7 @@ Summarise sessions
     plot(runs_summary, group = c("total", "moving"),
         what = c("avgSpeed", "distance", "duration", "avgHeartRate"))
 
-![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/summary-1.png)
+![](README_files/figure-markdown_strict/summary-1.png)
 
 Generate distribution and concentration profiles
 
@@ -120,17 +120,17 @@ Generate distribution and concentration profiles
     cp_runs <- concentration_profile(dp_runs_smooth)
     plot(cp_runs, multiple = TRUE, smooth = FALSE)
 
-![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/cprofile-1.png)
+![](README_files/figure-markdown_strict/cprofile-1.png)
 
 A ridgeline plot of the concentration profiles
 
     ridges(cp_runs, what = "speed")
 
-![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/cprofile-ridges-1.png)
+![](README_files/figure-markdown_strict/cprofile-ridges-1.png)
 
     ridges(cp_runs, what = "heart_rate")
 
-![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/cprofile-ridges-hr-1.png)
+![](README_files/figure-markdown_strict/cprofile-ridges-hr-1.png)
 
 Explore concentration profiles for speed, e.g., via functional principal
 components analysis (PCA)
@@ -146,7 +146,7 @@ components analysis (PCA)
     ## plot harmonics
     plot(cp_PCA, harm = 1:2)
 
-![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/funPCA-1.png)
+![](README_files/figure-markdown_strict/funPCA-1.png)
 
     ## plot scores vs summary statistics
     scores_SP <- data.frame(cp_PCA$scores)
@@ -157,9 +157,9 @@ components analysis (PCA)
     ## pc1 ~ session duration (moving)
     ggplot(d) + geom_point(aes(x = as.numeric(durationMoving), y = speed_pc1)) + theme_bw()
 
-![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/scores-1.png)
+![](README_files/figure-markdown_strict/scores-1.png)
 
     ## pc2 ~ avg speed (moving)
     ggplot(d) + geom_point(aes(x = avgSpeedMoving, y = speed_pc2)) + theme_bw()
 
-![](/Users/yiannis/Repositories/trackeR/README_files/figure-markdown_strict/scores-2.png)
+![](README_files/figure-markdown_strict/scores-2.png)
