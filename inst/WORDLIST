@@ -15,6 +15,7 @@ Inf
 JSS
 Modeling
 Monod
+ORCID
 OpenStreetMap
 PF
 POSIXct
@@ -40,7 +41,6 @@ W’
 XT
 Zeileis
 adehabtitatLT
-arXiv
 avgSpeed
 avgSpeedMoving
 bz
@@ -77,7 +77,6 @@ multisport
 nsessions
 ombined
 plotRoute
-prifiles
 readContainer
 readDB
 readDirectory
