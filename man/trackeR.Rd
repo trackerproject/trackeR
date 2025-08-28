@@ -2,6 +2,7 @@
 % Please edit documentation in R/trackeR.R
 \docType{package}
 \name{trackeR}
+\alias{trackeR-package}
 \alias{trackeR}
 \title{trackeR: Infrastructure for running and cycling data from
 GPS-enabled tracking devices}
@@ -50,4 +51,22 @@ Kosmidis, I., and Passfield, L. (2015). Linking the Performance of
 Endurance Runners to Training and Physiological Effects via
 Multi-Resolution Elastic Net. \emph{ArXiv e-print}
 arXiv:1506.01388.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/trackerproject/trackeR}
+  \item Report bugs at \url{https://github.com/trackerproject/trackeR/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Ioannis Kosmidis \email{ioannis.kosmidis@warwick.ac.uk} (\href{https://orcid.org/0000-0003-1556-0302}{ORCID})
+
+Authors:
+\itemize{
+  \item Hannah Frick \email{hannah.frick@gmail.com} (\href{https://orcid.org/0000-0002-6049-5258}{ORCID})
+  \item Robin Hornak \email{robinhornak@gmail.com}
+}
+
 }

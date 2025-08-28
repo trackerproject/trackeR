@@ -145,7 +145,7 @@ Wexp <- function(object, w0, cp, version = c("2015", "2012"), meanRecoveryPower 
 #' @inheritParams Wexp
 #' @param parallel Logical. Should computation be carried out in
 #'     parallel? If \code{TRUE} computation is performed in parallel
-#'     using the backend provided to \code{\link{foreach}}. Default is
+#'     using the backend provided to \pkg{foreach}. Default is
 #'     \code{FALSE}.
 #' @param ... Currently not used.
 #'

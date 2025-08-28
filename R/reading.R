@@ -664,7 +664,7 @@ read_container <- function(file,
 #'     \code{directory}.
 #' @param parallel Logical. Should reading be carried out in parallel?
 #'     If \code{TRUE} reading is performed in parallel using the
-#'     backend provided to \code{\link{foreach}}. Default is
+#'     backend provided to \pkg{foreach}. Default is
 #'     \code{FALSE}.
 #' @param verbose Logical. Should progress reports be printed?
 #' @inheritParams readX

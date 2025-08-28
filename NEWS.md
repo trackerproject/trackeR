@@ -1,3 +1,9 @@
+## trackeR 1.6.1
+
+### Enhancements
+
+* Documentation fixes.
+
 ## trackeR 1.6.0
 
 ### Bug fixes

@@ -8,7 +8,7 @@
 #'     the variables in \code{what}.
 #' @param parallel Logical. Should computation be carried out in
 #'     parallel? If \code{TRUE} computation is performed in parallel
-#'     using the backend provided to \code{\link{foreach}}. Default is
+#'     using the backend provided to \pkg{foreach}. Default is
 #'     \code{FALSE}.
 #' @param n_zones numeric that sets the number of zones for data to be
 #'     split into. Default is \code{9}.

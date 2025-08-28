@@ -106,7 +106,7 @@ critical power be used as recovery power? See Details.}
 
 \item{parallel}{Logical. Should computation be carried out in
 parallel? If \code{TRUE} computation is performed in parallel
-using the backend provided to \code{\link{foreach}}. Default is
+using the backend provided to \pkg{foreach}. Default is
 \code{FALSE}.}
 
 \item{...}{Currently not used.}

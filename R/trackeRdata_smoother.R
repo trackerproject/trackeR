@@ -95,7 +95,7 @@ smoother.trackeRdata <- function(object,
 #'     get aggregated via function \code{fun}.
 #' @param parallel Logical. Should computation be carried out in
 #'     parallel? If \code{TRUE} computation is performed in parallel
-#'     using the backend provided to \code{\link{foreach}}. Default is
+#'     using the backend provided to \pkg{foreach}. Default is
 #'     \code{FALSE}.
 #' @param what Vector of the names of the variables which should be
 #'     smoothed.
