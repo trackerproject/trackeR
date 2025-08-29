@@ -43,6 +43,7 @@ jobs:
           tlmgr install thumbpdf
           tlmgr install doublestroke
           tlmgr install pgf
+          tlmgr install subcaption
 
       - uses: r-lib/actions/setup-r@v2
         with:
