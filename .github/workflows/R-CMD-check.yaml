@@ -40,7 +40,6 @@ jobs:
         run: |
           tlmgr update --self
           tlmgr install ae
-          tlmgr install dsfont
           tlmgr install thumbpdf
 
       - uses: r-lib/actions/setup-r@v2
